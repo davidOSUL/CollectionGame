@@ -18,7 +18,7 @@ public enum AttributeType {
 	 */
 	ITEMONLY,
 	/**
-	 * Modifies a statistic
+	 * Modifies a board statistic
 	 */
 	STATMOD,
 	/**
@@ -29,6 +29,8 @@ public enum AttributeType {
 	 * A variable characteristic of a thing(happiness level for example)
 	 */
 	CHANGINGVAL,
+	GOLDMOD,
+	POPMOD,
 	
 	
 }

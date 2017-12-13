@@ -1,40 +1,61 @@
 package thingFramework;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
-public class Attribute {
+public class Attribute<T> implements Serializable{
 	/**
-	 * Increae in Gold Per Hour
+	 * 
 	 */
-	public static final Attribute GPH = new Attribute("gpt", AttributeType.STATMOD); 
+	private static final long serialVersionUID = 1L;
 	/**
-	 *Increase in Popularity Per Hour 
+	 * Increase in Gold Per Hour
 	 */
-	public static final Attribute PPH = new Attribute("pph", AttributeType.STATMOD);
+	private static final Attribute<Integer> GPH = new Attribute<Integer>("gph", AttributeType.STATMOD, AttributeType.GOLDMOD); 
+	/**
+	 *Increase in Popularity 
+	 */
+	private static final Attribute<Integer> POPULARITY_BOOST = new Attribute<>("popularity boost", AttributeType.STATMOD, AttributeType.POPMOD);
 	
 	/**
 	 * Increase in Gold Per Minute
 	 */
-	public static final Attribute GPM = new Attribute("gpm", AttributeType.STATMOD);
-	/**
-	 * Increase in Popularity Per Minute
-	 */
-	public static final Attribute PPM = new Attribute("ppm", AttributeType.STATMOD);
+	private static final Attribute<Integer> GPM = new Attribute<Integer>("gpm", AttributeType.STATMOD, AttributeType.GOLDMOD);
 	
 	/**
 	 * Electric, etc.
 	 */
-	public static final Attribute TYPE = new Attribute("type", AttributeType.CHARACTERISTIC);
-	public static final Attribute HAPPINESS = new Attribute("happiness", AttributeType.CHANGINGVAL, AttributeType.POKEONLY);
-	public static final Attribute LEVEL = new Attribute("level", AttributeType.CHANGINGVAL, AttributeType.POKEONLY);
-	
+	private static final Attribute<PokemonType> TYPE = new Attribute<PokemonType>("type", AttributeType.CHARACTERISTIC);
+	/**
+	 * Current Happiness of a pokemon
+	 */
+	private static final Attribute<Integer> HAPPINESS = new Attribute<Integer>("happiness", AttributeType.CHANGINGVAL, AttributeType.POKEONLY);
+	/**
+	 * Current Level of a pokemon
+	 */
+	private static final Attribute<Integer> LEVEL = new Attribute<Integer>("level", AttributeType.CHANGINGVAL, AttributeType.POKEONLY);
+	/**
+	 * The rarity of a pokemon
+	 */
+	private static final Attribute<Double> RARITY = new Attribute<Double>("rarity", AttributeType.CHARACTERISTIC, AttributeType.POKEONLY);
+	private T value = null;
 	static int currId = 0;
 	private static Map<String, Attribute> idMap;
 	private String name;
 	private AttributeTypeSet atTypes;
 	private int id;
+	
+	private Attribute(Attribute<T> at, T value) {
+		if (!idMap.containsValue(at))
+			throw new Error("INVALID ATTRIBUTE: " + at);
+		this.name = at.name;
+		this.atTypes = at.atTypes;
+		this.id = at.id;
+		setValue(value);
+	}
 	private Attribute(String name, AttributeType... types) {
 		this(name, currId++, types);
 	}
@@ -49,8 +70,26 @@ public class Attribute {
 			idMap = new HashMap<String, Attribute>();
 		return idMap;
 	}
-	public String toString() {
+	public String getName() {
 		return name;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == null)
+			return false;
+		if (! (o instanceof Attribute<?>))
+			return false;
+		return ((Attribute<?>) o).getName().equals(getName()) && ((Attribute<?>) o).getValue().equals(getValue());
+	}
+	@Override
+	public int hashCode() {
+		return Objects.hash(getName(), getValue());
+	}
+	@Override
+	public String toString() {
+		return getName();
+		
 	}
 	public static boolean isValidAttribute(String name) {
 		return idMap.containsKey(name);
@@ -59,7 +98,7 @@ public class Attribute {
 		return isValidAttribute(name) ? idMap.get(name) : null;
 	}
 	public boolean containsType(AttributeType at) {
-		return atTypes.containsAttribute(at);
+		return atTypes.containsAttributeType(at);
 	}
 	public boolean pokeOnly() {
 		return containsType(AttributeType.POKEONLY);
@@ -74,12 +113,33 @@ public class Attribute {
 		}
 		return true;
 	}
+	/**
+	 * @param Set of attributes
+	 * @return true if all attributes are valid of a thing of Type POKEMON
+	 */
 	public static boolean validatePokemon(Set<Attribute> set) {
 		return allDontContainType(set, AttributeType.ITEMONLY);
 	}
+	/**
+	 * @param set Set of Attributes
+	 * @return true if all the attributes are valid for an Thing of Type ITEM
+	 */
 	public static boolean validateItem(Set<Attribute> set) {
 		return allDontContainType(set, AttributeType.POKEONLY);
 	}
-	
+	public T getValue() {
+		return value;
+	}
+	public void setValue(T value) {
+		this.value = value;
+	}
+	public boolean hasValue() {
+		return this.value != null;
+	}
+	public static <V> Attribute<V> generateAttribute(String name, V value) {
+		if (idMap.get(name) == null)
+			throw new Error("INVALID ATTRIBUTE");
+		return new Attribute<V>(idMap.get(name), value);
+	}
 	
 }

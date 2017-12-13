@@ -1,20 +1,24 @@
 package thingFramework;
 
-import java.util.Set;
+import java.io.Serializable;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.EnumSet;
 
 /**
  * A set of attribute types
  * @author David O'Sullivan
  *
  */
-public class AttributeTypeSet {
-	private Set<AttributeType> typeMap = new HashSet<AttributeType>();
+public class AttributeTypeSet implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private EnumSet<AttributeType> typeMap;
 	public AttributeTypeSet(AttributeType...attributeTypes) {
-		typeMap.addAll(Arrays.asList(attributeTypes));
+		typeMap = EnumSet.copyOf(Arrays.asList(attributeTypes));
 	}
-	public boolean containsAttribute(AttributeType at) {
+	public boolean containsAttributeType(AttributeType at) {
 		return typeMap.contains(at);
 	}
 	
