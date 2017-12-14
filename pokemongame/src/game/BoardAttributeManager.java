@@ -23,7 +23,7 @@ public final class BoardAttributeManager {
 				event =  new Event(board -> board.addGold((Integer) valueOfEvent), 1);
 				break;
 			case "popularity boost":
-				event = new Event(board -> board.addPopularity((Integer) valueOfEvent));
+				event = new Event(board -> board.addPopularity((Integer) valueOfEvent), board -> board.subtractPopularity((Integer) valueOfEvent));
 				break;
 			default:
 				throw new Error("EVENT NOT FOUND");

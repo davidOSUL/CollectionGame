@@ -17,6 +17,7 @@ public class Board implements Serializable {
 	private static final int MINPOP = 0;
 	private static final int MINGOLD = 0;
 	private static final long serialVersionUID = 1L;
+	private static final Set<Pokemon> allPokemon = loadPokemon();
 	private SessionTimeManager stm = new SessionTimeManager();
 	private volatile int gold = 0;
 	private volatile int popularity = 0;
@@ -74,7 +75,11 @@ public class Board implements Serializable {
 		Thing t = locationMap.get(location);
 		locationMap.remove(location);
 		boardAttributes.remove(location);
-		events.remove(location); //will remove events if any exist at that location
+		List<Event> removedEvents = events.remove(location); //will remove events if any exist at that location
+		for (Event e: removedEvents) {
+			Thread w = new Thread(e.executeOnRemove(this));
+			w.start();
+		}
 		if (isPokemon(t))
 			allGood = pokemon.remove(t);
 		if (isItem(t))
@@ -119,6 +124,9 @@ public class Board implements Serializable {
 	}
 	public synchronized void addPopularity(int popularity) {
 		setPopularity(Math.min(MINPOP, getPopularity()+popularity));
+	}
+	public synchronized void subtractPopularity(int popularity) {
+		addPopularity(-popularity);
 	}
 	private void manageBoardAttributes() {
 		for (Map.Entry<Integer, Set<Attribute>> entry: boardAttributes.entrySet()) {

@@ -1,0 +1,3 @@
+POKEMON,Charizard,charizard.png,level:1,happiness:0,rarity:3,popularity boost:5,gph:10,type:fire,description:The poop pokemon,
+POKEMON,Squirtle,squirtle.png,level:2,happiness:1,rarity:4,popularity boost:6,gph:11,type:water,description:The pee pokemon,gpm:5
+ITEM,EVENTFULITEM,Small Table,smalltable.png,gph:5,,,,,,
