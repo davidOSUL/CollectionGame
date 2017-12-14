@@ -1,6 +1,7 @@
 package thingFramework;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,14 +54,33 @@ public abstract class Thing implements Serializable {
 		}
 		return boardAttributes;
 	}
+	private boolean vallidateAttribute(Attribute at) {
+		return vallidateAttributes(new HashSet<Attribute>(Arrays.asList(at)));
+	}
 	abstract boolean vallidateAttributes(Set<Attribute> attributes);
 	abstract EnumSet<ThingType> setThingType();
 	public EnumSet<ThingType> getThingTypes() {
 		return types;
 	}
 	public Object getAttributeVal(String name) throws AttributeNotFoundException {
-		if (attributeNameMap.get(name) != null)
-		return attributeNameMap.get(name).getValue();
+		if (containsAttribute(name))
+			return attributeNameMap.get(name).getValue();
+		else
+			throw new AttributeNotFoundException("ATTRIBUTE NOT FOUND");
+	}
+	public void addAttribute(Attribute at) {
+		if (!vallidateAttribute(at))
+			throw new Error("INVALID ATTRIBUTE FOR: " + name);
+		if (attributes.contains(at) || attributeNameMap.keySet().contains(at.getName()))
+			throw new Error("ATTRIBUTE " + at.getName() + " ALREADY EXISTS FOR: " + name);
+		else {
+			attributes.add(at);
+			attributeNameMap.put(at.getName(), at);
+		}
+	}
+	public void setAttributeVal(String name, Object value) throws AttributeNotFoundException {
+		if (containsAttribute(name))
+			attributeNameMap.get(name).setValue(value);
 		else
 			throw new AttributeNotFoundException("ATTRIBUTE NOT FOUND");
 	}

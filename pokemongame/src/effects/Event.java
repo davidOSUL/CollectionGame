@@ -12,9 +12,10 @@ public class Event implements Serializable {
 	private Consumer<Board> onRemove = x -> {};
 	private int period = -1; //period in minutes
 	private long timeCreated;
-	private long numPeriodsElapsed = 0;
+	private volatile long numPeriodsElapsed = 0;
 	private boolean isPeriodic = false;
 	private boolean onPlaceExecuted = false;
+	private boolean keepTrackWhileOff = false;
 	public Event() {
 	}
 	public Event(Consumer<Board> onPlace) {
@@ -49,11 +50,21 @@ public class Event implements Serializable {
 	public boolean onPlaceExecuted() {
 		return onPlaceExecuted;
 	}
-	private synchronized void executeIfTime(long millis, Board b) {
-		
-		if (hasPeriodicity() && difAsMinutes(millis-timeCreated) / period > (numPeriodsElapsed+1)*period) {
-			onPeriod.accept(b);
-			numPeriodsElapsed++;
+	private synchronized void executeIfTime(Board b) {
+		if (!keepTrackWhileOff) {
+			long gameTime = b.getTotalGameTime();
+			if (hasPeriodicity() && difAsMinutes(gameTime) / period >= (numPeriodsElapsed+1)*period) {
+				onPeriod.accept(b);
+				numPeriodsElapsed++;
+			}
+		}
+		else {
+			long currentTime = System.currentTimeMillis();
+			if (hasPeriodicity() && difAsMinutes(currentTime-timeCreated) / period >= (numPeriodsElapsed+1)*period) {
+				onPeriod.accept(b);
+				numPeriodsElapsed++;
+			}
+			
 		}
 	}
 	public boolean hasPeriodicity() {
@@ -62,17 +73,29 @@ public class Event implements Serializable {
 	public long numPeriodsElapsed() {
 		return numPeriodsElapsed;
 	}
-	private long difAsMinutes(long x) {
+	public long getTimeCreated() {
+		return timeCreated;
+	}
+	protected long difAsMinutes(long x) {
 		x = x/1000;
 		x=x/60;
 		return x;
 	}
-	public Runnable executePeriod(long millis, Board b) {
+	protected Consumer<Board> getOnPeriod() {
+		return onPeriod;
+	}
+	protected synchronized void addToTotalPeriods() {
+		numPeriodsElapsed++;
+	}
+	public Runnable executePeriod(Board b) {
 		return new Runnable() {
 			public void run() {
-				executeIfTime(millis, b);
+				executeIfTime(b);
 			}
 		};
+	}
+	public boolean keepTrackWhileOff() {
+		return keepTrackWhileOff;
 	}
 	public Runnable executeOnPlace(Board b) {
 		return new Runnable() {

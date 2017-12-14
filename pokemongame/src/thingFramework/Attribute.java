@@ -39,10 +39,22 @@ public class Attribute implements Serializable{
 	 */
 	private static final Attribute LEVEL = new Attribute("level", ParseType.INTEGER, new Integer(1),AttributeType.CHANGINGVAL, AttributeType.POKEONLY);
 	/**
-	 * The rarity of a pokemon
+	 * The rarity of a pokemon, on scale of 0-100, derived from catchrate.
 	 */
-	private static final Attribute RARITY = new Attribute("rarity", ParseType.DOUBLE, new Double(0.0),AttributeType.CHARACTERISTIC, AttributeType.POKEONLY);
+	private static final Attribute RARITY = new Attribute("rarity", ParseType.INTEGER, new Integer(1),AttributeType.CHARACTERISTIC, AttributeType.POKEONLY);
+	
+	/**
+	 * The catch rate of a pokemon on a scale from 3-255
+	 */
+	private static final Attribute CATCH_RATE = new Attribute("catch rate", ParseType.INTEGER, new Integer(3), AttributeType.CHARACTERISTIC, AttributeType.POKEONLY);
+	/**
+	 * The description of an item
+	 */
 	private static final Attribute DESCRIPTION = new Attribute("description", ParseType.STRING, new String(""), AttributeType.CHARACTERISTIC);
+	/**
+	 * The experience group (fast, slow, erratic, etc.) to which this pokemon belongs to.
+	 */
+	private static final Attribute EXPERIENCE_GROUP = new Attribute("experience group", ParseType.EXPERIENCEGROUP, EnumSet.of(ExperienceGroup.SLOW),  AttributeType.POKEONLY, AttributeType.CHARACTERISTIC);
 	private Object value = null;
 	static int currId = 0;
 	private static Map<String, Attribute> idMap;
@@ -82,7 +94,11 @@ public class Attribute implements Serializable{
 					throw new Error("INVALID DEFAULT VAL");
 				break;
 			case ENUMSETPOKEMONTYPE:
-				if (!(defaultValue instanceof EnumSet<?>) && !(((EnumSet<?>) defaultValue).iterator().next() instanceof PokemonType))
+				if (!(defaultValue instanceof EnumSet<?>) || !(((EnumSet<?>) defaultValue).iterator().next() instanceof PokemonType))
+					throw new Error("INVALID DEFAULT VAL");
+				break;
+			case EXPERIENCEGROUP:
+				if (!(defaultValue instanceof ExperienceGroup))
 					throw new Error("INVALID DEFAULT VAL");
 				break;
 		}
@@ -179,10 +195,30 @@ public class Attribute implements Serializable{
 				}
 				setValue(EnumSet.of(firstType, poketypes));
 				break;
+			case EXPERIENCEGROUP:
+				setValue(ExperienceGroup.valueOf(value.toUpperCase().trim()));
+				break;
 			}
 		}
 	}
 	public void setValue(Object value) {
+		switch (parsetype) {
+		case INTEGER:
+			if (!(value instanceof Integer))  throw new Error("Attribute " + getName() + "'s value must be an integer");
+			break;
+		case DOUBLE:
+			if (!(value instanceof Double)) throw new Error("Attribute " + getName() + "'s value must be a double");
+			break;
+		case STRING:
+			if (!(value instanceof String)) throw new Error("Attribute " + getName() + "'s value must be a String");
+			break;
+		case ENUMSETPOKEMONTYPE:
+			if (!(value instanceof EnumSet<?>) || !(((EnumSet<?>) value).iterator().next() instanceof PokemonType)) throw new Error("Attribute " + getName() + "'s value must be a enumset");
+			break;
+		case EXPERIENCEGROUP:
+			if (!(value instanceof ExperienceGroup)) throw new Error("Attribute " + getName() + "'s value must be a experience group variable");
+			break;
+		}
 		this.value = value;
 	}
 	public boolean hasValue() {
@@ -197,6 +233,6 @@ public class Attribute implements Serializable{
 		return generateAttribute(name, "");
 	}
 	private enum ParseType {
-		INTEGER, DOUBLE, STRING, ENUMSETPOKEMONTYPE
+		INTEGER, DOUBLE, STRING, ENUMSETPOKEMONTYPE,EXPERIENCEGROUP
 	}
 }

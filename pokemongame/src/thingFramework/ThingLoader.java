@@ -7,6 +7,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,12 +18,16 @@ import effects.Event;
 
 public final class ThingLoader {
 	private final Path path;
+	private Path pathToExtraAttributes = null;
 	private final EventBuilder eb;
-	private final Set<Thing> thingSet = new HashSet<Thing>();
-	private final Set<Pokemon> pokemonSet = new HashSet<Pokemon>();
-	private final Set<Item> itemSet = new HashSet<Item>();
-	private final Set<EventfulItem> eventfulItemSet = new HashSet<EventfulItem>();
+	private  Set<Thing> thingSet = new HashSet<Thing>();
+	private Set<Pokemon> pokemonSet = new HashSet<Pokemon>();
+	private  Set<Item> itemSet = new HashSet<Item>();
+	private  Set<EventfulItem> eventfulItemSet = new HashSet<EventfulItem>();
 	private final Map<String, Thing> thingMap = new HashMap<String, Thing>();
+	private final Map<String, Item> itemMap = new HashMap<String, Item>();
+	private final Map<String, Pokemon> pokemonMap = new HashMap<String, Pokemon>();
+	private final Map<String, EventfulItem> eventfulItemMap = new HashMap<String, EventfulItem>();
 	public ThingLoader(String pathToItems) {
 		this.path = FileSystems.getDefault().getPath(pathToItems);
 		eb = new EventBuilder();
@@ -33,6 +38,80 @@ public final class ThingLoader {
 		eb = new EventBuilder(pathToEvents);
 		load();
 	}
+	public ThingLoader(String pathToItems, String pathToEvents, String pathToExtraAttributes) {
+		this(pathToItems, pathToEvents);
+		this.pathToExtraAttributes = FileSystems.getDefault().getPath(pathToExtraAttributes);
+		loadExtraAttributes();
+	}
+	/**
+	 * <br> Assumes sheets of the form:</br>
+	 * <br>POKEMON</br>
+	 * <br>Name attribute val attribute val ...</br>
+	 * <br>Name attribute val attribute val ...</br>
+	 * <br>...</br>
+	 * <br>ITEM</br>
+	 * <br>Name attribute val attribute val ...</br>
+	 * <br>Name attribute val attribute val ...</br>
+	 * <br>Name can be mentioned on more than one line for different attributes</br>
+	 */
+	private void loadExtraAttributes() {
+		CurrentIteratorValue civ = CurrentIteratorValue.UNKNOWN;
+		try {
+			List<String> lines = Files.readAllLines(pathToExtraAttributes, StandardCharsets.UTF_8);
+			for (String line: lines) {
+				String[] values = line.split(",");
+				String potentialInput = values[0].toUpperCase().trim();
+				if (potentialInput.equals("POKEMON"))
+					civ = CurrentIteratorValue.POKEMON;
+				else if (potentialInput.equals("ITEM")) 
+					civ = CurrentIteratorValue.ITEM;
+				else {
+					switch(civ) {
+					case POKEMON:
+						loadExtraAttribute(values);
+						break;
+					case ITEM:
+						loadExtraAttribute(values);
+						break;
+					case UNKNOWN:
+						throw new Error("ISSUE LOADING EXTRA ATTRIBUTES");
+					}
+				}
+					
+				
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	private void loadExtraAttribute(String[] values) {
+		String name = values[0];
+		for (int i =1 ; i < values.length; i+=2) {
+			String attribute = values[i];
+			String value = values[i+1];
+			thingMap.get(name).addAttribute(Attribute.generateAttribute(attribute, value));
+		}
+	}
+	private static int roundUp(int num, int divisor) {
+	    return (num + divisor - 1) / divisor;
+	}
+	private void loadExtraItemAttribute(String[] values) {
+		
+	}
+	/**
+	 * <br> Assumes inputs of the form: </br> 
+	 * <br> POKEMON Name, texture, attribute:val, attribute:val,...  </br> 
+	 * <br> POKEMON Name, texture, attribute:val, attribute:val,... </br>  
+	 * <br> ... </br> 
+	 * <br> ITEM Name, texture, attribute:val, attribute:val,... </br> 
+	 * <br> ITEM Name, texture, attribute:val, attribute:val,... </br> 
+	 * <br> ... </br> 
+	 * <br> ITEM EVENTFULITEM Name, texture, attribute:val, attribute:val,... </br> 
+	 * <br> ITEM EVENTFULITEM Name, texture, attribute:val, attribute:val,... </br> 
+	 * <br> ... </br>
+	 * <br> Duplicates SHOULD NOT appear in list</br>
+	 */
 	private void load() {
 		try {
 			List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
@@ -48,6 +127,14 @@ public final class ThingLoader {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		thingSet.addAll(thingMap.values());
+		thingSet = Collections.unmodifiableSet(thingSet);
+		pokemonSet.addAll(pokemonMap.values());
+		pokemonSet = Collections.unmodifiableSet(pokemonSet);
+		itemSet.addAll(itemMap.values());
+		itemSet = Collections.unmodifiableSet(itemSet);
+		eventfulItemSet.addAll(eventfulItemMap.values());
+		eventfulItemSet = Collections.unmodifiableSet(eventfulItemSet);
 	}
 	private void loadPokemon(String[] values) {
 		String name = values[1];
@@ -55,8 +142,8 @@ public final class ThingLoader {
 		Set<Attribute> attributes = loadAttributes(values, 3, name);
 		Pokemon pm = new Pokemon(name, texture, attributes);
 		thingMap.put(name, pm);
-		thingSet.add(pm);
-		pokemonSet.add(pm);
+		pokemonMap.put(name, pm);
+		
 	}
 	private void loadItem(String[] values) {
 		if (values[1].equals("EVENTFULITEM")) {
@@ -65,21 +152,20 @@ public final class ThingLoader {
 			List<Event> e = eb.getEvents(name);
 			Set<Attribute> attributes = loadAttributes(values, 4, name);
 			EventfulItem ei = new EventfulItem(name, texture, attributes, e);
-			thingSet.add(ei);
-			itemSet.add(ei);
-			eventfulItemSet.add(ei);
 			thingMap.put(name, ei);
+			itemMap.put(name, ei);
+			eventfulItemMap.put(name, ei);
 		}
 		else {
 			String name = values[1];
 			String texture = values[2];
 			Set<Attribute> attributes = loadAttributes(values, 3, name);
 			Item i = new Item(name, texture, attributes);
-			thingSet.add(i);
-			itemSet.add(i);
 			thingMap.put(name, i);
+			itemMap.put(name, i);
 		}
 	}
+	
 	private Set<Attribute> loadAttributes(String[] values, int startLocation, String name) {
 		Set<Attribute> attributes = new HashSet<Attribute>();
 		Set<String> attributeNames = new HashSet<String>();
@@ -102,10 +188,10 @@ public final class ThingLoader {
 		return attributes;
 	}
 	public  Set<Thing> getThingSet() {
-		return thingSet;
+			return thingSet;
 	}
 	public  Set<Pokemon> getPokemonSet() {
-		return pokemonSet;
+		return new HashSet<Pokemon>(pokemonMap.values());
 	}
 	public Set<Item> getItemSet() {
 		return itemSet;
@@ -115,6 +201,23 @@ public final class ThingLoader {
 	}
 	public Thing getThing(String name) {
 		return thingMap.get(name);
+	}
+	public Pokemon getPokemon(String name) {
+		return pokemonMap.get(name);
+	}
+	public Item getItem(String name) {
+		return itemMap.get(name);
+	}
+	public EventfulItem getEventfulItem(String name) {
+		return eventfulItemMap.get(name);
+	}
+	/**
+	 * Currently serves no purpose in the logic past debugging
+	 * @author David O'Sullivan
+	 *
+	 */
+	private enum CurrentIteratorValue{
+		POKEMON, ITEM, UNKNOWN
 	}
 	
 }

@@ -1,20 +1,31 @@
 package game;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import thingFramework.Attribute;
 
 public class TimeTest {
 
 	public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
 
-		String test = "gph: ";
-		String[] poop = test.split(":");
-		System.out.println(Arrays.toString(poop));
+		Attribute at = Attribute.generateAttribute("gph", "5");
+		Set<Attribute> test = new HashSet<Attribute>();
+		Map<String, Attribute> test2 = new HashMap<String, Attribute>();
+		test.add(at);
+		test2.put(at.getName(), at);
+		for (Attribute att: test) {
+			System.out.println(att.getValue());
+		}
+		test = Collections.unmodifiableSet(test);
+		test2.get(at.getName()).setValue(new Integer(7));
+		for (Attribute att: test) {
+			System.out.println(att.getValue());
+		}
 		//		Board b = new Board();
 //		for (int j =0; j <3; j++) {
 //			for (int i =0; i < 100; i++) {
