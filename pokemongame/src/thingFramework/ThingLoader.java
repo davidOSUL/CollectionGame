@@ -18,7 +18,7 @@ import effects.Event;
 
 public final class ThingLoader {
 	private final Path path;
-	private Path pathToExtraAttributes = null;
+	private Path[] pathsToExtraAttributes = null;
 	private final EventBuilder eb;
 	private  Set<Thing> thingSet = new HashSet<Thing>();
 	private Set<Pokemon> pokemonSet = new HashSet<Pokemon>();
@@ -28,19 +28,23 @@ public final class ThingLoader {
 	private final Map<String, Item> itemMap = new HashMap<String, Item>();
 	private final Map<String, Pokemon> pokemonMap = new HashMap<String, Pokemon>();
 	private final Map<String, EventfulItem> eventfulItemMap = new HashMap<String, EventfulItem>();
-	public ThingLoader(String pathToItems) {
-		this.path = FileSystems.getDefault().getPath(pathToItems);
+	public ThingLoader(String pathToThings) {
+		this.path = FileSystems.getDefault().getPath(pathToThings);
 		eb = new EventBuilder();
 		load();
 	}
-	public ThingLoader(String pathToItems, String pathToEvents) {
-		this.path = FileSystems.getDefault().getPath(pathToItems);
+	public ThingLoader(String pathToThings, String pathToEvents) {
+		this.path = FileSystems.getDefault().getPath(pathToThings);
 		eb = new EventBuilder(pathToEvents);
 		load();
 	}
-	public ThingLoader(String pathToItems, String pathToEvents, String pathToExtraAttributes) {
-		this(pathToItems, pathToEvents);
-		this.pathToExtraAttributes = FileSystems.getDefault().getPath(pathToExtraAttributes);
+	public ThingLoader(String pathToThings, String pathToEvents, String... pathsToExtraAttributes) {
+		this(pathToThings, pathToEvents);
+		this.pathsToExtraAttributes = new Path[pathsToExtraAttributes.length];
+		int i = 0;
+		for (String path: pathsToExtraAttributes) {
+			this.pathsToExtraAttributes[i++] = FileSystems.getDefault().getPath(path);
+		}
 		loadExtraAttributes();
 	}
 	/**
@@ -55,34 +59,36 @@ public final class ThingLoader {
 	 * <br>Name can be mentioned on more than one line for different attributes</br>
 	 */
 	private void loadExtraAttributes() {
-		CurrentIteratorValue civ = CurrentIteratorValue.UNKNOWN;
-		try {
-			List<String> lines = Files.readAllLines(pathToExtraAttributes, StandardCharsets.UTF_8);
-			for (String line: lines) {
-				String[] values = line.split(",");
-				String potentialInput = values[0].toUpperCase().trim();
-				if (potentialInput.equals("POKEMON"))
-					civ = CurrentIteratorValue.POKEMON;
-				else if (potentialInput.equals("ITEM")) 
-					civ = CurrentIteratorValue.ITEM;
-				else {
-					switch(civ) {
-					case POKEMON:
-						loadExtraAttribute(values);
-						break;
-					case ITEM:
-						loadExtraAttribute(values);
-						break;
-					case UNKNOWN:
-						throw new Error("ISSUE LOADING EXTRA ATTRIBUTES");
+		for (Path pathToExtraAttributes: pathsToExtraAttributes) {
+			CurrentIteratorValue civ = CurrentIteratorValue.UNKNOWN;
+			try {
+				List<String> lines = Files.readAllLines(pathToExtraAttributes, StandardCharsets.UTF_8);
+				for (String line: lines) {
+					String[] values = line.split(",");
+					String potentialInput = values[0].toUpperCase().trim();
+					if (potentialInput.equals("POKEMON"))
+						civ = CurrentIteratorValue.POKEMON;
+					else if (potentialInput.equals("ITEM")) 
+						civ = CurrentIteratorValue.ITEM;
+					else {
+						switch(civ) {
+						case POKEMON:
+							loadExtraAttribute(values);
+							break;
+						case ITEM:
+							loadExtraAttribute(values);
+							break;
+						case UNKNOWN:
+							throw new Error("ISSUE LOADING EXTRA ATTRIBUTES");
+						}
 					}
+
+
 				}
-					
-				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 	private void loadExtraAttribute(String[] values) {
@@ -93,12 +99,7 @@ public final class ThingLoader {
 			thingMap.get(name).addAttribute(Attribute.generateAttribute(attribute, value));
 		}
 	}
-	private static int roundUp(int num, int divisor) {
-	    return (num + divisor - 1) / divisor;
-	}
-	private void loadExtraItemAttribute(String[] values) {
-		
-	}
+	
 	/**
 	 * <br> Assumes inputs of the form: </br> 
 	 * <br> POKEMON Name, texture, attribute:val, attribute:val,...  </br> 

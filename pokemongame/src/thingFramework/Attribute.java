@@ -203,7 +203,7 @@ public class Attribute implements Serializable{
 				setValue(EnumSet.of(firstType, poketypes));
 				break;
 			case EXPERIENCEGROUP:
-				setValue(ExperienceGroup.valueOf(value.toUpperCase().trim()));
+				setValue(ExperienceGroup.valueOf(value.toUpperCase().replaceAll("\\s", "")));
 				break;
 			}
 		}

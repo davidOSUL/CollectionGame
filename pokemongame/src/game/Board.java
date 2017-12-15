@@ -3,8 +3,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -13,46 +17,155 @@ import effects.CustomPeriodEvent;
 import effects.Event;
 import thingFramework.*;
 import thingFramework.Thing.ThingType;
+/**
+ * Manages the game state in memory.
+ * <br> NOTE: newSession should be called at the beggining of a new session. </br>
+ * @author David O'Sullivan
+ *
+ */
 public class Board implements Serializable {
-	/**
-	 * 
-	 */
-	private static final String ITEM_LIST_LOCATION = "resources/InputFiles/pokemonList.csv";
-	private static final String EVENT_MAP_LOCATION = "resources/InputFiles/eventMapList.csv";
-	private static final int MINPOP = 0;
-	private static final int MINGOLD = 0;
 	private static final long serialVersionUID = 1L;
+
+	/**
+	 * The location of the csv of all the thing to import into the game
+	 */
+	private static final String THING_LIST_LOCATION = "resources/InputFiles/pokemonList.csv";
+	/**
+	 * The location of all pregenerated "basic" events to load into the game. I.E.
+	 * items that have events that can be described by methods in the ThingLoader class
+	 */
+	private static final String EVENT_MAP_LOCATION = "resources/InputFiles/eventMapList.csv";
+	/**
+	 * Location of csv containing extra attributes for things. Format as specified in thingloader
+	 */
+	private static final String[] EXTRA_ATTRIBUTE_LOCATIONS = {"resources/InputFiles/extraAttributes1.csv"};
+	
+	/**
+	 * The minimum amount of popularity a player can have
+	 */
+	private static final int MINPOP = 0;
+	/**
+	 * The minimum amount of gold a player can have
+	 */
+	private static final int MINGOLD = 0;
+	
+	/**
+	 * The minimum period in minutes at which new pokemon are checked for
+	 */
 	private static final double MIN_POKEPERIOD = .5;
-	private static final double MIN_PERCENT_CHANCE = 20;
-	private static final double MAX_PERCENT_CHANGE = 90;
-	private static final ThingLoader thingLoader = new ThingLoader(ITEM_LIST_LOCATION, EVENT_MAP_LOCATION);
+	/**
+	 * The minimum percent chance that when checking for pokemon, one is found
+	 */
+	private static final double MIN_PERCENT_CHANCE_POKEMON_FOUND = 20;
+	/**
+	 * The maximum percent chance that when checking for pokemon, one is found
+	 */
+	private static final double MAX_PERCENT_CHANCE_POKEMON_FOUND = 90;
+	
+	/**
+	 * The minimum percent chance that the rarity of a found pokemon will increase from a popularity boost
+	 */
+	private static final double MIN_PERCENT_CHANCE_POPULARITY_BOOSTS = 0;
+	
+	/**
+	 * The maximum delta in rarity value from the calculated rarity. (for example if the rarities are:
+	 * 1,2,3,4,5), and the calculated rarity is 2, with a boost of 2, you will get a pokemon with rarity 4
+	 */
+	private static final double MAX_POPULARITY_BOOST = 10;
+	/**
+	 * The maximum percent chance that the rarity of a found pokemon will increase from a popularity boost
+	 */
+	private static final double MAX_PERCENT_CHANCE_POPULARITY_BOOSTS = 90;
+	/**
+	 * Loads all things into the game
+	 */
+	private static final ThingLoader thingLoader = new ThingLoader(THING_LIST_LOCATION, EVENT_MAP_LOCATION, EXTRA_ATTRIBUTE_LOCATIONS);
+	/**
+	 * Set of all the pokemon in the game, gotten from thingLoader
+	 */
 	private static final Set<Pokemon> allPokemon = thingLoader.getPokemonSet();
-	private static final TreeMap<Integer, String> pokemonCumulativeRarity = new TreeMap<Integer, String>();
+	/**
+	 * A map from the sum of the chance of a pokemon being found (out of RUNNING_TOTAL) and all chances
+	 * of pokemon loaded in before it, to the name of that pokemon. This will be in order, sorted by the sum.
+	 */
+	private static final TreeMap<Long, String> pokemonCumulativeChance = new TreeMap<Long, String>();
+	/**
+	 * A map from the RARITY (NOT CHANCE) to a list of all pokemon with that rarity, in order of rarity
+	 */
+	private static final TreeMap<Integer, List<String>> pokemonRaritiesInOrder = new TreeMap<Integer, List<String>>();
+	/**
+	 * Map from pokemon names to their RARITY (NOT CHANCE) value
+	 */
+	private static final Map<String, Integer> pokeRarity = Thing.mapFromSetToAttributeValue(allPokemon, "rarity");  
+	/**
+	 * The queue of found wild pokemon (pokemon generated from a lookForPokemon() call)
+	 */
+	private final Queue<Pokemon> foundPokemon = new LinkedList<Pokemon>();
 	/**
 	 * This is the value of the total chance rarities of every pokemon. In other words,
 	 * it is the denominator for determining the percent chance that a certain pokemon
 	 * will show up (that is the probability will be: getRelativeChanceRarity(pokemon.rarity)/RUNNING_TOTAL)
 	 */
-	private static final int RUNNING_TOTAL;
+	private static final long RUNNING_TOTAL;
 	static {
-		int rt = 0;
-		Map<String, Integer> pokeRarity = Thing.mapFromSetToAttributeValue(allPokemon, "rarity");  
+		long rt = 0; //running total
+		
 		for (Map.Entry<String, Integer> entry: pokeRarity.entrySet()) {
 			int rarity = entry.getValue();
-			rt += getRelativeChanceRarity(rarity);
-			pokemonCumulativeRarity.put(rt, entry.getKey());
+			String name = entry.getKey();
+			int percentChance = getRelativeChanceRarity(rarity);
+			rt += percentChance;
+			pokemonCumulativeChance.put(rt, name);
+			if (!pokemonRaritiesInOrder.containsKey(rarity)) {
+				List<String> list = new ArrayList<String>();
+				list.add(name);
+				pokemonRaritiesInOrder.put(rarity, list);
+			}
+			else {
+				pokemonRaritiesInOrder.get(rarity).add(name);
+			}
 		}
 		RUNNING_TOTAL = rt;
 	}
+	/**
+	 * Manages the gametime and session time of the current board. Note that newSession should be called to 
+	 * update this when a new session is started
+	 */
 	private SessionTimeManager stm = new SessionTimeManager();
 	private volatile int gold = 0;
 	private volatile int popularity = 0;
+	/**
+	 * The map from board location to the thing at that location
+	 */
 	private Map<Integer, Thing> locationMap = new HashMap<Integer, Thing>();
+	/**
+	 * The map from board location to the set of boardAttributes from the thing at that location
+	 * (GPH, etc.)
+	 */
 	private Map<Integer, Set<Attribute>> boardAttributes = new HashMap<Integer, Set<Attribute>>();
+	/**
+	 * All pokemon currently on the board
+	 */
 	private List<Pokemon> pokemon = new ArrayList<Pokemon>();
+	/**
+	 * All items currently on the board
+	 */
 	private List<Item> items = new ArrayList<Item>();
+	/**
+	 * A map from board location to a list of events that that thing at that location has.
+	 * Note that the checkForPokemon event is mapped to -1
+	 */
 	private Map<Integer, List<Event>> events = new HashMap<Integer, List<Event>>();
-	private static  Event checkForPokemon = checkForPokemonEvent(); //idea here is that everytime the game is opened, this will be reset to a new gameTime
+	/**
+	 * The event that checks for pokemon on a certain period based on popularity
+	 * This is considered a "default" event and hence is mapped to a negative value of -1.
+	 * Since it is static, it will be recreated on serialization, meaning it will have a new 
+	 * time created, and the pokemon will not be spawning while it is offline.
+	 * The transient keyword, though unnecessary, is included to remind of this feature.
+	 * Also, this is probably redundant because keeptrackwhileoff for events is by default set to false.
+	 * But regardless, making it static makes sense.
+	 */
+	private transient static  Event checkForPokemon = checkForPokemonEvent(); 
 	public Board() {
 		events.put(-1, Arrays.asList(checkForPokemon));
 	}
@@ -61,6 +174,9 @@ public class Board implements Serializable {
 		this.setPopularity(popularity);
 	}
 	
+	/**
+	 * To be called on every game tick. Updates time and events
+	 */
 	public void update() {
 		stm.updateGameTime();
 		for (int k : events.keySet()) {
@@ -74,9 +190,11 @@ public class Board implements Serializable {
 				t.start();
 			});
 		}
-		lookForPokemon();
 	}
 	
+	/**
+	 * @return the "default" event that will check for new wild pokemon
+	 */
 	private static Event checkForPokemonEvent() {
 		return new CustomPeriodEvent(board -> {
 			board.lookForPokemon();
@@ -85,7 +203,8 @@ public class Board implements Serializable {
 		});
 	}
 	/**
-	 * @return value of the form A-(pop/B)^C, minimum of MIN_POKEPERIOD
+	 * @return The period at which the game checks for new pokemon.
+	 *  value of the form A-(pop/B)^C, minimum of MIN_POKEPERIOD
 	 */
 	private double getLookPokemonPeriod() {
 		double A=  4; //max value+1
@@ -93,14 +212,66 @@ public class Board implements Serializable {
 		double C = 7; //steepness of drop
 		return Math.min(MIN_POKEPERIOD, A-Math.pow(getPopularity()/B, C));
 	}
+	/**
+	 * To be called by an event on calculated period. Will check if a pokemon is even found using 
+	 * getPercentChancePokemonFound(), and if it is, will find a pokemon, with lower rarity pokemons being
+	 * more likely
+	 */
 	private void lookForPokemon() {
 		//first check if a pokemon is even found
 		if (testPercentChance(getPercentChancePokemonFound())) {
-			int randomNum = ThreadLocalRandom.current().nextInt(0, RUNNING_TOTAL);
-			pokemonCumulativeRarity. //TODO: figure this shit out
+			long randomNum = ThreadLocalRandom.current().nextLong(0, RUNNING_TOTAL);
+			//note that chance != rarity, they are inversely proportional
+			String name = pokemonCumulativeChance.higherEntry(randomNum).getValue();
+			if (testPercentChance(getPercentChancePopularityModifies())) {
+				int modifier = getPopularityModifier();
+				if (modifier !=0) {
+					int rarity = pokeRarity.get(name);
+					//the set of all keys strictly greater than the rarity 
+					//note that iterator will still work if tailmap is empty
+					Set<Integer> headMap = pokemonRaritiesInOrder.tailMap(rarity, false).keySet();
+					int j = 1;
+					for (Integer rare: headMap) {
+						if (j==modifier || j==headMap.size()) {
+							List<String> pokemon = pokemonRaritiesInOrder.get(rare);
+							name = pokemon.get(ThreadLocalRandom.current().nextInt(pokemon.size()));
+							break;
+						}
+						j++;
+					}
+				}
+
+
+			}
+			foundPokemon.add(thingLoader.getPokemon(name));
 		}
 	}
 	
+	/**
+	 * @return the percent chance that the randomNum generated by lookForPokemon will be modified 
+	 *by a value. This value increases as popularity increases. 
+	 *In particular this will return a value of the form:
+	 *<br> Aln(pop^B+C)+Dpop^E
+	 */
+	private double getPercentChancePopularityModifies() {
+		final double A = 5;
+		final double B = 1.3;
+		final double C = 1;
+		final double D = 10;
+		final double E = .25;
+		return Math.max(MIN_PERCENT_CHANCE_POPULARITY_BOOSTS, Math.min(MAX_PERCENT_CHANCE_POPULARITY_BOOSTS, A*Math.log(Math.pow(getPopularity(), B)+C)+D*Math.pow(getPopularity(), E)));
+	}
+	/**
+	 * @return The amount by which we will move up in rarity ranking for a pokemon
+	 * Will be in the form of logistic growth: MAX_MODIFIER/1+Be^-r*pop + C
+	 * C is implicitly minimum popularity boost
+	 */
+	private int getPopularityModifier() {
+		final double B = 1000;
+		final double R= .15;
+		final double C = 1;
+		return (int) Math.floor((MAX_POPULARITY_BOOST/(1+B*Math.pow(Math.E, -R*getPopularity())))+C);
+	}
 	/**
 	 * @return Percent chance that a pokemon is found. 
 	 * Will be value of the form pop*A+Gold/B+C/pokeMapSize+D, D!=0
@@ -111,7 +282,7 @@ public class Board implements Serializable {
 		double B = 50;
 		double C = 50;
 		double D =.1;
-		return Math.max(MIN_PERCENT_CHANCE, Math.min(MAX_PERCENT_CHANGE, (getPopularity()*A)+(getGold()/B)+(C/(pokemon.size()+D))));
+		return Math.max(MIN_PERCENT_CHANCE_POKEMON_FOUND, Math.min(MAX_PERCENT_CHANCE_POKEMON_FOUND, (getPopularity()*A)+(getGold()/B)+(C/(pokemon.size()+D))));
 	}
 	/**
 	 * @return Percent chance of a rarity out of 100 w.r.t to the other pokes
@@ -132,6 +303,10 @@ public class Board implements Serializable {
 			return false;
 		
 	}
+	/**
+	 * @param location the integer location mapping to a spot on the board
+	 * @param thing the thing to add
+	 */
 	public synchronized void addThing(int location, Thing thing) {
 		locationMap.put(location, thing);
 		boardAttributes.put(location, thing.getBoardAttributes());
@@ -150,6 +325,10 @@ public class Board implements Serializable {
 		}
 		
 	}
+	/**
+	 * @param location the integer location mapping to a spot on the board
+	 * @throws Error "Sets out of sync" if the location is null or failed to remove item
+	 */
 	public synchronized void removeThing(int location) {
 		boolean allGood = false;
 		Thing t = locationMap.get(location);
@@ -168,12 +347,28 @@ public class Board implements Serializable {
 			throw new Error("SETS OUT OF SYNC");
 		}
 	}
+	/**
+	 * Pause the game timer, will not resume until unPause() is called
+	 */
+	public void pause() {
+		stm.pause();
+	}
+	/**
+	 * Unpause game timer
+	 */
+	public void unPause() {
+		stm.unPause();
+	}
 	public long getTotalGameTime() {
 		return stm.getTotalGameTime();
 	}
 	public long getSessionGameTime() {
 		return stm.getSessionGameTime();
 	}
+	/**
+	 * Start a new session using a board
+	 * @param totalGameTime the old totalGameTime
+	 */
 	public void newSession(long totalGameTime) {
 		this.stm = new SessionTimeManager(totalGameTime);
 		
@@ -208,12 +403,23 @@ public class Board implements Serializable {
 	public synchronized void subtractPopularity(int popularity) {
 		addPopularity(-popularity);
 	}
-	private void manageBoardAttributes() {
-		for (Map.Entry<Integer, Set<Attribute>> entry: boardAttributes.entrySet()) {
-			Set<Attribute> set = entry.getValue();
-			
-		}
+	/**
+	 * @return true if there is a pokemon in the foundPokemon Queue (that is, a wild pokemon spawned)
+	 */
+	public boolean wildPokemonPresent() {
+		return !foundPokemon.isEmpty();
 	}
+	/**
+	 * @return the next wild pokemon in the queue, null if there is none
+	 */
+	public Pokemon getWildPokemon() {
+		return foundPokemon.poll();
+	}
+	/**
+	 * @param list1 the first list to unionize
+	 * @param list2 the second list to unionize
+	 * @return the union (that is the concatenation) of the two lists
+	 */
 	public static <E> List<E> union(final List<? extends E> list1, final List<? extends E> list2) {
 		final ArrayList<E> result = new ArrayList<E>(list1);
 		result.addAll(list2);

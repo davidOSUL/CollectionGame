@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 public abstract class Thing implements Serializable {
 	/**
@@ -98,6 +99,7 @@ public abstract class Thing implements Serializable {
 		}
 		return mapping;
 	}
+	
 	@Override
 	public String toString() {
 		return name;
