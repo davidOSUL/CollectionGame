@@ -99,7 +99,9 @@ public abstract class Thing implements Serializable {
 		}
 		return mapping;
 	}
-	
+	public String getName() {
+		return name;
+	}
 	@Override
 	public String toString() {
 		return name;

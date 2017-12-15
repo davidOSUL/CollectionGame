@@ -15,19 +15,21 @@ public class CustomPeriodEvent extends Event {
 	private long numCurrentPeriodsElapsed = 0;
 	private long timeOfLastChange = System.currentTimeMillis();
 	private double currentPeriodVal = -1;
+	private static final double MIN_PERIOD = .01;
 	public CustomPeriodEvent(Consumer<Board> onPeriod, Function<Board, Double> generatePeriod) {
 		super(onPeriod, Integer.MAX_VALUE);
 		this.generatePeriod = generatePeriod;
 	}
 	private synchronized void executeIfTime(Board b) {
 		double period = generatePeriod.apply(b);
+		period = Math.max(MIN_PERIOD, period);
 		if (currentPeriodVal != period) {
-			timeOfLastChange = System.currentTimeMillis();
+			timeOfLastChange = keepTrackWhileOff() ? System.currentTimeMillis() : b.getTotalGameTime();
 			currentPeriodVal = period;
 			numCurrentPeriodsElapsed = 0;
 		}
 		if (!keepTrackWhileOff()) {
-			if (difAsMinutes(b.getTotalGameTime()) / period > (numCurrentPeriodsElapsed+1)*period) {
+			if (difAsMinutes(b.getTotalGameTime()-timeOfLastChange) / period > (numCurrentPeriodsElapsed+1)) {
 				getOnPeriod().accept(b);
 				numCurrentPeriodsElapsed++;
 				addToTotalPeriods();
@@ -35,7 +37,7 @@ public class CustomPeriodEvent extends Event {
 		}
 		else {
 			long currentTime = System.currentTimeMillis();
-			if (difAsMinutes(currentTime-getTimeCreated()) / period > (numCurrentPeriodsElapsed+1)*period) {
+			if (difAsMinutes(currentTime-timeOfLastChange) / period > (numCurrentPeriodsElapsed+1)) {
 				getOnPeriod().accept(b);
 				numCurrentPeriodsElapsed++;
 				addToTotalPeriods();

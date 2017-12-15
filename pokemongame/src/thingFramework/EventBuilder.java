@@ -49,8 +49,8 @@ public class EventBuilder {
 				Event e = null;
 				switch (te) {
 				case RANDOMGOLD:
-					int[] integerInputs = parseAllInRangeToInt(inputs, lower, upper);
-					e = generateRandomGoldEvent(integerInputs[0], integerInputs[1], integerInputs[2]);
+					int[] integerInputs = parseAllInRangeToInt(inputs, lower, upper-1);
+					e = generateRandomGoldEvent(integerInputs[0], integerInputs[1], Double.parseDouble(inputs[upper]));
 					break;
 				}
 				if (e != null)
@@ -72,7 +72,7 @@ public class EventBuilder {
 		}
 		return output;
 	}
-	private static Event generateRandomGoldEvent(int percentChance, int gold, int periodInMinutes) {
+	public static Event generateRandomGoldEvent(int percentChance, int gold, double periodInMinutes) {
 		Event randomGold = new Event(board -> {
 			int randomNum = ThreadLocalRandom.current().nextInt(1, 100+1); //num between 1, 100
 			if (randomNum > (100-percentChance))
@@ -80,6 +80,7 @@ public class EventBuilder {
 		}, periodInMinutes);
 		return randomGold;
 	}
+	
 	
 	private enum TypicalEvents {
 		RANDOMGOLD(1, 3);

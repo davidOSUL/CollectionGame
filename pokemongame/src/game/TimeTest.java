@@ -9,17 +9,34 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import effects.CustomPeriodEvent;
 import thingFramework.Attribute;
+import thingFramework.EventBuilder;
+import thingFramework.EventfulItem;
+import thingFramework.Pokemon;
 
 public class TimeTest {
 
 	public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
 		Board b = new Board();
+//		b.addThing(1, new EventfulItem("test", "test", new HashSet<Attribute>(), EventBuilder.generateRandomGoldEvent(100, 5, .5)));
+//		b.addThing(2, new EventfulItem("test2", "test2", new HashSet<Attribute>(), new CustomPeriodEvent(((Board board) -> { board.addPopularity(1);}),
+//		board -> {return 1.0-board.getPopularity()/2.0;})));
+//
+//		while (true) {
+//			//System.out.println(1.0-b.getPopularity()/2.0);
+//			b.update();
+//			Thread.sleep(10);
+//			System.out.println(b.getGold() + " " + b.getPopularity() + " " + b.getTotalGameTime());
+//		}
+		b.setPopularity(50);
+		int i = 3;
 		while (true) {
 			b.update();
-			b.setPopularity(50);
 			if (b.wildPokemonPresent()) {
-				System.out.println(b.getWildPokemon());
+				Pokemon p = b.getWildPokemon();
+				System.out.println(p + " " + b.getTotalGameTime());
+				b.addThing(i++, p);
 			}
 			Thread.sleep(10);
 		}
