@@ -1,6 +1,6 @@
 package thingFramework;
 
-import java.io.Serializable;
+import java.io.Serializable; 
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +39,8 @@ public class Attribute implements Serializable{
 	 */
 	private static final Attribute LEVEL = new Attribute("level", ParseType.INTEGER, new Integer(1),AttributeType.CHANGINGVAL, AttributeType.POKEONLY);
 	/**
-	 * The rarity of a pokemon, on scale of 0-100, derived from catchrate.
+	 * The rarity of a pokemon, on scale of 1-99, derived from catchrate. 
+	 * higher is more rare
 	 */
 	private static final Attribute RARITY = new Attribute("rarity", ParseType.INTEGER, new Integer(1),AttributeType.CHARACTERISTIC, AttributeType.POKEONLY);
 	
@@ -54,7 +55,7 @@ public class Attribute implements Serializable{
 	/**
 	 * The experience group (fast, slow, erratic, etc.) to which this pokemon belongs to.
 	 */
-	private static final Attribute EXPERIENCE_GROUP = new Attribute("experience group", ParseType.EXPERIENCEGROUP, EnumSet.of(ExperienceGroup.SLOW),  AttributeType.POKEONLY, AttributeType.CHARACTERISTIC);
+	private static final Attribute EXPERIENCE_GROUP = new Attribute("experience group", ParseType.EXPERIENCEGROUP, ExperienceGroup.SLOW,  AttributeType.POKEONLY, AttributeType.CHARACTERISTIC);
 	private Object value = null;
 	static int currId = 0;
 	private static Map<String, Attribute> idMap;
@@ -80,28 +81,14 @@ public class Attribute implements Serializable{
 		this.name = name;
 		this.id = id;
 		this.parsetype = parsetype;
-		switch (parsetype) {
-			case INTEGER:
-				if (!(defaultValue instanceof Integer))
-					throw new Error("INVALID DEFAULT VAL");
-				break;
-			case DOUBLE:
-				if (!(defaultValue instanceof Double))
-					throw new Error("INVALID DEFAULT VAL");
-				break;
-			case STRING:
-				if (!(defaultValue instanceof String))
-					throw new Error("INVALID DEFAULT VAL");
-				break;
-			case ENUMSETPOKEMONTYPE:
-				if (!(defaultValue instanceof EnumSet<?>) || !(((EnumSet<?>) defaultValue).iterator().next() instanceof PokemonType))
-					throw new Error("INVALID DEFAULT VAL");
-				break;
-			case EXPERIENCEGROUP:
-				if (!(defaultValue instanceof ExperienceGroup))
-					throw new Error("INVALID DEFAULT VAL");
-				break;
+		if (!defaultValue.getClass().equals(getParseClass()))
+			throw new Error("Attribute " + getName() + "'s defaultValue must be a: " + getParseClass().getName());
+		if (parsetype.equals(ParseType.ENUMSETPOKEMONTYPE)) {
+			if (!(((EnumSet<?>) defaultValue).iterator().next() instanceof PokemonType))
+				throw new Error("default value for " + getName() + " must be a pokemontype enum set");
 		}
+
+		
 		this.defaultValue = defaultValue;
 		atTypes = new AttributeTypeSet(types);
 		getIdMap().put(name, this);
@@ -146,6 +133,26 @@ public class Attribute implements Serializable{
 	}
 	public boolean itemOnly() {
 		return containsType(AttributeType.ITEMONLY);
+	}
+	public Class<?> getParseClass() {
+		switch (parsetype) {
+		case INTEGER:
+			return Integer.class;
+			
+		case DOUBLE:
+			return Double.class;
+			
+		case STRING:
+			return String.class;
+			
+		case ENUMSETPOKEMONTYPE:
+			return EnumSet.of(PokemonType.BUG).getClass();
+			
+		case EXPERIENCEGROUP:
+			return ExperienceGroup.class;
+			
+		}
+		return Object.class;
 	}
 	public static boolean allDontContainType(Set<Attribute> set, AttributeType at) {
 		for (Attribute a: set) {
@@ -202,22 +209,11 @@ public class Attribute implements Serializable{
 		}
 	}
 	public void setValue(Object value) {
-		switch (parsetype) {
-		case INTEGER:
-			if (!(value instanceof Integer))  throw new Error("Attribute " + getName() + "'s value must be an integer");
-			break;
-		case DOUBLE:
-			if (!(value instanceof Double)) throw new Error("Attribute " + getName() + "'s value must be a double");
-			break;
-		case STRING:
-			if (!(value instanceof String)) throw new Error("Attribute " + getName() + "'s value must be a String");
-			break;
-		case ENUMSETPOKEMONTYPE:
-			if (!(value instanceof EnumSet<?>) || !(((EnumSet<?>) value).iterator().next() instanceof PokemonType)) throw new Error("Attribute " + getName() + "'s value must be a enumset");
-			break;
-		case EXPERIENCEGROUP:
-			if (!(value instanceof ExperienceGroup)) throw new Error("Attribute " + getName() + "'s value must be a experience group variable");
-			break;
+		if (!value.getClass().equals(getParseClass()))
+			throw new Error("Attribute " + getName() + "'s value must be a: " + getParseClass().getName());
+		if (parsetype.equals(ParseType.ENUMSETPOKEMONTYPE)) {
+			if (!(((EnumSet<?>) value).iterator().next() instanceof PokemonType))
+				throw new Error("Attribute for " + getName() + " must be a pokemontype enum set");
 		}
 		this.value = value;
 	}
@@ -235,4 +231,46 @@ public class Attribute implements Serializable{
 	private enum ParseType {
 		INTEGER, DOUBLE, STRING, ENUMSETPOKEMONTYPE,EXPERIENCEGROUP
 	}
+	/*
+	 * switch (parsetype) {
+		case INTEGER:
+			if (!(value instanceof Integer))  throw new Error("Attribute " + getName() + "'s value must be an integer");
+			break;
+		case DOUBLE:
+			if (!(value instanceof Double)) throw new Error("Attribute " + getName() + "'s value must be a double");
+			break;
+		case STRING:
+			if (!(value instanceof String)) throw new Error("Attribute " + getName() + "'s value must be a String");
+			break;
+		case ENUMSETPOKEMONTYPE:
+			if (!(value instanceof EnumSet<?>) || !(((EnumSet<?>) value).iterator().next() instanceof PokemonType)) throw new Error("Attribute " + getName() + "'s value must be a enumset");
+			break;
+		case EXPERIENCEGROUP:
+			if (!(value instanceof ExperienceGroup)) throw new Error("Attribute " + getName() + "'s value must be a experience group variable");
+			break;
+		}
+		
+		switch (parsetype) {
+			case INTEGER:
+				if (!(defaultValue instanceof Integer))
+					throw new Error("INVALID DEFAULT VAL");
+				break;
+			case DOUBLE:
+				if (!(defaultValue instanceof Double))
+					throw new Error("INVALID DEFAULT VAL");
+				break;
+			case STRING:
+				if (!(defaultValue instanceof String))
+					throw new Error("INVALID DEFAULT VAL");
+				break;
+			case ENUMSETPOKEMONTYPE:
+				if (!(defaultValue instanceof EnumSet<?>) || !(((EnumSet<?>) defaultValue).iterator().next() instanceof PokemonType))
+					throw new Error("INVALID DEFAULT VAL");
+				break;
+			case EXPERIENCEGROUP:
+				if (!(defaultValue instanceof ExperienceGroup))
+					throw new Error("INVALID DEFAULT VAL");
+				break;
+		}
+	 */
 }

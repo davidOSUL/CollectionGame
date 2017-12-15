@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import effects.CustomPeriodEvent;
@@ -16,16 +17,33 @@ public class Board implements Serializable {
 	/**
 	 * 
 	 */
-	//private static final String ITEM_LIST_LOCATION = "resources/InputFiles/pokemonList.csv";
-	//private static final String EVENT_MAP_LOCATION = "resources/InputFiles/eventMapList.csv";
+	private static final String ITEM_LIST_LOCATION = "resources/InputFiles/pokemonList.csv";
+	private static final String EVENT_MAP_LOCATION = "resources/InputFiles/eventMapList.csv";
 	private static final int MINPOP = 0;
 	private static final int MINGOLD = 0;
 	private static final long serialVersionUID = 1L;
 	private static final double MIN_POKEPERIOD = .5;
 	private static final double MIN_PERCENT_CHANCE = 20;
 	private static final double MAX_PERCENT_CHANGE = 90;
-	//private static final ThingLoader thingLoader = new ThingLoader(ITEM_LIST_LOCATION, EVENT_MAP_LOCATION);
-	//private static final Set<Pokemon> allPokemon = thingLoader.getPokemonSet();
+	private static final ThingLoader thingLoader = new ThingLoader(ITEM_LIST_LOCATION, EVENT_MAP_LOCATION);
+	private static final Set<Pokemon> allPokemon = thingLoader.getPokemonSet();
+	private static final TreeMap<Integer, String> pokemonCumulativeRarity = new TreeMap<Integer, String>();
+	/**
+	 * This is the value of the total chance rarities of every pokemon. In other words,
+	 * it is the denominator for determining the percent chance that a certain pokemon
+	 * will show up (that is the probability will be: getRelativeChanceRarity(pokemon.rarity)/RUNNING_TOTAL)
+	 */
+	private static final int RUNNING_TOTAL;
+	static {
+		int rt = 0;
+		Map<String, Integer> pokeRarity = Thing.mapFromSetToAttributeValue(allPokemon, "rarity");  
+		for (Map.Entry<String, Integer> entry: pokeRarity.entrySet()) {
+			int rarity = entry.getValue();
+			rt += getRelativeChanceRarity(rarity);
+			pokemonCumulativeRarity.put(rt, entry.getKey());
+		}
+		RUNNING_TOTAL = rt;
+	}
 	private SessionTimeManager stm = new SessionTimeManager();
 	private volatile int gold = 0;
 	private volatile int popularity = 0;
@@ -58,6 +76,7 @@ public class Board implements Serializable {
 		}
 		lookForPokemon();
 	}
+	
 	private static Event checkForPokemonEvent() {
 		return new CustomPeriodEvent(board -> {
 			board.lookForPokemon();
@@ -77,9 +96,11 @@ public class Board implements Serializable {
 	private void lookForPokemon() {
 		//first check if a pokemon is even found
 		if (testPercentChance(getPercentChancePokemonFound())) {
-			
+			int randomNum = ThreadLocalRandom.current().nextInt(0, RUNNING_TOTAL);
+			pokemonCumulativeRarity. //TODO: figure this shit out
 		}
 	}
+	
 	/**
 	 * @return Percent chance that a pokemon is found. 
 	 * Will be value of the form pop*A+Gold/B+C/pokeMapSize+D, D!=0
@@ -93,10 +114,10 @@ public class Board implements Serializable {
 		return Math.max(MIN_PERCENT_CHANCE, Math.min(MAX_PERCENT_CHANGE, (getPopularity()*A)+(getGold()/B)+(C/(pokemon.size()+D))));
 	}
 	/**
-	 * @return Percent chance of a rarity 
+	 * @return Percent chance of a rarity out of 100 w.r.t to the other pokes
 	 */
-	private double getPercentChanceRarity() {
-		
+	private static int getRelativeChanceRarity(int rarity) {
+		return 100-rarity;
 	}
 	/**
 	 * @param percentChance the percent chance of an event occuring

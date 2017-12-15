@@ -84,6 +84,20 @@ public abstract class Thing implements Serializable {
 		else
 			throw new AttributeNotFoundException("ATTRIBUTE NOT FOUND");
 	}
+	public static <T> Map<String, T> mapFromSetToAttributeValue(Set<? extends Thing> set, String attributeName) {
+		Map<String, T> mapping = new HashMap<String, T>();
+		for (Thing t : set) {
+			T o = null;
+			try {
+				o = (T) t.getAttributeVal(attributeName);
+			} catch (AttributeNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			mapping.put(t.name, o);
+		}
+		return mapping;
+	}
 	@Override
 	public String toString() {
 		return name;
