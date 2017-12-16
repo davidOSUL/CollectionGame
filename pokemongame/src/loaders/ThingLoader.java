@@ -16,7 +16,7 @@ import java.util.Set;
 
 import effects.Event;
 import thingFramework.Attribute;
-import thingFramework.EventBuilder;
+import thingFramework.AttributeNotFoundException;
 import thingFramework.EventfulItem;
 import thingFramework.Item;
 import thingFramework.Pokemon;
@@ -44,7 +44,7 @@ public final class ThingLoader {
 		eb = new EventBuilder(pathToEvents);
 		load();
 	}
-	public ThingLoader(String pathToThings, String pathToEvents, String... pathsToExtraAttributes) {
+	public ThingLoader(String pathToThings, String pathToEvents, String pathToEvolutions, String pathToLevelsOfEvolve, String... pathsToExtraAttributes) {
 		this(pathToThings, pathToEvents);
 		this.pathsToExtraAttributes = new Path[pathsToExtraAttributes.length];
 		int i = 0;
@@ -52,6 +52,7 @@ public final class ThingLoader {
 			this.pathsToExtraAttributes[i++] = FileSystems.getDefault().getPath(path);
 		}
 		loadExtraAttributes();
+		new PokemonEvolutionLoader(pathToEvolutions, pathToLevelsOfEvolve).load();;
 	}
 	/**
 	 * <br> Assumes sheets of the form:</br>
@@ -230,6 +231,88 @@ public final class ThingLoader {
 	 */
 	private enum CurrentIteratorValue{
 		POKEMON, ITEM, UNKNOWN
+	}
+	private final class PokemonEvolutionLoader {
+		Path pathToEvolutions, pathToLevelsOfEvolve;
+		/**
+		 * There may be duplicate elements due to pokemon being weird, so we avoid this
+		 */
+		private Set<String> namesLoaded = new HashSet<String>();
+		public PokemonEvolutionLoader(String pathToEvolutions, String pathToLevelsOfEvolve) {
+			this.pathToEvolutions = FileSystems.getDefault().getPath(pathToEvolutions);
+			this.pathToLevelsOfEvolve = FileSystems.getDefault().getPath(pathToLevelsOfEvolve);
+		}
+		private void load() {
+			try {
+				List<String> lines = Files.readAllLines(pathToLevelsOfEvolve, StandardCharsets.UTF_8);
+				for (String line: lines) {
+					String[] values = line.split(",");
+					loadLevel(values);
+				}
+				lines = Files.readAllLines(pathToEvolutions, StandardCharsets.UTF_8);
+				for (String line: lines) {
+					String[] values = line.split(",", -1);
+					loadEvolution(values);
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		private void loadLevel(String[] values) {
+			String name = values[0];
+			String level = values[1];
+			if (hasPokemon(name)) {
+				if (!namesLoaded.contains(name)) {
+					getPokemon(name).addAttributes(Attribute.generateAttributes(new String[] {"level of evolution", "has evolution"}, new String[] {level, "true"}));
+					namesLoaded.add(name);
+				}
+			}
+		}
+		private void loadEvolution(String[] values) {
+			String firstPokemon = values[0];
+			String secondPokemon = values[1];
+			String thirdPokemon = values[2];
+			if (!hasPokemon(firstPokemon))
+				return;
+			boolean hasSecond = !secondPokemon.equals("");
+			boolean hasThird = !thirdPokemon.equals("");
+			String[] secondAsArray = {secondPokemon};
+			try {
+				if (hasSecond && hasPokemon(secondPokemon) && getPokemon(firstPokemon).containsAttribute("has evolution") && (Boolean) getPokemon(firstPokemon).getAttributeVal("has evolution")) {
+					if (secondPokemon.startsWith("\"")) { //if it has multiple second evolutions it will be of form \"Aaa\r\nBbb\r\nCcc\r\n...\" we want to convert to [Aaa, Bbb, Ccc]
+						secondPokemon = secondPokemon.replace("\n", "").replace("\r", "").replace("\"", "");
+						secondAsArray = secondPokemon.split("(?=\\p{Lu})"); //split by uppercase letters
+						getPokemon(firstPokemon).addAttribute(Attribute.generateAttribute("next evolutions", Arrays.toString(secondAsArray)));
+					} else {
+						getPokemon(firstPokemon).addAttribute(Attribute.generateAttribute("next evolutions", secondPokemon));
+					}
+				}
+				if (hasThird && hasPokemon(thirdPokemon)) {
+					int i =0;
+					for (String secPoke : secondAsArray) {
+						if (getPokemon(secPoke).containsAttribute("has evolution") && (Boolean) getPokemon(secPoke).getAttributeVal("has evolution")) {
+							if (thirdPokemon.startsWith("\"")) {
+								thirdPokemon = thirdPokemon.replace("\n", "").replace("\r", "").replace("\"", "");
+								String[] thirdAsArray = thirdPokemon.split("(?=\\p{Lu})");
+								if (secondAsArray.length == 1)
+									getPokemon(secPoke).addAttribute(Attribute.generateAttribute("next evolutions", Arrays.toString(thirdAsArray)));
+								else if(secondAsArray.length==thirdAsArray.length) 
+									getPokemon(secPoke).addAttribute(Attribute.generateAttribute("next evolutions", thirdAsArray[i++]));
+								else
+									throw new Error("SPECIAL CASE NOT ACCOUNTED FOR");
+							} else {
+								getPokemon(secPoke).addAttribute(Attribute.generateAttribute("next evolutions", thirdPokemon));
+							}
+						}
+					}
+				}
+					
+			} catch (AttributeNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
 }

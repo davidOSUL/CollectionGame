@@ -25,7 +25,14 @@ import thingFramework.Thing.ThingType;
  */
 public class Board implements Serializable {
 	private static final long serialVersionUID = 1L;
-
+	/**
+	 * The location of the levels of evolution
+	 */
+	private static final String LEVELS_OF_EVOLUTION_LOCATION = "resources/InputFiles/levelsOfEvolve.csv";
+	/**
+	 * Location of which pokemon evolve to what
+	 */
+	private static final String EVOLUTIONS_LOCATION = "resources/InputFiles/evolutions.csv";
 	/**
 	 * The location of the csv of all the thing to import into the game
 	 */
@@ -38,7 +45,7 @@ public class Board implements Serializable {
 	/**
 	 * Location of csv containing extra attributes for things. Format as specified in thingloader
 	 */
-	private static final String[] EXTRA_ATTRIBUTE_LOCATIONS = {"resources/InputFiles/extraAttributes1.csv"};
+	private static final String[] EXTRA_ATTRIBUTE_LOCATIONS = {"resources/InputFiles/extraAttributes.csv"};
 	
 	/**
 	 * The minimum amount of popularity a player can have
@@ -82,7 +89,7 @@ public class Board implements Serializable {
 	/**
 	 * Loads all things into the game
 	 */
-	private static final ThingLoader thingLoader = new ThingLoader(THING_LIST_LOCATION, EVENT_MAP_LOCATION, EXTRA_ATTRIBUTE_LOCATIONS);
+	private static final ThingLoader thingLoader = new ThingLoader(THING_LIST_LOCATION, EVENT_MAP_LOCATION, EVOLUTIONS_LOCATION, LEVELS_OF_EVOLUTION_LOCATION, EXTRA_ATTRIBUTE_LOCATIONS);
 	/**
 	 * Set of all the pokemon in the game, gotten from thingLoader
 	 */

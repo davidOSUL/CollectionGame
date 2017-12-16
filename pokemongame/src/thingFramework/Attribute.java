@@ -168,7 +168,7 @@ public class Attribute implements Serializable{
 		case POKEMON:
 			return Pokemon.class;
 		case LISTSTRING:
-			return List.class;
+			return Arrays.asList("default").getClass();
 			
 		}
 		return Object.class;

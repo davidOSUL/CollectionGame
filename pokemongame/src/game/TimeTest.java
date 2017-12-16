@@ -10,8 +10,8 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import effects.CustomPeriodEvent;
+import loaders.EventBuilder;
 import thingFramework.Attribute;
-import thingFramework.EventBuilder;
 import thingFramework.EventfulItem;
 import thingFramework.Pokemon;
 
