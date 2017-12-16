@@ -3,6 +3,7 @@ package thingFramework;
 import java.util.List;
 
 import effects.Event;
+import loaders.ThingLoader;
 
 public class TestThingLoader {
 

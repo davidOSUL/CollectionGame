@@ -1,4 +1,4 @@
-package thingFramework;
+package loaders;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +15,12 @@ import java.util.Map;
 import java.util.Set;
 
 import effects.Event;
+import thingFramework.Attribute;
+import thingFramework.EventBuilder;
+import thingFramework.EventfulItem;
+import thingFramework.Item;
+import thingFramework.Pokemon;
+import thingFramework.Thing;
 
 public final class ThingLoader {
 	private final Path path;
@@ -57,6 +63,7 @@ public final class ThingLoader {
 	 * <br>Name attribute val attribute val ...</br>
 	 * <br>Name attribute val attribute val ...</br>
 	 * <br>Name can be mentioned on more than one line for different attributes</br>
+	 * <br>Names that don't exist can be mentioned, they will be ignored</br>
 	 */
 	private void loadExtraAttributes() {
 		for (Path pathToExtraAttributes: pathsToExtraAttributes) {
@@ -96,6 +103,7 @@ public final class ThingLoader {
 		for (int i =1 ; i < values.length; i+=2) {
 			String attribute = values[i];
 			String value = values[i+1];
+			if (thingMap.containsKey(name))
 			thingMap.get(name).addAttribute(Attribute.generateAttribute(attribute, value));
 		}
 	}
@@ -205,6 +213,9 @@ public final class ThingLoader {
 	}
 	public Pokemon getPokemon(String name) {
 		return pokemonMap.get(name);
+	}
+	public boolean hasPokemon(String name) {
+		return pokemonMap.containsKey(name);
 	}
 	public Item getItem(String name) {
 		return itemMap.get(name);

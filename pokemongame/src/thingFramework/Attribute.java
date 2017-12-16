@@ -1,8 +1,11 @@
 package thingFramework;
 
-import java.io.Serializable; 
+import java.util.List;
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -56,6 +59,15 @@ public class Attribute implements Serializable{
 	 * The experience group (fast, slow, erratic, etc.) to which this pokemon belongs to.
 	 */
 	private static final Attribute EXPERIENCE_GROUP = new Attribute("experience group", ParseType.EXPERIENCEGROUP, ExperienceGroup.SLOW,  AttributeType.POKEONLY, AttributeType.CHARACTERISTIC);
+	/**
+	 * Whether or not this pokemon has both A. an evolution and B. evolves via levels
+	 */
+	private static final Attribute HAS_EVOLUTION = new Attribute("has evolution", ParseType.BOOLEAN, new Boolean(false), AttributeType.POKEONLY, AttributeType.CHARACTERISTIC);
+	/**
+	 * the next evolution for this pokemon
+	 */
+	private static final Attribute NEXT_EVOLUTIONS = new Attribute("next evolutions", ParseType.LISTSTRING, Arrays.asList("default"), AttributeType.POKEONLY, AttributeType.CHARACTERISTIC);
+	private static final Attribute LEVEL_OF_EVOLUTION = new Attribute("level of evolution", ParseType.INTEGER, new Integer(-1), AttributeType.POKEONLY, AttributeType.CHARACTERISTIC);
 	private Object value = null;
 	static int currId = 0;
 	private static Map<String, Attribute> idMap;
@@ -87,6 +99,7 @@ public class Attribute implements Serializable{
 			if (!(((EnumSet<?>) defaultValue).iterator().next() instanceof PokemonType))
 				throw new Error("default value for " + getName() + " must be a pokemontype enum set");
 		}
+		
 
 		
 		this.defaultValue = defaultValue;
@@ -150,6 +163,12 @@ public class Attribute implements Serializable{
 			
 		case EXPERIENCEGROUP:
 			return ExperienceGroup.class;
+		case BOOLEAN:
+			return Boolean.class;
+		case POKEMON:
+			return Pokemon.class;
+		case LISTSTRING:
+			return List.class;
 			
 		}
 		return Object.class;
@@ -205,6 +224,18 @@ public class Attribute implements Serializable{
 			case EXPERIENCEGROUP:
 				setValue(ExperienceGroup.valueOf(value.toUpperCase().replaceAll("\\s", "")));
 				break;
+			case BOOLEAN:
+				setValue(Boolean.parseBoolean(value));
+				break;
+			case LISTSTRING:
+				if (value.startsWith("["))
+				setValue(Arrays.asList(value.substring(1, value.length()-1).split("\\s*,\\s*")));
+				else
+				setValue(Arrays.asList(value));
+				break;
+			case POKEMON:
+				throw new Error("POKEMON SHOULD NOT BE PARSED");
+				
 			}
 		}
 	}
@@ -220,6 +251,15 @@ public class Attribute implements Serializable{
 	public boolean hasValue() {
 		return this.value != null;
 	}
+	public static Attribute[] generateAttributes(String[] names, String[] values) {
+		if (names.length != values.length)
+			throw new Error("names and values must have same length");
+		Attribute[] attributes = new Attribute[names.length];
+		for (int i = 0; i < names.length; i++) {
+			attributes[i] = generateAttribute(names[i], values[i]);
+		}
+		return attributes;
+	}
 	public static  Attribute generateAttribute(String name, String value) {
 		if (idMap.get(name) == null)
 			throw new Error("INVALID ATTRIBUTE");
@@ -229,7 +269,7 @@ public class Attribute implements Serializable{
 		return generateAttribute(name, "");
 	}
 	private enum ParseType {
-		INTEGER, DOUBLE, STRING, ENUMSETPOKEMONTYPE,EXPERIENCEGROUP
+		INTEGER, DOUBLE, STRING, ENUMSETPOKEMONTYPE, EXPERIENCEGROUP, BOOLEAN, POKEMON, LISTSTRING
 	}
 	/*
 	 * switch (parsetype) {

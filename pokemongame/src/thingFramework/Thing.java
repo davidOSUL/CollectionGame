@@ -69,6 +69,10 @@ public abstract class Thing implements Serializable {
 		else
 			throw new AttributeNotFoundException("ATTRIBUTE NOT FOUND");
 	}
+	public void addAttributes(Attribute...attributes) {
+		for (Attribute at: attributes)
+			addAttribute(at);
+	}
 	public void addAttribute(Attribute at) {
 		if (!vallidateAttribute(at))
 			throw new Error("INVALID ATTRIBUTE FOR: " + name);
