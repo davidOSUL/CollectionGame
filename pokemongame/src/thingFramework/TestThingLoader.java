@@ -14,7 +14,7 @@ public class TestThingLoader {
 		System.out.println(tl.getEventfulItem("Small Table"));
 		List<Event> e = ((EventfulItem) tl.getThing("Small Table")).getEvents();
 		System.out.println(e);*/
-		Board b = new Board();
+		
 
 	}
 

@@ -29,15 +29,26 @@ public class TimeTest {
 //			Thread.sleep(10);
 //			System.out.println(b.getGold() + " " + b.getPopularity() + " " + b.getTotalGameTime());
 //		}
-		b.setPopularity(50);
-		int i = 3;
+		b.addThing(0, b.getPokemon("Charmander"));
+		b.addGold(10);
+		int i = 1;
+		String oldString = b.toString();
+		String newString = b.toString();
+		System.out.println(newString);
+		b.update();
 		while (true) {
-			b.update();
 			if (b.wildPokemonPresent()) {
 				Pokemon p = b.getWildPokemon();
-				System.out.println(p + " " + b.getTotalGameTime());
 				b.addThing(i++, p);
 			}
+			b.update();
+			//System.out.println(b.getGold() + " " + b.getTotalGameTime());
+			newString = b.toString();
+			if (!newString.equals(oldString)) {
+				System.out.println("\n---GAME TIME---: "+ b.getTotalGameTime() + "\n" + b.toString() + "GOLD: " + b.getGold() + "\nPOP:" + b.getPopularity() + "\n-------");
+				oldString = newString;
+			}
+				
 			Thread.sleep(10);
 		}
 		//		TreeMap<Integer, Integer> set = new TreeMap<Integer, Integer>();

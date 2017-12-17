@@ -18,41 +18,46 @@ public class Attribute implements Serializable{
 	/**
 	 * Increase in Gold Per Hour
 	 */
-	private static final Attribute GPH = new Attribute("gph", ParseType.INTEGER, new Integer(0), AttributeType.STATMOD, AttributeType.GOLDMOD); 
+	private static final Attribute GPH = new Attribute(1, "PokeCash/hour", "gph", ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD).setIgnoreValAndReturn(new Integer(0)); 
 	/**
 	 *Increase in Popularity 
 	 */
-	private static final Attribute POPULARITY_BOOST = new Attribute("popularity boost",ParseType.INTEGER, new Integer(0), AttributeType.STATMOD, AttributeType.POPMOD);
+	private static final Attribute POPULARITY_BOOST = new Attribute(3, "Popularity", "popularity boost",ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.POPMOD).setIgnoreValAndReturn(new Integer(0)); ;
 	
 	/**
 	 * Increase in Gold Per Minute
 	 */
-	private static final Attribute GPM = new Attribute("gpm",ParseType.INTEGER, new Integer(0),AttributeType.STATMOD, AttributeType.GOLDMOD);
+	private static final Attribute GPM = new Attribute(2, "PokeCash/minute", "gpm",ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD).setIgnoreValAndReturn(new Integer(0)); ;
 	
 	/**
 	 * Electric, etc.
 	 */
-	private static final Attribute TYPES = new Attribute("type", ParseType.ENUMSETPOKEMONTYPE, EnumSet.of(PokemonType.NORMAL), AttributeType.CHARACTERISTIC);
+	private static final Attribute TYPES = new Attribute(4, "type", ParseType.ENUMSETPOKEMONTYPE, EnumSet.of(PokemonType.NORMAL), AttributeType.DISPLAYTYPE, AttributeType.CHARACTERISTIC);
 	/**
 	 * Current Happiness of a pokemon
 	 */
-	private static final Attribute HAPPINESS = new Attribute("happiness", ParseType.INTEGER, new Integer(0),AttributeType.CHANGINGVAL, AttributeType.POKEONLY);
+	private static final Attribute HAPPINESS = new Attribute(5, "happiness", ParseType.INTEGER, new Integer(0),AttributeType.CHANGINGVAL, AttributeType.DISPLAYTYPE, AttributeType.POKEONLY);
 	/**
 	 * Current Level of a pokemon
 	 */
-	private static final Attribute LEVEL = new Attribute("level", ParseType.INTEGER, new Integer(1),AttributeType.CHANGINGVAL, AttributeType.POKEONLY);
+	private static final Attribute LEVEL = new Attribute(6, "level", ParseType.INTEGER, new Integer(1),AttributeType.CHANGINGVAL, AttributeType.DISPLAYTYPE, AttributeType.POKEONLY);
 	/**
 	 * The rarity of a pokemon, on scale of 1-99, derived from catchrate. 
 	 * higher is more rare
 	 */
 	private static final Attribute RARITY = new Attribute("rarity", ParseType.INTEGER, new Integer(1),AttributeType.CHARACTERISTIC, AttributeType.POKEONLY);
-	
+	/**
+	 * The rarity of a pokemon, on scale of 1-10, derived from catchrate. 
+	 * higher is more rare. This version of rarity is used for display purposes only
+	 */
+	private static final Attribute RARITY_OUT_OF_10 = new Attribute(7, "Rarity (out of 10)", "rarity10", ParseType.INTEGER, new Integer(1), AttributeType.CHARACTERISTIC, AttributeType.DISPLAYTYPE, AttributeType.POKEONLY);
 	/**
 	 * The catch rate of a pokemon on a scale from 3-255
 	 */
 	private static final Attribute CATCH_RATE = new Attribute("catch rate", ParseType.INTEGER, new Integer(3), AttributeType.CHARACTERISTIC, AttributeType.POKEONLY);
 	/**
-	 * The description of an item
+	 * The description of an item. Note it doesn't have an orderdisplayvalue because the description is just a combination of all those elements that do
+	 * (and some other text potentially)
 	 */
 	private static final Attribute DESCRIPTION = new Attribute("description", ParseType.STRING, new String(""), AttributeType.CHARACTERISTIC);
 	/**
@@ -72,27 +77,48 @@ public class Attribute implements Serializable{
 	static int currId = 0;
 	private static Map<String, Attribute> idMap;
 	private String name;
+	private String displayName;
 	private AttributeTypeSet atTypes;
 	private final Object defaultValue;
+	/**
+	 * The value at which if the input value to generateAttribute has this value, the attribute class reccomends you ignore the value
+	 * (Will not stop you from setting it however)
+	 */
+	private Object objectToIgnoreValueAt = null;
+	private int orderOfDisplay = -1;
 	private int id;
 	private final ParseType parsetype;
 	private Attribute(Attribute at, String value) {
 		if (!idMap.containsValue(at))
 			throw new Error("INVALID ATTRIBUTE: " + at);
 		this.name = at.name;
+		this.displayName = at.displayName;
 		this.atTypes = at.atTypes;
 		this.id = at.id;
+		this.orderOfDisplay = at.orderOfDisplay;
 		this.parsetype = at.parsetype;
 		this.defaultValue = at.defaultValue;
+		this.objectToIgnoreValueAt = at.objectToIgnoreValueAt;
 		parseAndSetValue(value);
 	}
-	private Attribute(String name, ParseType parsetype, Object defaultValue, AttributeType... types) {
-		this(name, currId++, parsetype, defaultValue, types);
+	private Attribute(int orderOfDisplay, String name, ParseType parsetype, Object defaultValue, AttributeType... types) {
+		this(orderOfDisplay, name.substring(0, 1).toUpperCase()+name.substring(1), name, parsetype, defaultValue, types);
 	}
-	private Attribute(String name, int id, ParseType parsetype, Object defaultValue, AttributeType ...types) {
+	private Attribute(int orderOfDisplay, String displayName, String name, ParseType parsetype, Object defaultValue, AttributeType... types) {
+		this(orderOfDisplay, displayName, name, currId++, parsetype, defaultValue, types);
+	}
+	private Attribute(String name, ParseType parsetype, Object defaultValue, AttributeType... types) {
+		this(name.substring(0, 1).toUpperCase()+name.substring(1), name, parsetype, defaultValue, types);
+	}
+	private Attribute(String displayName, String name, ParseType parsetype, Object defaultValue, AttributeType... types) {
+		this(-1, displayName, name, currId++, parsetype, defaultValue, types);
+	}
+	private Attribute(int orderOfDisplay, String displayName, String name, int id, ParseType parsetype, Object defaultValue, AttributeType ...types) {
+		this.orderOfDisplay = orderOfDisplay;
 		this.name = name;
 		this.id = id;
 		this.parsetype = parsetype;
+		this.displayName = displayName;
 		if (!defaultValue.getClass().equals(getParseClass()))
 			throw new Error("Attribute " + getName() + "'s defaultValue must be a: " + getParseClass().getName());
 		if (parsetype.equals(ParseType.ENUMSETPOKEMONTYPE)) {
@@ -104,8 +130,11 @@ public class Attribute implements Serializable{
 		
 		this.defaultValue = defaultValue;
 		atTypes = new AttributeTypeSet(types);
+		if (orderOfDisplay == 0 || (orderOfDisplay < 0 && atTypes.containsAttributeType(AttributeType.DISPLAYTYPE)) || (orderOfDisplay > 0 && !atTypes.containsAttributeType(AttributeType.DISPLAYTYPE)))
+			throw new Error("order of display should not be present for: " + getName());
 		getIdMap().put(name, this);
 	}
+	
 	private Map<String, Attribute> getIdMap() {
 		if (idMap == null)
 			idMap = new HashMap<String, Attribute>();
@@ -129,7 +158,7 @@ public class Attribute implements Serializable{
 	}
 	@Override
 	public String toString() {
-		return getName();
+		return displayName + ": " + (parsetype.equals(ParseType.ENUMSETPOKEMONTYPE) ? getValue().toString().replace("[", "") : getValue().toString());
 		
 	}
 	public static boolean isValidAttribute(String name) {
@@ -197,6 +226,21 @@ public class Attribute implements Serializable{
 	public Object getValue() {
 		return value;
 	}
+	private void setIgnoreVal(Object o) {
+		this.objectToIgnoreValueAt = o;
+	}
+	private Attribute setIgnoreValAndReturn(Object o) {
+		this.setIgnoreVal(o);
+		return this;
+	}
+	public Object getIgnoreVal() {
+		return objectToIgnoreValueAt;
+	}
+	public int getDisplayOrderVal(){
+		if (!this.containsType(AttributeType.DISPLAYTYPE))
+			throw new Error("ATTRIBUTE SHOULD NOT BE DISPLAYED");
+		return orderOfDisplay;
+	}
 	public void parseAndSetValue(String value) {
 		if (value.equals("") || value.equals(" "))
 			setValue(defaultValue);
@@ -251,6 +295,11 @@ public class Attribute implements Serializable{
 	public boolean hasValue() {
 		return this.value != null;
 	}
+	/**
+	 * @param names name1, name2, ...
+	 * @param values valueForName1, valueForName2, ...
+	 * @return attribute1, attribute2,...
+	 */
 	public static Attribute[] generateAttributes(String[] names, String[] values) {
 		if (names.length != values.length)
 			throw new Error("names and values must have same length");
@@ -260,9 +309,12 @@ public class Attribute implements Serializable{
 		}
 		return attributes;
 	}
+	public boolean shouldIgnore() {
+		return getValue().equals(getIgnoreVal());
+	}
 	public static  Attribute generateAttribute(String name, String value) {
 		if (idMap.get(name) == null)
-			throw new Error("INVALID ATTRIBUTE");
+			throw new Error("INVALID ATTRIBUTE: " + name);
 		return new Attribute(idMap.get(name), value);
 	}
 	public static Attribute generateAttribute(String name) {

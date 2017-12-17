@@ -14,6 +14,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import effects.CustomPeriodEvent;
 import effects.Event;
+import gameutils.GameUtils;
 import loaders.ThingLoader;
 import thingFramework.*;
 import thingFramework.Thing.ThingType;
@@ -46,7 +47,7 @@ public class Board implements Serializable {
 	 * Location of csv containing extra attributes for things. Format as specified in thingloader
 	 */
 	private static final String[] EXTRA_ATTRIBUTE_LOCATIONS = {"resources/InputFiles/extraAttributes.csv"};
-	
+	private static final String PATH_TO_DESCRIPTIONS = "resources/InputFiles/descriptionList.csv";
 	/**
 	 * The minimum amount of popularity a player can have
 	 */
@@ -89,7 +90,7 @@ public class Board implements Serializable {
 	/**
 	 * Loads all things into the game
 	 */
-	private static final ThingLoader thingLoader = new ThingLoader(THING_LIST_LOCATION, EVENT_MAP_LOCATION, EVOLUTIONS_LOCATION, LEVELS_OF_EVOLUTION_LOCATION, EXTRA_ATTRIBUTE_LOCATIONS);
+	private static final ThingLoader thingLoader = new ThingLoader(THING_LIST_LOCATION, PATH_TO_DESCRIPTIONS, EVENT_MAP_LOCATION, EVOLUTIONS_LOCATION, LEVELS_OF_EVOLUTION_LOCATION, EXTRA_ATTRIBUTE_LOCATIONS);
 	/**
 	 * Set of all the pokemon in the game, gotten from thingLoader
 	 */
@@ -116,6 +117,7 @@ public class Board implements Serializable {
 	 * it is the denominator for determining the percent chance that a certain pokemon
 	 * will show up (that is the probability will be: getRelativeChanceRarity(pokemon.rarity)/RUNNING_TOTAL)
 	 */
+	
 	private static final long RUNNING_TOTAL;
 	static {
 		long rt = 0; //running total
@@ -153,6 +155,7 @@ public class Board implements Serializable {
 	 * (GPH, etc.)
 	 */
 	private Map<Integer, Set<Attribute>> boardAttributes = new HashMap<Integer, Set<Attribute>>();
+	
 	/**
 	 * All pokemon currently on the board
 	 */
@@ -309,8 +312,9 @@ public class Board implements Serializable {
 		double C = 100;
 		double D =3;
 		double E = 1;
+		if (pokemon.size() <= 2)
+			return 100;
 		double answer = Math.max(MIN_PERCENT_CHANCE_POKEMON_FOUND, Math.min(MAX_PERCENT_CHANCE_POKEMON_FOUND, (getPopularity()*A)+(getGold()/B)+(C/(D*pokemon.size()+E))));
-		System.out.println(answer);
 		return answer;
 	}
 	/**
@@ -324,12 +328,7 @@ public class Board implements Serializable {
 	 * @return whether or not that event occurs
 	 */
 	private static boolean testPercentChance(double percentChance) {
-		
-				double randomNum = ThreadLocalRandom.current().nextDouble(1, 100); //num between 1, 100
-				if (randomNum > (100-percentChance))
-					return true;
-			
-			return false;
+		return GameUtils.testPercentChance(percentChance);
 		
 	}
 	/**
@@ -352,11 +351,12 @@ public class Board implements Serializable {
 			events.put(location, ((EventfulItem) thing).getEvents());
 		}
 		if (events.containsKey(location)) {
-			events.put(location, union(BoardAttributeManager.getEvents(thing.getBoardAttributes()), events.get(location)));
+			events.put(location, GameUtils.union(BoardAttributeManager.getEvents(thing.getBoardAttributes()), events.get(location)));
 		}
 		else {
 			events.put(location, BoardAttributeManager.getEvents(thing.getBoardAttributes()));
 		}
+		
 		
 	}
 	/**
@@ -445,21 +445,25 @@ public class Board implements Serializable {
 	public boolean wildPokemonPresent() {
 		return !foundPokemon.isEmpty();
 	}
+	public Pokemon getPokemon(String name) {
+		return thingLoader.getPokemon(name);
+	}
+	@Override
+	public String toString() {
+		StringBuilder s = new StringBuilder();
+		for (Map.Entry<Integer, Thing> entry : locationMap.entrySet()) {
+			s.append("\n" + entry.getValue().toString() + "\n");
+		}
+		return s.toString();
+		//return s.append("Gold: " + getGold() + "\n" + "POP: " + getPopularity()).toString();
+	}
 	/**
 	 * @return the next wild pokemon in the queue, null if there is none
 	 */
 	public Pokemon getWildPokemon() {
 		return foundPokemon.poll();
 	}
-	/**
-	 * @param list1 the first list to unionize
-	 * @param list2 the second list to unionize
-	 * @return the union (that is the concatenation) of the two lists
-	 */
-	public static <E> List<E> union(final List<? extends E> list1, final List<? extends E> list2) {
-		final ArrayList<E> result = new ArrayList<E>(list1);
-		result.addAll(list2);
-		return result;
-	}
+	
+	
 	
 }

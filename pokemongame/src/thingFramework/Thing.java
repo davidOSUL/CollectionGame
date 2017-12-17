@@ -1,10 +1,12 @@
 package thingFramework;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -17,7 +19,7 @@ public abstract class Thing implements Serializable {
 	private final String name;
 	private final String image;
 	private final static AttributeType BOARDTYPE = AttributeType.STATMOD;
-	private final Set<Attribute> boardAttributes;
+	private Set<Attribute> boardAttributes;
 	private final EnumSet<ThingType> types;
 	private final Set<Attribute> attributes; 
 	private final Map<String, Attribute> attributeNameMap;
@@ -31,17 +33,18 @@ public abstract class Thing implements Serializable {
 		this.image = image;
 		attributeNameMap = generateAttributeNameMap(attributes);
 	}
-	public boolean containsAttribute(String name) {
+	public final boolean containsAttribute(String name) {
 		return attributeNameMap.containsKey(name);
 	}
-	private static Map<String, Attribute> generateAttributeNameMap(Set<Attribute> attributes){
+	private final static Map<String, Attribute> generateAttributeNameMap(Set<Attribute> attributes){
 		Map<String, Attribute> attributeNameMap = new HashMap<String, Attribute>();
 		for (Attribute at: attributes) {
 			attributeNameMap.put(at.getName(), at);
 		}
 		return attributeNameMap;
 	}
-	private Set<Attribute> getAttributesThatContainType(AttributeType at) {
+	
+	private final Set<Attribute> getAttributesThatContainType(AttributeType at) {
 		Set<Attribute> validAttributes = new HashSet<Attribute>();
 		for (Attribute attribute: attributes) {
 			if (attribute.containsType(at))
@@ -49,47 +52,54 @@ public abstract class Thing implements Serializable {
 		}
 		return validAttributes;
 	}
-	public Set<Attribute> getBoardAttributes() {
+	public final Set<Attribute> getBoardAttributes() {
 		if (boardAttributes == null) {
 			return getAttributesThatContainType(BOARDTYPE);
 		}
 		return boardAttributes;
 	}
-	private boolean vallidateAttribute(Attribute at) {
+	private final boolean vallidateAttribute(Attribute at) {
 		return vallidateAttributes(new HashSet<Attribute>(Arrays.asList(at)));
 	}
 	abstract boolean vallidateAttributes(Set<Attribute> attributes);
 	abstract EnumSet<ThingType> setThingType();
-	public EnumSet<ThingType> getThingTypes() {
+	public final EnumSet<ThingType> getThingTypes() {
 		return types;
 	}
-	public Object getAttributeVal(String name) throws AttributeNotFoundException {
+	public final Object getAttributeVal(String name) throws AttributeNotFoundException {
 		if (containsAttribute(name))
 			return attributeNameMap.get(name).getValue();
 		else
 			throw new AttributeNotFoundException("ATTRIBUTE NOT FOUND");
 	}
-	public void addAttributes(Attribute...attributes) {
+	public final Set<Attribute> getAttributes() {
+		return attributes;
+	}
+	public final void addAttributes(Attribute...attributes) {
 		for (Attribute at: attributes)
 			addAttribute(at);
 	}
-	public void addAttribute(Attribute at) {
+	public final void addAttribute(Attribute at) {
 		if (!vallidateAttribute(at))
 			throw new Error("INVALID ATTRIBUTE FOR: " + name);
 		if (attributes.contains(at) || attributeNameMap.keySet().contains(at.getName()))
 			throw new Error("ATTRIBUTE " + at.getName() + " ALREADY EXISTS FOR: " + name);
 		else {
+			if (!at.shouldIgnore()) {
 			attributes.add(at);
 			attributeNameMap.put(at.getName(), at);
+			if (at.containsType(BOARDTYPE))
+				boardAttributes.add(at);
+			}
 		}
 	}
-	public void setAttributeVal(String name, Object value) throws AttributeNotFoundException {
+	public final void setAttributeVal(String name, Object value) {
 		if (containsAttribute(name))
 			attributeNameMap.get(name).setValue(value);
 		else
 			throw new AttributeNotFoundException("ATTRIBUTE NOT FOUND");
 	}
-	public static <T> Map<String, T> mapFromSetToAttributeValue(Set<? extends Thing> set, String attributeName) {
+	public final static <T> Map<String, T> mapFromSetToAttributeValue(Set<? extends Thing> set, String attributeName) {
 		Map<String, T> mapping = new HashMap<String, T>();
 		for (Thing t : set) {
 			T o = null;
@@ -103,12 +113,20 @@ public abstract class Thing implements Serializable {
 		}
 		return mapping;
 	}
-	public String getName() {
+	public final List<Attribute> getAttributesOfType(AttributeType at) {
+		List<Attribute> returnAttributes = new ArrayList<Attribute>();
+		for (Attribute a: attributes) {
+			if (a.containsType(at))
+				returnAttributes.add(a);
+		}
+		return returnAttributes;
+	}
+	public final String getName() {
 		return name;
 	}
 	@Override
 	public String toString() {
-		return name;
+		return name + (containsAttribute("description") ? ": " + getAttributeVal("description").toString() : "");
 	}
 	 public enum ThingType {
 		POKEMON, ITEM, EVENTFULITEM;

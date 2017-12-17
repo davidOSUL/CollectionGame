@@ -1,6 +1,6 @@
 package thingFramework;
 
-public class AttributeNotFoundException extends Exception {
+public class AttributeNotFoundException extends RuntimeException {
 
 	/**
 	 * 

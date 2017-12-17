@@ -1,1457 +1,1457 @@
-POKEMON,,,,
-Bulbasaur,experience group,Medium Slow,,
-Ivysaur,experience group,Medium Slow,,
-Venusaur,experience group,Medium Slow,,
-Charmander,experience group,Medium Slow,,
-Charmeleon,experience group,Medium Slow,,
-Charizard,experience group,Medium Slow,,
-Squirtle,experience group,Medium Slow,,
-Wartortle,experience group,Medium Slow,,
-Blastoise,experience group,Medium Slow,,
-Caterpie,experience group,Medium Fast,,
-Metapod,experience group,Medium Fast,,
-Butterfree,experience group,Medium Fast,,
-Weedle,experience group,Medium Fast,,
-Kakuna,experience group,Medium Fast,,
-Beedrill,experience group,Medium Fast,,
-Pidgey,experience group,Medium Slow,,
-Pidgeotto,experience group,Medium Slow,,
-Pidgeot,experience group,Medium Slow,,
-Rattata,experience group,Medium Fast,,
-Raticate,experience group,Medium Fast,,
-Spearow,experience group,Medium Fast,,
-Fearow,experience group,Medium Fast,,
-Ekans,experience group,Medium Fast,,
-Arbok,experience group,Medium Fast,,
-Pikachu,experience group,Medium Fast,,
-Raichu,experience group,Medium Fast,,
-Sandshrew,experience group,Medium Fast,,
-Sandslash,experience group,Medium Fast,,
-Nidoran♀,experience group,Medium Slow,,
-Nidorina,experience group,Medium Slow,,
-Nidoqueen,experience group,Medium Slow,,
-Nidoran♂,experience group,Medium Slow,,
-Nidorino,experience group,Medium Slow,,
-Nidoking,experience group,Medium Slow,,
-Clefairy,experience group,Fast,,
-Clefable,experience group,Fast,,
-Vulpix,experience group,Medium Fast,,
-Ninetales,experience group,Medium Fast,,
-Jigglypuff,experience group,Fast,,
-Wigglytuff,experience group,Fast,,
-Zubat,experience group,Medium Fast,,
-Golbat,experience group,Medium Fast,,
-Oddish,experience group,Medium Slow,,
-Gloom,experience group,Medium Slow,,
-Vileplume,experience group,Medium Slow,,
-Paras,experience group,Medium Fast,,
-Parasect,experience group,Medium Fast,,
-Venonat,experience group,Medium Fast,,
-Venomoth,experience group,Medium Fast,,
-Diglett,experience group,Medium Fast,,
-Dugtrio,experience group,Medium Fast,,
-Meowth,experience group,Medium Fast,,
-Persian,experience group,Medium Fast,,
-Psyduck,experience group,Medium Fast,,
-Golduck,experience group,Medium Fast,,
-Mankey,experience group,Medium Fast,,
-Primeape,experience group,Medium Fast,,
-Growlithe,experience group,Slow,,
-Arcanine,experience group,Slow,,
-Poliwag,experience group,Medium Slow,,
-Poliwhirl,experience group,Medium Slow,,
-Poliwrath,experience group,Medium Slow,,
-Abra,experience group,Medium Slow,,
-Kadabra,experience group,Medium Slow,,
-Alakazam,experience group,Medium Slow,,
-Machop,experience group,Medium Slow,,
-Machoke,experience group,Medium Slow,,
-Machamp,experience group,Medium Slow,,
-Bellsprout,experience group,Medium Slow,,
-Weepinbell,experience group,Medium Slow,,
-Victreebel,experience group,Medium Slow,,
-Tentacool,experience group,Slow,,
-Tentacruel,experience group,Slow,,
-Geodude,experience group,Medium Slow,,
-Graveler,experience group,Medium Slow,,
-Golem,experience group,Medium Slow,,
-Ponyta,experience group,Medium Fast,,
-Rapidash,experience group,Medium Fast,,
-Slowpoke,experience group,Medium Fast,,
-Slowbro,experience group,Medium Fast,,
-Magnemite,experience group,Medium Fast,,
-Magneton,experience group,Medium Fast,,
-Farfetch'd,experience group,Medium Fast,,
-Doduo,experience group,Medium Fast,,
-Dodrio,experience group,Medium Fast,,
-Seel,experience group,Medium Fast,,
-Dewgong,experience group,Medium Fast,,
-Grimer,experience group,Medium Fast,,
-Muk,experience group,Medium Fast,,
-Shellder,experience group,Slow,,
-Cloyster,experience group,Slow,,
-Gastly,experience group,Medium Slow,,
-Haunter,experience group,Medium Slow,,
-Gengar,experience group,Medium Slow,,
-Onix,experience group,Medium Fast,,
-Drowzee,experience group,Medium Fast,,
-Hypno,experience group,Medium Fast,,
-Krabby,experience group,Medium Fast,,
-Kingler,experience group,Medium Fast,,
-Voltorb,experience group,Medium Fast,,
-Electrode,experience group,Medium Fast,,
-Exeggcute,experience group,Slow,,
-Exeggutor,experience group,Slow,,
-Cubone,experience group,Medium Fast,,
-Marowak,experience group,Medium Fast,,
-Hitmonlee,experience group,Medium Fast,,
-Hitmonchan,experience group,Medium Fast,,
-Lickitung,experience group,Medium Fast,,
-Koffing,experience group,Medium Fast,,
-Weezing,experience group,Medium Fast,,
-Rhyhorn,experience group,Slow,,
-Rhydon,experience group,Slow,,
-Chansey,experience group,Fast,,
-Tangela,experience group,Medium Fast,,
-Kangaskhan,experience group,Medium Fast,,
-Horsea,experience group,Medium Fast,,
-Seadra,experience group,Medium Fast,,
-Goldeen,experience group,Medium Fast,,
-Seaking,experience group,Medium Fast,,
-Staryu,experience group,Slow,,
-Starmie,experience group,Slow,,
-Mr. Mime,experience group,Medium Fast,,
-Scyther,experience group,Medium Fast,,
-Jynx,experience group,Medium Fast,,
-Electabuzz,experience group,Medium Fast,,
-Magmar,experience group,Medium Fast,,
-Pinsir,experience group,Slow,,
-Tauros,experience group,Slow,,
-Magikarp,experience group,Slow,,
-Gyarados,experience group,Slow,,
-Lapras,experience group,Slow,,
-Ditto,experience group,Medium Fast,,
-Eevee,experience group,Medium Fast,,
-Vaporeon,experience group,Medium Fast,,
-Jolteon,experience group,Medium Fast,,
-Flareon,experience group,Medium Fast,,
-Porygon,experience group,Medium Fast,,
-Omanyte,experience group,Medium Fast,,
-Omastar,experience group,Medium Fast,,
-Kabuto,experience group,Medium Fast,,
-Kabutops,experience group,Medium Fast,,
-Aerodactyl,experience group,Slow,,
-Snorlax,experience group,Slow,,
-Articuno,experience group,Slow,,
-Zapdos,experience group,Slow,,
-Moltres,experience group,Slow,,
-Dratini,experience group,Slow,,
-Dragonair,experience group,Slow,,
-Dragonite,experience group,Slow,,
-Mewtwo,experience group,Slow,,
-Mew,experience group,Medium Slow,,
-Chikorita,experience group,Medium Slow,,
-Bayleef,experience group,Medium Slow,,
-Meganium,experience group,Medium Slow,,
-Cyndaquil,experience group,Medium Slow,,
-Quilava,experience group,Medium Slow,,
-Typhlosion,experience group,Medium Slow,,
-Totodile,experience group,Medium Slow,,
-Croconaw,experience group,Medium Slow,,
-Feraligatr,experience group,Medium Slow,,
-Sentret,experience group,Medium Fast,,
-Furret,experience group,Medium Fast,,
-Hoothoot,experience group,Medium Fast,,
-Noctowl,experience group,Medium Fast,,
-Ledyba,experience group,Fast,,
-Ledian,experience group,Fast,,
-Spinarak,experience group,Fast,,
-Ariados,experience group,Fast,,
-Crobat,experience group,Medium Fast,,
-Chinchou,experience group,Slow,,
-Lanturn,experience group,Slow,,
-Pichu,experience group,Medium Fast,,
-Cleffa,experience group,Fast,,
-Igglybuff,experience group,Fast,,
-Togepi,experience group,Fast,,
-Togetic,experience group,Fast,,
-Natu,experience group,Medium Fast,,
-Xatu,experience group,Medium Fast,,
-Mareep,experience group,Medium Slow,,
-Flaaffy,experience group,Medium Slow,,
-Ampharos,experience group,Medium Slow,,
-Bellossom,experience group,Medium Slow,,
-Marill,experience group,Fast,,
-Azumarill,experience group,Fast,,
-Sudowoodo,experience group,Medium Fast,,
-Politoed,experience group,Medium Slow,,
-Hoppip,experience group,Medium Slow,,
-Skiploom,experience group,Medium Slow,,
-Jumpluff,experience group,Medium Slow,,
-Aipom,experience group,Fast,,
-Sunkern,experience group,Medium Slow,,
-Sunflora,experience group,Medium Slow,,
-Yanma,experience group,Medium Fast,,
-Wooper,experience group,Medium Fast,,
-Quagsire,experience group,Medium Fast,,
-Espeon,experience group,Medium Fast,,
-Umbreon,experience group,Medium Fast,,
-Murkrow,experience group,Medium Slow,,
-Slowking,experience group,Medium Fast,,
-Misdreavus,experience group,Fast,,
-Unown,experience group,Medium Fast,,
-Wobbuffet,experience group,Medium Fast,,
-Girafarig,experience group,Medium Fast,,
-Pineco,experience group,Medium Fast,,
-Forretress,experience group,Medium Fast,,
-Dunsparce,experience group,Medium Fast,,
-Gligar,experience group,Medium Slow,,
-Steelix,experience group,Medium Fast,,
-Snubbull,experience group,Fast,,
-Granbull,experience group,Fast,,
-Qwilfish,experience group,Medium Fast,,
-Scizor,experience group,Medium Fast,,
-Shuckle,experience group,Medium Slow,,
-Heracross,experience group,Slow,,
-Sneasel,experience group,Medium Slow,,
-Teddiursa,experience group,Medium Fast,,
-Ursaring,experience group,Medium Fast,,
-Slugma,experience group,Medium Fast,,
-Magcargo,experience group,Medium Fast,,
-Swinub,experience group,Slow,,
-Piloswine,experience group,Slow,,
-Corsola,experience group,Fast,,
-Remoraid,experience group,Medium Fast,,
-Octillery,experience group,Medium Fast,,
-Delibird,experience group,Fast,,
-Mantine,experience group,Slow,,
-Skarmory,experience group,Slow,,
-Houndour,experience group,Slow,,
-Houndoom,experience group,Slow,,
-Kingdra,experience group,Medium Fast,,
-Phanpy,experience group,Medium Fast,,
-Donphan,experience group,Medium Fast,,
-Porygon2,experience group,Medium Fast,,
-Stantler,experience group,Slow,,
-Smeargle,experience group,Fast,,
-Tyrogue,experience group,Medium Fast,,
-Hitmontop,experience group,Medium Fast,,
-Smoochum,experience group,Medium Fast,,
-Elekid,experience group,Medium Fast,,
-Magby,experience group,Medium Fast,,
-Miltank,experience group,Slow,,
-Blissey,experience group,Fast,,
-Raikou,experience group,Slow,,
-Entei,experience group,Slow,,
-Suicune,experience group,Slow,,
-Larvitar,experience group,Slow,,
-Pupitar,experience group,Slow,,
-Tyranitar,experience group,Slow,,
-Lugia,experience group,Slow,,
-Ho-Oh,experience group,Slow,,
-Celebi,experience group,Medium Slow,,
-Treecko,experience group,Medium Slow,,
-Grovyle,experience group,Medium Slow,,
-Sceptile,experience group,Medium Slow,,
-Torchic,experience group,Medium Slow,,
-Combusken,experience group,Medium Slow,,
-Blaziken,experience group,Medium Slow,,
-Mudkip,experience group,Medium Slow,,
-Marshtomp,experience group,Medium Slow,,
-Swampert,experience group,Medium Slow,,
-Poochyena,experience group,Medium Fast,,
-Mightyena,experience group,Medium Fast,,
-Zigzagoon,experience group,Medium Fast,,
-Linoone,experience group,Medium Fast,,
-Wurmple,experience group,Medium Fast,,
-Silcoon,experience group,Medium Fast,,
-Beautifly,experience group,Medium Fast,,
-Cascoon,experience group,Medium Fast,,
-Dustox,experience group,Medium Fast,,
-Lotad,experience group,Medium Slow,,
-Lombre,experience group,Medium Slow,,
-Ludicolo,experience group,Medium Slow,,
-Seedot,experience group,Medium Slow,,
-Nuzleaf,experience group,Medium Slow,,
-Shiftry,experience group,Medium Slow,,
-Taillow,experience group,Medium Slow,,
-Swellow,experience group,Medium Slow,,
-Wingull,experience group,Medium Fast,,
-Pelipper,experience group,Medium Fast,,
-Ralts,experience group,Slow,,
-Kirlia,experience group,Slow,,
-Gardevoir,experience group,Slow,,
-Surskit,experience group,Medium Fast,,
-Masquerain,experience group,Medium Fast,,
-Shroomish,experience group,Fluctuating,,
-Breloom,experience group,Fluctuating,,
-Slakoth,experience group,Slow,,
-Vigoroth,experience group,Slow,,
-Slaking,experience group,Slow,,
-Nincada,experience group,Erratic,,
-Ninjask,experience group,Erratic,,
-Shedinja,experience group,Erratic,,
-Whismur,experience group,Medium Slow,,
-Loudred,experience group,Medium Slow,,
-Exploud,experience group,Medium Slow,,
-Makuhita,experience group,Fluctuating,,
-Hariyama,experience group,Fluctuating,,
-Azurill,experience group,Fast,,
-Nosepass,experience group,Medium Fast,,
-Skitty,experience group,Fast,,
-Delcatty,experience group,Fast,,
-Sableye,experience group,Medium Slow,,
-Mawile,experience group,Fast,,
-Aron,experience group,Slow,,
-Lairon,experience group,Slow,,
-Aggron,experience group,Slow,,
-Meditite,experience group,Medium Fast,,
-Medicham,experience group,Medium Fast,,
-Electrike,experience group,Slow,,
-Manectric,experience group,Slow,,
-Plusle,experience group,Medium Fast,,
-Minun,experience group,Medium Fast,,
-Volbeat,experience group,Erratic,,
-Illumise,experience group,Fluctuating,,
-Roselia,experience group,Medium Slow,,
-Gulpin,experience group,Fluctuating,,
-Swalot,experience group,Fluctuating,,
-Carvanha,experience group,Slow,,
-Sharpedo,experience group,Slow,,
-Wailmer,experience group,Fluctuating,,
-Wailord,experience group,Fluctuating,,
-Numel,experience group,Medium Fast,,
-Camerupt,experience group,Medium Fast,,
-Torkoal,experience group,Medium Fast,,
-Spoink,experience group,Fast,,
-Grumpig,experience group,Fast,,
-Spinda,experience group,Fast,,
-Trapinch,experience group,Medium Slow,,
-Vibrava,experience group,Medium Slow,,
-Flygon,experience group,Medium Slow,,
-Cacnea,experience group,Medium Slow,,
-Cacturne,experience group,Medium Slow,,
-Swablu,experience group,Erratic,,
-Altaria,experience group,Erratic,,
-Zangoose,experience group,Erratic,,
-Seviper,experience group,Fluctuating,,
-Lunatone,experience group,Fast,,
-Solrock,experience group,Fast,,
-Barboach,experience group,Medium Fast,,
-Whiscash,experience group,Medium Fast,,
-Corphish,experience group,Fluctuating,,
-Crawdaunt,experience group,Fluctuating,,
-Baltoy,experience group,Medium Fast,,
-Claydol,experience group,Medium Fast,,
-Lileep,experience group,Erratic,,
-Cradily,experience group,Erratic,,
-Anorith,experience group,Erratic,,
-Armaldo,experience group,Erratic,,
-Feebas,experience group,Erratic,,
-Milotic,experience group,Erratic,,
-Castform,experience group,Medium Fast,,
-Kecleon,experience group,Medium Slow,,
-Shuppet,experience group,Fast,,
-Banette,experience group,Fast,,
-Duskull,experience group,Fast,,
-Dusclops,experience group,Fast,,
-Tropius,experience group,Slow,,
-Chimecho,experience group,Fast,,
-Absol,experience group,Medium Slow,,
-Wynaut,experience group,Medium Fast,,
-Snorunt,experience group,Medium Fast,,
-Glalie,experience group,Medium Fast,,
-Spheal,experience group,Medium Slow,,
-Sealeo,experience group,Medium Slow,,
-Walrein,experience group,Medium Slow,,
-Clamperl,experience group,Erratic,,
-Huntail,experience group,Erratic,,
-Gorebyss,experience group,Erratic,,
-Relicanth,experience group,Slow,,
-Luvdisc,experience group,Fast,,
-Bagon,experience group,Slow,,
-Shelgon,experience group,Slow,,
-Salamence,experience group,Slow,,
-Beldum,experience group,Slow,,
-Metang,experience group,Slow,,
-Metagross,experience group,Slow,,
-Regirock,experience group,Slow,,
-Regice,experience group,Slow,,
-Registeel,experience group,Slow,,
-Latias,experience group,Slow,,
-Latios,experience group,Slow,,
-Kyogre,experience group,Slow,,
-Groudon,experience group,Slow,,
-Rayquaza,experience group,Slow,,
-Jirachi,experience group,Slow,,
-Deoxys,experience group,Slow,,
-Turtwig,experience group,Medium Slow,,
-Grotle,experience group,Medium Slow,,
-Torterra,experience group,Medium Slow,,
-Chimchar,experience group,Medium Slow,,
-Monferno,experience group,Medium Slow,,
-Infernape,experience group,Medium Slow,,
-Piplup,experience group,Medium Slow,,
-Prinplup,experience group,Medium Slow,,
-Empoleon,experience group,Medium Slow,,
-Starly,experience group,Medium Slow,,
-Staravia,experience group,Medium Slow,,
-Staraptor,experience group,Medium Slow,,
-Bidoof,experience group,Medium Fast,,
-Bibarel,experience group,Medium Fast,,
-Kricketot,experience group,Medium Slow,,
-Kricketune,experience group,Medium Slow,,
-Shinx,experience group,Medium Slow,,
-Luxio,experience group,Medium Slow,,
-Luxray,experience group,Medium Slow,,
-Budew,experience group,Medium Slow,,
-Roserade,experience group,Medium Slow,,
-Cranidos,experience group,Erratic,,
-Rampardos,experience group,Erratic,,
-Shieldon,experience group,Erratic,,
-Bastiodon,experience group,Erratic,,
-Burmy,experience group,Medium Fast,,
-Wormadam,experience group,Medium Fast,,
-Mothim,experience group,Medium Fast,,
-Combee,experience group,Medium Slow,,
-Vespiquen,experience group,Medium Slow,,
-Pachirisu,experience group,Medium Fast,,
-Buizel,experience group,Medium Fast,,
-Floatzel,experience group,Medium Fast,,
-Cherubi,experience group,Medium Fast,,
-Cherrim,experience group,Medium Fast,,
-Shellos,experience group,Medium Fast,,
-Gastrodon,experience group,Medium Fast,,
-Ambipom,experience group,Fast,,
-Drifloon,experience group,Fluctuating,,
-Drifblim,experience group,Fluctuating,,
-Buneary,experience group,Medium Fast,,
-Lopunny,experience group,Medium Fast,,
-Mismagius,experience group,Fast,,
-Honchkrow,experience group,Medium Slow,,
-Glameow,experience group,Fast,,
-Purugly,experience group,Fast,,
-Chingling,experience group,Fast,,
-Stunky,experience group,Medium Fast,,
-Skuntank,experience group,Medium Fast,,
-Bronzor,experience group,Medium Fast,,
-Bronzong,experience group,Medium Fast,,
-Bonsly,experience group,Medium Fast,,
-Mime Jr.,experience group,Medium Fast,,
-Happiny,experience group,Fast,,
-Chatot,experience group,Medium Slow,,
-Spiritomb,experience group,Medium Fast,,
-Gible,experience group,Slow,,
-Gabite,experience group,Slow,,
-Garchomp,experience group,Slow,,
-Munchlax,experience group,Slow,,
-Riolu,experience group,Medium Slow,,
-Lucario,experience group,Medium Slow,,
-Hippopotas,experience group,Slow,,
-Hippowdon,experience group,Slow,,
-Skorupi,experience group,Slow,,
-Drapion,experience group,Slow,,
-Croagunk,experience group,Medium Fast,,
-Toxicroak,experience group,Medium Fast,,
-Carnivine,experience group,Slow,,
-Finneon,experience group,Erratic,,
-Lumineon,experience group,Erratic,,
-Mantyke,experience group,Slow,,
-Snover,experience group,Slow,,
-Abomasnow,experience group,Slow,,
-Weavile,experience group,Medium Slow,,
-Magnezone,experience group,Medium Fast,,
-Lickilicky,experience group,Medium Fast,,
-Rhyperior,experience group,Slow,,
-Tangrowth,experience group,Medium Fast,,
-Electivire,experience group,Medium Fast,,
-Magmortar,experience group,Medium Fast,,
-Togekiss,experience group,Fast,,
-Yanmega,experience group,Medium Fast,,
-Leafeon,experience group,Medium Fast,,
-Glaceon,experience group,Medium Fast,,
-Gliscor,experience group,Medium Slow,,
-Mamoswine,experience group,Slow,,
-Porygon-Z,experience group,Medium Fast,,
-Gallade,experience group,Slow,,
-Probopass,experience group,Medium Fast,,
-Dusknoir,experience group,Fast,,
-Froslass,experience group,Medium Fast,,
-Rotom,experience group,Medium Fast,,
-Uxie,experience group,Slow,,
-Mesprit,experience group,Slow,,
-Azelf,experience group,Slow,,
-Dialga,experience group,Slow,,
-Palkia,experience group,Slow,,
-Heatran,experience group,Slow,,
-Regigigas,experience group,Slow,,
-Giratina,experience group,Slow,,
-Cresselia,experience group,Slow,,
-Phione,experience group,Slow,,
-Manaphy,experience group,Slow,,
-Darkrai,experience group,Slow,,
-Shaymin,experience group,Medium Slow,,
-Arceus,experience group,Slow,,
-Victini,experience group,Slow,,
-Snivy,experience group,Medium Slow,,
-Servine,experience group,Medium Slow,,
-Serperior,experience group,Medium Slow,,
-Tepig,experience group,Medium Slow,,
-Pignite,experience group,Medium Slow,,
-Emboar,experience group,Medium Slow,,
-Oshawott,experience group,Medium Slow,,
-Dewott,experience group,Medium Slow,,
-Samurott,experience group,Medium Slow,,
-Patrat,experience group,Medium Fast,,
-Watchog,experience group,Medium Fast,,
-Lillipup,experience group,Medium Slow,,
-Herdier,experience group,Medium Slow,,
-Stoutland,experience group,Medium Slow,,
-Purrloin,experience group,Medium Fast,,
-Liepard,experience group,Medium Fast,,
-Pansage,experience group,Medium Fast,,
-Simisage,experience group,Medium Fast,,
-Pansear,experience group,Medium Fast,,
-Simisear,experience group,Medium Fast,,
-Panpour,experience group,Medium Fast,,
-Simipour,experience group,Medium Fast,,
-Munna,experience group,Fast,,
-Musharna,experience group,Fast,,
-Pidove,experience group,Medium Slow,,
-Tranquill,experience group,Medium Slow,,
-Unfezant,experience group,Medium Slow,,
-Blitzle,experience group,Medium Fast,,
-Zebstrika,experience group,Medium Fast,,
-Roggenrola,experience group,Medium Slow,,
-Boldore,experience group,Medium Slow,,
-Gigalith,experience group,Medium Slow,,
-Woobat,experience group,Medium Fast,,
-Swoobat,experience group,Medium Fast,,
-Drilbur,experience group,Medium Fast,,
-Excadrill,experience group,Medium Fast,,
-Audino,experience group,Fast,,
-Timburr,experience group,Medium Slow,,
-Gurdurr,experience group,Medium Slow,,
-Conkeldurr,experience group,Medium Slow,,
-Tympole,experience group,Medium Slow,,
-Palpitoad,experience group,Medium Slow,,
-Seismitoad,experience group,Medium Slow,,
-Throh,experience group,Medium Fast,,
-Sawk,experience group,Medium Fast,,
-Sewaddle,experience group,Medium Slow,,
-Swadloon,experience group,Medium Slow,,
-Leavanny,experience group,Medium Slow,,
-Venipede,experience group,Medium Slow,,
-Whirlipede,experience group,Medium Slow,,
-Scolipede,experience group,Medium Slow,,
-Cottonee,experience group,Medium Fast,,
-Whimsicott,experience group,Medium Fast,,
-Petilil,experience group,Medium Fast,,
-Lilligant,experience group,Medium Fast,,
-Basculin,experience group,Medium Fast,,
-Sandile,experience group,Medium Slow,,
-Krokorok,experience group,Medium Slow,,
-Krookodile,experience group,Medium Slow,,
-Darumaka,experience group,Medium Slow,,
-Darmanitan,experience group,Medium Slow,,
-Maractus,experience group,Medium Fast,,
-Dwebble,experience group,Medium Fast,,
-Crustle,experience group,Medium Fast,,
-Scraggy,experience group,Medium Fast,,
-Scrafty,experience group,Medium Fast,,
-Sigilyph,experience group,Medium Fast,,
-Yamask,experience group,Medium Fast,,
-Cofagrigus,experience group,Medium Fast,,
-Tirtouga,experience group,Medium Fast,,
-Carracosta,experience group,Medium Fast,,
-Archen,experience group,Medium Fast,,
-Archeops,experience group,Medium Fast,,
-Trubbish,experience group,Medium Fast,,
-Garbodor,experience group,Medium Fast,,
-Zorua,experience group,Medium Slow,,
-Zoroark,experience group,Medium Slow,,
-Minccino,experience group,Fast,,
-Cinccino,experience group,Fast,,
-Gothita,experience group,Medium Slow,,
-Gothorita,experience group,Medium Slow,,
-Gothitelle,experience group,Medium Slow,,
-Solosis,experience group,Medium Slow,,
-Duosion,experience group,Medium Slow,,
-Reuniclus,experience group,Medium Slow,,
-Ducklett,experience group,Medium Fast,,
-Swanna,experience group,Medium Fast,,
-Vanillite,experience group,Slow,,
-Vanillish,experience group,Slow,,
-Vanilluxe,experience group,Slow,,
-Deerling,experience group,Medium Fast,,
-Sawsbuck,experience group,Medium Fast,,
-Emolga,experience group,Medium Fast,,
-Karrablast,experience group,Medium Fast,,
-Escavalier,experience group,Medium Fast,,
-Foongus,experience group,Medium Fast,,
-Amoonguss,experience group,Medium Fast,,
-Frillish,experience group,Medium Fast,,
-Jellicent,experience group,Medium Fast,,
-Alomomola,experience group,Fast,,
-Joltik,experience group,Medium Fast,,
-Galvantula,experience group,Medium Fast,,
-Ferroseed,experience group,Medium Fast,,
-Ferrothorn,experience group,Medium Fast,,
-Klink,experience group,Medium Slow,,
-Klang,experience group,Medium Slow,,
-Klinklang,experience group,Medium Slow,,
-Tynamo,experience group,Slow,,
-Eelektrik,experience group,Slow,,
-Eelektross,experience group,Slow,,
-Elgyem,experience group,Medium Fast,,
-Beheeyem,experience group,Medium Fast,,
-Litwick,experience group,Medium Slow,,
-Lampent,experience group,Medium Slow,,
-Chandelure,experience group,Medium Slow,,
-Axew,experience group,Slow,,
-Fraxure,experience group,Slow,,
-Haxorus,experience group,Slow,,
-Cubchoo,experience group,Medium Fast,,
-Beartic,experience group,Medium Fast,,
-Cryogonal,experience group,Medium Fast,,
-Shelmet,experience group,Medium Fast,,
-Accelgor,experience group,Medium Fast,,
-Stunfisk,experience group,Medium Fast,,
-Mienfoo,experience group,Medium Slow,,
-Mienshao,experience group,Medium Slow,,
-Druddigon,experience group,Medium Fast,,
-Golett,experience group,Medium Fast,,
-Golurk,experience group,Medium Fast,,
-Pawniard,experience group,Medium Fast,,
-Bisharp,experience group,Medium Fast,,
-Bouffalant,experience group,Medium Fast,,
-Rufflet,experience group,Slow,,
-Braviary,experience group,Slow,,
-Vullaby,experience group,Slow,,
-Mandibuzz,experience group,Slow,,
-Heatmor,experience group,Medium Fast,,
-Durant,experience group,Medium Fast,,
-Deino,experience group,Slow,,
-Zweilous,experience group,Slow,,
-Hydreigon,experience group,Slow,,
-Larvesta,experience group,Slow,,
-Volcarona,experience group,Slow,,
-Cobalion,experience group,Slow,,
-Terrakion,experience group,Slow,,
-Virizion,experience group,Slow,,
-Tornadus,experience group,Slow,,
-Thundurus,experience group,Slow,,
-Reshiram,experience group,Slow,,
-Zekrom,experience group,Slow,,
-Landorus,experience group,Slow,,
-Kyurem,experience group,Slow,,
-Keldeo,experience group,Slow,,
-Meloetta,experience group,Slow,,
-Genesect,experience group,Slow,,
-Caterpie,catch rate,255,rarity,1
-Weedle,catch rate,255,rarity,1
-Pidgey,catch rate,255,rarity,1
-Rattata,catch rate,255,rarity,1
-Spearow,catch rate,255,rarity,1
-Ekans,catch rate,255,rarity,1
-Sandshrew,catch rate,255,rarity,1
-Zubat,catch rate,255,rarity,1
-Oddish,catch rate,255,rarity,1
-Diglett,catch rate,255,rarity,1
-Meowth,catch rate,255,rarity,1
-Poliwag,catch rate,255,rarity,1
-Bellsprout,catch rate,255,rarity,1
-Geodude,catch rate,255,rarity,1
-Magikarp,catch rate,255,rarity,1
-Sentret,catch rate,255,rarity,1
-Hoothoot,catch rate,255,rarity,1
-Ledyba,catch rate,255,rarity,1
-Spinarak,catch rate,255,rarity,1
-Hoppip,catch rate,255,rarity,1
-Wooper,catch rate,255,rarity,1
-Poochyena,catch rate,255,rarity,1
-Zigzagoon,catch rate,255,rarity,1
-Wurmple,catch rate,255,rarity,1
-Lotad,catch rate,255,rarity,1
-Seedot,catch rate,255,rarity,1
-Shroomish,catch rate,255,rarity,1
-Slakoth,catch rate,255,rarity,1
-Nincada,catch rate,255,rarity,1
-Nosepass,catch rate,255,rarity,1
-Skitty,catch rate,255,rarity,1
-Numel,catch rate,255,rarity,1
-Spoink,catch rate,255,rarity,1
-Spinda,catch rate,255,rarity,1
-Trapinch,catch rate,255,rarity,1
-Swablu,catch rate,255,rarity,1
-Baltoy,catch rate,255,rarity,1
-Feebas,catch rate,255,rarity,1
-Spheal,catch rate,255,rarity,1
-Clamperl,catch rate,255,rarity,1
-Starly,catch rate,255,rarity,1
-Bidoof,catch rate,255,rarity,1
-Kricketot,catch rate,255,rarity,1
-Budew,catch rate,255,rarity,1
-Bronzor,catch rate,255,rarity,1
-Bonsly,catch rate,255,rarity,1
-Patrat,catch rate,255,rarity,1
-Watchog,catch rate,255,rarity,1
-Lillipup,catch rate,255,rarity,1
-Purrloin,catch rate,255,rarity,1
-Pidove,catch rate,255,rarity,1
-Roggenrola,catch rate,255,rarity,1
-Audino,catch rate,255,rarity,1
-Tympole,catch rate,255,rarity,1
-Sewaddle,catch rate,255,rarity,1
-Venipede,catch rate,255,rarity,1
-Maractus,catch rate,255,rarity,1
-Minccino,catch rate,255,rarity,1
-Vanillite,catch rate,255,rarity,1
-Ferroseed,catch rate,255,rarity,1
-Elgyem,catch rate,255,rarity,1
-Bunnelby,catch rate,255,rarity,1
-Fletchling,catch rate,255,rarity,1
-Scatterbug,catch rate,255,rarity,1
-Pikipek,catch rate,255,rarity,1
-Yungoos,catch rate,255,rarity,1
-Grubbin,catch rate,255,rarity,1
-Necrozma,catch rate,255,rarity,1
-Nidoran♀,catch rate,235,rarity,8
-Nidoran♂,catch rate,235,rarity,8
-Mareep,catch rate,235,rarity,8
-Sunkern,catch rate,235,rarity,8
-Ralts,catch rate,235,rarity,8
-Shinx,catch rate,235,rarity,8
-Bounsweet,catch rate,235,rarity,8
-Krabby,catch rate,225,rarity,12
-Horsea,catch rate,225,rarity,12
-Goldeen,catch rate,225,rarity,12
-Staryu,catch rate,225,rarity,12
-Unown,catch rate,225,rarity,12
-Swinub,catch rate,225,rarity,12
-Gulpin,catch rate,225,rarity,12
-Carvanha,catch rate,225,rarity,12
-Shuppet,catch rate,225,rarity,12
-Luvdisc,catch rate,225,rarity,12
-Stunky,catch rate,225,rarity,12
-Flabébé,catch rate,225,rarity,12
-Skrelp,catch rate,225,rarity,12
-Clauncher,catch rate,225,rarity,12
-Crabrawler,catch rate,225,rarity,12
-Litleo,catch rate,220,rarity,14
-Pancham,catch rate,220,rarity,14
-Corphish,catch rate,205,rarity,20
-Abra,catch rate,200,rarity,22
-Taillow,catch rate,200,rarity,22
-Surskit,catch rate,200,rarity,22
-Hariyama,catch rate,200,rarity,22
-Plusle,catch rate,200,rarity,22
-Minun,catch rate,200,rarity,22
-Kecleon,catch rate,200,rarity,22
-Tropius,catch rate,200,rarity,22
-Pachirisu,catch rate,200,rarity,22
-Carnivine,catch rate,200,rarity,22
-Gothita,catch rate,200,rarity,22
-Solosis,catch rate,200,rarity,22
-Emolga,catch rate,200,rarity,22
-Karrablast,catch rate,200,rarity,22
-Shelmet,catch rate,200,rarity,22
-Skiddo,catch rate,200,rarity,22
-Spritzee,catch rate,200,rarity,22
-Swirlix,catch rate,200,rarity,22
-Dewpider,catch rate,200,rarity,22
-Pikachu,catch rate,190,rarity,26
-Vulpix,catch rate,190,rarity,26
-Paras,catch rate,190,rarity,26
-Venonat,catch rate,190,rarity,26
-Psyduck,catch rate,190,rarity,26
-Mankey,catch rate,190,rarity,26
-Growlithe,catch rate,190,rarity,26
-Tentacool,catch rate,190,rarity,26
-Ponyta,catch rate,190,rarity,26
-Slowpoke,catch rate,190,rarity,26
-Magnemite,catch rate,190,rarity,26
-Doduo,catch rate,190,rarity,26
-Seel,catch rate,190,rarity,26
-Grimer,catch rate,190,rarity,26
-Shellder,catch rate,190,rarity,26
-Gastly,catch rate,190,rarity,26
-Drowzee,catch rate,190,rarity,26
-Voltorb,catch rate,190,rarity,26
-Cubone,catch rate,190,rarity,26
-Koffing,catch rate,190,rarity,26
-Chinchou,catch rate,190,rarity,26
-Pichu,catch rate,190,rarity,26
-Togepi,catch rate,190,rarity,26
-Natu,catch rate,190,rarity,26
-Marill,catch rate,190,rarity,26
-Pineco,catch rate,190,rarity,26
-Dunsparce,catch rate,190,rarity,26
-Snubbull,catch rate,190,rarity,26
-Shuckle,catch rate,190,rarity,26
-Slugma,catch rate,190,rarity,26
-Remoraid,catch rate,190,rarity,26
-Wingull,catch rate,190,rarity,26
-Whismur,catch rate,190,rarity,26
-Cacnea,catch rate,190,rarity,26
-Barboach,catch rate,190,rarity,26
-Duskull,catch rate,190,rarity,26
-Snorunt,catch rate,190,rarity,26
-Buizel,catch rate,190,rarity,26
-Cherubi,catch rate,190,rarity,26
-Shellos,catch rate,190,rarity,26
-Buneary,catch rate,190,rarity,26
-Glameow,catch rate,190,rarity,26
-Finneon,catch rate,190,rarity,26
-Pansage,catch rate,190,rarity,26
-Pansear,catch rate,190,rarity,26
-Panpour,catch rate,190,rarity,26
-Munna,catch rate,190,rarity,26
-Blitzle,catch rate,190,rarity,26
-Woobat,catch rate,190,rarity,26
-Cottonee,catch rate,190,rarity,26
-Petilil,catch rate,190,rarity,26
-Dwebble,catch rate,190,rarity,26
-Yamask,catch rate,190,rarity,26
-Trubbish,catch rate,190,rarity,26
-Ducklett,catch rate,190,rarity,26
-Deerling,catch rate,190,rarity,26
-Foongus,catch rate,190,rarity,26
-Frillish,catch rate,190,rarity,26
-Joltik,catch rate,190,rarity,26
-Tynamo,catch rate,190,rarity,26
-Litwick,catch rate,190,rarity,26
-Golett,catch rate,190,rarity,26
-Rufflet,catch rate,190,rarity,26
-Vullaby,catch rate,190,rarity,26
-Espurr,catch rate,190,rarity,26
-Inkay,catch rate,190,rarity,26
-Helioptile,catch rate,190,rarity,26
-Bergmite,catch rate,190,rarity,26
-Noibat,catch rate,190,rarity,26
-Cutiefly,catch rate,190,rarity,26
-Rockruff,catch rate,190,rarity,26
-Mareanie,catch rate,190,rarity,26
-Mudbray,catch rate,190,rarity,26
-Fomantis,catch rate,190,rarity,26
-Morelull,catch rate,190,rarity,26
-Machop,catch rate,180,rarity,30
-Makuhita,catch rate,180,rarity,30
-Aron,catch rate,180,rarity,30
-Meditite,catch rate,180,rarity,30
-Timburr,catch rate,180,rarity,30
-Sandile,catch rate,180,rarity,30
-Scraggy,catch rate,180,rarity,30
-Mienfoo,catch rate,180,rarity,30
-Honedge,catch rate,180,rarity,30
-Dedenne,catch rate,180,rarity,30
-Togedemaru,catch rate,180,rarity,30
-Jigglypuff,catch rate,170,rarity,34
-Igglybuff,catch rate,170,rarity,34
-Furfrou,catch rate,160,rarity,37
-Crawdaunt,catch rate,155,rarity,39
-Clefairy,catch rate,150,rarity,41
-Cleffa,catch rate,150,rarity,41
-Azurill,catch rate,150,rarity,41
-Volbeat,catch rate,150,rarity,41
-Illumise,catch rate,150,rarity,41
-Roselia,catch rate,150,rarity,41
-Camerupt,catch rate,150,rarity,41
-Mime Jr.,catch rate,145,rarity,43
-Hippopotas,catch rate,140,rarity,45
-Croagunk,catch rate,140,rarity,45
-Aromatisse,catch rate,140,rarity,45
-Slurpuff,catch rate,140,rarity,45
-Stufful,catch rate,140,rarity,45
-Sandygast,catch rate,140,rarity,45
-Happiny,catch rate,130,rarity,49
-Klink,catch rate,130,rarity,49
-Raticate,catch rate,127,rarity,50
-Mightyena,catch rate,127,rarity,50
-Bibarel,catch rate,127,rarity,50
-Diggersby,catch rate,127,rarity,50
-Gumshoos,catch rate,127,rarity,50
-Wailmer,catch rate,125,rarity,51
-Wynaut,catch rate,125,rarity,51
-Drifloon,catch rate,125,rarity,51
-Metapod,catch rate,120,rarity,53
-Kakuna,catch rate,120,rarity,53
-Pidgeotto,catch rate,120,rarity,53
-Nidorina,catch rate,120,rarity,53
-Nidorino,catch rate,120,rarity,53
-Gloom,catch rate,120,rarity,53
-Poliwhirl,catch rate,120,rarity,53
-Weepinbell,catch rate,120,rarity,53
-Graveler,catch rate,120,rarity,53
-Rhyhorn,catch rate,120,rarity,53
-Flaaffy,catch rate,120,rarity,53
-Skiploom,catch rate,120,rarity,53
-Sunflora,catch rate,120,rarity,53
-Teddiursa,catch rate,120,rarity,53
-Houndour,catch rate,120,rarity,53
-Phanpy,catch rate,120,rarity,53
-Silcoon,catch rate,120,rarity,53
-Cascoon,catch rate,120,rarity,53
-Lombre,catch rate,120,rarity,53
-Nuzleaf,catch rate,120,rarity,53
-Kirlia,catch rate,120,rarity,53
-Vigoroth,catch rate,120,rarity,53
-Ninjask,catch rate,120,rarity,53
-Loudred,catch rate,120,rarity,53
-Electrike,catch rate,120,rarity,53
-Vibrava,catch rate,120,rarity,53
-Sealeo,catch rate,120,rarity,53
-Staravia,catch rate,120,rarity,53
-Luxio,catch rate,120,rarity,53
-Burmy,catch rate,120,rarity,53
-Combee,catch rate,120,rarity,53
-Chingling,catch rate,120,rarity,53
-Skorupi,catch rate,120,rarity,53
-Snover,catch rate,120,rarity,53
-Herdier,catch rate,120,rarity,53
-Tranquill,catch rate,120,rarity,53
-Boldore,catch rate,120,rarity,53
-Drilbur,catch rate,120,rarity,53
-Palpitoad,catch rate,120,rarity,53
-Swadloon,catch rate,120,rarity,53
-Whirlipede,catch rate,120,rarity,53
-Darumaka,catch rate,120,rarity,53
-Vanillish,catch rate,120,rarity,53
-Cubchoo,catch rate,120,rarity,53
-Pawniard,catch rate,120,rarity,53
-Fletchinder,catch rate,120,rarity,53
-Spewpa,catch rate,120,rarity,53
-Floette,catch rate,120,rarity,53
-Binacle,catch rate,120,rarity,53
-Phantump,catch rate,120,rarity,53
-Pumpkaboo,catch rate,120,rarity,53
-Trumbeak,catch rate,120,rarity,53
-Charjabug,catch rate,120,rarity,53
-Salandit,catch rate,120,rarity,53
-Steenee,catch rate,120,rarity,53
-Kadabra,catch rate,100,rarity,61
-Spiritomb,catch rate,100,rarity,61
-Gothorita,catch rate,100,rarity,61
-Duosion,catch rate,100,rarity,61
-Hawlucha,catch rate,100,rarity,61
-Araquanid,catch rate,100,rarity,61
-Fearow,catch rate,90,rarity,65
-Arbok,catch rate,90,rarity,65
-Sandslash,catch rate,90,rarity,65
-Golbat,catch rate,90,rarity,65
-Persian,catch rate,90,rarity,65
-Machoke,catch rate,90,rarity,65
-Haunter,catch rate,90,rarity,65
-Exeggcute,catch rate,90,rarity,65
-Furret,catch rate,90,rarity,65
-Noctowl,catch rate,90,rarity,65
-Ledian,catch rate,90,rarity,65
-Ariados,catch rate,90,rarity,65
-Crobat,catch rate,90,rarity,65
-Quagsire,catch rate,90,rarity,65
-Linoone,catch rate,90,rarity,65
-Breloom,catch rate,90,rarity,65
-Lairon,catch rate,90,rarity,65
-Medicham,catch rate,90,rarity,65
-Torkoal,catch rate,90,rarity,65
-Zangoose,catch rate,90,rarity,65
-Seviper,catch rate,90,rarity,65
-Claydol,catch rate,90,rarity,65
-Dusclops,catch rate,90,rarity,65
-Bronzong,catch rate,90,rarity,65
-Liepard,catch rate,90,rarity,65
-Gurdurr,catch rate,90,rarity,65
-Krokorok,catch rate,90,rarity,65
-Scrafty,catch rate,90,rarity,65
-Cofagrigus,catch rate,90,rarity,65
-Ferrothorn,catch rate,90,rarity,65
-Beheeyem,catch rate,90,rarity,65
-Lampent,catch rate,90,rarity,65
-Golurk,catch rate,90,rarity,65
-Heatmor,catch rate,90,rarity,65
-Durant,catch rate,90,rarity,65
-Doublade,catch rate,90,rarity,65
-Lycanroc,catch rate,90,rarity,65
-Wimpod,catch rate,90,rarity,65
-Malamar,catch rate,80,rarity,69
-Bruxish,catch rate,80,rarity,69
-Raichu,catch rate,75,rarity,71
-Ninetales,catch rate,75,rarity,71
-Parasect,catch rate,75,rarity,71
-Venomoth,catch rate,75,rarity,71
-Golduck,catch rate,75,rarity,71
-Primeape,catch rate,75,rarity,71
-Arcanine,catch rate,75,rarity,71
-Slowbro,catch rate,75,rarity,71
-Dewgong,catch rate,75,rarity,71
-Muk,catch rate,75,rarity,71
-Hypno,catch rate,75,rarity,71
-Marowak,catch rate,75,rarity,71
-Seadra,catch rate,75,rarity,71
-Lanturn,catch rate,75,rarity,71
-Togetic,catch rate,75,rarity,71
-Xatu,catch rate,75,rarity,71
-Azumarill,catch rate,75,rarity,71
-Yanma,catch rate,75,rarity,71
-Forretress,catch rate,75,rarity,71
-Granbull,catch rate,75,rarity,71
-Magcargo,catch rate,75,rarity,71
-Piloswine,catch rate,75,rarity,71
-Octillery,catch rate,75,rarity,71
-Tyrogue,catch rate,75,rarity,71
-Masquerain,catch rate,75,rarity,71
-Swalot,catch rate,75,rarity,71
-Whiscash,catch rate,75,rarity,71
-Glalie,catch rate,75,rarity,71
-Roserade,catch rate,75,rarity,71
-Floatzel,catch rate,75,rarity,71
-Cherrim,catch rate,75,rarity,71
-Gastrodon,catch rate,75,rarity,71
-Purugly,catch rate,75,rarity,71
-Riolu,catch rate,75,rarity,71
-Toxicroak,catch rate,75,rarity,71
-Lumineon,catch rate,75,rarity,71
-Froslass,catch rate,75,rarity,71
-Simisage,catch rate,75,rarity,71
-Simisear,catch rate,75,rarity,71
-Simipour,catch rate,75,rarity,71
-Musharna,catch rate,75,rarity,71
-Zebstrika,catch rate,75,rarity,71
-Whimsicott,catch rate,75,rarity,71
-Lilligant,catch rate,75,rarity,71
-Crustle,catch rate,75,rarity,71
-Zorua,catch rate,75,rarity,71
-Sawsbuck,catch rate,75,rarity,71
-Escavalier,catch rate,75,rarity,71
-Amoonguss,catch rate,75,rarity,71
-Alomomola,catch rate,75,rarity,71
-Galvantula,catch rate,75,rarity,71
-Axew,catch rate,75,rarity,71
-Accelgor,catch rate,75,rarity,71
-Stunfisk,catch rate,75,rarity,71
-Meowstic,catch rate,75,rarity,71
-Heliolisk,catch rate,75,rarity,71
-Klefki,catch rate,75,rarity,71
-Ribombee,catch rate,75,rarity,71
-Toxapex,catch rate,75,rarity,71
-Lurantis,catch rate,75,rarity,71
-Shiinotic,catch rate,75,rarity,71
-Slowking,catch rate,70,rarity,72
-Bewear,catch rate,70,rarity,72
-Turtonator,catch rate,70,rarity,72
-Drampa,catch rate,70,rarity,72
-Sudowoodo,catch rate,65,rarity,74
-Pyroar,catch rate,65,rarity,74
-Pangoro,catch rate,65,rarity,74
-Tentacruel,catch rate,60,rarity,76
-Rapidash,catch rate,60,rarity,76
-Magneton,catch rate,60,rarity,76
-Cloyster,catch rate,60,rarity,76
-Kingler,catch rate,60,rarity,76
-Electrode,catch rate,60,rarity,76
-Weezing,catch rate,60,rarity,76
-Rhydon,catch rate,60,rarity,76
-Seaking,catch rate,60,rarity,76
-Starmie,catch rate,60,rarity,76
-Girafarig,catch rate,60,rarity,76
-Gligar,catch rate,60,rarity,76
-Sneasel,catch rate,60,rarity,76
-Ursaring,catch rate,60,rarity,76
-Corsola,catch rate,60,rarity,76
-Donphan,catch rate,60,rarity,76
-Delcatty,catch rate,60,rarity,76
-Sharpedo,catch rate,60,rarity,76
-Wailord,catch rate,60,rarity,76
-Grumpig,catch rate,60,rarity,76
-Cacturne,catch rate,60,rarity,76
-Milotic,catch rate,60,rarity,76
-Huntail,catch rate,60,rarity,76
-Gorebyss,catch rate,60,rarity,76
-Drifblim,catch rate,60,rarity,76
-Lopunny,catch rate,60,rarity,76
-Skuntank,catch rate,60,rarity,76
-Hippowdon,catch rate,60,rarity,76
-Abomasnow,catch rate,60,rarity,76
-Probopass,catch rate,60,rarity,76
-Excadrill,catch rate,60,rarity,76
-Darmanitan,catch rate,60,rarity,76
-Garbodor,catch rate,60,rarity,76
-Cinccino,catch rate,60,rarity,76
-Jellicent,catch rate,60,rarity,76
-Klang,catch rate,60,rarity,76
-Eelektrik,catch rate,60,rarity,76
-Fraxure,catch rate,60,rarity,76
-Beartic,catch rate,60,rarity,76
-Braviary,catch rate,60,rarity,76
-Mandibuzz,catch rate,60,rarity,76
-Carbink,catch rate,60,rarity,76
-Trevenant,catch rate,60,rarity,76
-Gourgeist,catch rate,60,rarity,76
-Crabominable,catch rate,60,rarity,76
-Wishiwashi,catch rate,60,rarity,76
-Mudsdale,catch rate,60,rarity,76
-Comfey,catch rate,60,rarity,76
-Palossand,catch rate,60,rarity,76
-Pyukumuku,catch rate,60,rarity,76
-Dragalge,catch rate,55,rarity,78
-Clawitzer,catch rate,55,rarity,78
-Avalugg,catch rate,55,rarity,78
-Wigglytuff,catch rate,50,rarity,80
-Dugtrio,catch rate,50,rarity,80
-Alakazam,catch rate,50,rarity,80
-Munchlax,catch rate,50,rarity,80
-Mamoswine,catch rate,50,rarity,80
-Gothitelle,catch rate,50,rarity,80
-Reuniclus,catch rate,50,rarity,80
-Bulbasaur,catch rate,45,rarity,82
-Ivysaur,catch rate,45,rarity,82
-Venusaur,catch rate,45,rarity,82
-Charmander,catch rate,45,rarity,82
-Charmeleon,catch rate,45,rarity,82
-Charizard,catch rate,45,rarity,82
-Squirtle,catch rate,45,rarity,82
-Wartortle,catch rate,45,rarity,82
-Blastoise,catch rate,45,rarity,82
-Butterfree,catch rate,45,rarity,82
-Beedrill,catch rate,45,rarity,82
-Pidgeot,catch rate,45,rarity,82
-Nidoqueen,catch rate,45,rarity,82
-Nidoking,catch rate,45,rarity,82
-Vileplume,catch rate,45,rarity,82
-Poliwrath,catch rate,45,rarity,82
-Machamp,catch rate,45,rarity,82
-Victreebel,catch rate,45,rarity,82
-Golem,catch rate,45,rarity,82
-Farfetch'd,catch rate,45,rarity,82
-Dodrio,catch rate,45,rarity,82
-Gengar,catch rate,45,rarity,82
-Onix,catch rate,45,rarity,82
-Exeggutor,catch rate,45,rarity,82
-Hitmonlee,catch rate,45,rarity,82
-Hitmonchan,catch rate,45,rarity,82
-Lickitung,catch rate,45,rarity,82
-Tangela,catch rate,45,rarity,82
-Kangaskhan,catch rate,45,rarity,82
-Mr. Mime,catch rate,45,rarity,82
-Scyther,catch rate,45,rarity,82
-Jynx,catch rate,45,rarity,82
-Electabuzz,catch rate,45,rarity,82
-Magmar,catch rate,45,rarity,82
-Pinsir,catch rate,45,rarity,82
-Tauros,catch rate,45,rarity,82
-Gyarados,catch rate,45,rarity,82
-Lapras,catch rate,45,rarity,82
-Eevee,catch rate,45,rarity,82
-Vaporeon,catch rate,45,rarity,82
-Jolteon,catch rate,45,rarity,82
-Flareon,catch rate,45,rarity,82
-Porygon,catch rate,45,rarity,82
-Omanyte,catch rate,45,rarity,82
-Omastar,catch rate,45,rarity,82
-Kabuto,catch rate,45,rarity,82
-Kabutops,catch rate,45,rarity,82
-Aerodactyl,catch rate,45,rarity,82
-Dratini,catch rate,45,rarity,82
-Dragonair,catch rate,45,rarity,82
-Dragonite,catch rate,45,rarity,82
-Mew,catch rate,45,rarity,82
-Chikorita,catch rate,45,rarity,82
-Bayleef,catch rate,45,rarity,82
-Meganium,catch rate,45,rarity,82
-Cyndaquil,catch rate,45,rarity,82
-Quilava,catch rate,45,rarity,82
-Typhlosion,catch rate,45,rarity,82
-Totodile,catch rate,45,rarity,82
-Croconaw,catch rate,45,rarity,82
-Feraligatr,catch rate,45,rarity,82
-Ampharos,catch rate,45,rarity,82
-Bellossom,catch rate,45,rarity,82
-Politoed,catch rate,45,rarity,82
-Jumpluff,catch rate,45,rarity,82
-Aipom,catch rate,45,rarity,82
-Espeon,catch rate,45,rarity,82
-Umbreon,catch rate,45,rarity,82
-Misdreavus,catch rate,45,rarity,82
-Wobbuffet,catch rate,45,rarity,82
-Qwilfish,catch rate,45,rarity,82
-Heracross,catch rate,45,rarity,82
-Delibird,catch rate,45,rarity,82
-Houndoom,catch rate,45,rarity,82
-Kingdra,catch rate,45,rarity,82
-Porygon2,catch rate,45,rarity,82
-Stantler,catch rate,45,rarity,82
-Smeargle,catch rate,45,rarity,82
-Hitmontop,catch rate,45,rarity,82
-Smoochum,catch rate,45,rarity,82
-Elekid,catch rate,45,rarity,82
-Magby,catch rate,45,rarity,82
-Miltank,catch rate,45,rarity,82
-Larvitar,catch rate,45,rarity,82
-Pupitar,catch rate,45,rarity,82
-Tyranitar,catch rate,45,rarity,82
-Celebi,catch rate,45,rarity,82
-Treecko,catch rate,45,rarity,82
-Grovyle,catch rate,45,rarity,82
-Sceptile,catch rate,45,rarity,82
-Torchic,catch rate,45,rarity,82
-Combusken,catch rate,45,rarity,82
-Blaziken,catch rate,45,rarity,82
-Mudkip,catch rate,45,rarity,82
-Marshtomp,catch rate,45,rarity,82
-Swampert,catch rate,45,rarity,82
-Beautifly,catch rate,45,rarity,82
-Dustox,catch rate,45,rarity,82
-Ludicolo,catch rate,45,rarity,82
-Shiftry,catch rate,45,rarity,82
-Swellow,catch rate,45,rarity,82
-Pelipper,catch rate,45,rarity,82
-Gardevoir,catch rate,45,rarity,82
-Slaking,catch rate,45,rarity,82
-Shedinja,catch rate,45,rarity,82
-Exploud,catch rate,45,rarity,82
-Sableye,catch rate,45,rarity,82
-Mawile,catch rate,45,rarity,82
-Aggron,catch rate,45,rarity,82
-Manectric,catch rate,45,rarity,82
-Flygon,catch rate,45,rarity,82
-Altaria,catch rate,45,rarity,82
-Lunatone,catch rate,45,rarity,82
-Solrock,catch rate,45,rarity,82
-Lileep,catch rate,45,rarity,82
-Cradily,catch rate,45,rarity,82
-Anorith,catch rate,45,rarity,82
-Armaldo,catch rate,45,rarity,82
-Castform,catch rate,45,rarity,82
-Banette,catch rate,45,rarity,82
-Chimecho,catch rate,45,rarity,82
-Walrein,catch rate,45,rarity,82
-Bagon,catch rate,45,rarity,82
-Shelgon,catch rate,45,rarity,82
-Salamence,catch rate,45,rarity,82
-Rayquaza,catch rate,45,rarity,82
-Turtwig,catch rate,45,rarity,82
-Grotle,catch rate,45,rarity,82
-Torterra,catch rate,45,rarity,82
-Chimchar,catch rate,45,rarity,82
-Monferno,catch rate,45,rarity,82
-Infernape,catch rate,45,rarity,82
-Piplup,catch rate,45,rarity,82
-Prinplup,catch rate,45,rarity,82
-Empoleon,catch rate,45,rarity,82
-Staraptor,catch rate,45,rarity,82
-Kricketune,catch rate,45,rarity,82
-Luxray,catch rate,45,rarity,82
-Cranidos,catch rate,45,rarity,82
-Rampardos,catch rate,45,rarity,82
-Shieldon,catch rate,45,rarity,82
-Bastiodon,catch rate,45,rarity,82
-Wormadam,catch rate,45,rarity,82
-Mothim,catch rate,45,rarity,82
-Vespiquen,catch rate,45,rarity,82
-Ambipom,catch rate,45,rarity,82
-Mismagius,catch rate,45,rarity,82
-Gible,catch rate,45,rarity,82
-Gabite,catch rate,45,rarity,82
-Garchomp,catch rate,45,rarity,82
-Lucario,catch rate,45,rarity,82
-Drapion,catch rate,45,rarity,82
-Weavile,catch rate,45,rarity,82
-Leafeon,catch rate,45,rarity,82
-Glaceon,catch rate,45,rarity,82
-Gallade,catch rate,45,rarity,82
-Dusknoir,catch rate,45,rarity,82
-Rotom,catch rate,45,rarity,82
-Shaymin,catch rate,45,rarity,82
-Snivy,catch rate,45,rarity,82
-Servine,catch rate,45,rarity,82
-Serperior,catch rate,45,rarity,82
-Tepig,catch rate,45,rarity,82
-Pignite,catch rate,45,rarity,82
-Emboar,catch rate,45,rarity,82
-Oshawott,catch rate,45,rarity,82
-Dewott,catch rate,45,rarity,82
-Samurott,catch rate,45,rarity,82
-Stoutland,catch rate,45,rarity,82
-Unfezant,catch rate,45,rarity,82
-Gigalith,catch rate,45,rarity,82
-Swoobat,catch rate,45,rarity,82
-Conkeldurr,catch rate,45,rarity,82
-Seismitoad,catch rate,45,rarity,82
-Throh,catch rate,45,rarity,82
-Sawk,catch rate,45,rarity,82
-Leavanny,catch rate,45,rarity,82
-Scolipede,catch rate,45,rarity,82
-Krookodile,catch rate,45,rarity,82
-Sigilyph,catch rate,45,rarity,82
-Tirtouga,catch rate,45,rarity,82
-Carracosta,catch rate,45,rarity,82
-Archen,catch rate,45,rarity,82
-Archeops,catch rate,45,rarity,82
-Zoroark,catch rate,45,rarity,82
-Swanna,catch rate,45,rarity,82
-Vanilluxe,catch rate,45,rarity,82
-Chandelure,catch rate,45,rarity,82
-Haxorus,catch rate,45,rarity,82
-Mienshao,catch rate,45,rarity,82
-Druddigon,catch rate,45,rarity,82
-Bisharp,catch rate,45,rarity,82
-Bouffalant,catch rate,45,rarity,82
-Deino,catch rate,45,rarity,82
-Zweilous,catch rate,45,rarity,82
-Hydreigon,catch rate,45,rarity,82
-Larvesta,catch rate,45,rarity,82
-Chespin,catch rate,45,rarity,82
-Quilladin,catch rate,45,rarity,82
-Chesnaught,catch rate,45,rarity,82
-Fennekin,catch rate,45,rarity,82
-Braixen,catch rate,45,rarity,82
-Delphox,catch rate,45,rarity,82
-Froakie,catch rate,45,rarity,82
-Frogadier,catch rate,45,rarity,82
-Greninja,catch rate,45,rarity,82
-Talonflame,catch rate,45,rarity,82
-Vivillon,catch rate,45,rarity,82
-Florges,catch rate,45,rarity,82
-Gogoat,catch rate,45,rarity,82
-Aegislash,catch rate,45,rarity,82
-Barbaracle,catch rate,45,rarity,82
-Tyrunt,catch rate,45,rarity,82
-Tyrantrum,catch rate,45,rarity,82
-Amaura,catch rate,45,rarity,82
-Aurorus,catch rate,45,rarity,82
-Sylveon,catch rate,45,rarity,82
-Goomy,catch rate,45,rarity,82
-Sliggoo,catch rate,45,rarity,82
-Goodra,catch rate,45,rarity,82
-Noivern,catch rate,45,rarity,82
-Xerneas,catch rate,45,rarity,82
-Yveltal,catch rate,45,rarity,82
-Rowlet,catch rate,45,rarity,82
-Dartrix,catch rate,45,rarity,82
-Decidueye,catch rate,45,rarity,82
-Litten,catch rate,45,rarity,82
-Torracat,catch rate,45,rarity,82
-Incineroar,catch rate,45,rarity,82
-Popplio,catch rate,45,rarity,82
-Brionne,catch rate,45,rarity,82
-Primarina,catch rate,45,rarity,82
-Toucannon,catch rate,45,rarity,82
-Vikavolt,catch rate,45,rarity,82
-Oricorio,catch rate,45,rarity,82
-Salazzle,catch rate,45,rarity,82
-Tsareena,catch rate,45,rarity,82
-Oranguru,catch rate,45,rarity,82
-Passimian,catch rate,45,rarity,82
-Golisopod,catch rate,45,rarity,82
-Komala,catch rate,45,rarity,82
-Mimikyu,catch rate,45,rarity,82
-Jangmo-o,catch rate,45,rarity,82
-Hakamo-o,catch rate,45,rarity,82
-Kommo-o,catch rate,45,rarity,82
-Cosmog,catch rate,45,rarity,82
-Cosmoem,catch rate,45,rarity,82
-Solgaleo,catch rate,45,rarity,82
-Lunala,catch rate,45,rarity,82
-Nihilego,catch rate,45,rarity,82
-Buzzwole,catch rate,45,rarity,82
-Pheromosa,catch rate,45,rarity,82
-Xurkitree,catch rate,45,rarity,82
-Celesteela,catch rate,45,rarity,82
-Kartana,catch rate,45,rarity,82
-Guzzlord,catch rate,45,rarity,82
-Poipole,catch rate,45,rarity,82
-Naganadel,catch rate,45,rarity,82
-Ditto,catch rate,35,rarity,86
-Chansey,catch rate,30,rarity,88
-Murkrow,catch rate,30,rarity,88
-Blissey,catch rate,30,rarity,88
-Absol,catch rate,30,rarity,88
-Honchkrow,catch rate,30,rarity,88
-Chatot,catch rate,30,rarity,88
-Magnezone,catch rate,30,rarity,88
-Lickilicky,catch rate,30,rarity,88
-Rhyperior,catch rate,30,rarity,88
-Tangrowth,catch rate,30,rarity,88
-Electivire,catch rate,30,rarity,88
-Magmortar,catch rate,30,rarity,88
-Togekiss,catch rate,30,rarity,88
-Yanmega,catch rate,30,rarity,88
-Gliscor,catch rate,30,rarity,88
-Porygon-Z,catch rate,30,rarity,88
-Phione,catch rate,30,rarity,88
-Klinklang,catch rate,30,rarity,88
-Eelektross,catch rate,30,rarity,88
-Minior,catch rate,30,rarity,88
-Stakataka,catch rate,30,rarity,88
-Blacephalon,catch rate,30,rarity,88
-Clefable,catch rate,25,rarity,90
-Snorlax,catch rate,25,rarity,90
-Steelix,catch rate,25,rarity,90
-Scizor,catch rate,25,rarity,90
-Mantine,catch rate,25,rarity,90
-Skarmory,catch rate,25,rarity,90
-Relicanth,catch rate,25,rarity,90
-Mantyke,catch rate,25,rarity,90
-Basculin,catch rate,25,rarity,90
-Cryogonal,catch rate,25,rarity,90
-Dhelmise,catch rate,25,rarity,90
-Volcarona,catch rate,15,rarity,94
-Articuno,catch rate,3,rarity,99
-Zapdos,catch rate,3,rarity,99
-Moltres,catch rate,3,rarity,99
-Mewtwo,catch rate,3,rarity,99
-Raikou,catch rate,3,rarity,99
-Entei,catch rate,3,rarity,99
-Suicune,catch rate,3,rarity,99
-Lugia,catch rate,3,rarity,99
-Ho-Oh,catch rate,3,rarity,99
-Beldum,catch rate,3,rarity,99
-Metang,catch rate,3,rarity,99
-Metagross,catch rate,3,rarity,99
-Regirock,catch rate,3,rarity,99
-Regice,catch rate,3,rarity,99
-Registeel,catch rate,3,rarity,99
-Latias,catch rate,3,rarity,99
-Latios,catch rate,3,rarity,99
-Kyogre,catch rate,3,rarity,99
-Groudon,catch rate,3,rarity,99
-Jirachi,catch rate,3,rarity,99
-Deoxys,catch rate,3,rarity,99
-Uxie,catch rate,3,rarity,99
-Mesprit,catch rate,3,rarity,99
-Azelf,catch rate,3,rarity,99
-Dialga,catch rate,3,rarity,99
-Palkia,catch rate,3,rarity,99
-Heatran,catch rate,3,rarity,99
-Regigigas,catch rate,3,rarity,99
-Giratina,catch rate,3,rarity,99
-Cresselia,catch rate,3,rarity,99
-Manaphy,catch rate,3,rarity,99
-Darkrai,catch rate,3,rarity,99
-Arceus,catch rate,3,rarity,99
-Victini,catch rate,3,rarity,99
-Cobalion,catch rate,3,rarity,99
-Terrakion,catch rate,3,rarity,99
-Virizion,catch rate,3,rarity,99
-Tornadus,catch rate,3,rarity,99
-Thundurus,catch rate,3,rarity,99
-Reshiram,catch rate,3,rarity,99
-Zekrom,catch rate,3,rarity,99
-Landorus,catch rate,3,rarity,99
-Kyurem,catch rate,3,rarity,99
-Keldeo,catch rate,3,rarity,99
-Meloetta,catch rate,3,rarity,99
-Genesect,catch rate,3,rarity,99
-Zygarde,catch rate,3,rarity,99
-Diancie,catch rate,3,rarity,99
-Hoopa,catch rate,3,rarity,99
-Volcanion,catch rate,3,rarity,99
-Type: Null,catch rate,3,rarity,99
-Silvally,catch rate,3,rarity,99
-Tapu Koko,catch rate,3,rarity,99
-Tapu Lele,catch rate,3,rarity,99
-Tapu Bulu,catch rate,3,rarity,99
-Tapu Fini,catch rate,3,rarity,99
-Magearna,catch rate,3,rarity,99
-Marshadow,catch rate,3,rarity,99
-Zeraora,catch rate,3,rarity,99
+POKEMON,,,,,,
+Bulbasaur,experience group,Medium Slow,,,,
+Ivysaur,experience group,Medium Slow,,,,
+Venusaur,experience group,Medium Slow,,,,
+Charmander,experience group,Medium Slow,,,,
+Charmeleon,experience group,Medium Slow,,,,
+Charizard,experience group,Medium Slow,,,,
+Squirtle,experience group,Medium Slow,,,,
+Wartortle,experience group,Medium Slow,,,,
+Blastoise,experience group,Medium Slow,,,,
+Caterpie,experience group,Medium Fast,,,,
+Metapod,experience group,Medium Fast,,,,
+Butterfree,experience group,Medium Fast,,,,
+Weedle,experience group,Medium Fast,,,,
+Kakuna,experience group,Medium Fast,,,,
+Beedrill,experience group,Medium Fast,,,,
+Pidgey,experience group,Medium Slow,,,,
+Pidgeotto,experience group,Medium Slow,,,,
+Pidgeot,experience group,Medium Slow,,,,
+Rattata,experience group,Medium Fast,,,,
+Raticate,experience group,Medium Fast,,,,
+Spearow,experience group,Medium Fast,,,,
+Fearow,experience group,Medium Fast,,,,
+Ekans,experience group,Medium Fast,,,,
+Arbok,experience group,Medium Fast,,,,
+Pikachu,experience group,Medium Fast,,,,
+Raichu,experience group,Medium Fast,,,,
+Sandshrew,experience group,Medium Fast,,,,
+Sandslash,experience group,Medium Fast,,,,
+Nidoran♀,experience group,Medium Slow,,,,
+Nidorina,experience group,Medium Slow,,,,
+Nidoqueen,experience group,Medium Slow,,,,
+Nidoran♂,experience group,Medium Slow,,,,
+Nidorino,experience group,Medium Slow,,,,
+Nidoking,experience group,Medium Slow,,,,
+Clefairy,experience group,Fast,,,,
+Clefable,experience group,Fast,,,,
+Vulpix,experience group,Medium Fast,,,,
+Ninetales,experience group,Medium Fast,,,,
+Jigglypuff,experience group,Fast,,,,
+Wigglytuff,experience group,Fast,,,,
+Zubat,experience group,Medium Fast,,,,
+Golbat,experience group,Medium Fast,,,,
+Oddish,experience group,Medium Slow,,,,
+Gloom,experience group,Medium Slow,,,,
+Vileplume,experience group,Medium Slow,,,,
+Paras,experience group,Medium Fast,,,,
+Parasect,experience group,Medium Fast,,,,
+Venonat,experience group,Medium Fast,,,,
+Venomoth,experience group,Medium Fast,,,,
+Diglett,experience group,Medium Fast,,,,
+Dugtrio,experience group,Medium Fast,,,,
+Meowth,experience group,Medium Fast,,,,
+Persian,experience group,Medium Fast,,,,
+Psyduck,experience group,Medium Fast,,,,
+Golduck,experience group,Medium Fast,,,,
+Mankey,experience group,Medium Fast,,,,
+Primeape,experience group,Medium Fast,,,,
+Growlithe,experience group,Slow,,,,
+Arcanine,experience group,Slow,,,,
+Poliwag,experience group,Medium Slow,,,,
+Poliwhirl,experience group,Medium Slow,,,,
+Poliwrath,experience group,Medium Slow,,,,
+Abra,experience group,Medium Slow,,,,
+Kadabra,experience group,Medium Slow,,,,
+Alakazam,experience group,Medium Slow,,,,
+Machop,experience group,Medium Slow,,,,
+Machoke,experience group,Medium Slow,,,,
+Machamp,experience group,Medium Slow,,,,
+Bellsprout,experience group,Medium Slow,,,,
+Weepinbell,experience group,Medium Slow,,,,
+Victreebel,experience group,Medium Slow,,,,
+Tentacool,experience group,Slow,,,,
+Tentacruel,experience group,Slow,,,,
+Geodude,experience group,Medium Slow,,,,
+Graveler,experience group,Medium Slow,,,,
+Golem,experience group,Medium Slow,,,,
+Ponyta,experience group,Medium Fast,,,,
+Rapidash,experience group,Medium Fast,,,,
+Slowpoke,experience group,Medium Fast,,,,
+Slowbro,experience group,Medium Fast,,,,
+Magnemite,experience group,Medium Fast,,,,
+Magneton,experience group,Medium Fast,,,,
+Farfetch'd,experience group,Medium Fast,,,,
+Doduo,experience group,Medium Fast,,,,
+Dodrio,experience group,Medium Fast,,,,
+Seel,experience group,Medium Fast,,,,
+Dewgong,experience group,Medium Fast,,,,
+Grimer,experience group,Medium Fast,,,,
+Muk,experience group,Medium Fast,,,,
+Shellder,experience group,Slow,,,,
+Cloyster,experience group,Slow,,,,
+Gastly,experience group,Medium Slow,,,,
+Haunter,experience group,Medium Slow,,,,
+Gengar,experience group,Medium Slow,,,,
+Onix,experience group,Medium Fast,,,,
+Drowzee,experience group,Medium Fast,,,,
+Hypno,experience group,Medium Fast,,,,
+Krabby,experience group,Medium Fast,,,,
+Kingler,experience group,Medium Fast,,,,
+Voltorb,experience group,Medium Fast,,,,
+Electrode,experience group,Medium Fast,,,,
+Exeggcute,experience group,Slow,,,,
+Exeggutor,experience group,Slow,,,,
+Cubone,experience group,Medium Fast,,,,
+Marowak,experience group,Medium Fast,,,,
+Hitmonlee,experience group,Medium Fast,,,,
+Hitmonchan,experience group,Medium Fast,,,,
+Lickitung,experience group,Medium Fast,,,,
+Koffing,experience group,Medium Fast,,,,
+Weezing,experience group,Medium Fast,,,,
+Rhyhorn,experience group,Slow,,,,
+Rhydon,experience group,Slow,,,,
+Chansey,experience group,Fast,,,,
+Tangela,experience group,Medium Fast,,,,
+Kangaskhan,experience group,Medium Fast,,,,
+Horsea,experience group,Medium Fast,,,,
+Seadra,experience group,Medium Fast,,,,
+Goldeen,experience group,Medium Fast,,,,
+Seaking,experience group,Medium Fast,,,,
+Staryu,experience group,Slow,,,,
+Starmie,experience group,Slow,,,,
+Mr. Mime,experience group,Medium Fast,,,,
+Scyther,experience group,Medium Fast,,,,
+Jynx,experience group,Medium Fast,,,,
+Electabuzz,experience group,Medium Fast,,,,
+Magmar,experience group,Medium Fast,,,,
+Pinsir,experience group,Slow,,,,
+Tauros,experience group,Slow,,,,
+Magikarp,experience group,Slow,,,,
+Gyarados,experience group,Slow,,,,
+Lapras,experience group,Slow,,,,
+Ditto,experience group,Medium Fast,,,,
+Eevee,experience group,Medium Fast,,,,
+Vaporeon,experience group,Medium Fast,,,,
+Jolteon,experience group,Medium Fast,,,,
+Flareon,experience group,Medium Fast,,,,
+Porygon,experience group,Medium Fast,,,,
+Omanyte,experience group,Medium Fast,,,,
+Omastar,experience group,Medium Fast,,,,
+Kabuto,experience group,Medium Fast,,,,
+Kabutops,experience group,Medium Fast,,,,
+Aerodactyl,experience group,Slow,,,,
+Snorlax,experience group,Slow,,,,
+Articuno,experience group,Slow,,,,
+Zapdos,experience group,Slow,,,,
+Moltres,experience group,Slow,,,,
+Dratini,experience group,Slow,,,,
+Dragonair,experience group,Slow,,,,
+Dragonite,experience group,Slow,,,,
+Mewtwo,experience group,Slow,,,,
+Mew,experience group,Medium Slow,,,,
+Chikorita,experience group,Medium Slow,,,,
+Bayleef,experience group,Medium Slow,,,,
+Meganium,experience group,Medium Slow,,,,
+Cyndaquil,experience group,Medium Slow,,,,
+Quilava,experience group,Medium Slow,,,,
+Typhlosion,experience group,Medium Slow,,,,
+Totodile,experience group,Medium Slow,,,,
+Croconaw,experience group,Medium Slow,,,,
+Feraligatr,experience group,Medium Slow,,,,
+Sentret,experience group,Medium Fast,,,,
+Furret,experience group,Medium Fast,,,,
+Hoothoot,experience group,Medium Fast,,,,
+Noctowl,experience group,Medium Fast,,,,
+Ledyba,experience group,Fast,,,,
+Ledian,experience group,Fast,,,,
+Spinarak,experience group,Fast,,,,
+Ariados,experience group,Fast,,,,
+Crobat,experience group,Medium Fast,,,,
+Chinchou,experience group,Slow,,,,
+Lanturn,experience group,Slow,,,,
+Pichu,experience group,Medium Fast,,,,
+Cleffa,experience group,Fast,,,,
+Igglybuff,experience group,Fast,,,,
+Togepi,experience group,Fast,,,,
+Togetic,experience group,Fast,,,,
+Natu,experience group,Medium Fast,,,,
+Xatu,experience group,Medium Fast,,,,
+Mareep,experience group,Medium Slow,,,,
+Flaaffy,experience group,Medium Slow,,,,
+Ampharos,experience group,Medium Slow,,,,
+Bellossom,experience group,Medium Slow,,,,
+Marill,experience group,Fast,,,,
+Azumarill,experience group,Fast,,,,
+Sudowoodo,experience group,Medium Fast,,,,
+Politoed,experience group,Medium Slow,,,,
+Hoppip,experience group,Medium Slow,,,,
+Skiploom,experience group,Medium Slow,,,,
+Jumpluff,experience group,Medium Slow,,,,
+Aipom,experience group,Fast,,,,
+Sunkern,experience group,Medium Slow,,,,
+Sunflora,experience group,Medium Slow,,,,
+Yanma,experience group,Medium Fast,,,,
+Wooper,experience group,Medium Fast,,,,
+Quagsire,experience group,Medium Fast,,,,
+Espeon,experience group,Medium Fast,,,,
+Umbreon,experience group,Medium Fast,,,,
+Murkrow,experience group,Medium Slow,,,,
+Slowking,experience group,Medium Fast,,,,
+Misdreavus,experience group,Fast,,,,
+Unown,experience group,Medium Fast,,,,
+Wobbuffet,experience group,Medium Fast,,,,
+Girafarig,experience group,Medium Fast,,,,
+Pineco,experience group,Medium Fast,,,,
+Forretress,experience group,Medium Fast,,,,
+Dunsparce,experience group,Medium Fast,,,,
+Gligar,experience group,Medium Slow,,,,
+Steelix,experience group,Medium Fast,,,,
+Snubbull,experience group,Fast,,,,
+Granbull,experience group,Fast,,,,
+Qwilfish,experience group,Medium Fast,,,,
+Scizor,experience group,Medium Fast,,,,
+Shuckle,experience group,Medium Slow,,,,
+Heracross,experience group,Slow,,,,
+Sneasel,experience group,Medium Slow,,,,
+Teddiursa,experience group,Medium Fast,,,,
+Ursaring,experience group,Medium Fast,,,,
+Slugma,experience group,Medium Fast,,,,
+Magcargo,experience group,Medium Fast,,,,
+Swinub,experience group,Slow,,,,
+Piloswine,experience group,Slow,,,,
+Corsola,experience group,Fast,,,,
+Remoraid,experience group,Medium Fast,,,,
+Octillery,experience group,Medium Fast,,,,
+Delibird,experience group,Fast,,,,
+Mantine,experience group,Slow,,,,
+Skarmory,experience group,Slow,,,,
+Houndour,experience group,Slow,,,,
+Houndoom,experience group,Slow,,,,
+Kingdra,experience group,Medium Fast,,,,
+Phanpy,experience group,Medium Fast,,,,
+Donphan,experience group,Medium Fast,,,,
+Porygon2,experience group,Medium Fast,,,,
+Stantler,experience group,Slow,,,,
+Smeargle,experience group,Fast,,,,
+Tyrogue,experience group,Medium Fast,,,,
+Hitmontop,experience group,Medium Fast,,,,
+Smoochum,experience group,Medium Fast,,,,
+Elekid,experience group,Medium Fast,,,,
+Magby,experience group,Medium Fast,,,,
+Miltank,experience group,Slow,,,,
+Blissey,experience group,Fast,,,,
+Raikou,experience group,Slow,,,,
+Entei,experience group,Slow,,,,
+Suicune,experience group,Slow,,,,
+Larvitar,experience group,Slow,,,,
+Pupitar,experience group,Slow,,,,
+Tyranitar,experience group,Slow,,,,
+Lugia,experience group,Slow,,,,
+Ho-Oh,experience group,Slow,,,,
+Celebi,experience group,Medium Slow,,,,
+Treecko,experience group,Medium Slow,,,,
+Grovyle,experience group,Medium Slow,,,,
+Sceptile,experience group,Medium Slow,,,,
+Torchic,experience group,Medium Slow,,,,
+Combusken,experience group,Medium Slow,,,,
+Blaziken,experience group,Medium Slow,,,,
+Mudkip,experience group,Medium Slow,,,,
+Marshtomp,experience group,Medium Slow,,,,
+Swampert,experience group,Medium Slow,,,,
+Poochyena,experience group,Medium Fast,,,,
+Mightyena,experience group,Medium Fast,,,,
+Zigzagoon,experience group,Medium Fast,,,,
+Linoone,experience group,Medium Fast,,,,
+Wurmple,experience group,Medium Fast,,,,
+Silcoon,experience group,Medium Fast,,,,
+Beautifly,experience group,Medium Fast,,,,
+Cascoon,experience group,Medium Fast,,,,
+Dustox,experience group,Medium Fast,,,,
+Lotad,experience group,Medium Slow,,,,
+Lombre,experience group,Medium Slow,,,,
+Ludicolo,experience group,Medium Slow,,,,
+Seedot,experience group,Medium Slow,,,,
+Nuzleaf,experience group,Medium Slow,,,,
+Shiftry,experience group,Medium Slow,,,,
+Taillow,experience group,Medium Slow,,,,
+Swellow,experience group,Medium Slow,,,,
+Wingull,experience group,Medium Fast,,,,
+Pelipper,experience group,Medium Fast,,,,
+Ralts,experience group,Slow,,,,
+Kirlia,experience group,Slow,,,,
+Gardevoir,experience group,Slow,,,,
+Surskit,experience group,Medium Fast,,,,
+Masquerain,experience group,Medium Fast,,,,
+Shroomish,experience group,Fluctuating,,,,
+Breloom,experience group,Fluctuating,,,,
+Slakoth,experience group,Slow,,,,
+Vigoroth,experience group,Slow,,,,
+Slaking,experience group,Slow,,,,
+Nincada,experience group,Erratic,,,,
+Ninjask,experience group,Erratic,,,,
+Shedinja,experience group,Erratic,,,,
+Whismur,experience group,Medium Slow,,,,
+Loudred,experience group,Medium Slow,,,,
+Exploud,experience group,Medium Slow,,,,
+Makuhita,experience group,Fluctuating,,,,
+Hariyama,experience group,Fluctuating,,,,
+Azurill,experience group,Fast,,,,
+Nosepass,experience group,Medium Fast,,,,
+Skitty,experience group,Fast,,,,
+Delcatty,experience group,Fast,,,,
+Sableye,experience group,Medium Slow,,,,
+Mawile,experience group,Fast,,,,
+Aron,experience group,Slow,,,,
+Lairon,experience group,Slow,,,,
+Aggron,experience group,Slow,,,,
+Meditite,experience group,Medium Fast,,,,
+Medicham,experience group,Medium Fast,,,,
+Electrike,experience group,Slow,,,,
+Manectric,experience group,Slow,,,,
+Plusle,experience group,Medium Fast,,,,
+Minun,experience group,Medium Fast,,,,
+Volbeat,experience group,Erratic,,,,
+Illumise,experience group,Fluctuating,,,,
+Roselia,experience group,Medium Slow,,,,
+Gulpin,experience group,Fluctuating,,,,
+Swalot,experience group,Fluctuating,,,,
+Carvanha,experience group,Slow,,,,
+Sharpedo,experience group,Slow,,,,
+Wailmer,experience group,Fluctuating,,,,
+Wailord,experience group,Fluctuating,,,,
+Numel,experience group,Medium Fast,,,,
+Camerupt,experience group,Medium Fast,,,,
+Torkoal,experience group,Medium Fast,,,,
+Spoink,experience group,Fast,,,,
+Grumpig,experience group,Fast,,,,
+Spinda,experience group,Fast,,,,
+Trapinch,experience group,Medium Slow,,,,
+Vibrava,experience group,Medium Slow,,,,
+Flygon,experience group,Medium Slow,,,,
+Cacnea,experience group,Medium Slow,,,,
+Cacturne,experience group,Medium Slow,,,,
+Swablu,experience group,Erratic,,,,
+Altaria,experience group,Erratic,,,,
+Zangoose,experience group,Erratic,,,,
+Seviper,experience group,Fluctuating,,,,
+Lunatone,experience group,Fast,,,,
+Solrock,experience group,Fast,,,,
+Barboach,experience group,Medium Fast,,,,
+Whiscash,experience group,Medium Fast,,,,
+Corphish,experience group,Fluctuating,,,,
+Crawdaunt,experience group,Fluctuating,,,,
+Baltoy,experience group,Medium Fast,,,,
+Claydol,experience group,Medium Fast,,,,
+Lileep,experience group,Erratic,,,,
+Cradily,experience group,Erratic,,,,
+Anorith,experience group,Erratic,,,,
+Armaldo,experience group,Erratic,,,,
+Feebas,experience group,Erratic,,,,
+Milotic,experience group,Erratic,,,,
+Castform,experience group,Medium Fast,,,,
+Kecleon,experience group,Medium Slow,,,,
+Shuppet,experience group,Fast,,,,
+Banette,experience group,Fast,,,,
+Duskull,experience group,Fast,,,,
+Dusclops,experience group,Fast,,,,
+Tropius,experience group,Slow,,,,
+Chimecho,experience group,Fast,,,,
+Absol,experience group,Medium Slow,,,,
+Wynaut,experience group,Medium Fast,,,,
+Snorunt,experience group,Medium Fast,,,,
+Glalie,experience group,Medium Fast,,,,
+Spheal,experience group,Medium Slow,,,,
+Sealeo,experience group,Medium Slow,,,,
+Walrein,experience group,Medium Slow,,,,
+Clamperl,experience group,Erratic,,,,
+Huntail,experience group,Erratic,,,,
+Gorebyss,experience group,Erratic,,,,
+Relicanth,experience group,Slow,,,,
+Luvdisc,experience group,Fast,,,,
+Bagon,experience group,Slow,,,,
+Shelgon,experience group,Slow,,,,
+Salamence,experience group,Slow,,,,
+Beldum,experience group,Slow,,,,
+Metang,experience group,Slow,,,,
+Metagross,experience group,Slow,,,,
+Regirock,experience group,Slow,,,,
+Regice,experience group,Slow,,,,
+Registeel,experience group,Slow,,,,
+Latias,experience group,Slow,,,,
+Latios,experience group,Slow,,,,
+Kyogre,experience group,Slow,,,,
+Groudon,experience group,Slow,,,,
+Rayquaza,experience group,Slow,,,,
+Jirachi,experience group,Slow,,,,
+Deoxys,experience group,Slow,,,,
+Turtwig,experience group,Medium Slow,,,,
+Grotle,experience group,Medium Slow,,,,
+Torterra,experience group,Medium Slow,,,,
+Chimchar,experience group,Medium Slow,,,,
+Monferno,experience group,Medium Slow,,,,
+Infernape,experience group,Medium Slow,,,,
+Piplup,experience group,Medium Slow,,,,
+Prinplup,experience group,Medium Slow,,,,
+Empoleon,experience group,Medium Slow,,,,
+Starly,experience group,Medium Slow,,,,
+Staravia,experience group,Medium Slow,,,,
+Staraptor,experience group,Medium Slow,,,,
+Bidoof,experience group,Medium Fast,,,,
+Bibarel,experience group,Medium Fast,,,,
+Kricketot,experience group,Medium Slow,,,,
+Kricketune,experience group,Medium Slow,,,,
+Shinx,experience group,Medium Slow,,,,
+Luxio,experience group,Medium Slow,,,,
+Luxray,experience group,Medium Slow,,,,
+Budew,experience group,Medium Slow,,,,
+Roserade,experience group,Medium Slow,,,,
+Cranidos,experience group,Erratic,,,,
+Rampardos,experience group,Erratic,,,,
+Shieldon,experience group,Erratic,,,,
+Bastiodon,experience group,Erratic,,,,
+Burmy,experience group,Medium Fast,,,,
+Wormadam,experience group,Medium Fast,,,,
+Mothim,experience group,Medium Fast,,,,
+Combee,experience group,Medium Slow,,,,
+Vespiquen,experience group,Medium Slow,,,,
+Pachirisu,experience group,Medium Fast,,,,
+Buizel,experience group,Medium Fast,,,,
+Floatzel,experience group,Medium Fast,,,,
+Cherubi,experience group,Medium Fast,,,,
+Cherrim,experience group,Medium Fast,,,,
+Shellos,experience group,Medium Fast,,,,
+Gastrodon,experience group,Medium Fast,,,,
+Ambipom,experience group,Fast,,,,
+Drifloon,experience group,Fluctuating,,,,
+Drifblim,experience group,Fluctuating,,,,
+Buneary,experience group,Medium Fast,,,,
+Lopunny,experience group,Medium Fast,,,,
+Mismagius,experience group,Fast,,,,
+Honchkrow,experience group,Medium Slow,,,,
+Glameow,experience group,Fast,,,,
+Purugly,experience group,Fast,,,,
+Chingling,experience group,Fast,,,,
+Stunky,experience group,Medium Fast,,,,
+Skuntank,experience group,Medium Fast,,,,
+Bronzor,experience group,Medium Fast,,,,
+Bronzong,experience group,Medium Fast,,,,
+Bonsly,experience group,Medium Fast,,,,
+Mime Jr.,experience group,Medium Fast,,,,
+Happiny,experience group,Fast,,,,
+Chatot,experience group,Medium Slow,,,,
+Spiritomb,experience group,Medium Fast,,,,
+Gible,experience group,Slow,,,,
+Gabite,experience group,Slow,,,,
+Garchomp,experience group,Slow,,,,
+Munchlax,experience group,Slow,,,,
+Riolu,experience group,Medium Slow,,,,
+Lucario,experience group,Medium Slow,,,,
+Hippopotas,experience group,Slow,,,,
+Hippowdon,experience group,Slow,,,,
+Skorupi,experience group,Slow,,,,
+Drapion,experience group,Slow,,,,
+Croagunk,experience group,Medium Fast,,,,
+Toxicroak,experience group,Medium Fast,,,,
+Carnivine,experience group,Slow,,,,
+Finneon,experience group,Erratic,,,,
+Lumineon,experience group,Erratic,,,,
+Mantyke,experience group,Slow,,,,
+Snover,experience group,Slow,,,,
+Abomasnow,experience group,Slow,,,,
+Weavile,experience group,Medium Slow,,,,
+Magnezone,experience group,Medium Fast,,,,
+Lickilicky,experience group,Medium Fast,,,,
+Rhyperior,experience group,Slow,,,,
+Tangrowth,experience group,Medium Fast,,,,
+Electivire,experience group,Medium Fast,,,,
+Magmortar,experience group,Medium Fast,,,,
+Togekiss,experience group,Fast,,,,
+Yanmega,experience group,Medium Fast,,,,
+Leafeon,experience group,Medium Fast,,,,
+Glaceon,experience group,Medium Fast,,,,
+Gliscor,experience group,Medium Slow,,,,
+Mamoswine,experience group,Slow,,,,
+Porygon-Z,experience group,Medium Fast,,,,
+Gallade,experience group,Slow,,,,
+Probopass,experience group,Medium Fast,,,,
+Dusknoir,experience group,Fast,,,,
+Froslass,experience group,Medium Fast,,,,
+Rotom,experience group,Medium Fast,,,,
+Uxie,experience group,Slow,,,,
+Mesprit,experience group,Slow,,,,
+Azelf,experience group,Slow,,,,
+Dialga,experience group,Slow,,,,
+Palkia,experience group,Slow,,,,
+Heatran,experience group,Slow,,,,
+Regigigas,experience group,Slow,,,,
+Giratina,experience group,Slow,,,,
+Cresselia,experience group,Slow,,,,
+Phione,experience group,Slow,,,,
+Manaphy,experience group,Slow,,,,
+Darkrai,experience group,Slow,,,,
+Shaymin,experience group,Medium Slow,,,,
+Arceus,experience group,Slow,,,,
+Victini,experience group,Slow,,,,
+Snivy,experience group,Medium Slow,,,,
+Servine,experience group,Medium Slow,,,,
+Serperior,experience group,Medium Slow,,,,
+Tepig,experience group,Medium Slow,,,,
+Pignite,experience group,Medium Slow,,,,
+Emboar,experience group,Medium Slow,,,,
+Oshawott,experience group,Medium Slow,,,,
+Dewott,experience group,Medium Slow,,,,
+Samurott,experience group,Medium Slow,,,,
+Patrat,experience group,Medium Fast,,,,
+Watchog,experience group,Medium Fast,,,,
+Lillipup,experience group,Medium Slow,,,,
+Herdier,experience group,Medium Slow,,,,
+Stoutland,experience group,Medium Slow,,,,
+Purrloin,experience group,Medium Fast,,,,
+Liepard,experience group,Medium Fast,,,,
+Pansage,experience group,Medium Fast,,,,
+Simisage,experience group,Medium Fast,,,,
+Pansear,experience group,Medium Fast,,,,
+Simisear,experience group,Medium Fast,,,,
+Panpour,experience group,Medium Fast,,,,
+Simipour,experience group,Medium Fast,,,,
+Munna,experience group,Fast,,,,
+Musharna,experience group,Fast,,,,
+Pidove,experience group,Medium Slow,,,,
+Tranquill,experience group,Medium Slow,,,,
+Unfezant,experience group,Medium Slow,,,,
+Blitzle,experience group,Medium Fast,,,,
+Zebstrika,experience group,Medium Fast,,,,
+Roggenrola,experience group,Medium Slow,,,,
+Boldore,experience group,Medium Slow,,,,
+Gigalith,experience group,Medium Slow,,,,
+Woobat,experience group,Medium Fast,,,,
+Swoobat,experience group,Medium Fast,,,,
+Drilbur,experience group,Medium Fast,,,,
+Excadrill,experience group,Medium Fast,,,,
+Audino,experience group,Fast,,,,
+Timburr,experience group,Medium Slow,,,,
+Gurdurr,experience group,Medium Slow,,,,
+Conkeldurr,experience group,Medium Slow,,,,
+Tympole,experience group,Medium Slow,,,,
+Palpitoad,experience group,Medium Slow,,,,
+Seismitoad,experience group,Medium Slow,,,,
+Throh,experience group,Medium Fast,,,,
+Sawk,experience group,Medium Fast,,,,
+Sewaddle,experience group,Medium Slow,,,,
+Swadloon,experience group,Medium Slow,,,,
+Leavanny,experience group,Medium Slow,,,,
+Venipede,experience group,Medium Slow,,,,
+Whirlipede,experience group,Medium Slow,,,,
+Scolipede,experience group,Medium Slow,,,,
+Cottonee,experience group,Medium Fast,,,,
+Whimsicott,experience group,Medium Fast,,,,
+Petilil,experience group,Medium Fast,,,,
+Lilligant,experience group,Medium Fast,,,,
+Basculin,experience group,Medium Fast,,,,
+Sandile,experience group,Medium Slow,,,,
+Krokorok,experience group,Medium Slow,,,,
+Krookodile,experience group,Medium Slow,,,,
+Darumaka,experience group,Medium Slow,,,,
+Darmanitan,experience group,Medium Slow,,,,
+Maractus,experience group,Medium Fast,,,,
+Dwebble,experience group,Medium Fast,,,,
+Crustle,experience group,Medium Fast,,,,
+Scraggy,experience group,Medium Fast,,,,
+Scrafty,experience group,Medium Fast,,,,
+Sigilyph,experience group,Medium Fast,,,,
+Yamask,experience group,Medium Fast,,,,
+Cofagrigus,experience group,Medium Fast,,,,
+Tirtouga,experience group,Medium Fast,,,,
+Carracosta,experience group,Medium Fast,,,,
+Archen,experience group,Medium Fast,,,,
+Archeops,experience group,Medium Fast,,,,
+Trubbish,experience group,Medium Fast,,,,
+Garbodor,experience group,Medium Fast,,,,
+Zorua,experience group,Medium Slow,,,,
+Zoroark,experience group,Medium Slow,,,,
+Minccino,experience group,Fast,,,,
+Cinccino,experience group,Fast,,,,
+Gothita,experience group,Medium Slow,,,,
+Gothorita,experience group,Medium Slow,,,,
+Gothitelle,experience group,Medium Slow,,,,
+Solosis,experience group,Medium Slow,,,,
+Duosion,experience group,Medium Slow,,,,
+Reuniclus,experience group,Medium Slow,,,,
+Ducklett,experience group,Medium Fast,,,,
+Swanna,experience group,Medium Fast,,,,
+Vanillite,experience group,Slow,,,,
+Vanillish,experience group,Slow,,,,
+Vanilluxe,experience group,Slow,,,,
+Deerling,experience group,Medium Fast,,,,
+Sawsbuck,experience group,Medium Fast,,,,
+Emolga,experience group,Medium Fast,,,,
+Karrablast,experience group,Medium Fast,,,,
+Escavalier,experience group,Medium Fast,,,,
+Foongus,experience group,Medium Fast,,,,
+Amoonguss,experience group,Medium Fast,,,,
+Frillish,experience group,Medium Fast,,,,
+Jellicent,experience group,Medium Fast,,,,
+Alomomola,experience group,Fast,,,,
+Joltik,experience group,Medium Fast,,,,
+Galvantula,experience group,Medium Fast,,,,
+Ferroseed,experience group,Medium Fast,,,,
+Ferrothorn,experience group,Medium Fast,,,,
+Klink,experience group,Medium Slow,,,,
+Klang,experience group,Medium Slow,,,,
+Klinklang,experience group,Medium Slow,,,,
+Tynamo,experience group,Slow,,,,
+Eelektrik,experience group,Slow,,,,
+Eelektross,experience group,Slow,,,,
+Elgyem,experience group,Medium Fast,,,,
+Beheeyem,experience group,Medium Fast,,,,
+Litwick,experience group,Medium Slow,,,,
+Lampent,experience group,Medium Slow,,,,
+Chandelure,experience group,Medium Slow,,,,
+Axew,experience group,Slow,,,,
+Fraxure,experience group,Slow,,,,
+Haxorus,experience group,Slow,,,,
+Cubchoo,experience group,Medium Fast,,,,
+Beartic,experience group,Medium Fast,,,,
+Cryogonal,experience group,Medium Fast,,,,
+Shelmet,experience group,Medium Fast,,,,
+Accelgor,experience group,Medium Fast,,,,
+Stunfisk,experience group,Medium Fast,,,,
+Mienfoo,experience group,Medium Slow,,,,
+Mienshao,experience group,Medium Slow,,,,
+Druddigon,experience group,Medium Fast,,,,
+Golett,experience group,Medium Fast,,,,
+Golurk,experience group,Medium Fast,,,,
+Pawniard,experience group,Medium Fast,,,,
+Bisharp,experience group,Medium Fast,,,,
+Bouffalant,experience group,Medium Fast,,,,
+Rufflet,experience group,Slow,,,,
+Braviary,experience group,Slow,,,,
+Vullaby,experience group,Slow,,,,
+Mandibuzz,experience group,Slow,,,,
+Heatmor,experience group,Medium Fast,,,,
+Durant,experience group,Medium Fast,,,,
+Deino,experience group,Slow,,,,
+Zweilous,experience group,Slow,,,,
+Hydreigon,experience group,Slow,,,,
+Larvesta,experience group,Slow,,,,
+Volcarona,experience group,Slow,,,,
+Cobalion,experience group,Slow,,,,
+Terrakion,experience group,Slow,,,,
+Virizion,experience group,Slow,,,,
+Tornadus,experience group,Slow,,,,
+Thundurus,experience group,Slow,,,,
+Reshiram,experience group,Slow,,,,
+Zekrom,experience group,Slow,,,,
+Landorus,experience group,Slow,,,,
+Kyurem,experience group,Slow,,,,
+Keldeo,experience group,Slow,,,,
+Meloetta,experience group,Slow,,,,
+Genesect,experience group,Slow,,,,
+Caterpie,catch rate,255,rarity,1,rarity10,1
+Weedle,catch rate,255,rarity,1,rarity10,1
+Pidgey,catch rate,255,rarity,1,rarity10,1
+Rattata,catch rate,255,rarity,1,rarity10,1
+Spearow,catch rate,255,rarity,1,rarity10,1
+Ekans,catch rate,255,rarity,1,rarity10,1
+Sandshrew,catch rate,255,rarity,1,rarity10,1
+Zubat,catch rate,255,rarity,1,rarity10,1
+Oddish,catch rate,255,rarity,1,rarity10,1
+Diglett,catch rate,255,rarity,1,rarity10,1
+Meowth,catch rate,255,rarity,1,rarity10,1
+Poliwag,catch rate,255,rarity,1,rarity10,1
+Bellsprout,catch rate,255,rarity,1,rarity10,1
+Geodude,catch rate,255,rarity,1,rarity10,1
+Magikarp,catch rate,255,rarity,1,rarity10,1
+Sentret,catch rate,255,rarity,1,rarity10,1
+Hoothoot,catch rate,255,rarity,1,rarity10,1
+Ledyba,catch rate,255,rarity,1,rarity10,1
+Spinarak,catch rate,255,rarity,1,rarity10,1
+Hoppip,catch rate,255,rarity,1,rarity10,1
+Wooper,catch rate,255,rarity,1,rarity10,1
+Poochyena,catch rate,255,rarity,1,rarity10,1
+Zigzagoon,catch rate,255,rarity,1,rarity10,1
+Wurmple,catch rate,255,rarity,1,rarity10,1
+Lotad,catch rate,255,rarity,1,rarity10,1
+Seedot,catch rate,255,rarity,1,rarity10,1
+Shroomish,catch rate,255,rarity,1,rarity10,1
+Slakoth,catch rate,255,rarity,1,rarity10,1
+Nincada,catch rate,255,rarity,1,rarity10,1
+Nosepass,catch rate,255,rarity,1,rarity10,1
+Skitty,catch rate,255,rarity,1,rarity10,1
+Numel,catch rate,255,rarity,1,rarity10,1
+Spoink,catch rate,255,rarity,1,rarity10,1
+Spinda,catch rate,255,rarity,1,rarity10,1
+Trapinch,catch rate,255,rarity,1,rarity10,1
+Swablu,catch rate,255,rarity,1,rarity10,1
+Baltoy,catch rate,255,rarity,1,rarity10,1
+Feebas,catch rate,255,rarity,1,rarity10,1
+Spheal,catch rate,255,rarity,1,rarity10,1
+Clamperl,catch rate,255,rarity,1,rarity10,1
+Starly,catch rate,255,rarity,1,rarity10,1
+Bidoof,catch rate,255,rarity,1,rarity10,1
+Kricketot,catch rate,255,rarity,1,rarity10,1
+Budew,catch rate,255,rarity,1,rarity10,1
+Bronzor,catch rate,255,rarity,1,rarity10,1
+Bonsly,catch rate,255,rarity,1,rarity10,1
+Patrat,catch rate,255,rarity,1,rarity10,1
+Watchog,catch rate,255,rarity,1,rarity10,1
+Lillipup,catch rate,255,rarity,1,rarity10,1
+Purrloin,catch rate,255,rarity,1,rarity10,1
+Pidove,catch rate,255,rarity,1,rarity10,1
+Roggenrola,catch rate,255,rarity,1,rarity10,1
+Audino,catch rate,255,rarity,1,rarity10,1
+Tympole,catch rate,255,rarity,1,rarity10,1
+Sewaddle,catch rate,255,rarity,1,rarity10,1
+Venipede,catch rate,255,rarity,1,rarity10,1
+Maractus,catch rate,255,rarity,1,rarity10,1
+Minccino,catch rate,255,rarity,1,rarity10,1
+Vanillite,catch rate,255,rarity,1,rarity10,1
+Ferroseed,catch rate,255,rarity,1,rarity10,1
+Elgyem,catch rate,255,rarity,1,rarity10,1
+Bunnelby,catch rate,255,rarity,1,rarity10,1
+Fletchling,catch rate,255,rarity,1,rarity10,1
+Scatterbug,catch rate,255,rarity,1,rarity10,1
+Pikipek,catch rate,255,rarity,1,rarity10,1
+Yungoos,catch rate,255,rarity,1,rarity10,1
+Grubbin,catch rate,255,rarity,1,rarity10,1
+Necrozma,catch rate,255,rarity,1,rarity10,1
+Nidoran♀,catch rate,235,rarity,8,rarity10,1
+Nidoran♂,catch rate,235,rarity,8,rarity10,1
+Mareep,catch rate,235,rarity,8,rarity10,1
+Sunkern,catch rate,235,rarity,8,rarity10,1
+Ralts,catch rate,235,rarity,8,rarity10,1
+Shinx,catch rate,235,rarity,8,rarity10,1
+Bounsweet,catch rate,235,rarity,8,rarity10,1
+Krabby,catch rate,225,rarity,12,rarity10,2
+Horsea,catch rate,225,rarity,12,rarity10,2
+Goldeen,catch rate,225,rarity,12,rarity10,2
+Staryu,catch rate,225,rarity,12,rarity10,2
+Unown,catch rate,225,rarity,12,rarity10,2
+Swinub,catch rate,225,rarity,12,rarity10,2
+Gulpin,catch rate,225,rarity,12,rarity10,2
+Carvanha,catch rate,225,rarity,12,rarity10,2
+Shuppet,catch rate,225,rarity,12,rarity10,2
+Luvdisc,catch rate,225,rarity,12,rarity10,2
+Stunky,catch rate,225,rarity,12,rarity10,2
+Flabébé,catch rate,225,rarity,12,rarity10,2
+Skrelp,catch rate,225,rarity,12,rarity10,2
+Clauncher,catch rate,225,rarity,12,rarity10,2
+Crabrawler,catch rate,225,rarity,12,rarity10,2
+Litleo,catch rate,220,rarity,14,rarity10,2
+Pancham,catch rate,220,rarity,14,rarity10,2
+Corphish,catch rate,205,rarity,20,rarity10,2
+Abra,catch rate,200,rarity,22,rarity10,2
+Taillow,catch rate,200,rarity,22,rarity10,2
+Surskit,catch rate,200,rarity,22,rarity10,2
+Hariyama,catch rate,200,rarity,22,rarity10,2
+Plusle,catch rate,200,rarity,22,rarity10,2
+Minun,catch rate,200,rarity,22,rarity10,2
+Kecleon,catch rate,200,rarity,22,rarity10,2
+Tropius,catch rate,200,rarity,22,rarity10,2
+Pachirisu,catch rate,200,rarity,22,rarity10,2
+Carnivine,catch rate,200,rarity,22,rarity10,2
+Gothita,catch rate,200,rarity,22,rarity10,2
+Solosis,catch rate,200,rarity,22,rarity10,2
+Emolga,catch rate,200,rarity,22,rarity10,2
+Karrablast,catch rate,200,rarity,22,rarity10,2
+Shelmet,catch rate,200,rarity,22,rarity10,2
+Skiddo,catch rate,200,rarity,22,rarity10,2
+Spritzee,catch rate,200,rarity,22,rarity10,2
+Swirlix,catch rate,200,rarity,22,rarity10,2
+Dewpider,catch rate,200,rarity,22,rarity10,2
+Pikachu,catch rate,190,rarity,26,rarity10,3
+Vulpix,catch rate,190,rarity,26,rarity10,3
+Paras,catch rate,190,rarity,26,rarity10,3
+Venonat,catch rate,190,rarity,26,rarity10,3
+Psyduck,catch rate,190,rarity,26,rarity10,3
+Mankey,catch rate,190,rarity,26,rarity10,3
+Growlithe,catch rate,190,rarity,26,rarity10,3
+Tentacool,catch rate,190,rarity,26,rarity10,3
+Ponyta,catch rate,190,rarity,26,rarity10,3
+Slowpoke,catch rate,190,rarity,26,rarity10,3
+Magnemite,catch rate,190,rarity,26,rarity10,3
+Doduo,catch rate,190,rarity,26,rarity10,3
+Seel,catch rate,190,rarity,26,rarity10,3
+Grimer,catch rate,190,rarity,26,rarity10,3
+Shellder,catch rate,190,rarity,26,rarity10,3
+Gastly,catch rate,190,rarity,26,rarity10,3
+Drowzee,catch rate,190,rarity,26,rarity10,3
+Voltorb,catch rate,190,rarity,26,rarity10,3
+Cubone,catch rate,190,rarity,26,rarity10,3
+Koffing,catch rate,190,rarity,26,rarity10,3
+Chinchou,catch rate,190,rarity,26,rarity10,3
+Pichu,catch rate,190,rarity,26,rarity10,3
+Togepi,catch rate,190,rarity,26,rarity10,3
+Natu,catch rate,190,rarity,26,rarity10,3
+Marill,catch rate,190,rarity,26,rarity10,3
+Pineco,catch rate,190,rarity,26,rarity10,3
+Dunsparce,catch rate,190,rarity,26,rarity10,3
+Snubbull,catch rate,190,rarity,26,rarity10,3
+Shuckle,catch rate,190,rarity,26,rarity10,3
+Slugma,catch rate,190,rarity,26,rarity10,3
+Remoraid,catch rate,190,rarity,26,rarity10,3
+Wingull,catch rate,190,rarity,26,rarity10,3
+Whismur,catch rate,190,rarity,26,rarity10,3
+Cacnea,catch rate,190,rarity,26,rarity10,3
+Barboach,catch rate,190,rarity,26,rarity10,3
+Duskull,catch rate,190,rarity,26,rarity10,3
+Snorunt,catch rate,190,rarity,26,rarity10,3
+Buizel,catch rate,190,rarity,26,rarity10,3
+Cherubi,catch rate,190,rarity,26,rarity10,3
+Shellos,catch rate,190,rarity,26,rarity10,3
+Buneary,catch rate,190,rarity,26,rarity10,3
+Glameow,catch rate,190,rarity,26,rarity10,3
+Finneon,catch rate,190,rarity,26,rarity10,3
+Pansage,catch rate,190,rarity,26,rarity10,3
+Pansear,catch rate,190,rarity,26,rarity10,3
+Panpour,catch rate,190,rarity,26,rarity10,3
+Munna,catch rate,190,rarity,26,rarity10,3
+Blitzle,catch rate,190,rarity,26,rarity10,3
+Woobat,catch rate,190,rarity,26,rarity10,3
+Cottonee,catch rate,190,rarity,26,rarity10,3
+Petilil,catch rate,190,rarity,26,rarity10,3
+Dwebble,catch rate,190,rarity,26,rarity10,3
+Yamask,catch rate,190,rarity,26,rarity10,3
+Trubbish,catch rate,190,rarity,26,rarity10,3
+Ducklett,catch rate,190,rarity,26,rarity10,3
+Deerling,catch rate,190,rarity,26,rarity10,3
+Foongus,catch rate,190,rarity,26,rarity10,3
+Frillish,catch rate,190,rarity,26,rarity10,3
+Joltik,catch rate,190,rarity,26,rarity10,3
+Tynamo,catch rate,190,rarity,26,rarity10,3
+Litwick,catch rate,190,rarity,26,rarity10,3
+Golett,catch rate,190,rarity,26,rarity10,3
+Rufflet,catch rate,190,rarity,26,rarity10,3
+Vullaby,catch rate,190,rarity,26,rarity10,3
+Espurr,catch rate,190,rarity,26,rarity10,3
+Inkay,catch rate,190,rarity,26,rarity10,3
+Helioptile,catch rate,190,rarity,26,rarity10,3
+Bergmite,catch rate,190,rarity,26,rarity10,3
+Noibat,catch rate,190,rarity,26,rarity10,3
+Cutiefly,catch rate,190,rarity,26,rarity10,3
+Rockruff,catch rate,190,rarity,26,rarity10,3
+Mareanie,catch rate,190,rarity,26,rarity10,3
+Mudbray,catch rate,190,rarity,26,rarity10,3
+Fomantis,catch rate,190,rarity,26,rarity10,3
+Morelull,catch rate,190,rarity,26,rarity10,3
+Machop,catch rate,180,rarity,30,rarity10,3
+Makuhita,catch rate,180,rarity,30,rarity10,3
+Aron,catch rate,180,rarity,30,rarity10,3
+Meditite,catch rate,180,rarity,30,rarity10,3
+Timburr,catch rate,180,rarity,30,rarity10,3
+Sandile,catch rate,180,rarity,30,rarity10,3
+Scraggy,catch rate,180,rarity,30,rarity10,3
+Mienfoo,catch rate,180,rarity,30,rarity10,3
+Honedge,catch rate,180,rarity,30,rarity10,3
+Dedenne,catch rate,180,rarity,30,rarity10,3
+Togedemaru,catch rate,180,rarity,30,rarity10,3
+Jigglypuff,catch rate,170,rarity,34,rarity10,4
+Igglybuff,catch rate,170,rarity,34,rarity10,4
+Furfrou,catch rate,160,rarity,37,rarity10,4
+Crawdaunt,catch rate,155,rarity,39,rarity10,4
+Clefairy,catch rate,150,rarity,41,rarity10,4
+Cleffa,catch rate,150,rarity,41,rarity10,4
+Azurill,catch rate,150,rarity,41,rarity10,4
+Volbeat,catch rate,150,rarity,41,rarity10,4
+Illumise,catch rate,150,rarity,41,rarity10,4
+Roselia,catch rate,150,rarity,41,rarity10,4
+Camerupt,catch rate,150,rarity,41,rarity10,4
+Mime Jr.,catch rate,145,rarity,43,rarity10,4
+Hippopotas,catch rate,140,rarity,45,rarity10,5
+Croagunk,catch rate,140,rarity,45,rarity10,5
+Aromatisse,catch rate,140,rarity,45,rarity10,5
+Slurpuff,catch rate,140,rarity,45,rarity10,5
+Stufful,catch rate,140,rarity,45,rarity10,5
+Sandygast,catch rate,140,rarity,45,rarity10,5
+Happiny,catch rate,130,rarity,49,rarity10,5
+Klink,catch rate,130,rarity,49,rarity10,5
+Raticate,catch rate,127,rarity,50,rarity10,5
+Mightyena,catch rate,127,rarity,50,rarity10,5
+Bibarel,catch rate,127,rarity,50,rarity10,5
+Diggersby,catch rate,127,rarity,50,rarity10,5
+Gumshoos,catch rate,127,rarity,50,rarity10,5
+Wailmer,catch rate,125,rarity,51,rarity10,5
+Wynaut,catch rate,125,rarity,51,rarity10,5
+Drifloon,catch rate,125,rarity,51,rarity10,5
+Metapod,catch rate,120,rarity,53,rarity10,5
+Kakuna,catch rate,120,rarity,53,rarity10,5
+Pidgeotto,catch rate,120,rarity,53,rarity10,5
+Nidorina,catch rate,120,rarity,53,rarity10,5
+Nidorino,catch rate,120,rarity,53,rarity10,5
+Gloom,catch rate,120,rarity,53,rarity10,5
+Poliwhirl,catch rate,120,rarity,53,rarity10,5
+Weepinbell,catch rate,120,rarity,53,rarity10,5
+Graveler,catch rate,120,rarity,53,rarity10,5
+Rhyhorn,catch rate,120,rarity,53,rarity10,5
+Flaaffy,catch rate,120,rarity,53,rarity10,5
+Skiploom,catch rate,120,rarity,53,rarity10,5
+Sunflora,catch rate,120,rarity,53,rarity10,5
+Teddiursa,catch rate,120,rarity,53,rarity10,5
+Houndour,catch rate,120,rarity,53,rarity10,5
+Phanpy,catch rate,120,rarity,53,rarity10,5
+Silcoon,catch rate,120,rarity,53,rarity10,5
+Cascoon,catch rate,120,rarity,53,rarity10,5
+Lombre,catch rate,120,rarity,53,rarity10,5
+Nuzleaf,catch rate,120,rarity,53,rarity10,5
+Kirlia,catch rate,120,rarity,53,rarity10,5
+Vigoroth,catch rate,120,rarity,53,rarity10,5
+Ninjask,catch rate,120,rarity,53,rarity10,5
+Loudred,catch rate,120,rarity,53,rarity10,5
+Electrike,catch rate,120,rarity,53,rarity10,5
+Vibrava,catch rate,120,rarity,53,rarity10,5
+Sealeo,catch rate,120,rarity,53,rarity10,5
+Staravia,catch rate,120,rarity,53,rarity10,5
+Luxio,catch rate,120,rarity,53,rarity10,5
+Burmy,catch rate,120,rarity,53,rarity10,5
+Combee,catch rate,120,rarity,53,rarity10,5
+Chingling,catch rate,120,rarity,53,rarity10,5
+Skorupi,catch rate,120,rarity,53,rarity10,5
+Snover,catch rate,120,rarity,53,rarity10,5
+Herdier,catch rate,120,rarity,53,rarity10,5
+Tranquill,catch rate,120,rarity,53,rarity10,5
+Boldore,catch rate,120,rarity,53,rarity10,5
+Drilbur,catch rate,120,rarity,53,rarity10,5
+Palpitoad,catch rate,120,rarity,53,rarity10,5
+Swadloon,catch rate,120,rarity,53,rarity10,5
+Whirlipede,catch rate,120,rarity,53,rarity10,5
+Darumaka,catch rate,120,rarity,53,rarity10,5
+Vanillish,catch rate,120,rarity,53,rarity10,5
+Cubchoo,catch rate,120,rarity,53,rarity10,5
+Pawniard,catch rate,120,rarity,53,rarity10,5
+Fletchinder,catch rate,120,rarity,53,rarity10,5
+Spewpa,catch rate,120,rarity,53,rarity10,5
+Floette,catch rate,120,rarity,53,rarity10,5
+Binacle,catch rate,120,rarity,53,rarity10,5
+Phantump,catch rate,120,rarity,53,rarity10,5
+Pumpkaboo,catch rate,120,rarity,53,rarity10,5
+Trumbeak,catch rate,120,rarity,53,rarity10,5
+Charjabug,catch rate,120,rarity,53,rarity10,5
+Salandit,catch rate,120,rarity,53,rarity10,5
+Steenee,catch rate,120,rarity,53,rarity10,5
+Kadabra,catch rate,100,rarity,61,rarity10,6
+Spiritomb,catch rate,100,rarity,61,rarity10,6
+Gothorita,catch rate,100,rarity,61,rarity10,6
+Duosion,catch rate,100,rarity,61,rarity10,6
+Hawlucha,catch rate,100,rarity,61,rarity10,6
+Araquanid,catch rate,100,rarity,61,rarity10,6
+Fearow,catch rate,90,rarity,65,rarity10,6
+Arbok,catch rate,90,rarity,65,rarity10,6
+Sandslash,catch rate,90,rarity,65,rarity10,6
+Golbat,catch rate,90,rarity,65,rarity10,6
+Persian,catch rate,90,rarity,65,rarity10,6
+Machoke,catch rate,90,rarity,65,rarity10,6
+Haunter,catch rate,90,rarity,65,rarity10,6
+Exeggcute,catch rate,90,rarity,65,rarity10,6
+Furret,catch rate,90,rarity,65,rarity10,6
+Noctowl,catch rate,90,rarity,65,rarity10,6
+Ledian,catch rate,90,rarity,65,rarity10,6
+Ariados,catch rate,90,rarity,65,rarity10,6
+Crobat,catch rate,90,rarity,65,rarity10,6
+Quagsire,catch rate,90,rarity,65,rarity10,6
+Linoone,catch rate,90,rarity,65,rarity10,6
+Breloom,catch rate,90,rarity,65,rarity10,6
+Lairon,catch rate,90,rarity,65,rarity10,6
+Medicham,catch rate,90,rarity,65,rarity10,6
+Torkoal,catch rate,90,rarity,65,rarity10,6
+Zangoose,catch rate,90,rarity,65,rarity10,6
+Seviper,catch rate,90,rarity,65,rarity10,6
+Claydol,catch rate,90,rarity,65,rarity10,6
+Dusclops,catch rate,90,rarity,65,rarity10,6
+Bronzong,catch rate,90,rarity,65,rarity10,6
+Liepard,catch rate,90,rarity,65,rarity10,6
+Gurdurr,catch rate,90,rarity,65,rarity10,6
+Krokorok,catch rate,90,rarity,65,rarity10,6
+Scrafty,catch rate,90,rarity,65,rarity10,6
+Cofagrigus,catch rate,90,rarity,65,rarity10,6
+Ferrothorn,catch rate,90,rarity,65,rarity10,6
+Beheeyem,catch rate,90,rarity,65,rarity10,6
+Lampent,catch rate,90,rarity,65,rarity10,6
+Golurk,catch rate,90,rarity,65,rarity10,6
+Heatmor,catch rate,90,rarity,65,rarity10,6
+Durant,catch rate,90,rarity,65,rarity10,6
+Doublade,catch rate,90,rarity,65,rarity10,6
+Lycanroc,catch rate,90,rarity,65,rarity10,6
+Wimpod,catch rate,90,rarity,65,rarity10,6
+Malamar,catch rate,80,rarity,69,rarity10,7
+Bruxish,catch rate,80,rarity,69,rarity10,7
+Raichu,catch rate,75,rarity,71,rarity10,7
+Ninetales,catch rate,75,rarity,71,rarity10,7
+Parasect,catch rate,75,rarity,71,rarity10,7
+Venomoth,catch rate,75,rarity,71,rarity10,7
+Golduck,catch rate,75,rarity,71,rarity10,7
+Primeape,catch rate,75,rarity,71,rarity10,7
+Arcanine,catch rate,75,rarity,71,rarity10,7
+Slowbro,catch rate,75,rarity,71,rarity10,7
+Dewgong,catch rate,75,rarity,71,rarity10,7
+Muk,catch rate,75,rarity,71,rarity10,7
+Hypno,catch rate,75,rarity,71,rarity10,7
+Marowak,catch rate,75,rarity,71,rarity10,7
+Seadra,catch rate,75,rarity,71,rarity10,7
+Lanturn,catch rate,75,rarity,71,rarity10,7
+Togetic,catch rate,75,rarity,71,rarity10,7
+Xatu,catch rate,75,rarity,71,rarity10,7
+Azumarill,catch rate,75,rarity,71,rarity10,7
+Yanma,catch rate,75,rarity,71,rarity10,7
+Forretress,catch rate,75,rarity,71,rarity10,7
+Granbull,catch rate,75,rarity,71,rarity10,7
+Magcargo,catch rate,75,rarity,71,rarity10,7
+Piloswine,catch rate,75,rarity,71,rarity10,7
+Octillery,catch rate,75,rarity,71,rarity10,7
+Tyrogue,catch rate,75,rarity,71,rarity10,7
+Masquerain,catch rate,75,rarity,71,rarity10,7
+Swalot,catch rate,75,rarity,71,rarity10,7
+Whiscash,catch rate,75,rarity,71,rarity10,7
+Glalie,catch rate,75,rarity,71,rarity10,7
+Roserade,catch rate,75,rarity,71,rarity10,7
+Floatzel,catch rate,75,rarity,71,rarity10,7
+Cherrim,catch rate,75,rarity,71,rarity10,7
+Gastrodon,catch rate,75,rarity,71,rarity10,7
+Purugly,catch rate,75,rarity,71,rarity10,7
+Riolu,catch rate,75,rarity,71,rarity10,7
+Toxicroak,catch rate,75,rarity,71,rarity10,7
+Lumineon,catch rate,75,rarity,71,rarity10,7
+Froslass,catch rate,75,rarity,71,rarity10,7
+Simisage,catch rate,75,rarity,71,rarity10,7
+Simisear,catch rate,75,rarity,71,rarity10,7
+Simipour,catch rate,75,rarity,71,rarity10,7
+Musharna,catch rate,75,rarity,71,rarity10,7
+Zebstrika,catch rate,75,rarity,71,rarity10,7
+Whimsicott,catch rate,75,rarity,71,rarity10,7
+Lilligant,catch rate,75,rarity,71,rarity10,7
+Crustle,catch rate,75,rarity,71,rarity10,7
+Zorua,catch rate,75,rarity,71,rarity10,7
+Sawsbuck,catch rate,75,rarity,71,rarity10,7
+Escavalier,catch rate,75,rarity,71,rarity10,7
+Amoonguss,catch rate,75,rarity,71,rarity10,7
+Alomomola,catch rate,75,rarity,71,rarity10,7
+Galvantula,catch rate,75,rarity,71,rarity10,7
+Axew,catch rate,75,rarity,71,rarity10,7
+Accelgor,catch rate,75,rarity,71,rarity10,7
+Stunfisk,catch rate,75,rarity,71,rarity10,7
+Meowstic,catch rate,75,rarity,71,rarity10,7
+Heliolisk,catch rate,75,rarity,71,rarity10,7
+Klefki,catch rate,75,rarity,71,rarity10,7
+Ribombee,catch rate,75,rarity,71,rarity10,7
+Toxapex,catch rate,75,rarity,71,rarity10,7
+Lurantis,catch rate,75,rarity,71,rarity10,7
+Shiinotic,catch rate,75,rarity,71,rarity10,7
+Slowking,catch rate,70,rarity,72,rarity10,7
+Bewear,catch rate,70,rarity,72,rarity10,7
+Turtonator,catch rate,70,rarity,72,rarity10,7
+Drampa,catch rate,70,rarity,72,rarity10,7
+Sudowoodo,catch rate,65,rarity,74,rarity10,7
+Pyroar,catch rate,65,rarity,74,rarity10,7
+Pangoro,catch rate,65,rarity,74,rarity10,7
+Tentacruel,catch rate,60,rarity,76,rarity10,7
+Rapidash,catch rate,60,rarity,76,rarity10,7
+Magneton,catch rate,60,rarity,76,rarity10,7
+Cloyster,catch rate,60,rarity,76,rarity10,7
+Kingler,catch rate,60,rarity,76,rarity10,7
+Electrode,catch rate,60,rarity,76,rarity10,7
+Weezing,catch rate,60,rarity,76,rarity10,7
+Rhydon,catch rate,60,rarity,76,rarity10,7
+Seaking,catch rate,60,rarity,76,rarity10,7
+Starmie,catch rate,60,rarity,76,rarity10,7
+Girafarig,catch rate,60,rarity,76,rarity10,7
+Gligar,catch rate,60,rarity,76,rarity10,7
+Sneasel,catch rate,60,rarity,76,rarity10,7
+Ursaring,catch rate,60,rarity,76,rarity10,7
+Corsola,catch rate,60,rarity,76,rarity10,7
+Donphan,catch rate,60,rarity,76,rarity10,7
+Delcatty,catch rate,60,rarity,76,rarity10,7
+Sharpedo,catch rate,60,rarity,76,rarity10,7
+Wailord,catch rate,60,rarity,76,rarity10,7
+Grumpig,catch rate,60,rarity,76,rarity10,7
+Cacturne,catch rate,60,rarity,76,rarity10,7
+Milotic,catch rate,60,rarity,76,rarity10,7
+Huntail,catch rate,60,rarity,76,rarity10,7
+Gorebyss,catch rate,60,rarity,76,rarity10,7
+Drifblim,catch rate,60,rarity,76,rarity10,7
+Lopunny,catch rate,60,rarity,76,rarity10,7
+Skuntank,catch rate,60,rarity,76,rarity10,7
+Hippowdon,catch rate,60,rarity,76,rarity10,7
+Abomasnow,catch rate,60,rarity,76,rarity10,7
+Probopass,catch rate,60,rarity,76,rarity10,7
+Excadrill,catch rate,60,rarity,76,rarity10,7
+Darmanitan,catch rate,60,rarity,76,rarity10,7
+Garbodor,catch rate,60,rarity,76,rarity10,7
+Cinccino,catch rate,60,rarity,76,rarity10,7
+Jellicent,catch rate,60,rarity,76,rarity10,7
+Klang,catch rate,60,rarity,76,rarity10,7
+Eelektrik,catch rate,60,rarity,76,rarity10,7
+Fraxure,catch rate,60,rarity,76,rarity10,7
+Beartic,catch rate,60,rarity,76,rarity10,7
+Braviary,catch rate,60,rarity,76,rarity10,7
+Mandibuzz,catch rate,60,rarity,76,rarity10,7
+Carbink,catch rate,60,rarity,76,rarity10,7
+Trevenant,catch rate,60,rarity,76,rarity10,7
+Gourgeist,catch rate,60,rarity,76,rarity10,7
+Crabominable,catch rate,60,rarity,76,rarity10,7
+Wishiwashi,catch rate,60,rarity,76,rarity10,7
+Mudsdale,catch rate,60,rarity,76,rarity10,7
+Comfey,catch rate,60,rarity,76,rarity10,7
+Palossand,catch rate,60,rarity,76,rarity10,7
+Pyukumuku,catch rate,60,rarity,76,rarity10,7
+Dragalge,catch rate,55,rarity,78,rarity10,8
+Clawitzer,catch rate,55,rarity,78,rarity10,8
+Avalugg,catch rate,55,rarity,78,rarity10,8
+Wigglytuff,catch rate,50,rarity,80,rarity10,8
+Dugtrio,catch rate,50,rarity,80,rarity10,8
+Alakazam,catch rate,50,rarity,80,rarity10,8
+Munchlax,catch rate,50,rarity,80,rarity10,8
+Mamoswine,catch rate,50,rarity,80,rarity10,8
+Gothitelle,catch rate,50,rarity,80,rarity10,8
+Reuniclus,catch rate,50,rarity,80,rarity10,8
+Bulbasaur,catch rate,45,rarity,82,rarity10,8
+Ivysaur,catch rate,45,rarity,82,rarity10,8
+Venusaur,catch rate,45,rarity,82,rarity10,8
+Charmander,catch rate,45,rarity,82,rarity10,8
+Charmeleon,catch rate,45,rarity,82,rarity10,8
+Charizard,catch rate,45,rarity,82,rarity10,8
+Squirtle,catch rate,45,rarity,82,rarity10,8
+Wartortle,catch rate,45,rarity,82,rarity10,8
+Blastoise,catch rate,45,rarity,82,rarity10,8
+Butterfree,catch rate,45,rarity,82,rarity10,8
+Beedrill,catch rate,45,rarity,82,rarity10,8
+Pidgeot,catch rate,45,rarity,82,rarity10,8
+Nidoqueen,catch rate,45,rarity,82,rarity10,8
+Nidoking,catch rate,45,rarity,82,rarity10,8
+Vileplume,catch rate,45,rarity,82,rarity10,8
+Poliwrath,catch rate,45,rarity,82,rarity10,8
+Machamp,catch rate,45,rarity,82,rarity10,8
+Victreebel,catch rate,45,rarity,82,rarity10,8
+Golem,catch rate,45,rarity,82,rarity10,8
+Farfetch'd,catch rate,45,rarity,82,rarity10,8
+Dodrio,catch rate,45,rarity,82,rarity10,8
+Gengar,catch rate,45,rarity,82,rarity10,8
+Onix,catch rate,45,rarity,82,rarity10,8
+Exeggutor,catch rate,45,rarity,82,rarity10,8
+Hitmonlee,catch rate,45,rarity,82,rarity10,8
+Hitmonchan,catch rate,45,rarity,82,rarity10,8
+Lickitung,catch rate,45,rarity,82,rarity10,8
+Tangela,catch rate,45,rarity,82,rarity10,8
+Kangaskhan,catch rate,45,rarity,82,rarity10,8
+Mr. Mime,catch rate,45,rarity,82,rarity10,8
+Scyther,catch rate,45,rarity,82,rarity10,8
+Jynx,catch rate,45,rarity,82,rarity10,8
+Electabuzz,catch rate,45,rarity,82,rarity10,8
+Magmar,catch rate,45,rarity,82,rarity10,8
+Pinsir,catch rate,45,rarity,82,rarity10,8
+Tauros,catch rate,45,rarity,82,rarity10,8
+Gyarados,catch rate,45,rarity,82,rarity10,8
+Lapras,catch rate,45,rarity,82,rarity10,8
+Eevee,catch rate,45,rarity,82,rarity10,8
+Vaporeon,catch rate,45,rarity,82,rarity10,8
+Jolteon,catch rate,45,rarity,82,rarity10,8
+Flareon,catch rate,45,rarity,82,rarity10,8
+Porygon,catch rate,45,rarity,82,rarity10,8
+Omanyte,catch rate,45,rarity,82,rarity10,8
+Omastar,catch rate,45,rarity,82,rarity10,8
+Kabuto,catch rate,45,rarity,82,rarity10,8
+Kabutops,catch rate,45,rarity,82,rarity10,8
+Aerodactyl,catch rate,45,rarity,82,rarity10,8
+Dratini,catch rate,45,rarity,82,rarity10,8
+Dragonair,catch rate,45,rarity,82,rarity10,8
+Dragonite,catch rate,45,rarity,82,rarity10,8
+Mew,catch rate,45,rarity,82,rarity10,8
+Chikorita,catch rate,45,rarity,82,rarity10,8
+Bayleef,catch rate,45,rarity,82,rarity10,8
+Meganium,catch rate,45,rarity,82,rarity10,8
+Cyndaquil,catch rate,45,rarity,82,rarity10,8
+Quilava,catch rate,45,rarity,82,rarity10,8
+Typhlosion,catch rate,45,rarity,82,rarity10,8
+Totodile,catch rate,45,rarity,82,rarity10,8
+Croconaw,catch rate,45,rarity,82,rarity10,8
+Feraligatr,catch rate,45,rarity,82,rarity10,8
+Ampharos,catch rate,45,rarity,82,rarity10,8
+Bellossom,catch rate,45,rarity,82,rarity10,8
+Politoed,catch rate,45,rarity,82,rarity10,8
+Jumpluff,catch rate,45,rarity,82,rarity10,8
+Aipom,catch rate,45,rarity,82,rarity10,8
+Espeon,catch rate,45,rarity,82,rarity10,8
+Umbreon,catch rate,45,rarity,82,rarity10,8
+Misdreavus,catch rate,45,rarity,82,rarity10,8
+Wobbuffet,catch rate,45,rarity,82,rarity10,8
+Qwilfish,catch rate,45,rarity,82,rarity10,8
+Heracross,catch rate,45,rarity,82,rarity10,8
+Delibird,catch rate,45,rarity,82,rarity10,8
+Houndoom,catch rate,45,rarity,82,rarity10,8
+Kingdra,catch rate,45,rarity,82,rarity10,8
+Porygon2,catch rate,45,rarity,82,rarity10,8
+Stantler,catch rate,45,rarity,82,rarity10,8
+Smeargle,catch rate,45,rarity,82,rarity10,8
+Hitmontop,catch rate,45,rarity,82,rarity10,8
+Smoochum,catch rate,45,rarity,82,rarity10,8
+Elekid,catch rate,45,rarity,82,rarity10,8
+Magby,catch rate,45,rarity,82,rarity10,8
+Miltank,catch rate,45,rarity,82,rarity10,8
+Larvitar,catch rate,45,rarity,82,rarity10,8
+Pupitar,catch rate,45,rarity,82,rarity10,8
+Tyranitar,catch rate,45,rarity,82,rarity10,8
+Celebi,catch rate,45,rarity,82,rarity10,8
+Treecko,catch rate,45,rarity,82,rarity10,8
+Grovyle,catch rate,45,rarity,82,rarity10,8
+Sceptile,catch rate,45,rarity,82,rarity10,8
+Torchic,catch rate,45,rarity,82,rarity10,8
+Combusken,catch rate,45,rarity,82,rarity10,8
+Blaziken,catch rate,45,rarity,82,rarity10,8
+Mudkip,catch rate,45,rarity,82,rarity10,8
+Marshtomp,catch rate,45,rarity,82,rarity10,8
+Swampert,catch rate,45,rarity,82,rarity10,8
+Beautifly,catch rate,45,rarity,82,rarity10,8
+Dustox,catch rate,45,rarity,82,rarity10,8
+Ludicolo,catch rate,45,rarity,82,rarity10,8
+Shiftry,catch rate,45,rarity,82,rarity10,8
+Swellow,catch rate,45,rarity,82,rarity10,8
+Pelipper,catch rate,45,rarity,82,rarity10,8
+Gardevoir,catch rate,45,rarity,82,rarity10,8
+Slaking,catch rate,45,rarity,82,rarity10,8
+Shedinja,catch rate,45,rarity,82,rarity10,8
+Exploud,catch rate,45,rarity,82,rarity10,8
+Sableye,catch rate,45,rarity,82,rarity10,8
+Mawile,catch rate,45,rarity,82,rarity10,8
+Aggron,catch rate,45,rarity,82,rarity10,8
+Manectric,catch rate,45,rarity,82,rarity10,8
+Flygon,catch rate,45,rarity,82,rarity10,8
+Altaria,catch rate,45,rarity,82,rarity10,8
+Lunatone,catch rate,45,rarity,82,rarity10,8
+Solrock,catch rate,45,rarity,82,rarity10,8
+Lileep,catch rate,45,rarity,82,rarity10,8
+Cradily,catch rate,45,rarity,82,rarity10,8
+Anorith,catch rate,45,rarity,82,rarity10,8
+Armaldo,catch rate,45,rarity,82,rarity10,8
+Castform,catch rate,45,rarity,82,rarity10,8
+Banette,catch rate,45,rarity,82,rarity10,8
+Chimecho,catch rate,45,rarity,82,rarity10,8
+Walrein,catch rate,45,rarity,82,rarity10,8
+Bagon,catch rate,45,rarity,82,rarity10,8
+Shelgon,catch rate,45,rarity,82,rarity10,8
+Salamence,catch rate,45,rarity,82,rarity10,8
+Rayquaza,catch rate,45,rarity,82,rarity10,8
+Turtwig,catch rate,45,rarity,82,rarity10,8
+Grotle,catch rate,45,rarity,82,rarity10,8
+Torterra,catch rate,45,rarity,82,rarity10,8
+Chimchar,catch rate,45,rarity,82,rarity10,8
+Monferno,catch rate,45,rarity,82,rarity10,8
+Infernape,catch rate,45,rarity,82,rarity10,8
+Piplup,catch rate,45,rarity,82,rarity10,8
+Prinplup,catch rate,45,rarity,82,rarity10,8
+Empoleon,catch rate,45,rarity,82,rarity10,8
+Staraptor,catch rate,45,rarity,82,rarity10,8
+Kricketune,catch rate,45,rarity,82,rarity10,8
+Luxray,catch rate,45,rarity,82,rarity10,8
+Cranidos,catch rate,45,rarity,82,rarity10,8
+Rampardos,catch rate,45,rarity,82,rarity10,8
+Shieldon,catch rate,45,rarity,82,rarity10,8
+Bastiodon,catch rate,45,rarity,82,rarity10,8
+Wormadam,catch rate,45,rarity,82,rarity10,8
+Mothim,catch rate,45,rarity,82,rarity10,8
+Vespiquen,catch rate,45,rarity,82,rarity10,8
+Ambipom,catch rate,45,rarity,82,rarity10,8
+Mismagius,catch rate,45,rarity,82,rarity10,8
+Gible,catch rate,45,rarity,82,rarity10,8
+Gabite,catch rate,45,rarity,82,rarity10,8
+Garchomp,catch rate,45,rarity,82,rarity10,8
+Lucario,catch rate,45,rarity,82,rarity10,8
+Drapion,catch rate,45,rarity,82,rarity10,8
+Weavile,catch rate,45,rarity,82,rarity10,8
+Leafeon,catch rate,45,rarity,82,rarity10,8
+Glaceon,catch rate,45,rarity,82,rarity10,8
+Gallade,catch rate,45,rarity,82,rarity10,8
+Dusknoir,catch rate,45,rarity,82,rarity10,8
+Rotom,catch rate,45,rarity,82,rarity10,8
+Shaymin,catch rate,45,rarity,82,rarity10,8
+Snivy,catch rate,45,rarity,82,rarity10,8
+Servine,catch rate,45,rarity,82,rarity10,8
+Serperior,catch rate,45,rarity,82,rarity10,8
+Tepig,catch rate,45,rarity,82,rarity10,8
+Pignite,catch rate,45,rarity,82,rarity10,8
+Emboar,catch rate,45,rarity,82,rarity10,8
+Oshawott,catch rate,45,rarity,82,rarity10,8
+Dewott,catch rate,45,rarity,82,rarity10,8
+Samurott,catch rate,45,rarity,82,rarity10,8
+Stoutland,catch rate,45,rarity,82,rarity10,8
+Unfezant,catch rate,45,rarity,82,rarity10,8
+Gigalith,catch rate,45,rarity,82,rarity10,8
+Swoobat,catch rate,45,rarity,82,rarity10,8
+Conkeldurr,catch rate,45,rarity,82,rarity10,8
+Seismitoad,catch rate,45,rarity,82,rarity10,8
+Throh,catch rate,45,rarity,82,rarity10,8
+Sawk,catch rate,45,rarity,82,rarity10,8
+Leavanny,catch rate,45,rarity,82,rarity10,8
+Scolipede,catch rate,45,rarity,82,rarity10,8
+Krookodile,catch rate,45,rarity,82,rarity10,8
+Sigilyph,catch rate,45,rarity,82,rarity10,8
+Tirtouga,catch rate,45,rarity,82,rarity10,8
+Carracosta,catch rate,45,rarity,82,rarity10,8
+Archen,catch rate,45,rarity,82,rarity10,8
+Archeops,catch rate,45,rarity,82,rarity10,8
+Zoroark,catch rate,45,rarity,82,rarity10,8
+Swanna,catch rate,45,rarity,82,rarity10,8
+Vanilluxe,catch rate,45,rarity,82,rarity10,8
+Chandelure,catch rate,45,rarity,82,rarity10,8
+Haxorus,catch rate,45,rarity,82,rarity10,8
+Mienshao,catch rate,45,rarity,82,rarity10,8
+Druddigon,catch rate,45,rarity,82,rarity10,8
+Bisharp,catch rate,45,rarity,82,rarity10,8
+Bouffalant,catch rate,45,rarity,82,rarity10,8
+Deino,catch rate,45,rarity,82,rarity10,8
+Zweilous,catch rate,45,rarity,82,rarity10,8
+Hydreigon,catch rate,45,rarity,82,rarity10,8
+Larvesta,catch rate,45,rarity,82,rarity10,8
+Chespin,catch rate,45,rarity,82,rarity10,8
+Quilladin,catch rate,45,rarity,82,rarity10,8
+Chesnaught,catch rate,45,rarity,82,rarity10,8
+Fennekin,catch rate,45,rarity,82,rarity10,8
+Braixen,catch rate,45,rarity,82,rarity10,8
+Delphox,catch rate,45,rarity,82,rarity10,8
+Froakie,catch rate,45,rarity,82,rarity10,8
+Frogadier,catch rate,45,rarity,82,rarity10,8
+Greninja,catch rate,45,rarity,82,rarity10,8
+Talonflame,catch rate,45,rarity,82,rarity10,8
+Vivillon,catch rate,45,rarity,82,rarity10,8
+Florges,catch rate,45,rarity,82,rarity10,8
+Gogoat,catch rate,45,rarity,82,rarity10,8
+Aegislash,catch rate,45,rarity,82,rarity10,8
+Barbaracle,catch rate,45,rarity,82,rarity10,8
+Tyrunt,catch rate,45,rarity,82,rarity10,8
+Tyrantrum,catch rate,45,rarity,82,rarity10,8
+Amaura,catch rate,45,rarity,82,rarity10,8
+Aurorus,catch rate,45,rarity,82,rarity10,8
+Sylveon,catch rate,45,rarity,82,rarity10,8
+Goomy,catch rate,45,rarity,82,rarity10,8
+Sliggoo,catch rate,45,rarity,82,rarity10,8
+Goodra,catch rate,45,rarity,82,rarity10,8
+Noivern,catch rate,45,rarity,82,rarity10,8
+Xerneas,catch rate,45,rarity,82,rarity10,8
+Yveltal,catch rate,45,rarity,82,rarity10,8
+Rowlet,catch rate,45,rarity,82,rarity10,8
+Dartrix,catch rate,45,rarity,82,rarity10,8
+Decidueye,catch rate,45,rarity,82,rarity10,8
+Litten,catch rate,45,rarity,82,rarity10,8
+Torracat,catch rate,45,rarity,82,rarity10,8
+Incineroar,catch rate,45,rarity,82,rarity10,8
+Popplio,catch rate,45,rarity,82,rarity10,8
+Brionne,catch rate,45,rarity,82,rarity10,8
+Primarina,catch rate,45,rarity,82,rarity10,8
+Toucannon,catch rate,45,rarity,82,rarity10,8
+Vikavolt,catch rate,45,rarity,82,rarity10,8
+Oricorio,catch rate,45,rarity,82,rarity10,8
+Salazzle,catch rate,45,rarity,82,rarity10,8
+Tsareena,catch rate,45,rarity,82,rarity10,8
+Oranguru,catch rate,45,rarity,82,rarity10,8
+Passimian,catch rate,45,rarity,82,rarity10,8
+Golisopod,catch rate,45,rarity,82,rarity10,8
+Komala,catch rate,45,rarity,82,rarity10,8
+Mimikyu,catch rate,45,rarity,82,rarity10,8
+Jangmo-o,catch rate,45,rarity,82,rarity10,8
+Hakamo-o,catch rate,45,rarity,82,rarity10,8
+Kommo-o,catch rate,45,rarity,82,rarity10,8
+Cosmog,catch rate,45,rarity,82,rarity10,8
+Cosmoem,catch rate,45,rarity,82,rarity10,8
+Solgaleo,catch rate,45,rarity,82,rarity10,8
+Lunala,catch rate,45,rarity,82,rarity10,8
+Nihilego,catch rate,45,rarity,82,rarity10,8
+Buzzwole,catch rate,45,rarity,82,rarity10,8
+Pheromosa,catch rate,45,rarity,82,rarity10,8
+Xurkitree,catch rate,45,rarity,82,rarity10,8
+Celesteela,catch rate,45,rarity,82,rarity10,8
+Kartana,catch rate,45,rarity,82,rarity10,8
+Guzzlord,catch rate,45,rarity,82,rarity10,8
+Poipole,catch rate,45,rarity,82,rarity10,8
+Naganadel,catch rate,45,rarity,82,rarity10,8
+Ditto,catch rate,35,rarity,86,rarity10,8
+Chansey,catch rate,30,rarity,88,rarity10,8
+Murkrow,catch rate,30,rarity,88,rarity10,8
+Blissey,catch rate,30,rarity,88,rarity10,8
+Absol,catch rate,30,rarity,88,rarity10,8
+Honchkrow,catch rate,30,rarity,88,rarity10,8
+Chatot,catch rate,30,rarity,88,rarity10,8
+Magnezone,catch rate,30,rarity,88,rarity10,8
+Lickilicky,catch rate,30,rarity,88,rarity10,8
+Rhyperior,catch rate,30,rarity,88,rarity10,8
+Tangrowth,catch rate,30,rarity,88,rarity10,8
+Electivire,catch rate,30,rarity,88,rarity10,8
+Magmortar,catch rate,30,rarity,88,rarity10,8
+Togekiss,catch rate,30,rarity,88,rarity10,8
+Yanmega,catch rate,30,rarity,88,rarity10,8
+Gliscor,catch rate,30,rarity,88,rarity10,8
+Porygon-Z,catch rate,30,rarity,88,rarity10,8
+Phione,catch rate,30,rarity,88,rarity10,8
+Klinklang,catch rate,30,rarity,88,rarity10,8
+Eelektross,catch rate,30,rarity,88,rarity10,8
+Minior,catch rate,30,rarity,88,rarity10,8
+Stakataka,catch rate,30,rarity,88,rarity10,8
+Blacephalon,catch rate,30,rarity,88,rarity10,8
+Clefable,catch rate,25,rarity,90,rarity10,9
+Snorlax,catch rate,25,rarity,90,rarity10,9
+Steelix,catch rate,25,rarity,90,rarity10,9
+Scizor,catch rate,25,rarity,90,rarity10,9
+Mantine,catch rate,25,rarity,90,rarity10,9
+Skarmory,catch rate,25,rarity,90,rarity10,9
+Relicanth,catch rate,25,rarity,90,rarity10,9
+Mantyke,catch rate,25,rarity,90,rarity10,9
+Basculin,catch rate,25,rarity,90,rarity10,9
+Cryogonal,catch rate,25,rarity,90,rarity10,9
+Dhelmise,catch rate,25,rarity,90,rarity10,9
+Volcarona,catch rate,15,rarity,94,rarity10,9
+Articuno,catch rate,3,rarity,99,rarity10,10
+Zapdos,catch rate,3,rarity,99,rarity10,10
+Moltres,catch rate,3,rarity,99,rarity10,10
+Mewtwo,catch rate,3,rarity,99,rarity10,10
+Raikou,catch rate,3,rarity,99,rarity10,10
+Entei,catch rate,3,rarity,99,rarity10,10
+Suicune,catch rate,3,rarity,99,rarity10,10
+Lugia,catch rate,3,rarity,99,rarity10,10
+Ho-Oh,catch rate,3,rarity,99,rarity10,10
+Beldum,catch rate,3,rarity,99,rarity10,10
+Metang,catch rate,3,rarity,99,rarity10,10
+Metagross,catch rate,3,rarity,99,rarity10,10
+Regirock,catch rate,3,rarity,99,rarity10,10
+Regice,catch rate,3,rarity,99,rarity10,10
+Registeel,catch rate,3,rarity,99,rarity10,10
+Latias,catch rate,3,rarity,99,rarity10,10
+Latios,catch rate,3,rarity,99,rarity10,10
+Kyogre,catch rate,3,rarity,99,rarity10,10
+Groudon,catch rate,3,rarity,99,rarity10,10
+Jirachi,catch rate,3,rarity,99,rarity10,10
+Deoxys,catch rate,3,rarity,99,rarity10,10
+Uxie,catch rate,3,rarity,99,rarity10,10
+Mesprit,catch rate,3,rarity,99,rarity10,10
+Azelf,catch rate,3,rarity,99,rarity10,10
+Dialga,catch rate,3,rarity,99,rarity10,10
+Palkia,catch rate,3,rarity,99,rarity10,10
+Heatran,catch rate,3,rarity,99,rarity10,10
+Regigigas,catch rate,3,rarity,99,rarity10,10
+Giratina,catch rate,3,rarity,99,rarity10,10
+Cresselia,catch rate,3,rarity,99,rarity10,10
+Manaphy,catch rate,3,rarity,99,rarity10,10
+Darkrai,catch rate,3,rarity,99,rarity10,10
+Arceus,catch rate,3,rarity,99,rarity10,10
+Victini,catch rate,3,rarity,99,rarity10,10
+Cobalion,catch rate,3,rarity,99,rarity10,10
+Terrakion,catch rate,3,rarity,99,rarity10,10
+Virizion,catch rate,3,rarity,99,rarity10,10
+Tornadus,catch rate,3,rarity,99,rarity10,10
+Thundurus,catch rate,3,rarity,99,rarity10,10
+Reshiram,catch rate,3,rarity,99,rarity10,10
+Zekrom,catch rate,3,rarity,99,rarity10,10
+Landorus,catch rate,3,rarity,99,rarity10,10
+Kyurem,catch rate,3,rarity,99,rarity10,10
+Keldeo,catch rate,3,rarity,99,rarity10,10
+Meloetta,catch rate,3,rarity,99,rarity10,10
+Genesect,catch rate,3,rarity,99,rarity10,10
+Zygarde,catch rate,3,rarity,99,rarity10,10
+Diancie,catch rate,3,rarity,99,rarity10,10
+Hoopa,catch rate,3,rarity,99,rarity10,10
+Volcanion,catch rate,3,rarity,99,rarity10,10
+Type: Null,catch rate,3,rarity,99,rarity10,10
+Silvally,catch rate,3,rarity,99,rarity10,10
+Tapu Koko,catch rate,3,rarity,99,rarity10,10
+Tapu Lele,catch rate,3,rarity,99,rarity10,10
+Tapu Bulu,catch rate,3,rarity,99,rarity10,10
+Tapu Fini,catch rate,3,rarity,99,rarity10,10
+Magearna,catch rate,3,rarity,99,rarity10,10
+Marshadow,catch rate,3,rarity,99,rarity10,10
+Zeraora,catch rate,3,rarity,99,rarity10,10
