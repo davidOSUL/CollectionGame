@@ -262,10 +262,15 @@ public class Board implements Serializable {
 
 
 			}
-			if (pokemonAsASet.contains(name))
+			if (pokemonAsASet.contains(name)) {
 				if (!testPercentChance(PERCENT_CHANCE_DUPLICATE_SPAWNS))
 					lookForPokemon(true);
-			foundPokemon.add(thingLoader.getPokemon(name));
+				else
+					foundPokemon.add(thingLoader.getPokemon(name));
+			}
+			else
+				foundPokemon.add(thingLoader.getPokemon(name));
+					
 		}
 	}
 	/**

@@ -31,6 +31,7 @@ public class TimeTest {
 //		}
 		b.addThing(0, b.getPokemon("Charmander"));
 		b.addGold(10);
+		b.addPopularity(10000);
 		int i = 1;
 		String oldString = b.toString();
 		String newString = b.toString();
