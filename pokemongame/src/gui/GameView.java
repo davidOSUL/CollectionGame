@@ -1,48 +1,107 @@
 package gui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
-public class GameView {
-	Presenter presenter;
+public class GameView extends JFrame implements MouseListener{
 	JPanel mainGamePanel;
-	private static final int DEFAULT_NUM_SPOTS = 16;
-	private static final int SPOTS_PER_ROW = 4;
-	private static final int SPOTS_PER_COLUMN = 4;
-	private static final int DEFAULT_WIDTH = GameSpace.DEFAULT_WIDTH;
-	private static final int DEFAULT_HEIGHT = GameSpace.DEFAULT_HEIGHT;
+	private static final int WIDTH = 843;
+	private static final int HEIGHT = 549;
+	private static final Image background = new ImageIcon(MainGamePanel.class.getResource("/sprites/ui/background.png")).getImage();
+
 	Map<Integer, GameSpace> gameSpaces = new HashMap<Integer, GameSpace>();
-	public GameView(Presenter presenter) {
-		mainGamePanel = defaultLoad();
-		mainGamePanel.validate();
+	public GameView(String name) {
+		super(name);
+		addMouseListener(this);
+		mainGamePanel = new MainGamePanel();
+		setLayout(null);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(WIDTH, HEIGHT);
+		JLabel backgroundLabel = new JLabel(new ImageIcon(getScaledImage(background, 843, 549)));
+		backgroundLabel.setSize(WIDTH, HEIGHT);
+		//backgroundLabel.setOpaque(true);
+		//add(mainGamePanel);
+		add(backgroundLabel);
+		
+		
+		revalidate();
+		repaint();
+		
 	}
-	public void setPresenter(Presenter presenter) {
-		this.presenter = presenter;
-	}
-	private JPanel defaultLoad() {
-		JPanel panel = new JPanel();
 	
-		int startX =0;
-		int startY = 0;	
-		for (int i = 0; i < DEFAULT_NUM_SPOTS; i++) {
-			int xLocation = startX + (i % SPOTS_PER_ROW)*DEFAULT_WIDTH;
-			int yLocation = startY + (i % SPOTS_PER_COLUMN)*DEFAULT_HEIGHT;
-			GameSpace gs = new GameSpace(xLocation, yLocation);
-			gameSpaces.put(i, gs);
-			panel.add(gs);
-		}
-		panel.validate();
-		return panel;
+	private Image getScaledImage(Image srcImg, int w, int h){
+	    BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+	    Graphics2D g2 = resizedImg.createGraphics();
+
+	    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+	    g2.drawImage(srcImg, 0, 0, w, h, null);
+	    g2.dispose();
+
+	    return resizedImg;
 	}
 	public static void main(String...args) {
-		JFrame frame = new JFrame("test");
-		frame.add(new GameView(new Presenter()).mainGamePanel);
-		frame.setSize(400, 400);
-		frame.setVisible(true);
-		frame.repaint();
+		SwingUtilities.invokeLater(new Runnable() {
+		    @Override
+		    public void run() {
+		        GameView gv = new GameView("test");
+		        gv.setVisible(true);
+		        
+		    }
+		});
+		
+		
 	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		 int x = e.getX();
+		 
+		         int y = e.getY();
+		 
+		         System.out.println("Mouse Pressed at X: " + x + " - Y: " + y);
+
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
 }
