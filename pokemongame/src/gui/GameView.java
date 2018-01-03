@@ -36,7 +36,7 @@ public class GameView extends JFrame implements MouseListener{
 		JLabel backgroundLabel = new JLabel(new ImageIcon(getScaledImage(background, 843, 549)));
 		backgroundLabel.setSize(WIDTH, HEIGHT);
 		//backgroundLabel.setOpaque(true);
-		//add(mainGamePanel);
+		add(mainGamePanel);
 		add(backgroundLabel);
 		
 		
