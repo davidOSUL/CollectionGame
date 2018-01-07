@@ -9,6 +9,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.border.LineBorder;
 
@@ -16,8 +17,8 @@ import javax.swing.border.LineBorder;
 public class GameSpace extends JComponent {
 	private static final long serialVersionUID = 1L;
 	private Image imageAtSpace = null;
-	public static final int DEFAULT_WIDTH = 50;
-	public static final int DEFAULT_HEIGHT = 50;
+	public static final int DEFAULT_WIDTH = 100;
+	public static final int DEFAULT_HEIGHT = 100;
 	int locationX = 0;
 	int locationY = 0;
 	int width = DEFAULT_WIDTH;
@@ -36,7 +37,7 @@ public class GameSpace extends JComponent {
 	}
 	public GameSpace(int x, int y, Image thingAtSpace) {
 		this(x,y);
-		this.imageAtSpace = thingAtSpace;
+		setImage(thingAtSpace);
 	}
 	public GameSpace(int x, int y, Dimension dimension) {
 		this(x,y);
@@ -49,24 +50,27 @@ public class GameSpace extends JComponent {
 	}
 	public GameSpace(int x, int y, Image thingAtSpace, Dimension dimension) {
 		this(x,y, dimension);
-		this.imageAtSpace = thingAtSpace;
+		setImage(thingAtSpace);
 	
 	}
 	public GameSpace(Rectangle r) {
 		this((int)r.getX(), (int)r.getY(), (int)r.getWidth(), (int)r.getHeight());
 	}
 	public void setImage(Image image) {
+		this.setSize(image.getWidth(null), image.getHeight(null));
 		this.imageAtSpace = image;
 	}
 	public void removeImage() {
+		this.setSize(width, height);
 		this.imageAtSpace = null;
 	}
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		g.drawRect(0,0, width-1, height-1);
+		this.setBorder(BorderFactory.createLineBorder(Color.black));
+		//g.drawRect(0,0, width-1, height-1);
 		if (!isEmpty())
-			g.drawImage(imageAtSpace, 0, 0, this);
+			g.drawImage(imageAtSpace, 0, 0, null);
 	}
 	public boolean isEmpty() {
 		return imageAtSpace == null;

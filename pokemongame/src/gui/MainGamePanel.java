@@ -29,12 +29,14 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 public class MainGamePanel extends JPanel {
+	private static final boolean SHOW_AREAS = true; //developer purpose, will show the large rectangles pokemon spawn in
 	private static final int DEFAULT_NUM_SPOTS = 24;
 	private static final int SPOTS_PER_ROW = 4;
 	private static final int SPOTS_PER_COLUMN = 6;
-	private static final int DEFAULT_WIDTH = GameSpace.DEFAULT_WIDTH;
-	private static final int DEFAULT_HEIGHT = GameSpace.DEFAULT_HEIGHT;
+	private static final int MAX_WIDTH = GameSpace.DEFAULT_WIDTH;
+	private static final int MAX_HEIGHT = GameSpace.DEFAULT_HEIGHT;
 	private static final int NUM_PLACES = 3;
+	private int CURRSPACE_NUM = 1;
 	private static final Rectangle[] validPlaces = new Rectangle[NUM_PLACES];
 	
 	static {
@@ -70,31 +72,47 @@ public class MainGamePanel extends JPanel {
 			gs.setImage(new ImageIcon(this.getClass().getResource("/sprites/pokemon/" + i + ".png")).getImage());
 			add(gs);
 		}*/
+		if (SHOW_AREAS) {
 		for (int i = 0; i < NUM_PLACES; i++) {
 			GameSpace gs = new GameSpace(validPlaces[i]);
 			//gs.setImage(new ImageIcon(this.getClass().getResource("/sprites/pokemon/" + i + ".png")).getImage());
 			add(gs);
 		}
-		for (int i =0; i < 1; i++) {
-			GameSpace gs = createRandomSpace();
+		}
+		for (int i =0; i < 24; i++) {
 			try {
 				BufferedImage image = ImageIO.read(this.getClass().getResourceAsStream("/sprites/pokemon/" + (i+1) + ".png"));
-				gs.setImage(image);
+				image = trimImage(image);
+				boolean created = createAndAddRandomSpace(image);
+				if (!created)
+					System.out.println("Failed to create " + i);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			//gs.setImage(new ImageIcon(this.getClass().getResource("/sprites/pokemon/" + (i+1) + ".png")).getImage());
-			add(gs);
-			gameSpaces.put(i, gs);
+			
 		}
 		revalidate();
 		repaint();
 		setVisible(true);
 	}
-	private GameSpace createRandomSpace() {
-		GameSpace gs;
-		Rectangle bounds;
+	//returns false if failed to create space
+	private boolean createAndAddRandomSpace(BufferedImage image) {
+		GameSpace gs = createRandomSpace(image);
+		if (gs == null)
+			return false;
+		add(gs);
+		gameSpaces.put(CURRSPACE_NUM, gs);
+		return true;
+	}
+	private void removeSpace(int i) {
+		remove(gameSpaces.get(i));
+		gameSpaces.remove(i);
+	}
+	private GameSpace createRandomSpace(BufferedImage image) {
+		int MAX_ATTEMPTS = 30;
+		GameSpace gs= null;
+		Rectangle bounds = null;
 		boolean foundValidRect = true;
 		List<Integer> shuffledRectanglesToChoose = new ArrayList<Integer>();
 		for (int i =0; i < NUM_PLACES; i++) {
@@ -102,21 +120,33 @@ public class MainGamePanel extends JPanel {
 		}	
 		Collections.shuffle(shuffledRectanglesToChoose);
 		int i =0;
+		int numAttempts =0;
 		do {
+			foundValidRect = true;
+			numAttempts++;
 			if (i >= NUM_PLACES)
 				i=0;
 			int rectangleToChoose = shuffledRectanglesToChoose.get(i++);
+			
 			Rectangle rectangle = validPlaces[rectangleToChoose];
-			int x = (int) ThreadLocalRandom.current().nextDouble(rectangle.getMinX(), rectangle.getMaxX()-DEFAULT_WIDTH);
-			int y = (int) ThreadLocalRandom.current().nextDouble(rectangle.getMinY(), rectangle.getMaxY()-DEFAULT_HEIGHT);
+			
+			if (rectangle.getMinX()+image.getWidth()+1 >= rectangle.getMaxX() || rectangle.getMinY()+image.getHeight()+1 >= rectangle.getMaxY()) {
+				foundValidRect = false;
+				continue;
+			}
+			int x = (int) ThreadLocalRandom.current().nextDouble(rectangle.getMinX(), rectangle.getMaxX()-image.getWidth()-1);
+			int y = (int) ThreadLocalRandom.current().nextDouble(rectangle.getMinY(), rectangle.getMaxY()-image.getHeight()-1);
 			gs = new GameSpace(x,y);
 			bounds = gs.getBounds();
 			for (Rectangle r: gameSpaceLocations) {
-				if (recsOverlap(bounds,r));
+				if (bounds.intersects(r))
 					foundValidRect = false;
 			}
-		} while (!foundValidRect);
+		} while (!foundValidRect && numAttempts < MAX_ATTEMPTS);
+		if (numAttempts >= MAX_ATTEMPTS)
+			return null;
 		gameSpaceLocations.add(bounds);
+		gs.setImage(image);
 		return gs;
 		
 		
@@ -135,6 +165,25 @@ public class MainGamePanel extends JPanel {
 	        return false;
 	 
 	    return true;
+	}
+	private static BufferedImage trimImage(BufferedImage image) {
+	    int width = image.getWidth();
+	    int height = image.getHeight();
+	    int top = height / 2;
+	    int bottom = top;
+	    int left = width / 2 ;
+	    int right = left;
+	    for (int x = 0; x < width; x++) {
+	        for (int y = 0; y < height; y++) {
+	            if (image.getRGB(x, y) != 0){
+	                top    = Math.min(top, x);
+	                bottom = Math.max(bottom, x);
+	                left   = Math.min(left, x);
+	                right  = Math.max(right, x);
+	            }
+	        }
+	    }
+	    return image.getSubimage(left, top, right - left, bottom - top);
 	}
 	
 	/**
