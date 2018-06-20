@@ -82,16 +82,46 @@ public class Grid extends GameSpace {
 			}
 		}
 	}
+	/**
+	 * @param g The GameSpace to add. Will align to size of current grid and add at point p if there is room.
+	 * @param p Upper left hand corner grid location to add to
+	 * @return false if there was not room at that location for that GameSpace, true otherwise
+	 */
+	public boolean addGridSpace(GameSpace g, Point p) {
+		GridSpace gridSpace = new GridSpace(g);
+		if (!hasRoom(p, gridSpace.numColumns, gridSpace.numRows))
+			return false;
+		addAndSplit(grid.get(p), gridSpace);
+		return true;
+	}
+	/**
+	 * @param g The GameSpace to add. Will align it to size of current grid and add in the first free spot
+	 * @return false if there is no available spot in current grid, true otherwise
+	 */
 	public boolean addGridSpaceFirstFit(GameSpace g) {
 		GridSpace gridSpace = new GridSpace(g);
 		Spot s = findFirstFit(gridSpace);
 		if (s == null)
 			return false;
 		addAndSplit(s, gridSpace);
+		return true;
 	}
+	/**
+	 * Adds A gridspace and removes that location from the openSpots set
+	 * @param s The upper left hand corner spot to add the gridspace
+	 * @param g The gridspace to add
+	 */
 	private void addAndSplit(Spot s, GridSpace g) {
-		
+		SpaceIterator si = new SpaceIterator(grid, s.p, g.numColumns, g.numRows);
+		for (Spot spot: si) {
+			openSpots.remove(spot.p);
+			spot.resident = g;
+		}
 	}
+	/**
+	 * @param gridSpace The Gridspace to look for a spot for
+	 * @return The Spot of the upper left hand corner that will fit the gridspace
+	 */
 	private Spot findFirstFit(GridSpace gridSpace) {
 		int targetX = gridSpace.numColumns;
 		int targetY = gridSpace.numRows;
@@ -101,19 +131,16 @@ public class Grid extends GameSpace {
 		}
 		return null;
 	}
+	/**
+	 * @param p The Upper left hand corner to look at
+	 * @return true if the numRowsxnumCols grid with upper left hand corner at p is all unoccupied and all points are within the bounds of the grid. 
+	 */
 	private boolean hasRoom(Point p, int numCols, int numRows) {
-		for (int i = p.x; i < numCols; i++) {
-			Point target = new Point(i, p.y);
-			if (!grid.containsKey(target))
-				return false;
-			if (grid.get(target).isOccupied())
-				return false;
-		}
-		for (int i = p.y; i < numRows; i++) {
-			Point target = new Point(p.x, i);
-			if (!grid.containsKey(target))
-				return false;
-			if (grid.get(target).isOccupied())
+		SpaceIterator si = new SpaceIterator(grid, p, numCols, numRows);
+		if (si.noSpace())
+			return false;
+		for (Spot s: si) {
+			if (s == null || s.isOccupied())
 				return false;
 		}
 		return true;
@@ -176,6 +203,10 @@ public class Grid extends GameSpace {
 			return g.getArea() == getArea() ? 0 : getArea() > g.getArea() ? 1 : -1;
 		}
 	}
+	/**
+	 * Iterates through as much of grid as possible, ignoring any thing that goes over the edge
+	 * @author David O'Sullivan
+	 */
 	private static class SpaceIterator implements Iterable<Spot>{
 		int numCols;
 		int numRows;
@@ -187,25 +218,40 @@ public class Grid extends GameSpace {
 			this.grid = grid;
 			this.start = start;
 		}
+		
+		/**
+		 * @return true if desired region of iteration expands past edge of grid
+		 */
 		public boolean noSpace() {
-			return !grid.containsKey(new Point(start.x + numCols, start.y)) || !grid.containsKey(new Point(start.y + numCols, start.y));
+			return !grid.containsKey(start) || !grid.containsKey(new Point(start.x + numCols, start.y)) || !grid.containsKey(new Point(start.y + numCols, start.y));
 		}
 		@Override
 		public Iterator<Spot> iterator() {
 			Iterator<Spot> it = new Iterator<Spot>() {
 
 	            Point currentLoc = new Point(start.x, start.y);
+	            int lastCol = start.x + numCols - 1;
+	            int lastRow = start.y + numRows -1;
 	            @Override
 	            public boolean hasNext() {
-	              
+	              if (currentLoc.x <= lastCol && currentLoc.y <= lastRow)
+	            	  return true;
+	              return false;
 	            }
 
 	            @Override
 	            public Spot next() {
+	               Spot result = null;
 	               if (grid.containsKey(currentLoc)) {
-	            	   return grid.get(currentLoc);
+	            	   result =  grid.get(currentLoc);
 	               }
 	               currentLoc.x++;
+	               if (currentLoc.x > lastCol) {
+	            	   currentLoc.x = start.x;
+	            	   currentLoc.y++;
+	               }
+	               return result;
+	            	   
 	            }
 
 	            @Override
