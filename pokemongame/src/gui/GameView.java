@@ -33,7 +33,7 @@ public class GameView extends JFrame implements MouseListener{
 		setLayout(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(WIDTH, HEIGHT);
-		JLabel backgroundLabel = new JLabel(new ImageIcon(getScaledImage(background, 843, 549)));
+		JLabel backgroundLabel = new JLabel(new ImageIcon(getScaledImage(background, WIDTH, HEIGHT)));
 		backgroundLabel.setSize(WIDTH, HEIGHT);
 		//backgroundLabel.setOpaque(true);
 		add(mainGamePanel);
@@ -76,11 +76,7 @@ public class GameView extends JFrame implements MouseListener{
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		 int x = e.getX();
 		 
-		         int y = e.getY();
-		 
-		         System.out.println("Mouse Pressed at X: " + x + " - Y: " + y);
 
 		
 	}

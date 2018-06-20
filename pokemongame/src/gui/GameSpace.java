@@ -19,10 +19,10 @@ public class GameSpace extends JComponent {
 	private Image imageAtSpace = null;
 	public static final int DEFAULT_WIDTH = 100;
 	public static final int DEFAULT_HEIGHT = 100;
-	int locationX = 0;
-	int locationY = 0;
-	int width = DEFAULT_WIDTH;
-	int height = DEFAULT_HEIGHT;
+	private int locationX = 0;
+	private int locationY = 0;
+	private int width = DEFAULT_WIDTH;
+	private int height = DEFAULT_HEIGHT;
 	public GameSpace() {
 		setBounds(locationX, locationY, width, height);
 	}
@@ -64,6 +64,10 @@ public class GameSpace extends JComponent {
 		this.setSize(width, height);
 		this.imageAtSpace = null;
 	}
+	public Rectangle getRect() { //ha
+		return new Rectangle(locationX,locationY,width,height);
+	}
+	
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);

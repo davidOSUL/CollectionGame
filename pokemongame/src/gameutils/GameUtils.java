@@ -31,5 +31,13 @@ public final class GameUtils {
 		result.addAll(list2);
 		return result;
 	}
+	/**
+	 * @param val the value to round
+	 * @param MULT the multiple to round to
+	 * @return val rounded up to a multiple of MULT
+	 */
+	public static int roundToMultiple(int val, int MULT) {
+		return val < MULT ? MULT : ((val + MULT-1) / MULT)*MULT;
+	}
 	
 }
