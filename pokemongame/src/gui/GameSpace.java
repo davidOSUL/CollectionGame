@@ -14,25 +14,24 @@ import javax.swing.JComponent;
 import javax.swing.border.LineBorder;
 
 
+/**
+ * Component with image that autoexpands when image is added and returns to the passed in value for width/height when there is no image
+ * @author David O'Sullivan
+ */
 public class GameSpace extends JComponent {
 	private static final long serialVersionUID = 1L;
 	private Image imageAtSpace = null;
 	public static final int DEFAULT_WIDTH = 100;
 	public static final int DEFAULT_HEIGHT = 100;
-	private int locationX = 0;
-	private int locationY = 0;
-	private int width = DEFAULT_WIDTH;
-	private int height = DEFAULT_HEIGHT;
+	private Dimension emptyDimension = new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	public GameSpace() {
-		setBounds(locationX, locationY, width, height);
+		this.setBounds(0,0, DEFAULT_WIDTH, DEFAULT_HEIGHT);	
 	}
 	public GameSpace(Dimension dimension) {
 		this(0, 0, dimension);
 	}
 	public GameSpace(int x, int y) {
-		this.locationX = x;
-		this.locationY = y;
-		this.setBounds(locationX, locationY, width, height);
+		this.setBounds(x,y, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
 	}
 	public GameSpace(int x, int y, Image thingAtSpace) {
@@ -41,8 +40,7 @@ public class GameSpace extends JComponent {
 	}
 	public GameSpace(int x, int y, Dimension dimension) {
 		this(x,y);
-		width = (int) dimension.getWidth();
-		height = (int) dimension.getHeight(); 
+		emptyDimension = dimension;
 		setSize(dimension);
 	}
 	public GameSpace(int x, int y, int width, int height) {
@@ -56,18 +54,27 @@ public class GameSpace extends JComponent {
 	public GameSpace(Rectangle r) {
 		this((int)r.getX(), (int)r.getY(), (int)r.getWidth(), (int)r.getHeight());
 	}
+	public GameSpace(GameSpace g) {
+		this.setBounds(g.getBounds());
+		this.setImage(g.imageAtSpace);
+	}
+	/**
+	 * @param image image to set space to
+	 * Changes Image of box AND update size
+	 */
 	public void setImage(Image image) {
+		if (image == null)
+			return;
 		this.setSize(image.getWidth(null), image.getHeight(null));
 		this.imageAtSpace = image;
 	}
 	public void removeImage() {
-		this.setSize(width, height);
+		this.setSize(emptyDimension);
 		this.imageAtSpace = null;
 	}
-	public Rectangle getRect() { //ha
-		return new Rectangle(locationX,locationY,width,height);
+	public Image getImage() {
+		return imageAtSpace;
 	}
-	
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);

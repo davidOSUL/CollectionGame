@@ -43,7 +43,6 @@ public class MainGamePanel extends JPanel implements MouseListener{
 	private static final int GRID_SIZE = 24;
 	private int currspace_num = 1;
 	private static final Rectangle[] validPlaces = new Rectangle[NUM_PLACES];
-	
 	static {
 		int[] xLocations = {30,273,331,800,80,240};
 		int[] yLocations = {333,490,142,445,170,229};
@@ -60,29 +59,16 @@ public class MainGamePanel extends JPanel implements MouseListener{
 	private static final Image background = new ImageIcon(MainGamePanel.class.getResource("/sprites/ui/background.png")).getImage();
 	private static final long serialVersionUID = 1L;
 	public MainGamePanel() {
-		//GridLayout layoutManager = new GridLayout(SPOTS_PER_ROW, SPOTS_PER_COLUMN);
-		//setLayout(layoutManager);
 		setSize(843,549);
         setLayout(null);
         addMouseListener(this);
 		setFocusable(true);
-		//setLocation(XLOCATION,YLOCATION);
 		setOpaque(false);
-		/*int startX =0;
-		int startY = 0;	
-		for (int i = 0; i < DEFAULT_NUM_SPOTS; i++) {
-			int xLocation = startX + (i % SPOTS_PER_ROW)*DEFAULT_WIDTH;
-			int yLocation = startY + (i / SPOTS_PER_COLUMN)*DEFAULT_HEIGHT;
-			GameSpace gs = new GameSpace(xLocation,yLocation);
-			gs.setImage(new ImageIcon(this.getClass().getResource("/sprites/pokemon/" + i + ".png")).getImage());
-			add(gs);
-		}*/
 		if (SHOW_AREAS) {
-		for (int i = 0; i < NUM_PLACES; i++) {
-			Grid gs = new Grid(validPlaces[i], GRID_SIZE, GRID_SIZE);
-			//gs.setImage(new ImageIcon(this.getClass().getResource("/sprites/pokemon/" + i + ".png")).getImage());
-			add(gs);
-		}
+			for (int i = 0; i < NUM_PLACES; i++) {
+				Grid gs = new Grid(validPlaces[i], GRID_SIZE, GRID_SIZE);
+				add(gs);
+			}
 		}
 		for (int i =0; i < 24; i++) {
 			try {
@@ -92,7 +78,6 @@ public class MainGamePanel extends JPanel implements MouseListener{
 				if (!created)
 					System.out.println("Failed to create " + i);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
@@ -193,14 +178,9 @@ public class MainGamePanel extends JPanel implements MouseListener{
 	            }
 	        }
 	    }
-	    BufferedImage newImage = new BufferedImage(GameUtils.roundToMultiple(right-left, GRID_SIZE), GameUtils.roundToMultiple(bottom-top, GRID_SIZE), BufferedImage.TYPE_INT_ARGB);
-	    BufferedImage cutImage = image.getSubimage(left, top, right-left, bottom-top);
-	    Graphics2D bGr = newImage.createGraphics();
-	    bGr.drawImage(cutImage, 0, 0, null);
-	    bGr.dispose();
+	    return image.getSubimage(left, top, right-left, bottom-top);
+	   
 
-	    // Return the buffered image
-	    return newImage;
 	 }
 	
 	/**
