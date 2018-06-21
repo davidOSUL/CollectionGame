@@ -463,12 +463,20 @@ public class Board implements Serializable {
 		//return s.append("Gold: " + getGold() + "\n" + "POP: " + getPopularity()).toString();
 	}
 	/**
-	 * @return the next wild pokemon in the queue, null if there is none
+	 * @return the next wild pokemon in the queue, null if there is none, removes from queue
 	 */
 	public Pokemon getWildPokemon() {
 		return foundPokemon.poll();
 	}
-	
+	/**
+	 * @return the next wild pokemon in the queue, null if there is none, remains in queue
+	 */
+	public Pokemon peekWildPokemon() {
+		return foundPokemon.peek();
+	}
+	public int numPokemonWaiting() {
+		return foundPokemon.size();
+	}
 	
 	
 }

@@ -128,7 +128,10 @@ public abstract class Thing implements Serializable {
 	public String toString() {
 		return name + (containsAttribute("description") ? ": " + getAttributeVal("description").toString() : "");
 	}
-	 public enum ThingType {
+	 public String getImage() {
+		return image;
+	}
+	public enum ThingType {
 		POKEMON, ITEM, EVENTFULITEM;
 	}
 }
