@@ -5,6 +5,7 @@ import java.io.IOException;
 import guiutils.GuiUtils;
 import thingFramework.Thing;
 
+@Deprecated
 public class ThingSpace extends GameSpace {
 	private Thing t;
 	public ThingSpace(Thing t) throws IOException {

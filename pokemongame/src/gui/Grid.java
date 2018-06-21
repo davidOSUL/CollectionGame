@@ -115,7 +115,7 @@ public class Grid extends GameSpace {
 		for (int x = 0; x < numColumns; x++) {
 			for (int y = 0; y < numRows; y++) {
 				g2d.drawRect(x*subX, y*subY, subX, subY);
-				if (highlighted.containsGridPoint(new Point(x,y))) {
+				if (highlighted != null && highlighted.containsGridPoint(new Point(x,y))) {
 					g2d.setColor(Color.yellow);
 					g2d.fillRect(x*subX, y*subY, subX, subY);
 					g2d.setColor(Color.gray);
@@ -132,36 +132,36 @@ public class Grid extends GameSpace {
 		int y_g = p.y / subY;
 		return new Point(x_g, y_g);
 	}
-	public boolean addGridSpaceSnapToGrid(GameSpace g, Point p) {
+	public GameSpace addGridSpaceSnapToGrid(GameSpace g, Point p) {
 		if (p.x > subX*numColumns || p.y > subY*numRows)
-			return false;
+			return null;
 		return addGridSpace(g, getSnapPoint(p));
 		
 	}
 	/**
 	 * @param g The GameSpace to add. Will align to size of current grid and add at point p if there is room.
 	 * @param p_g Upper left hand corner grid location to add to
-	 * @return false if there was not room at that location for that GameSpace, true otherwise
+	 * @return null if there was not room at that location for that GameSpace, the gridspace otherwise
 	 */
-	public boolean addGridSpace(GameSpace g, Point p_g) {
+	public GameSpace addGridSpace(GameSpace g, Point p_g) {
 		GridSpace gridSpace = new GridSpace(g, p_g);
 		if (!hasRoom(p_g, gridSpace.numColumns, gridSpace.numRows))
-			return false;
+			return null;
 		addAndSplit(grid.get(p_g), gridSpace);
-		return true;
+		return gridSpace;
 	}
 	/**
 	 * @param g The GameSpace to add. Will align it to size of current grid and add in the first free spot
-	 * @return false if there is no available spot in current grid, true otherwise
+	 * @return null if there is no available spot in current grid, the gridspace otherwise
 	 */
-	public boolean addGridSpaceFirstFit(GameSpace g) {
+	public GameSpace addGridSpaceFirstFit(GameSpace g) {
 		GridSpace gridSpace = new GridSpace(g);
 		Spot s = findFirstFit(gridSpace);
 		if (s == null)
-			return false;
+			return null;
 		gridSpace.setGridLocation(s.p_g);
 		addAndSplit(s, gridSpace);
-		return true;
+		return gridSpace;
 	}
 	/**
 	 * Adds A gridspace and removes that location from the openSpots set
@@ -233,7 +233,7 @@ public class Grid extends GameSpace {
 		
 	}
 	public GridSpace generateGridSpace(GameSpace g) {
-		return new GridSpace(g, numColumns, numRows);
+		return new GridSpace(g);
 	}
 	/**
 	 * A GameSpace alligned to the current Grid

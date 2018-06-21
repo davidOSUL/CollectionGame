@@ -30,13 +30,11 @@ public class GameView extends JFrame {
 	protected static final int WIDTH = 843;
 	protected static final int HEIGHT = 549;
 	private static final Image background = new ImageIcon(MainGamePanel.class.getResource("/sprites/ui/background.png")).getImage();
-
 	private Map<Integer, GameSpace> gameSpaces = new HashMap<Integer, GameSpace>();
 	private Presenter p;
-	public GameView(String name, Presenter p) {
+	public GameView(String name) {
 		super(name);
-		this.p= p;
-		mainGamePanel = new MainGamePanel(p);
+		mainGamePanel = new MainGamePanel();
 		setLayout(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(WIDTH, HEIGHT);
@@ -51,18 +49,12 @@ public class GameView extends JFrame {
 		repaint();
 		
 	}
-	
-	
-	public static void main(String...args) {
-		SwingUtilities.invokeLater(new Runnable() {
-		    @Override
-		    public void run() {
-		        GameView gv = new GameView("Pokemon Game V. Alpha");
-		        gv.setVisible(true);
-		        
-		    }
-		});	
+	public void setPresenter(Presenter p) {
+		this.p = p;
+		mainGamePanel.setPresenter(p);
 	}
+	
+
 	/**
 	 * @return the upper left hand corner that centers the object 
 	 */
@@ -85,6 +77,9 @@ public class GameView extends JFrame {
 	}
 	public void attemptThingAdd(GameSpace gs) {
 		mainGamePanel.thingAdd(gs);
+	}
+	public void setWildPokemonCount(int num) {
+		mainGamePanel.updateNotifications(num);
 	}
 
 

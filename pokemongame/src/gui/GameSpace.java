@@ -20,7 +20,7 @@ import javax.swing.border.LineBorder;
  * Component with image that autoexpands when image is added and returns to the passed in value for width/height when there is no image
  * @author David O'Sullivan
  */
-public abstract class GameSpace extends JComponent {
+public class GameSpace extends JComponent {
 	private static final long serialVersionUID = 1L;
 	private Image imageAtSpace = null;
 	public static final int DEFAULT_WIDTH = 100;

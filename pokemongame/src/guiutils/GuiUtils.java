@@ -82,7 +82,12 @@ public final class GuiUtils {
 
 	    return resizedImg;
 	}
-	public static Image readImage(String input) throws IOException {
-		return ImageIO.read(GuiUtils.class.getResourceAsStream(input));
+	public static Image readImage(String input) {
+		try {
+			return ImageIO.read(GuiUtils.class.getResourceAsStream(input));
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

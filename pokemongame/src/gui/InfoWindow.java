@@ -29,6 +29,7 @@ public class InfoWindow extends JPanel {
 	private int height = DEFAULT_HEIGHT;
 	private boolean isDone = false;
 	private boolean isEntered = false;
+	private Presenter p;
 	public InfoWindow() {this.setLayout(new CardLayout());}
 	public InfoWindow(int width, int height) {
 		this();
@@ -52,14 +53,20 @@ public class InfoWindow extends JPanel {
 		this.info = info;
 		return this;
 	}
-	public InfoWindow addButton(String name, Consumer<Presenter> con, Presenter p, boolean setDone, boolean setEntered) {
+	public InfoWindow setPresenter(Presenter p) {
+		this.p = p;
+		return this;
+	}
+	public InfoWindow addButton(String name, Consumer<Presenter> con, boolean setDone, boolean setEntered) {
 		JButton jb = new JButton(name);
 		jb.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				con.accept(p);
-				isDone = setDone;
-				isEntered = setEntered;
+				if (setEntered)
+					p.Entered();
+				if (setDone)
+					p.Finished();
 			 }
 
 		});
@@ -71,13 +78,9 @@ public class InfoWindow extends JPanel {
 		JPanel infoPan = new JPanel();
 		infoPan.add(new JLabel(info));
 		JPanel itemPan = new JPanel();
-		try {
-			JLabel jl = new JLabel(new ImageIcon(GuiUtils.readImage(t.getImage())));
-			jl.setText(pictureCaption);
-			itemPan.add(jl);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		JLabel jl = new JLabel(new ImageIcon(GuiUtils.readImage(t.getImage())));
+		jl.setText(pictureCaption);
+		itemPan.add(jl);
 		JPanel buttonPan = new JPanel();
 		for (JButton jb: buttons) {
 			buttonPan.add(jb);
@@ -94,7 +97,8 @@ public class InfoWindow extends JPanel {
 		jb.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				isDone = true;
+				p.Canceled();
+				p.Finished();
 			 }
 
 		});
@@ -106,8 +110,8 @@ public class InfoWindow extends JPanel {
 		jb.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				isDone = true;
-				isEntered = true;
+				p.Entered();
+				p.Finished();
 			 }
 
 		});

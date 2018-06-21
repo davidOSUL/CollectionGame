@@ -1,6 +1,8 @@
 package gui;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import javax.swing.JPanel;
@@ -11,58 +13,90 @@ import thingFramework.Pokemon;
 import thingFramework.Thing;
 
 public class Presenter {
-	Board board;
-	GameView gameView;
-	private static Consumer<Presenter> letPokeGo = p -> p.board.getWildPokemon();
-	Thing thingToAdd = null;
-	int currCount =0;
+	private Board board;
+	private GameView gameView;
+	private final static Consumer<Presenter> LET_POKE_GO = p -> p.board.getWildPokemon();
+	private Thing thingToAdd = null;
+	private int currCount =0;
+	private Map<GameSpace, Thing> allThings = new HashMap<GameSpace, Thing>();
+	private currentState state = currentState.GAMEPLAY;
+	private InfoWindow currentWindow = null;
+	public Presenter() {};
+	
 	public Presenter(Board b, GameView gv) {
 		board = b;
 		gameView = gv;
 	}
 	public void update() {
-		
+		if (board == null || gameView == null)
+			return;
+		board.update();
+		gameView.setWildPokemonCount(board.numPokemonWaiting());
+	}
+	public void setBoard(Board b) {
+		this.board = b;
+	}
+	public void setGameView(GameView gv) {
+		this.gameView = gv;
 	}
 	public void NotificationClicked() {
 		if (!board.wildPokemonPresent())
 			return;
+		state =  currentState.NOTIFICATION_WINDOW;
 		InfoWindow iw = wildPokemonWindow(board.peekWildPokemon());
-		gameView.displayPanelCentered(iw);
-		while (iw.isDone()) {
-		}
-		if (iw.isEntered()) {
-			addThing(board.getWildPokemon());
-		}
-		
-		
-						
-										
+		currentWindow = iw;
+		gameView.displayPanelCentered(iw);										
 	}
-	public synchronized void notifyAdded(Grid g) {
+	public void notifyAdded(GameSpace gs) {
 		if (thingToAdd == null)
 			return;
 		board.addThing(currCount++, thingToAdd);
+		allThings.put(gs, thingToAdd);
 		thingToAdd = null;
 	}
 	public void addThing(Thing t) {
-		GameSpace gs = null;
-		try {
-			gs = new ThingSpace(t);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		GameSpace gs = new GameSpace(GuiUtils.readImage(t.getImage()));
 		thingToAdd = t;
 		gameView.attemptThingAdd(gs);
 	}
+	public void Entered() {
+		switch(state) {
+			case NOTIFICATION_WINDOW:
+				addThing(board.getWildPokemon());	
+				break;
+		}
+	}
+	public void Canceled() {
+		switch(state) {
+			case NOTIFICATION_WINDOW:
+				
+			break;
+		}
+
+	}
+	public void Finished() {
+		switch(state) {
+			case NOTIFICATION_WINDOW:
+				gameView.removeDisplay(currentWindow);
+				currentWindow = null;
+				break;
+		}
+		state = currentState.GAMEPLAY;
+	}
 	private InfoWindow wildPokemonWindow(Pokemon p) {
-		InfoWindow iw = new InfoWindow().setTitle("Pokemon Found!")
+		InfoWindow iw = new InfoWindow()
+				.setPresenter(this)
+				.setTitle("Pokemon Found!")
 				.setInfo("A wild " + p.getName() + "appeared!")
 				.setItem(p)
 				.addEnterButton("Place")
-				.addButton("Set Free", letPokeGo, this, true, false)
+				.addButton("Set Free", LET_POKE_GO, true, false)
 				.addCancelButton()
 				.Create();
 		return iw;
+	}
+	private enum currentState {
+		GAMEPLAY, NOTIFICATION_WINDOW, PLACING_THING
 	}
 	
 	

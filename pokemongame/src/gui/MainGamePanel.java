@@ -44,12 +44,15 @@ public class MainGamePanel extends JPanel{
 	 * When moving objects around the screen, defer to this grid for the size to round the image to
 	 */
 	private static final int DEFAULT_GRID = 0;
-	private int currspace_num = 0;
 	private static final Rectangle[] gridLocs = new Rectangle[NUM_GRIDS];
 	private static final Grid[] grids = new Grid[NUM_GRIDS];
 	private boolean addingSomething = false;
 	private Presenter p;
 	public GridSpace currentMoving = null;
+	
+	private static final Image NOTIFICATION_LOGO = GuiUtils.getScaledImage(GuiUtils.readImage("/sprites/ui/pokeball.png"), 50, 50);
+	private static final Point NOTIFICATION_LOCATION = new Point(749, 44);
+	private NotificationButton notifications = new NotificationButton(NOTIFICATION_LOGO, NOTIFICATION_LOCATION, x -> {x.NotificationClicked();}, p, true );
 	static {
 		int[] xLocations = {30,273,331,800,80,240};
 		int[] yLocations = {333,490,142,445,170,229};
@@ -62,29 +65,31 @@ public class MainGamePanel extends JPanel{
 		}
 	}
 	private static final long serialVersionUID = 1L;
-	public MainGamePanel(Presenter p) {
+	public void setPresenter(Presenter p) {
+		this.p = p;
+	}
+	public MainGamePanel() {
 		setSize(GameView.WIDTH,GameView.HEIGHT);
         setLayout(null);
 		setFocusable(true);
 		setOpaque(false);
-		this.p = p;
 			for (int i = 0; i < NUM_GRIDS; i++) {
-				Grid gs = new Grid(gridLocs[i], GRID_SPACE_DIM, GRID_SPACE_DIM);
-				gs.addMouseMotionListener(new MouseMotionAdapter() {
+				Grid currGrid = new Grid(gridLocs[i], GRID_SPACE_DIM, GRID_SPACE_DIM);
+				currGrid.addMouseMotionListener(new MouseMotionAdapter() {
 					 @Override
 					 public void mouseMoved(MouseEvent e) {
 						if (addingSomething) {
-							gs.setHighlight(e.getPoint(), currentMoving);
+							currGrid.setHighlight(e.getPoint(), currentMoving);
 						}
 					}
 				});
-				gs.addMouseListener(new MouseAdapter() {
+				currGrid.addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseClicked(MouseEvent e) {
 						if (addingSomething) {
-							boolean success = gs.addGridSpaceSnapToGrid(currentMoving, e.getPoint());
-							if (success) {
-								p.notifyAdded(gs);
+							GameSpace result = currGrid.addGridSpaceSnapToGrid(currentMoving, e.getPoint());
+							if (result != null) {
+								p.notifyAdded(result);
 								addingSomething = false;
 								currentMoving = null;
 							}
@@ -93,18 +98,18 @@ public class MainGamePanel extends JPanel{
 					@Override
 					public void mouseExited(MouseEvent e) {
 						if (addingSomething) {
-							gs.removeHighlight();
+							currGrid.removeHighlight();
 						}
 					}
 					@Override
 					public void mouseEntered(MouseEvent e) {
 						if (addingSomething) {
-							gs.setHighlight(e.getPoint(), currentMoving);
+							currGrid.setHighlight(e.getPoint(), currentMoving);
 						}
 					}
 				});
-				add(gs);
-				grids[i] = gs;
+				add(currGrid);
+				grids[i] = currGrid;
 			}
 		this.addMouseMotionListener(new MouseMotionAdapter() {
 			 @Override
@@ -114,10 +119,19 @@ public class MainGamePanel extends JPanel{
 				}
 			}
 		});
-		currspace_num = 0;
+		this.addMouseListener(new MouseAdapter() {
+			 @Override
+			 public void mouseClicked(MouseEvent e) {
+				 System.out.println(e.getPoint());
+			 }
+		});
+		add(notifications);
 		revalidate();
 		repaint();
 		setVisible(true);
+	}
+	public void updateNotifications(int num) {
+		notifications.setNumNotifications(num);
 	}
 	public void thingAdd(GameSpace gs){
 		addingSomething = true;

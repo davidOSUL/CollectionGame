@@ -31,6 +31,8 @@ public final class ThingLoader {
 	 * Tell thing loader to generate random attributes for this thing
 	 */
 	private static final String GEN_CODE = "RANDOMATTRIBUTES";
+	private static final String POKE_SPRITE_LOC = "/sprites/pokemon/";
+	private static final String ITEM_SPRITE_LOC = "/sprites/items/";
 	private final Path path;
 	private Path[] pathsToExtraAttributes = null;
 	private final EventBuilder eb;
@@ -160,7 +162,7 @@ public final class ThingLoader {
 	}
 	private void loadPokemon(String[] values) {
 		String name = values[1];
-		String texture = values[2];
+		String texture = POKE_SPRITE_LOC + values[2];
 		Set<Attribute> attributes = loadAttributes(values, 3, name);
 		Pokemon pm = new Pokemon(name, texture, attributes);
 		thingMap.put(name, pm);
@@ -170,7 +172,7 @@ public final class ThingLoader {
 	private void loadItem(String[] values) {
 		if (values[1].equals("EVENTFULITEM")) {
 			String name = values[2];
-			String texture = values[3];
+			String texture = ITEM_SPRITE_LOC+ values[3];
 			List<Event> e = eb.getEvents(name);
 			Set<Attribute> attributes = loadAttributes(values, 4, name);
 			EventfulItem ei = new EventfulItem(name, texture, attributes, e);
@@ -180,7 +182,7 @@ public final class ThingLoader {
 		}
 		else {
 			String name = values[1];
-			String texture = values[2];
+			String texture = ITEM_SPRITE_LOC + values[2];
 			Set<Attribute> attributes = loadAttributes(values, 3, name);
 			Item i = new Item(name, texture, attributes);
 			thingMap.put(name, i);
