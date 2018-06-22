@@ -81,7 +81,7 @@ public class MainGamePanel extends JPanel{
 					 public void mouseMoved(MouseEvent e) {
 						if (addingSomething) {
 							MainGamePanel.this.dispatchEvent(e);
-							currGrid.setHighlight(e.getPoint(), currentMoving);
+							currGrid.updateHighlight(e.getPoint());
 						}
 					}
 				});
@@ -110,7 +110,7 @@ public class MainGamePanel extends JPanel{
 					public void mouseEntered(MouseEvent e) {
 						if (addingSomething) {
 							activeGrid = currGrid;
-							currGrid.setHighlight(e.getPoint(), currentMoving);
+							currGrid.setHighlight(currentMoving);
 						}
 					}
 				});

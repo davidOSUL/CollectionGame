@@ -27,6 +27,10 @@ import javax.swing.SwingUtilities;
 import guiutils.GuiUtils;
 
 public class GameView extends JFrame {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private MainGamePanel mainGamePanel;
 	protected static final int WIDTH = 843;
 	protected static final int HEIGHT = 549;
@@ -66,21 +70,21 @@ public class GameView extends JFrame {
 		return new Point(viewCenter.x-myCenter.x, viewCenter.y-myCenter.y);
 	}
 	
-	public void displayPanelCentered(JPanel jp) {
+	public synchronized void displayPanelCentered(JPanel jp) {
 		jp.setLocation(getCenterPoint(jp.getWidth(), jp.getHeight()));
 		getLayeredPane().add(jp, JLayeredPane.POPUP_LAYER);
 		revalidate();
 		repaint();
 	}
-	public void removeDisplay(JPanel jp) {
+	public synchronized void removeDisplay(JPanel jp) {
 		getLayeredPane().remove(jp);
 		revalidate();
 		repaint();
 	}
-	public void attemptThingAdd(GameSpace gs) {
+	public synchronized void attemptThingAdd(GameSpace gs) {
 		mainGamePanel.thingAdd(gs);
 	}
-	public void setWildPokemonCount(int num) {
+	public synchronized void setWildPokemonCount(int num) {
 		mainGamePanel.updateNotifications(num);
 	}
 	
