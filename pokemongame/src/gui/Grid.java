@@ -20,6 +20,7 @@ import java.util.TreeSet;
 import javax.swing.BorderFactory;
 
 import gameutils.GameUtils;
+import guiutils.GuiUtils;
 
 /**
  * Grid for things, pokemon, etc. to live on. 
@@ -77,6 +78,7 @@ public class Grid extends GameSpace {
 			return;
 		if (highlighted != null)
 			remove(highlighted);
+		g = generateGridSpace(new GameSpace(GuiUtils.FillIn(g.getImage(), Color.YELLOW)));
 		this.highlighted = g;
 		add(g);
 	}
@@ -116,9 +118,6 @@ public class Grid extends GameSpace {
 			for (int y = 0; y < numRows; y++) {
 				g2d.drawRect(x*subX, y*subY, subX, subY);
 				if (highlighted != null && highlighted.containsGridPoint(new Point(x,y))) {
-					g2d.setColor(Color.yellow);
-					g2d.fillRect(x*subX, y*subY, subX, subY);
-					g2d.setColor(Color.gray);
 				}
 			}
 		}
@@ -131,6 +130,11 @@ public class Grid extends GameSpace {
 		int x_g = p.x / subX;
 		int y_g = p.y / subY;
 		return new Point(x_g, y_g);
+	}
+	public Point getAbsoluteSnapPoint(Point p) {
+		int x = (p.x / subX)*subX;
+		int y = (p.y / subY)*subY;
+		return new Point(x, y);
 	}
 	public GameSpace addGridSpaceSnapToGrid(GameSpace g, Point p) {
 		if (p.x > subX*numColumns || p.y > subY*numRows)

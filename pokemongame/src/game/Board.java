@@ -63,7 +63,7 @@ public class Board implements Serializable {
 	/**
 	 * The minimum period in minutes at which new pokemon are checked for
 	 */
-	private static final double MIN_POKEPERIOD = .1;
+	private static final double MIN_POKEPERIOD = 1;
 	/**
 	 * The minimum percent chance that when checking for pokemon, one is found
 	 */
@@ -228,7 +228,8 @@ public class Board implements Serializable {
 		double A=  4; //max value+1
 		double B = 60; //"length" of near-constant values
 		double C = 1.3; //steepness of drop
-		return Math.max(MIN_POKEPERIOD, A-Math.pow(getPopularity()/B, C));
+		return .01;
+		//return Math.max(MIN_POKEPERIOD, A-Math.pow(getPopularity()/B, C));
 	}
 	
 	/**

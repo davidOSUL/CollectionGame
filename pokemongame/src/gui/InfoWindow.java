@@ -3,14 +3,21 @@ package gui;
 import java.util.List;
 import java.util.function.Consumer;
 import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
 import guiutils.GuiUtils;
@@ -18,31 +25,28 @@ import thingFramework.Item;
 import thingFramework.Thing;
 
 public class InfoWindow extends JPanel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Thing t;
 	private String pictureCaption;
-	private String title;
 	private String info;
 	private List<JButton> buttons = new ArrayList<JButton>();
-	private static final int DEFAULT_WIDTH = 200;
-	private static final int DEFAULT_HEIGHT = 100;
-	private int width = DEFAULT_WIDTH;
-	private int height = DEFAULT_HEIGHT;
+	private static final int DEFAULT_WIDTH = 300;
+	private static final int DEFAULT_HEIGHT = 200;
 	private boolean isDone = false;
 	private boolean isEntered = false;
+	private Image backgroundImage = null;
 	private Presenter p;
-	public InfoWindow() {this.setLayout(new CardLayout());}
+	public InfoWindow() {
+		this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+	}
 	public InfoWindow(int width, int height) {
-		this();
-		this.width = width;
-		this.height = height;
 		this.setBounds(0,0, width, height);
 	}
 	public InfoWindow setCaption(String s) {
 		this.pictureCaption = s;
-		return this;
-	}
-	public InfoWindow setTitle(String s) {
-		this.title = s;
 		return this;
 	}
 	public InfoWindow setItem(Thing t) {
@@ -55,6 +59,10 @@ public class InfoWindow extends JPanel {
 	}
 	public InfoWindow setPresenter(Presenter p) {
 		this.p = p;
+		return this;
+	}
+	public InfoWindow setBackgroundImage(Image i) {
+		this.backgroundImage = GuiUtils.changeOpacity(GuiUtils.getScaledImage(i, getWidth(), getHeight()), .5f);
 		return this;
 	}
 	public InfoWindow addButton(String name, Consumer<Presenter> con, boolean setDone, boolean setEntered) {
@@ -74,21 +82,57 @@ public class InfoWindow extends JPanel {
 		return this;
 	}
 	public InfoWindow Create() {
-		this.setTitle(title);
+
+		JLayeredPane result = new JLayeredPane();
+		result.setPreferredSize(new Dimension(getWidth(), getHeight()));
+
+		JPanel foreground = new JPanel();
+		foreground.setBounds(0, 0, getWidth(), getHeight());
+		foreground.setOpaque(false);
+		
+		foreground.setLayout(new BoxLayout(foreground, BoxLayout.Y_AXIS));
+		foreground.setPreferredSize(new Dimension(getWidth(), getHeight()));
+		
 		JPanel infoPan = new JPanel();
 		infoPan.add(new JLabel(info));
+		infoPan.setOpaque(false);
+		
 		JPanel itemPan = new JPanel();
-		JLabel jl = new JLabel(new ImageIcon(GuiUtils.readImage(t.getImage())));
+		JLabel jl = new JLabel("");
+		if (t!=null)
+			jl = new JLabel(new ImageIcon(GuiUtils.readImage(t.getImage())));
 		jl.setText(pictureCaption);
 		itemPan.add(jl);
+		itemPan.setOpaque(false);
+		
 		JPanel buttonPan = new JPanel();
 		for (JButton jb: buttons) {
 			buttonPan.add(jb);
 		}
-		add(infoPan);
-		add(itemPan);
-		add(buttonPan);
+		buttonPan.setOpaque(false);
+		
+		foreground.add(infoPan);
+		foreground.add(Box.createVerticalGlue());
+		foreground.add(itemPan);
+		foreground.add(Box.createVerticalGlue());
+		foreground.add(buttonPan);
+		foreground.revalidate();
+		foreground.repaint();
+		if (backgroundImage != null) {
+			JLabel backgroundLabel = new JLabel(new ImageIcon(backgroundImage));
+			backgroundLabel.setBounds(0,0, getWidth(), getHeight());
+			result.add(backgroundLabel, JLayeredPane.DEFAULT_LAYER);
+		}
+		
+		result.add(foreground, JLayeredPane.PALETTE_LAYER);
+		result.revalidate();
+		result.repaint();
+		result.setVisible(true);
+		add(result);
+		repaint();
+		revalidate();
 		setVisible(true);
+
 		return this;
 		
 	}

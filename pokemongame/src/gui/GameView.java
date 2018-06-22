@@ -20,6 +20,7 @@ import java.util.Map;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -29,12 +30,12 @@ public class GameView extends JFrame {
 	private MainGamePanel mainGamePanel;
 	protected static final int WIDTH = 843;
 	protected static final int HEIGHT = 549;
-	private static final Image background = new ImageIcon(MainGamePanel.class.getResource("/sprites/ui/background.png")).getImage();
+	private static final Image background = GuiUtils.readImage("/sprites/ui/background.png");
 	private Map<Integer, GameSpace> gameSpaces = new HashMap<Integer, GameSpace>();
 	private Presenter p;
 	public GameView(String name) {
 		super(name);
-		mainGamePanel = new MainGamePanel();
+		mainGamePanel = new MainGamePanel(this);
 		setLayout(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(WIDTH, HEIGHT);
@@ -51,9 +52,10 @@ public class GameView extends JFrame {
 	}
 	public void setPresenter(Presenter p) {
 		this.p = p;
-		mainGamePanel.setPresenter(p);
 	}
-	
+	public Presenter getPresenter() {
+		return p;
+	}
 
 	/**
 	 * @return the upper left hand corner that centers the object 
@@ -66,12 +68,12 @@ public class GameView extends JFrame {
 	
 	public void displayPanelCentered(JPanel jp) {
 		jp.setLocation(getCenterPoint(jp.getWidth(), jp.getHeight()));
-		add(jp);
+		getLayeredPane().add(jp, JLayeredPane.POPUP_LAYER);
 		revalidate();
 		repaint();
 	}
 	public void removeDisplay(JPanel jp) {
-		remove(jp);
+		getLayeredPane().remove(jp);
 		revalidate();
 		repaint();
 	}
@@ -81,7 +83,7 @@ public class GameView extends JFrame {
 	public void setWildPokemonCount(int num) {
 		mainGamePanel.updateNotifications(num);
 	}
-
+	
 
 	
 }

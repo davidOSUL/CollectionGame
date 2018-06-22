@@ -30,6 +30,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import gameutils.GameUtils;
@@ -47,12 +48,12 @@ public class MainGamePanel extends JPanel{
 	private static final Rectangle[] gridLocs = new Rectangle[NUM_GRIDS];
 	private static final Grid[] grids = new Grid[NUM_GRIDS];
 	private boolean addingSomething = false;
-	private Presenter p;
+	private GameView gv;
 	public GridSpace currentMoving = null;
-	
+	private Grid activeGrid = null;
 	private static final Image NOTIFICATION_LOGO = GuiUtils.getScaledImage(GuiUtils.readImage("/sprites/ui/pokeball.png"), 50, 50);
 	private static final Point NOTIFICATION_LOCATION = new Point(749, 44);
-	private NotificationButton notifications = new NotificationButton(NOTIFICATION_LOGO, NOTIFICATION_LOCATION, x -> {x.NotificationClicked();}, p, true );
+	private NotificationButton notifications;
 	static {
 		int[] xLocations = {30,273,331,800,80,240};
 		int[] yLocations = {333,490,142,445,170,229};
@@ -65,10 +66,10 @@ public class MainGamePanel extends JPanel{
 		}
 	}
 	private static final long serialVersionUID = 1L;
-	public void setPresenter(Presenter p) {
-		this.p = p;
-	}
-	public MainGamePanel() {
+
+	public MainGamePanel(GameView gv) {
+		this.gv = gv;
+		notifications = new NotificationButton(NOTIFICATION_LOGO, NOTIFICATION_LOCATION, x -> {x.NotificationClicked();}, gv, true );
 		setSize(GameView.WIDTH,GameView.HEIGHT);
         setLayout(null);
 		setFocusable(true);
@@ -79,6 +80,7 @@ public class MainGamePanel extends JPanel{
 					 @Override
 					 public void mouseMoved(MouseEvent e) {
 						if (addingSomething) {
+							MainGamePanel.this.dispatchEvent(e);
 							currGrid.setHighlight(e.getPoint(), currentMoving);
 						}
 					}
@@ -89,8 +91,10 @@ public class MainGamePanel extends JPanel{
 						if (addingSomething) {
 							GameSpace result = currGrid.addGridSpaceSnapToGrid(currentMoving, e.getPoint());
 							if (result != null) {
-								p.notifyAdded(result);
+								gv.getPresenter().notifyAdded(result);
+								currGrid.removeHighlight();
 								addingSomething = false;
+								remove(currentMoving);
 								currentMoving = null;
 							}
 						}
@@ -98,12 +102,14 @@ public class MainGamePanel extends JPanel{
 					@Override
 					public void mouseExited(MouseEvent e) {
 						if (addingSomething) {
+							activeGrid = null;
 							currGrid.removeHighlight();
 						}
 					}
 					@Override
 					public void mouseEntered(MouseEvent e) {
 						if (addingSomething) {
+							activeGrid = currGrid;
 							currGrid.setHighlight(e.getPoint(), currentMoving);
 						}
 					}
@@ -115,7 +121,13 @@ public class MainGamePanel extends JPanel{
 			 @Override
 			 public void mouseMoved(MouseEvent e) {
 				if (addingSomething) {
-					currentMoving.setLocation(e.getPoint());
+					if (activeGrid != null) {
+						Point snapPoint = activeGrid.getAbsoluteSnapPoint(e.getPoint());
+						currentMoving.setLocation(snapPoint.x+activeGrid.getX(), snapPoint.y+activeGrid.getY());
+					}
+					else {
+						currentMoving.setLocation(e.getPoint());
+					}
 				}
 			}
 		});
@@ -136,6 +148,7 @@ public class MainGamePanel extends JPanel{
 	public void thingAdd(GameSpace gs){
 		addingSomething = true;
 		currentMoving = grids[DEFAULT_GRID].generateGridSpace(gs);
+		add(currentMoving);
 	}
 
 

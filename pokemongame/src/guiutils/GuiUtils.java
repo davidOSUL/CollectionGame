@@ -1,5 +1,7 @@
 package guiutils;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
@@ -82,6 +84,14 @@ public final class GuiUtils {
 
 	    return resizedImg;
 	}
+	public static Image changeOpacity(Image i, float opacity) {
+		BufferedImage bi = new BufferedImage(i.getWidth(null), i.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2 = bi.createGraphics();
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+	    g2.drawImage(i, 0, 0, bi.getWidth(), bi.getHeight(), null);
+	    return bi;
+
+	}
 	public static Image readImage(String input) {
 		try {
 			return ImageIO.read(GuiUtils.class.getResourceAsStream(input));
@@ -89,5 +99,16 @@ public final class GuiUtils {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	public static Point subtractPoints(Point p1, Point p2) {
+		return new Point(p1.x-p2.x, p1.y-p2.y);
+	}
+	public static Image FillIn(Image image, Color color) {
+		BufferedImage bi = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2 = bi.createGraphics();
+		g2.setPaint(color);
+		g2.fillRect(0, 0, bi.getWidth(), bi.getHeight());
+		g2.drawImage(image, 0, 0, bi.getWidth(), bi.getHeight(), null);
+		return bi;
 	}
 }

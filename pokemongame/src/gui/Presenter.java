@@ -1,6 +1,8 @@
 package gui;
 
+import java.awt.Image;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -21,6 +23,7 @@ public class Presenter {
 	private Map<GameSpace, Thing> allThings = new HashMap<GameSpace, Thing>();
 	private currentState state = currentState.GAMEPLAY;
 	private InfoWindow currentWindow = null;
+	private static Image notificationBackground = GuiUtils.readImage("/sprites/ui/pikabackground.jpg");
 	public Presenter() {};
 	
 	public Presenter(Board b, GameView gv) {
@@ -32,6 +35,8 @@ public class Presenter {
 			return;
 		board.update();
 		gameView.setWildPokemonCount(board.numPokemonWaiting());
+		gameView.revalidate();
+		gameView.repaint();
 	}
 	public void setBoard(Board b) {
 		this.board = b;
@@ -86,12 +91,12 @@ public class Presenter {
 	private InfoWindow wildPokemonWindow(Pokemon p) {
 		InfoWindow iw = new InfoWindow()
 				.setPresenter(this)
-				.setTitle("Pokemon Found!")
-				.setInfo("A wild " + p.getName() + "appeared!")
+				.setInfo("A wild " + p.getName() + " appeared!")
 				.setItem(p)
 				.addEnterButton("Place")
 				.addButton("Set Free", LET_POKE_GO, true, false)
 				.addCancelButton()
+				.setBackgroundImage(notificationBackground)
 				.Create();
 		return iw;
 	}
