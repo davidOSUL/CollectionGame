@@ -52,6 +52,7 @@ public class MainGamePanel extends JPanel{
 	private GameView gv;
 	public GridSpace currentMoving = null;
 	private Grid activeGrid = null;
+	private boolean setHighlight = false;
 	private static final Image NOTIFICATION_LOGO = GuiUtils.getScaledImage(GuiUtils.readImage("/sprites/ui/pokeball.png"), 50, 50);
 	private static final Point NOTIFICATION_LOCATION = new Point(749, 44);
 	private NotificationButton notifications;
@@ -81,6 +82,11 @@ public class MainGamePanel extends JPanel{
 					 @Override
 					 public void mouseMoved(MouseEvent e) {
 						if (addingSomething) {
+							if (!setHighlight) {
+								activeGrid = currGrid;
+								currGrid.setHighlight(currentMoving);
+								setHighlight = true;
+							}
 							MainGamePanel.this.dispatchEvent(e);
 							currGrid.updateHighlight(e.getPoint());
 						}
@@ -93,13 +99,7 @@ public class MainGamePanel extends JPanel{
 						if (addingSomething) {
 							activeGrid = null;
 							currGrid.removeHighlight();
-						}
-					}
-					@Override
-					public void mouseEntered(MouseEvent e) {
-						if (addingSomething) {
-							activeGrid = currGrid;
-							currGrid.setHighlight(currentMoving);
+							setHighlight = false;
 						}
 					}
 				});
@@ -148,6 +148,7 @@ public class MainGamePanel extends JPanel{
 				addingSomething = false;
 				remove(currentMoving);
 				currentMoving = null;
+				setHighlight = false;
 			}
 		}
 	}

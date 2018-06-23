@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -79,10 +81,14 @@ public class GameView extends JFrame {
 	}
 	public void removeDisplay(JPanel jp) {
 		System.out.println("REMOVED");
+		for (Component c: getLayeredPane().getComponents()) {
+			if (c==jp)
+				System.out.println("found");
+		}
 		getLayeredPane().remove(jp);
-		getLayeredPane().revalidate();
-		getLayeredPane().repaint();
 		updateDisplay();
+		System.out.println(getLayeredPane().getComponentCount());
+		System.out.println(getLayeredPane().getComponents()[0]);
 
 	}
 	public  void attemptThingAdd(GameSpace gs) {

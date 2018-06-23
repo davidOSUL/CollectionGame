@@ -69,17 +69,14 @@ public class InfoWindow extends JPanel {
 	}
 	public InfoWindow addButton(String name, Consumer<Presenter> con, boolean setDone, boolean setEntered) {
 		JButton jb = new JButton(name);
-		jb.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				con.accept(p);
-				if (setEntered)
-					p.Entered();
-				if (setDone)
-					p.Finished();
-			 }
-
-		});
+		BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
+			con.accept(p);
+			if (setEntered)
+				p.Entered();
+			if (setDone)
+				p.Finished();
+		};
+		jb.addMouseListener(new MouseClickWithThreshold<Presenter>(CLICK_DIST_THRESH, input, p));
 		buttons.add(jb);
 		return this;
 	}
@@ -140,14 +137,11 @@ public class InfoWindow extends JPanel {
 	}
 	public InfoWindow addCancelButton(String text) {
 		JButton jb = new JButton(text);
-		jb.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				p.Canceled();
-				p.Finished();
-			 }
-
-		});
+		BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
+			p.Canceled();			 
+			p.Finished();
+		};
+		jb.addMouseListener(new MouseClickWithThreshold<Presenter>(CLICK_DIST_THRESH, input, p));
 		buttons.add(jb);
 		return this;
 	}
@@ -158,14 +152,6 @@ public class InfoWindow extends JPanel {
 			 p.Finished();
 		};
 		jb.addMouseListener(new MouseClickWithThreshold<Presenter>(CLICK_DIST_THRESH, input, p));
-		jb.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				p.Entered();
-				p.Finished();
-			 }
-
-		});
 		buttons.add(jb);
 		return this;
 	}
