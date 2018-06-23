@@ -10,7 +10,11 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import effects.CustomPeriodEvent;
 import effects.Event;
@@ -173,7 +177,7 @@ public class Board implements Serializable {
 	 * A map from board location to a list of events that that thing at that location has.
 	 * Note that the checkForPokemon event is mapped to -1
 	 */
-	private Map<Integer, List<Event>> events = new HashMap<Integer, List<Event>>();
+	private Map<Integer, List<Event>> events = new ConcurrentHashMap<Integer, List<Event>>();
 	/**
 	 * The event that checks for pokemon on a certain period based on popularity
 	 * This is considered a "default" event and hence is mapped to a negative value of -1.
@@ -184,6 +188,7 @@ public class Board implements Serializable {
 	 * But regardless, making it static makes sense.
 	 */
 	private transient static  Event checkForPokemon = checkForPokemonEvent(); 
+	private transient ExecutorService es = Executors.newFixedThreadPool(5);
 	public Board() {
 		events.put(-1, Arrays.asList(checkForPokemon));
 	}
@@ -201,13 +206,13 @@ public class Board implements Serializable {
 			events.get(k).forEach((Event x) ->
 			{
 				if (!x.onPlaceExecuted()) {
-					Thread w = new Thread(x.executeOnPlace(this));
-					w.start();
+					es.execute(x.executeOnPlace(this));
 				}
-				Thread t = new Thread(x.executePeriod(this));
-				t.start();
+				es.execute(x.executePeriod(this));
 			});
 		}
+		
+
 	}
 	
 	/**
@@ -376,8 +381,7 @@ public class Board implements Serializable {
 		boardAttributes.remove(location);
 		List<Event> removedEvents = events.remove(location); //will remove events if any exist at that location
 		for (Event e: removedEvents) {
-			Thread w = new Thread(e.executeOnRemove(this));
-			w.start();
+			es.execute(e.executeOnRemove(this));
 		}
 		if (isPokemon(t)) {
 			allGood = pokemon.remove(t);

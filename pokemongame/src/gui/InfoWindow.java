@@ -1,6 +1,7 @@
 package gui;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -35,6 +36,7 @@ public class InfoWindow extends JPanel {
 	private List<JButton> buttons = new ArrayList<JButton>();
 	private static final int DEFAULT_WIDTH = 300;
 	private static final int DEFAULT_HEIGHT = 200;
+	private static final int CLICK_DIST_THRESH = 20;
 	private boolean isDone = false;
 	private boolean isEntered = false;
 	private Image backgroundImage = null;
@@ -151,6 +153,11 @@ public class InfoWindow extends JPanel {
 	}
 	public InfoWindow addEnterButton(String text) {
 		JButton jb = new JButton(text);
+		BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
+			 p.Entered();
+			 p.Finished();
+		};
+		jb.addMouseListener(new MouseClickWithThreshold<Presenter>(CLICK_DIST_THRESH, input, p));
 		jb.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {

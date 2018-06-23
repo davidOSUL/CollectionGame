@@ -263,7 +263,9 @@ public class Grid extends GameSpace {
 			p_g = new GridPoint(x_g, y_g);
 			if (!g.isEmpty()) {
 				Image curr =  g.getImage();
-				BufferedImage newImage = new BufferedImage(GameUtils.roundToMultiple(curr.getWidth(this), subX), GameUtils.roundToMultiple(curr.getHeight(this), subY), BufferedImage.TYPE_INT_ARGB);
+				int newImageWidth = GameUtils.roundToMultiple(curr.getWidth(this), subX);
+				int newImageHeight = GameUtils.roundToMultiple(curr.getHeight(this), subY);
+				BufferedImage newImage = new BufferedImage(newImageWidth, newImageHeight, BufferedImage.TYPE_INT_ARGB);
 				Graphics2D bGr = newImage.createGraphics();
 				bGr.drawImage(curr, 0, 0, null);
 				bGr.dispose();

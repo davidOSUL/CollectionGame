@@ -15,7 +15,7 @@ import thingFramework.Pokemon;
 import thingFramework.Thing;
 
 public class Presenter {
-	private Board board;
+	private volatile Board board;
 	private GameView gameView;
 	private final static Consumer<Presenter> LET_POKE_GO = p -> p.board.getWildPokemon();
 	private Thing thingToAdd = null;
@@ -30,13 +30,16 @@ public class Presenter {
 		board = b;
 		gameView = gv;
 	}
-	public void update() {
+	public void updateGUI() {
+		if (board == null || gameView == null)
+			return;
+		gameView.setWildPokemonCount(board.numPokemonWaiting());
+		gameView.updateDisplay();
+	}
+	public void updateBoard() {
 		if (board == null || gameView == null)
 			return;
 		board.update();
-		gameView.setWildPokemonCount(board.numPokemonWaiting());
-		gameView.revalidate();
-		gameView.repaint();
 	}
 	public void setBoard(Board b) {
 		this.board = b;
@@ -60,7 +63,7 @@ public class Presenter {
 		thingToAdd = null;
 	}
 	public void addThing(Thing t) {
-		GameSpace gs = new GameSpace(GuiUtils.readImage(t.getImage()));
+		GameSpace gs = new GameSpace(GuiUtils.readAndTrimImage(t.getImage()));
 		thingToAdd = t;
 		gameView.attemptThingAdd(gs);
 	}

@@ -70,22 +70,30 @@ public class GameView extends JFrame {
 		return new Point(viewCenter.x-myCenter.x, viewCenter.y-myCenter.y);
 	}
 	
-	public synchronized void displayPanelCentered(JPanel jp) {
+	public void displayPanelCentered(JPanel jp) {
 		jp.setLocation(getCenterPoint(jp.getWidth(), jp.getHeight()));
 		getLayeredPane().add(jp, JLayeredPane.POPUP_LAYER);
-		revalidate();
-		repaint();
+		getLayeredPane().revalidate();
+		getLayeredPane().repaint();
+		updateDisplay();
 	}
-	public synchronized void removeDisplay(JPanel jp) {
+	public void removeDisplay(JPanel jp) {
+		System.out.println("REMOVED");
 		getLayeredPane().remove(jp);
-		revalidate();
-		repaint();
+		getLayeredPane().revalidate();
+		getLayeredPane().repaint();
+		updateDisplay();
+
 	}
-	public synchronized void attemptThingAdd(GameSpace gs) {
+	public  void attemptThingAdd(GameSpace gs) {
 		mainGamePanel.thingAdd(gs);
 	}
-	public synchronized void setWildPokemonCount(int num) {
+	public  void setWildPokemonCount(int num) {
 		mainGamePanel.updateNotifications(num);
+	}
+	public void updateDisplay() {
+		revalidate();
+		repaint();
 	}
 	
 

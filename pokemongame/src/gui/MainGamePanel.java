@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.BiConsumer;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -85,20 +86,8 @@ public class MainGamePanel extends JPanel{
 						}
 					}
 				});
+				currGrid.addMouseListener(generateGridClickListener(currGrid));
 				currGrid.addMouseListener(new MouseAdapter() {
-					@Override
-					public void mouseClicked(MouseEvent e) {
-						if (addingSomething) {
-							GameSpace result = currGrid.addGridSpaceSnapToGrid(currentMoving, e.getPoint());
-							if (result != null) {
-								gv.getPresenter().notifyAdded(result);
-								currGrid.removeHighlight();
-								addingSomething = false;
-								remove(currentMoving);
-								currentMoving = null;
-							}
-						}
-					}
 					@Override
 					public void mouseExited(MouseEvent e) {
 						if (addingSomething) {
@@ -149,6 +138,25 @@ public class MainGamePanel extends JPanel{
 		addingSomething = true;
 		currentMoving = grids[DEFAULT_GRID].generateGridSpace(gs);
 		add(currentMoving);
+	}
+	private void gridClick(Grid currGrid, Point p) {
+		if (addingSomething) {
+			GameSpace result = currGrid.addGridSpaceSnapToGrid(currentMoving,p);
+			if (result != null) {
+				gv.getPresenter().notifyAdded(result);
+				currGrid.removeHighlight();
+				addingSomething = false;
+				remove(currentMoving);
+				currentMoving = null;
+			}
+		}
+	}
+	private MouseClickWithThreshold<MainGamePanel> generateGridClickListener(Grid currGrid) {
+		BiConsumer<MainGamePanel, MouseEvent> input = (g, e) -> {
+			 g.gridClick(currGrid, e.getPoint());
+		};
+		MouseClickWithThreshold<MainGamePanel> mcwt = new MouseClickWithThreshold<MainGamePanel>(20, input, this); 
+		return mcwt;
 	}
 
 
