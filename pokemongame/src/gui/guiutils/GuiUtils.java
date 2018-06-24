@@ -1,7 +1,10 @@
-package guiutils;
+package gui.guiutils;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
@@ -113,5 +116,29 @@ public final class GuiUtils {
 		g2.fillRect(0, 0, bi.getWidth(), bi.getHeight());
 		g2.drawImage(image, 0, 0, bi.getWidth(), bi.getHeight(), null);
 		return bi;
+	}
+	/**
+	 * Draw a String centered in the middle of a Rectangle.
+	 *
+	 * @param g The Graphics instance.
+	 * @param text The String to draw.
+	 * @param rect The Rectangle to center the text in.
+	 * @param c The color of the font (will be set back to default color after)
+	 */
+	public static void drawCenteredString(Graphics g, String text, Rectangle rect, Font font, Color c) {
+	    // Get the FontMetrics
+	    FontMetrics metrics = g.getFontMetrics(font);
+	    // Determine the X coordinate for the text
+	    int x = rect.x + (rect.width - metrics.stringWidth(text)) / 2;
+	    // Determine the Y coordinate for the text (note we add the ascent, as in java 2d 0 is top of the screen)
+	    int y = rect.y + ((rect.height - metrics.getHeight()) / 2) + metrics.getAscent();
+	    // Set the font
+	    g.setFont(font);
+	    //Set the color
+	    Color old = g.getColor();
+	    g.setColor(c);
+	    // Draw the String
+	    g.drawString(text, x,y);
+	    g.setColor(old);
 	}
 }

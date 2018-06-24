@@ -1,10 +1,9 @@
-package gui;
+package gui.mouseAdapters;
 
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class MouseClickWithThreshold<T> extends MouseAdapter {
 	private int allowableDistance;

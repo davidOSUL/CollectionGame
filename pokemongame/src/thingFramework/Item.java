@@ -2,10 +2,7 @@ package thingFramework;
 
 import java.io.Serializable;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Set;
-
-import effects.Event;
 
 public class Item extends Thing implements Serializable {
 	

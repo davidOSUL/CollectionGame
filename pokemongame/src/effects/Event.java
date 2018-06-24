@@ -1,6 +1,7 @@
 package effects; 
 import java.io.Serializable;
-import java.util.function.*;
+import java.util.function.Consumer;
+
 import game.Board;
 public class Event implements Serializable {
 	/**

@@ -1,11 +1,5 @@
 package thingFramework;
 
-import java.util.List;
-
-import effects.Event;
-import game.Board;
-import loaders.ThingLoader;
-
 public class TestThingLoader {
 
 	public static void main(String[] args) {

@@ -1,7 +1,5 @@
 package loaders;
 
-import java.util.Arrays;
-
 import thingFramework.ExperienceGroup;
 
 public class TestParse {

@@ -1,23 +1,21 @@
-package gui;
+package gui.mvpFramework;
 
 import java.awt.Image;
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import javax.swing.JPanel;
-
 import game.Board;
-import guiutils.GuiUtils;
+import gui.guiComponents.GameSpace;
+import gui.guiComponents.InfoWindow;
+import gui.guiutils.GuiUtils;
 import thingFramework.Pokemon;
 import thingFramework.Thing;
 
 public class Presenter {
 	private volatile Board board;
 	private GameView gameView;
-	private final static Consumer<Presenter> LET_POKE_GO = p -> p.board.getWildPokemon();
+	private final static Consumer<Presenter> LET_POKE_GO = p -> p.board.confirmGrab();
 	private Thing thingToAdd = null;
 	private int currCount =0;
 	private Map<GameSpace, Thing> allThings = new HashMap<GameSpace, Thing>();
@@ -29,6 +27,13 @@ public class Presenter {
 	public Presenter(Board b, GameView gv) {
 		board = b;
 		gameView = gv;
+	}
+	public boolean containsGameSpace(GameSpace gs) {
+		return allThings.containsKey(gs);
+	}
+	public Thing removeGameSpace(GameSpace gs) {
+		board.removeThing(allThings.get(gs));
+		return allThings.remove(gs);
 	}
 	public void updateGUI() {
 		if (board == null || gameView == null)
@@ -51,7 +56,7 @@ public class Presenter {
 		if (!board.wildPokemonPresent() || state == currentState.NOTIFICATION_WINDOW)
 			return;
 		state =  currentState.NOTIFICATION_WINDOW;
-		InfoWindow iw = wildPokemonWindow(board.peekWildPokemon());
+		InfoWindow iw = wildPokemonWindow(board.grabWildPokemon());
 		currentWindow = iw;
 		gameView.displayPanelCentered(iw);										
 	}
@@ -59,25 +64,32 @@ public class Presenter {
 		if (thingToAdd == null)
 			return;
 		board.addThing(currCount++, thingToAdd);
+		board.confirmGrab();
 		allThings.put(gs, thingToAdd);
 		thingToAdd = null;
 	}
-	public void addThing(Thing t) {
+	public void attemptAddThing(Thing t) {
 		GameSpace gs = new GameSpace(GuiUtils.readAndTrimImage(t.getImage()));
 		thingToAdd = t;
 		gameView.attemptThingAdd(gs);
 	}
+	public void attemptMoveThing(GameSpace gs) {
+		if (containsGameSpace(gs))
+			throw new IllegalArgumentException("GameSpace " + gs + "Not found on board");
+		Thing t = removeGameSpace(gs);
+		attemptAddThing(t);
+	}
 	public void Entered() {
 		switch(state) {
 			case NOTIFICATION_WINDOW:
-				addThing(board.getWildPokemon());	
+				attemptAddThing(board.getGrabbed());	
 				break;
 		}
 	}
 	public void Canceled() {
 		switch(state) {
 			case NOTIFICATION_WINDOW:
-				
+				board.undoGrab();
 			break;
 		}
 

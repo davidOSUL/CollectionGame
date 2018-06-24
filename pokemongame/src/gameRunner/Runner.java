@@ -7,12 +7,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.Timer;
 
 import game.Board;
-import gui.GameView;
-import gui.Presenter;
+import gui.mvpFramework.GameView;
+import gui.mvpFramework.Presenter;
 
 public class Runner  {
 	

@@ -1,28 +1,24 @@
-package gui;
+package gui.guiComponents;
 
+import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Image;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.util.ArrayList;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
-import guiutils.GuiUtils;
-import thingFramework.Item;
+import gui.guiutils.GuiUtils;
+import gui.mouseAdapters.MouseClickWithThreshold;
+import gui.mvpFramework.Presenter;
 import thingFramework.Thing;
 
 public class InfoWindow extends JPanel {

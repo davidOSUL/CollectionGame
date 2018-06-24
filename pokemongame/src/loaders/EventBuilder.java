@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 import effects.Event;
-import game.Board;
 
 public class EventBuilder {
 	

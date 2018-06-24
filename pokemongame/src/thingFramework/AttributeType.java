@@ -1,8 +1,5 @@
 package thingFramework;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Represents the different types of possible attributes
  * 

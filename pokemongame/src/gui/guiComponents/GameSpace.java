@@ -1,19 +1,12 @@
-package gui;
+package gui.guiComponents;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
 
-import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.border.LineBorder;
 
 
 /**
@@ -75,8 +68,10 @@ public class GameSpace extends JComponent {
 	 * Changes Image of box AND update size
 	 */
 	public void setImage(Image image) {
-		if (image == null)
+		if (image == null) {
+			removeImage();
 			return;
+		}
 		this.setSize(image.getWidth(null), image.getHeight(null));
 		this.imageAtSpace = image;
 	}
@@ -90,7 +85,8 @@ public class GameSpace extends JComponent {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		if (!isEmpty())
+		//GuiUtils.drawCenteredString(g, Integer.toString(5), getBounds(), new Font("TimesRoman", Font.PLAIN, 16), Color.black);
+		if (!isEmpty()) {}
 			g.drawImage(imageAtSpace, 0, 0, null);
 	}
 	public boolean isEmpty() {

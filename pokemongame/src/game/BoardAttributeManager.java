@@ -1,12 +1,10 @@
 package game;
-import thingFramework.Attribute;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import effects.Event;
+import thingFramework.Attribute;
 public final class BoardAttributeManager {
 
 	private BoardAttributeManager() {

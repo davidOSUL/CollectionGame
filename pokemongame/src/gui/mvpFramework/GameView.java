@@ -1,32 +1,18 @@
-package gui;
+package gui.mvpFramework;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.RenderingHints;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionAdapter;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
-import guiutils.GuiUtils;
+import gui.guiComponents.GameSpace;
+import gui.guiutils.GuiUtils;
 
 public class GameView extends JFrame {
 	/**
@@ -81,8 +67,11 @@ public class GameView extends JFrame {
 		getLayeredPane().remove(jp);
 		updateDisplay();		
 	}
-	public  void attemptThingAdd(GameSpace gs) {
+	public void attemptThingAdd(GameSpace gs) {
 		mainGamePanel.thingAdd(gs);
+	}
+	public void attemptThingMove(GameSpace gs) {
+		p.attemptMoveThing(gs);
 	}
 	public  void setWildPokemonCount(int num) {
 		mainGamePanel.updateNotifications(num);

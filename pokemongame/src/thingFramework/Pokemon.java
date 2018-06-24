@@ -2,7 +2,6 @@ package thingFramework;
 
 import java.io.Serializable;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Set;
 
 

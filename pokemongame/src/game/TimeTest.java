@@ -1,18 +1,7 @@
 package game;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 
-import effects.CustomPeriodEvent;
-import loaders.EventBuilder;
-import thingFramework.Attribute;
-import thingFramework.EventfulItem;
 import thingFramework.Pokemon;
 
 public class TimeTest {
@@ -39,7 +28,7 @@ public class TimeTest {
 		b.update();
 		while (true) {
 			if (b.wildPokemonPresent()) {
-				Pokemon p = b.getWildPokemon();
+				Pokemon p = b.grabAndConfirm();
 				b.addThing(i++, p);
 			}
 			b.update();

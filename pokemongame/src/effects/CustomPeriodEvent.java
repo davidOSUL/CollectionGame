@@ -20,6 +20,10 @@ public class CustomPeriodEvent extends Event {
 		super(onPeriod, Integer.MAX_VALUE);
 		this.generatePeriod = generatePeriod;
 	}
+	public CustomPeriodEvent(Consumer<Board> onPlace, Consumer<Board> onPeriod, Function<Board, Double> generatePeriod) {
+		super(onPlace, onPeriod, Integer.MAX_VALUE);
+		this.generatePeriod = generatePeriod;
+	}
 	private synchronized void executeIfTime(Board b) {
 		double period = generatePeriod.apply(b);
 		period = Math.max(MIN_PERIOD, period);

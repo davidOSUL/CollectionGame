@@ -1,6 +1,5 @@
-package gui;
+package gui.guiComponents;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -8,19 +7,24 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Stroke;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.function.BiConsumer;
 
 import javax.swing.BorderFactory;
 
 import gameutils.GameUtils;
-import guiutils.GuiUtils;
+import gui.guiutils.GuiUtils;
+import gui.mouseAdapters.DoubleClickWithThreshold;
+import gui.mvpFramework.MainGamePanel;
 
 /**
  * Grid for things, pokemon, etc. to live on. 
@@ -38,6 +42,8 @@ public class Grid extends GameSpace {
 	private Map<GridPoint, Spot> grid = new HashMap<GridPoint, Spot>();
 	private GridSpace highlighted;
 	private boolean highlightVisible = false;
+	private MainGamePanel parent;
+	private static final int CLICK_DIST_THRESH = 20;
 	/**
 	 * @param x x location of grid
 	 * @param y y location of grid
@@ -45,7 +51,7 @@ public class Grid extends GameSpace {
 	 * @param subX width of grid elements
 	 * @param subY height of grid elements
 	 */
-	public Grid(int x, int y, Dimension dimension, int subX, int subY) {
+	public Grid(int x, int y, Dimension dimension, int subX, int subY, MainGamePanel parent) {
 		super(x,y, dimension);
 		if (subX > getWidth() || subY > getHeight()) {
 			throw new IllegalArgumentException("Can't subdivide");
@@ -58,9 +64,10 @@ public class Grid extends GameSpace {
 				grid.put(p, new Spot(p));
 			}
 		}
+		this.parent = parent;
 	}
-	public Grid(Rectangle r, int subX, int subY) {
-		this(r.x, r.y, new Dimension((int)r.getWidth(), (int)r.getHeight()), subX, subY);
+	public Grid(Rectangle r, int subX, int subY, MainGamePanel parent) {
+		this(r.x, r.y, new Dimension((int)r.getWidth(), (int)r.getHeight()), subX, subY, parent);
 	}
 	private void setVals(int subX, int subY) {
 		this.subX = subX;
@@ -180,6 +187,7 @@ public class Grid extends GameSpace {
 			spot.resident = g;
 		}
 		add(g);
+		g.addListeners();
 	}
 	/**
 	 * @param gridSpace The Gridspace to look for a spot for
@@ -249,6 +257,7 @@ public class Grid extends GameSpace {
 		private int numColumns;
 		private int numRows;
 		private GridPoint p_g;
+		private final List<MouseListener> listeners = new ArrayList<MouseListener>();
 		private GridSpace(int x_g, int y_g, int numCols, int numRows) {
 			super(x_g*subX,y_g*subY,numCols*subX,numRows*subY);
 			numColumns = numCols;
@@ -303,6 +312,17 @@ public class Grid extends GameSpace {
 		public void setPoint(GridPoint p_g) {
 			this.p_g = p_g;
 			this.setLocation(p_g.x*subX, p_g.y*subY);
+		}
+		public void addListeners() {
+			BiConsumer<MainGamePanel, MouseEvent> input = (mgp, e) -> {
+				mgp.movePlacedObject(this);
+			};
+			MouseListener ml = new DoubleClickWithThreshold<MainGamePanel>(CLICK_DIST_THRESH, input, parent);
+			this.addMouseListener(ml);
+			listeners.add(ml);
+		}
+		public void removeListeners() {
+			listeners.forEach(ml -> this.removeMouseListener(ml));
 		}
 	}
 	private static class GridPoint extends Point {

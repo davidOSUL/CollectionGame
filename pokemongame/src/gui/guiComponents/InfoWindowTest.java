@@ -1,14 +1,11 @@
-package gui;
+package gui.guiComponents;
 
 import java.awt.Point;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
-import guiutils.GuiUtils;
+import gui.guiutils.GuiUtils;
+import gui.mvpFramework.GameView;
 
 public class InfoWindowTest {
 	public static void main(String...args) {

@@ -1,45 +1,23 @@
-package gui;
+package gui.mvpFramework;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
-import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiConsumer;
 
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import gameutils.GameUtils;
-import gui.Grid.GridSpace;
-import guiutils.GuiUtils;
-import thingFramework.Thing;
+import gui.guiComponents.GameSpace;
+import gui.guiComponents.Grid;
+import gui.guiComponents.Grid.GridSpace;
+import gui.guiComponents.NotificationButton;
+import gui.guiutils.GuiUtils;
+import gui.mouseAdapters.MouseClickWithThreshold;
 
 public class MainGamePanel extends JPanel{
 	private static final int NUM_GRIDS = 3;
@@ -55,7 +33,7 @@ public class MainGamePanel extends JPanel{
 	private long timeAddedTime; 
 	private static final long MIN_WAIT_TO_ADD = 300; //Wait after clicking before can add to board
 	private GameView gv;
-	public GridSpace currentMoving = null;
+	private GridSpace currentMoving = null;
 	private Grid activeGrid = null;
 	private boolean setHighlight = false;
 	private static final Image NOTIFICATION_LOGO = GuiUtils.getScaledImage(GuiUtils.readImage("/sprites/ui/pokeball.png"), 50, 50);
@@ -82,7 +60,7 @@ public class MainGamePanel extends JPanel{
 		setFocusable(true);
 		setOpaque(false);
 			for (int i = 0; i < NUM_GRIDS; i++) {
-				Grid currGrid = new Grid(gridLocs[i], GRID_SPACE_DIM, GRID_SPACE_DIM);
+				Grid currGrid = new Grid(gridLocs[i], GRID_SPACE_DIM, GRID_SPACE_DIM, this);
 				currGrid.addMouseMotionListener(new MouseMotionAdapter() {
 					 @Override
 					 public void mouseMoved(MouseEvent e) {
@@ -172,6 +150,9 @@ public class MainGamePanel extends JPanel{
 		};
 		MouseClickWithThreshold<MainGamePanel> mcwt = new MouseClickWithThreshold<MainGamePanel>(20, input, this); 
 		return mcwt;
+	}
+	public void movePlacedObject(GameSpace gs) {
+		gv.attemptThingMove(gs);
 	}
 
 
