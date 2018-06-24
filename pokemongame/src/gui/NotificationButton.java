@@ -7,6 +7,7 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class NotificationButton extends GameSpace {
@@ -14,6 +15,7 @@ public class NotificationButton extends GameSpace {
 	private boolean hideOnEmpty;
 	private Consumer<Presenter> onClick = x -> {};
 	GameView gv;
+	private static final int CLICK_DIST_THRESH = 20;
 	public NotificationButton(Image img) {
 		this(img, new Point(0,0));
 	}
@@ -26,14 +28,12 @@ public class NotificationButton extends GameSpace {
 		this(img, location);
 		this.hideOnEmpty = hideOnEmpty;
 		this.onClick = onClick;
-		this.addMouseListener(new MouseAdapter() {
-			 @Override
-			 public void mouseClicked(MouseEvent e) {
+		BiConsumer<Consumer<Presenter>, MouseEvent> input = (con, e) -> {
 			if (!hideOnEmpty || numNotifications > 0)
-			   onClick.accept(gv.getPresenter());
-			 }
-
-		});
+				con.accept(gv.getPresenter());
+		};
+		this.addMouseListener(new MouseClickWithThreshold<Consumer<Presenter>>(CLICK_DIST_THRESH, input, onClick));
+	
 	}
 	public void setNumNotifications(int num) {
 		this.numNotifications = num;

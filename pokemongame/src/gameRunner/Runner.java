@@ -29,14 +29,14 @@ public class Runner  {
 		        ActionListener updateGUI = new ActionListener() {
 		            public void actionPerformed(ActionEvent evt) {
 		            	p.updateGUI();
-		            	p.updateBoard();
 		            }
 		        };
 		        new Timer(10, updateGUI).start();
 		        gv.setVisible(true);
 		    }
 		});	
-		
+		ScheduledExecutorService es = Executors.newSingleThreadScheduledExecutor();
+		es.scheduleAtFixedRate(() -> p.updateBoard(), 0, 10, TimeUnit.MILLISECONDS);
 
 		
 	}

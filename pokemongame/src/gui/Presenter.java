@@ -48,7 +48,7 @@ public class Presenter {
 		this.gameView = gv;
 	}
 	public void NotificationClicked() {
-		if (!board.wildPokemonPresent())
+		if (!board.wildPokemonPresent() || state == currentState.NOTIFICATION_WINDOW)
 			return;
 		state =  currentState.NOTIFICATION_WINDOW;
 		InfoWindow iw = wildPokemonWindow(board.peekWildPokemon());

@@ -9,6 +9,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
@@ -33,6 +34,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import gameutils.GameUtils;
 import gui.Grid.GridSpace;
@@ -48,7 +50,10 @@ public class MainGamePanel extends JPanel{
 	private static final int DEFAULT_GRID = 0;
 	private static final Rectangle[] gridLocs = new Rectangle[NUM_GRIDS];
 	private static final Grid[] grids = new Grid[NUM_GRIDS];
+	//TODO: At some point put these (addingSomething, currentMoving, etc.) in their own manager object
 	private boolean addingSomething = false;
+	private long timeAddedTime; 
+	private static final long MIN_WAIT_TO_ADD = 300; //Wait after clicking before can add to board
 	private GameView gv;
 	public GridSpace currentMoving = null;
 	private Grid activeGrid = null;
@@ -111,8 +116,7 @@ public class MainGamePanel extends JPanel{
 			 public void mouseMoved(MouseEvent e) {
 				if (addingSomething) {
 					if (activeGrid != null) {
-						Point snapPoint = activeGrid.getAbsoluteSnapPoint(e.getPoint());
-						currentMoving.setLocation(snapPoint.x+activeGrid.getX(), snapPoint.y+activeGrid.getY());
+						setCurrentRelativeToActiveGrid(e);
 					}
 					else {
 						currentMoving.setLocation(e.getPoint());
@@ -131,16 +135,26 @@ public class MainGamePanel extends JPanel{
 		repaint();
 		setVisible(true);
 	}
+	private void setCurrentRelativeToActiveGrid(MouseEvent e) {
+		Point snapPoint = activeGrid.getAbsoluteSnapPoint(e.getPoint());
+		currentMoving.setLocation(snapPoint.x+activeGrid.getX(), snapPoint.y+activeGrid.getY());
+	}
 	public void updateNotifications(int num) {
 		notifications.setNumNotifications(num);
 	}
 	public void thingAdd(GameSpace gs){
 		addingSomething = true;
 		currentMoving = grids[DEFAULT_GRID].generateGridSpace(gs);
+		Point p = MouseInfo.getPointerInfo().getLocation();
+		if (p != null) {
+			SwingUtilities.convertPointFromScreen(p, this);
+			currentMoving.setLocation(p);
+		}
 		add(currentMoving);
+		timeAddedTime = System.currentTimeMillis();
 	}
 	private void gridClick(Grid currGrid, Point p) {
-		if (addingSomething) {
+		if (addingSomething && System.currentTimeMillis()-timeAddedTime > MIN_WAIT_TO_ADD) {
 			GameSpace result = currGrid.addGridSpaceSnapToGrid(currentMoving,p);
 			if (result != null) {
 				gv.getPresenter().notifyAdded(result);

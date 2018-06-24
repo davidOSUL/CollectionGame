@@ -75,21 +75,11 @@ public class GameView extends JFrame {
 	public void displayPanelCentered(JPanel jp) {
 		jp.setLocation(getCenterPoint(jp.getWidth(), jp.getHeight()));
 		getLayeredPane().add(jp, JLayeredPane.POPUP_LAYER);
-		getLayeredPane().revalidate();
-		getLayeredPane().repaint();
 		updateDisplay();
 	}
 	public void removeDisplay(JPanel jp) {
-		System.out.println("REMOVED");
-		for (Component c: getLayeredPane().getComponents()) {
-			if (c==jp)
-				System.out.println("found");
-		}
 		getLayeredPane().remove(jp);
-		updateDisplay();
-		System.out.println(getLayeredPane().getComponentCount());
-		System.out.println(getLayeredPane().getComponents()[0]);
-
+		updateDisplay();		
 	}
 	public  void attemptThingAdd(GameSpace gs) {
 		mainGamePanel.thingAdd(gs);
