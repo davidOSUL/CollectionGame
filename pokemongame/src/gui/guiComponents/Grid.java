@@ -24,7 +24,7 @@ import javax.swing.BorderFactory;
 import gameutils.GameUtils;
 import gui.guiutils.GuiUtils;
 import gui.mouseAdapters.DoubleClickWithThreshold;
-import gui.mvpFramework.MainGamePanel;
+import gui.mvpFramework.GameView;
 
 /**
  * Grid for things, pokemon, etc. to live on. 
@@ -42,7 +42,7 @@ public class Grid extends GameSpace {
 	private Map<GridPoint, Spot> grid = new HashMap<GridPoint, Spot>();
 	private GridSpace highlighted;
 	private boolean highlightVisible = false;
-	private MainGamePanel parent;
+	private GameView gv;
 	private static final int CLICK_DIST_THRESH = 20;
 	/**
 	 * @param x x location of grid
@@ -51,7 +51,7 @@ public class Grid extends GameSpace {
 	 * @param subX width of grid elements
 	 * @param subY height of grid elements
 	 */
-	public Grid(int x, int y, Dimension dimension, int subX, int subY, MainGamePanel parent) {
+	public Grid(int x, int y, Dimension dimension, int subX, int subY, GameView gv) {
 		super(x,y, dimension);
 		if (subX > getWidth() || subY > getHeight()) {
 			throw new IllegalArgumentException("Can't subdivide");
@@ -64,10 +64,10 @@ public class Grid extends GameSpace {
 				grid.put(p, new Spot(p));
 			}
 		}
-		this.parent = parent;
+		this.gv = gv;
 	}
-	public Grid(Rectangle r, int subX, int subY, MainGamePanel parent) {
-		this(r.x, r.y, new Dimension((int)r.getWidth(), (int)r.getHeight()), subX, subY, parent);
+	public Grid(Rectangle r, int subX, int subY, GameView gv) {
+		this(r.x, r.y, new Dimension((int)r.getWidth(), (int)r.getHeight()), subX, subY, gv);
 	}
 	private void setVals(int subX, int subY) {
 		this.subX = subX;
@@ -176,7 +176,8 @@ public class Grid extends GameSpace {
 		return gridSpace;
 	}
 	/**
-	 * Adds A gridspace and removes that location from the openSpots set
+	 * Adds A gridspace and removes that location from the openSpots set. 
+	 * @invariant All "Add To Grid" Functions call this
 	 * @param s The upper left hand corner spot to add the gridspace
 	 * @param g The gridspace to add
 	 */
@@ -188,6 +189,22 @@ public class Grid extends GameSpace {
 		}
 		add(g);
 		g.addListeners();
+	}
+	/**
+	 * @param g The GridSpace to be removed
+	 * @invariant g exists on the board
+	 */
+	public void removeGridSpace(GridSpace g) {
+		SpaceIterator si = new SpaceIterator(grid, g.p_g, g.numColumns, g.numRows);
+		for (Spot spot: si) {
+			openSpots.add(spot.p_g);
+			if (spot.resident != g) {
+				throw new RuntimeException("Grid Removal Not Syncd");
+			}
+			spot.resident = null;
+		}
+		remove(g);
+		g.removeListeners();
 	}
 	/**
 	 * @param gridSpace The Gridspace to look for a spot for
@@ -271,16 +288,7 @@ public class Grid extends GameSpace {
 			super(g, x_g*subX, y_g*subY);
 			p_g = new GridPoint(x_g, y_g);
 			if (!g.isEmpty()) {
-				Image curr =  g.getImage();
-				int newImageWidth = GameUtils.roundToMultiple(curr.getWidth(this), subX);
-				int newImageHeight = GameUtils.roundToMultiple(curr.getHeight(this), subY);
-				BufferedImage newImage = new BufferedImage(newImageWidth, newImageHeight, BufferedImage.TYPE_INT_ARGB);
-				Graphics2D bGr = newImage.createGraphics();
-				bGr.drawImage(curr, 0, 0, null);
-				bGr.dispose();
-				setImage(newImage);
-				numColumns = newImage.getWidth() / subX;
-				numRows = newImage.getHeight() / subY;
+				setImage( g.getImage());
 			}
 		}
 		private GridSpace(GameSpace g, GridPoint p_g) {
@@ -314,15 +322,33 @@ public class Grid extends GameSpace {
 			this.setLocation(p_g.x*subX, p_g.y*subY);
 		}
 		public void addListeners() {
-			BiConsumer<MainGamePanel, MouseEvent> input = (mgp, e) -> {
-				mgp.movePlacedObject(this);
+			BiConsumer<GameView, MouseEvent> input = (gv, e) -> {
+				if (gv.getPresenter().attemptMoveGameSpace(this))
+					Grid.this.removeGridSpace(this);
 			};
-			MouseListener ml = new DoubleClickWithThreshold<MainGamePanel>(CLICK_DIST_THRESH, input, parent);
+			MouseListener ml = new DoubleClickWithThreshold<GameView>(CLICK_DIST_THRESH, input, gv);
 			this.addMouseListener(ml);
 			listeners.add(ml);
 		}
 		public void removeListeners() {
 			listeners.forEach(ml -> this.removeMouseListener(ml));
+		}
+		
+		/** 
+		 * 
+		 *Updates numColumns/numRows
+		 */
+		@Override
+		public void setImage(Image curr) {
+			int newImageWidth = GameUtils.roundToMultiple(curr.getWidth(this), subX);
+			int newImageHeight = GameUtils.roundToMultiple(curr.getHeight(this), subY);
+			BufferedImage newImage = new BufferedImage(newImageWidth, newImageHeight, BufferedImage.TYPE_INT_ARGB);
+			Graphics2D bGr = newImage.createGraphics();
+			bGr.drawImage(curr, 0, 0, null);
+			bGr.dispose();
+			super.setImage(newImage);
+			numColumns = newImage.getWidth() / subX;
+			numRows = newImage.getHeight() / subY;
 		}
 	}
 	private static class GridPoint extends Point {

@@ -242,7 +242,7 @@ public class Board implements Serializable {
 		double A=  4; //max value+1
 		double B = 60; //"length" of near-constant values
 		double C = 1.3; //steepness of drop
-		return .5;
+		return .1;
 		//TODO: Uncomment this
 		//return Math.max(MIN_POKEPERIOD, A-Math.pow(getPopularity()/B, C));
 	}
@@ -495,6 +495,8 @@ public class Board implements Serializable {
 	 * @return the next wild pokemon in the queue, null if there is none, temporarily removes from queue. Call undoGrab() to place back and confirmGrab() to confirm removal
 	 */
 	public Pokemon grabWildPokemon() {
+		if (grabbedPokemon != null)
+			throw new RuntimeException("Previous Grab Unconfirmed");
 		Pokemon grabbed = foundPokemon.poll();
 		grabbedPokemon = grabbed;
 		return grabbed;

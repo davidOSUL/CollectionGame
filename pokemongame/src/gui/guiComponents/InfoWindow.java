@@ -63,14 +63,18 @@ public class InfoWindow extends JPanel {
 		this.backgroundImage = GuiUtils.changeOpacity(GuiUtils.getScaledImage(i, getWidth(), getHeight()), .5f);
 		return this;
 	}
-	public InfoWindow addButton(String name, Consumer<Presenter> con, boolean setDone, boolean setEntered) {
+	public InfoWindow addButton(String name, Consumer<Presenter> con, boolean setFinish, boolean setEntered, boolean cleanUp) {
 		JButton jb = new JButton(name);
 		BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
+			if (cleanUp)
+				p.CleanUp();
 			con.accept(p);
 			if (setEntered)
 				p.Entered();
-			if (setDone)
-				p.Finished();
+			if (setFinish)
+				p.Finish();
+			
+			
 		};
 		jb.addMouseListener(new MouseClickWithThreshold<Presenter>(CLICK_DIST_THRESH, input, p));
 		buttons.add(jb);
@@ -134,8 +138,10 @@ public class InfoWindow extends JPanel {
 	public InfoWindow addCancelButton(String text) {
 		JButton jb = new JButton(text);
 		BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
-			p.Canceled();			 
-			p.Finished();
+			p.CleanUp();
+			p.Canceled();	
+			
+			
 		};
 		jb.addMouseListener(new MouseClickWithThreshold<Presenter>(CLICK_DIST_THRESH, input, p));
 		buttons.add(jb);
@@ -144,8 +150,10 @@ public class InfoWindow extends JPanel {
 	public InfoWindow addEnterButton(String text) {
 		JButton jb = new JButton(text);
 		BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
-			 p.Entered();
-			 p.Finished();
+			p.CleanUp(); 
+			p.Entered();
+			
+			
 		};
 		jb.addMouseListener(new MouseClickWithThreshold<Presenter>(CLICK_DIST_THRESH, input, p));
 		buttons.add(jb);

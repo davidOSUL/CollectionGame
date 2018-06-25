@@ -141,4 +141,14 @@ public final class GuiUtils {
 	    g.drawString(text, x,y);
 	    g.setColor(old);
 	}
+	public static Image rotateImage90ClockwiseAndTrim(Image curr) {
+		BufferedImage image = toBufferedImage(curr);
+		int w = image.getWidth();
+	    int h = image.getHeight();
+	    BufferedImage dest = new BufferedImage(h, w, image.getType());
+	    for (int y = 0; y < h; y++) 
+	        for (int x = 0; x < w; x++) 
+	            dest.setRGB(y,x,image.getRGB(x,y));
+	    return dest;
+	}
 }

@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 
 import gui.guiComponents.GameSpace;
 import gui.guiutils.GuiUtils;
+import gui.mvpFramework.Presenter.AddType;
 
 public class GameView extends JFrame {
 	/**
@@ -67,11 +68,8 @@ public class GameView extends JFrame {
 		getLayeredPane().remove(jp);
 		updateDisplay();		
 	}
-	public void attemptThingAdd(GameSpace gs) {
-		mainGamePanel.thingAdd(gs);
-	}
-	public void attemptThingMove(GameSpace gs) {
-		p.attemptMoveThing(gs);
+	public void attemptThingAdd(GameSpace gs, AddType type) {
+		mainGamePanel.gameSpaceAdd(gs, type);
 	}
 	public  void setWildPokemonCount(int num) {
 		mainGamePanel.updateNotifications(num);

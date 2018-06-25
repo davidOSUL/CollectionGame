@@ -20,6 +20,7 @@ public class Runner  {
 		SwingUtilities.invokeLater(new Runnable() {
 		    @Override
 		    public void run() {
+		    	
 		        GameView gv = new GameView("Pokemon Collection Game V. Alpha");
 		        Board board = new Board(); 
 		        p.setBoard(board);
@@ -27,7 +28,7 @@ public class Runner  {
 		        gv.setPresenter(p);
 		        ActionListener updateGUI = new ActionListener() {
 		            public void actionPerformed(ActionEvent evt) {
-		            	p.updateGUI();
+		            	p.updateGUI();	
 		            }
 		        };
 		        new Timer(10, updateGUI).start();
