@@ -117,7 +117,8 @@ public class Grid extends GameSpace {
 		}
 	}
 	/**
-	 * Sets the highlighted object for this grid 
+	 * Sets the highlighted object for this grid, and then updates the location. It should be noted that updateHighlight will 
+	 * remove the highlight if there isn't room for the gridspace. 
 	 * @param g the GridSpace to make a highlight out of 
 	 */
 	public void setHighlight(GridSpace g) {
@@ -129,14 +130,14 @@ public class Grid extends GameSpace {
 		highlightVisible = true;
 	}
 	/**
-	 * Updates the location of  highlighted
+	 * Updates the location of  highlighted. If there is not room for the highlighted grid space, the highlight will be removed
 	 * @param p An absolute point (relative to this component, that is (0,0) is the upper left hand corner of this grid) representing the new location (note: this is not a GridPoint)
 	 */
 	public void updateHighlight(Point p) { 
 		updateHighlightGP(getSnapPoint(p));
 	}
 	/**
-	 * Updates the location of highlighted
+	 * Updates the location of highlighted. If there is not room for the highlighted grid space, the highlight will be removed
 	 * @param p_g The <b><i>Grid Point</i></b> to update the highlighted to
 	 */
 	private void updateHighlightGP(GridPoint p_g) {

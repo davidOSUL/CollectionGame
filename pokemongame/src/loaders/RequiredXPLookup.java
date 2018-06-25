@@ -12,6 +12,11 @@ import java.util.TreeMap;
 
 import thingFramework.ExperienceGroup;
 
+/**
+ * Used as a way to lookup pokemon XP
+ * @author DOSullivan
+ *
+ */
 public final class RequiredXPLookup {
 	private static final Path pathToXp = FileSystems.getDefault().getPath("resources/InputFiles/XPLookup.csv");
 	private static Map<Integer, Integer[]> levelToXP = new HashMap<Integer, Integer[]>();

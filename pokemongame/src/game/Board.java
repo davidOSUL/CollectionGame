@@ -29,7 +29,7 @@ import thingFramework.Pokemon;
 import thingFramework.Thing;
 import thingFramework.Thing.ThingType;
 /**
- * Manages the game state in memory.
+ * The "Model" in the MVP model. Manages the game state in memory.
  * <br> NOTE: newSession should be called at the beggining of a new session. </br>
  * @author David O'Sullivan
  *

@@ -21,6 +21,11 @@ import gui.mouseAdapters.MouseClickWithThreshold;
 import gui.mvpFramework.Presenter;
 import thingFramework.Thing;
 
+/**
+ * A Pop-Up Window that interfaces with a provided Presenter. All Features are added incrementally, only adding what is needed.
+ * Must call Create() to finalize creation of InfoWindow
+ * @author DOSullivan
+ */
 public class InfoWindow extends JPanel {
 	/**
 	 * 
@@ -37,32 +42,74 @@ public class InfoWindow extends JPanel {
 	private boolean isEntered = false;
 	private Image backgroundImage = null;
 	private Presenter p;
+	/**
+	 * Create a new InfoWindow with Default Width and Height
+	 */
 	public InfoWindow() {
 		this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	}
+	/**
+	 * Create a new InfoWindow with specified width/height
+	 * @param width the width of the info window
+	 * @param height the height of the info window
+	 */
 	public InfoWindow(int width, int height) {
 		this.setBounds(0,0, width, height);
 	}
+	/**
+	 * Sets the caption (the text below the picture)
+	 * @param s the caption
+	 * @return the new InfoWindow
+	 */
 	public InfoWindow setCaption(String s) {
 		this.pictureCaption = s;
 		return this;
 	}
+	/**
+	 * Sets the Item associated with this info window, this is used to set the picture on the info window
+	 * @param t the Thing to get a picture from
+	 * @return the new info window
+	 */
 	public InfoWindow setItem(Thing t) {
 		this.t = t;
 		return this;
 	}
+	/**
+	 * Sets the information text, this is placed above the picture
+	 * @param info the text to add
+	 * @return the new info window
+	 */
 	public InfoWindow setInfo(String info) {
 		this.info = info;
 		return this;
 	}
+	/**
+	 * Sets the presenter associated with this object, this must be called for button functionanlity
+	 * @param p the presenter
+	 * @return the New Info Window
+	 */
 	public InfoWindow setPresenter(Presenter p) {
 		this.p = p;
 		return this;
 	}
+	/**
+	 * Sets the background image for this InfoWindow
+	 * @param i the background image
+	 * @return the new Info Window
+	 */
 	public InfoWindow setBackgroundImage(Image i) {
 		this.backgroundImage = GuiUtils.changeOpacity(GuiUtils.getScaledImage(i, getWidth(), getHeight()), .5f);
 		return this;
 	}
+	/**
+	 * Adds a new button to this Info Window. It should be noted that the order of calls will be CleanUp(), con.accept(p) Entered(), Finish()
+	 * @param name the text to display on the butotn
+	 * @param con the affect that the button should have on the currently set Presenter
+	 * @param setFinish have the button call the Presenters Finish() method when clicked
+	 * @param setEntered have the button call the Presenters Entered method when clicked
+	 * @param cleanUp have the button call the Presenters CleanUp() method when clicked
+	 * @return the new Info Window
+	 */
 	public InfoWindow addButton(String name, Consumer<Presenter> con, boolean setFinish, boolean setEntered, boolean cleanUp) {
 		JButton jb = new JButton(name);
 		BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
@@ -80,6 +127,10 @@ public class InfoWindow extends JPanel {
 		buttons.add(jb);
 		return this;
 	}
+	/**
+	 * takes all the info that has been added so far and finalizes it
+	 * @return the created info window
+	 */
 	public InfoWindow Create() {
 
 		JLayeredPane result = new JLayeredPane();
@@ -135,6 +186,11 @@ public class InfoWindow extends JPanel {
 		return this;
 		
 	}
+	/**
+	 * Add a new button with the specified name that calls the presenters CleanUp() method and then calls its Canceled() method
+	 * @param text the text on the button
+	 * @return the new info window
+	 */
 	public InfoWindow addCancelButton(String text) {
 		JButton jb = new JButton(text);
 		BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
@@ -147,6 +203,11 @@ public class InfoWindow extends JPanel {
 		buttons.add(jb);
 		return this;
 	}
+	/**
+	 * Add a new button with the specified name that calls the presenters CleanUp() method and then calls its Entered() method
+	 * @param text the text on the button
+	 * @return the new info window
+	 */
 	public InfoWindow addEnterButton(String text) {
 		JButton jb = new JButton(text);
 		BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
@@ -159,16 +220,21 @@ public class InfoWindow extends JPanel {
 		buttons.add(jb);
 		return this;
 	}
+	/**
+	 * Add a new button with a name of "Enter" that calls the presenters CleanUp() method and then calls its Entered() method
+	 * @param text the text on the button
+	 * @return the new info window
+	 */
 	public InfoWindow addEnterButton() {
 		return addEnterButton("Enter");
 	}
+	/**
+	 * Add a new button with a name of "Cancel" that calls the presenters CleanUp() method and then calls its Canceled() method
+	 * @param text the text on the button
+	 * @return the new info window
+	 */
 	public InfoWindow addCancelButton() {
 		return addCancelButton("Cancel");
 	}
-	public boolean isEntered() {
-		return isEntered;
-	}
-	public boolean isDone() {
-		return isDone;
-	}
+	
 }

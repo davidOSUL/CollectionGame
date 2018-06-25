@@ -10,28 +10,53 @@ import java.awt.event.MouseEvent;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import gui.guiutils.CommonConstants;
 import gui.guiutils.GuiUtils;
 import gui.mouseAdapters.MouseClickWithThreshold;
 import gui.mvpFramework.GameView;
 import gui.mvpFramework.Presenter;
 
+/**
+ * A button that keeps track of number of notifications, displays number of notifications, and can disappear when the number of notifications is <=0
+ * @author DOSullivan
+ */
 public class NotificationButton extends GameSpace {
 
 	private static final long serialVersionUID = 1L;
 	private int numNotifications;
 	private boolean hideOnEmpty;
 	private Consumer<Presenter> onClick = x -> {};
-	GameView gv;
-	private static final int CLICK_DIST_THRESH = 20;
+	private GameView gv;
+	private static final int CLICK_DIST_THRESH = CommonConstants.CLICK_DIST_THRESH;
 	private static final Font DEFAULT_FONT = new Font("TimesRoman", Font.BOLD, 30);
+	/**
+	 * Creates a new Notification Button with the given image at location (0,0)
+	 * @param img the image to set the notification button as
+	 */
 	public NotificationButton(Image img) {
 		this(img, new Point(0,0));
 	}
+	/**
+	 *Creates a new Notification Button with the given image at the specified location
+	 * @param img the image to set the notification button as
+	 * @param location the location of the button
+	 */
 	public NotificationButton(Image img, Point location) {
 		super(img, location);
 		hideOnEmpty = false;
 		setNumNotifications(0);
 	}
+	
+	/**
+	 * Creates a new Notification Button with the given image at the specified location. 
+	 * It will have the effect onClick on the presenter of the passed in GameView, and will only be visible when 
+	 * (numNotifications >0 || !hideOnEmpty)
+	 * @param img the image to set the notification button as
+	 * @param location the location of the button
+	 * @param onClick the effect on the presenter of gv 
+	 * @param gv the GameView that houses this button
+	 * @param hideOnEmpty true if button should be invisible and deactivated when numNotifications is <= 0
+	 */
 	public NotificationButton(Image img, Point location, Consumer<Presenter> onClick, GameView gv, boolean hideOnEmpty) {
 		this(img, location);
 		this.hideOnEmpty = hideOnEmpty;
@@ -43,6 +68,10 @@ public class NotificationButton extends GameSpace {
 		this.addMouseListener(new MouseClickWithThreshold<Consumer<Presenter>>(CLICK_DIST_THRESH, input, onClick));
 	
 	}
+	/**
+	 * Change the number of Notifications associated with this button. if (hideOnEmpty && num <= 0) then the button will become invisble and disabled
+	 * @param num the number of notifications
+	 */
 	public void setNumNotifications(int num) {
 		this.numNotifications = num;
 		if (hideOnEmpty && numNotifications <= 0) {
@@ -56,6 +85,10 @@ public class NotificationButton extends GameSpace {
 		}
 			
 	}
+	/**
+	 * if (!hideOnEmpty || numNotifications > 0) Adds on the number of notifications in NotificationButton.DEFAULT_FONT, centered on the button
+	 * @see gui.guiComponents.GameSpace#paintComponent(java.awt.Graphics)
+	 */
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);

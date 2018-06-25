@@ -15,8 +15,18 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+/**
+ * Set of Useful functions for GUI purposes.
+ * @author DOSullivan
+ */
 public final class GuiUtils {
 	private GuiUtils() {}
+	/**
+	 * Checks if two Rectangles overlap with each other
+	 * @param rec1 the first rectangle
+	 * @param rec2 the second rectangle
+	 * @return true if they overlap
+	 */
 	public boolean recsOverlap(Rectangle rec1, Rectangle rec2) {
 		Point l1 = new Point((int)rec1.getX(), (int)rec1.getY());
 		Point r1 = new Point((int)rec1.getMaxX(), (int)rec1.getMaxY());
@@ -33,6 +43,11 @@ public final class GuiUtils {
 	    return true;
 	}
 	
+	/**
+	 * Returns a new BufferedImage which is the passed in image with all of white space around it gotten rid of
+	 * @param image the buffered image to trim
+	 * @return the trimmed image
+	 */
 	public static BufferedImage trimImage(BufferedImage image) {
 	    int width = image.getWidth();
 	    int height = image.getHeight();
@@ -54,7 +69,7 @@ public final class GuiUtils {
 	 }
 	
 	/**
-	 * Converts a given Image into a BufferedImage
+	 * Returns a new BufferedImage which is the passed in Image converted into a BufferedImage
 	 *
 	 * @param img The Image to be converted
 	 * @return The converted BufferedImage
@@ -77,6 +92,13 @@ public final class GuiUtils {
 	    // Return the buffered image
 	    return bimage;
 	}
+	/**
+	 * Returns a new image with the width/height of the srcImage to the passed in width/height, scaling down the image 
+	 * @param srcImg the original image
+	 * @param w the new width
+	 * @param h the new height
+	 * @return the new image
+	 */
 	public static Image getScaledImage(Image srcImg, int w, int h){
 	    BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 	    Graphics2D g2 = resizedImg.createGraphics();
@@ -87,6 +109,12 @@ public final class GuiUtils {
 
 	    return resizedImg;
 	}
+	/**
+	 * Returns a new image which is the passed in image with the opacity changed to the given value
+	 * @param i the image to change
+	 * @param opacity the opacity given as a decimal (0 is transparent, 1 is the origianl image. E.g. .5 would be 50% transparent)
+	 * @return the new image
+	 */
 	public static Image changeOpacity(Image i, float opacity) {
 		BufferedImage bi = new BufferedImage(i.getWidth(null), i.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2 = bi.createGraphics();
@@ -95,6 +123,11 @@ public final class GuiUtils {
 	    return bi;
 
 	}
+	/**
+	 * Reads in an image from the given path
+	 * @param input the path to the image
+	 * @return the Image
+	 */
 	public static Image readImage(String input) {
 		try {
 			return ImageIO.read(GuiUtils.class.getResourceAsStream(input));
@@ -103,12 +136,29 @@ public final class GuiUtils {
 			return null;
 		}
 	}
+	/**
+	 * Reads an image from the given path and then trims it and returns that new image
+	 * @param input the path to the image
+	 * @return the trimmed image
+	 */
 	public static BufferedImage readAndTrimImage(String input) {
 		return trimImage(toBufferedImage(readImage(input)));
 	}
+	/**
+	 * Subtracts coordinate-wise p1-p2 (that is (p1.x-p2.x, p1.y-p2.y))
+	 * @param p1 the first point
+	 * @param p2 the second point
+	 * @return the new point which is p1-p2
+	 */
 	public static Point subtractPoints(Point p1, Point p2) {
 		return new Point(p1.x-p2.x, p1.y-p2.y);
 	}
+	/**
+	 * Returns a new image which is the given image but with all transparent pixels filled in with the provided color
+	 * @param image the original image
+	 * @param color the background color
+	 * @return the new filled-in image
+	 */
 	public static Image FillIn(Image image, Color color) {
 		BufferedImage bi = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2 = bi.createGraphics();
@@ -141,6 +191,11 @@ public final class GuiUtils {
 	    g.drawString(text, x,y);
 	    g.setColor(old);
 	}
+	/**
+	 * Returns a new image which is the given imaged rotated 90 degrees clockwise
+	 * @param curr the original image
+	 * @return the rotated image
+	 */
 	public static Image rotateImage90ClockwiseAndTrim(Image curr) {
 		BufferedImage img = toBufferedImage(curr);
 		int         width  = img.getWidth();

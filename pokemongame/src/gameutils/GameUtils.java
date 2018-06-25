@@ -14,8 +14,8 @@ public final class GameUtils {
 	 */
 	public static boolean testPercentChance(double percentChance) {
 		
-				double randomNum = ThreadLocalRandom.current().nextDouble(1, 100); //num between 1, 100
-				if (randomNum > (100-percentChance))
+				double randomNum = ThreadLocalRandom.current().nextDouble(0, 100); //num between [0, 100)
+				if (randomNum >= (100-percentChance))
 					return true;
 			
 			return false;

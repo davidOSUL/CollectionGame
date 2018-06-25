@@ -12,41 +12,97 @@ import gui.guiutils.GuiUtils;
 import thingFramework.Pokemon;
 import thingFramework.Thing;
 
+/**
+ * The "Presenter" in the MVP model. Has a view (GameView) and a model (Board). 
+ * Has responsibility of updating GUI, updating the board, and taking in all inputs/actions that may have an effect on both
+ * the view and model and decides what to do. 
+ * @author DOSullivan
+ *
+ */
 public class Presenter {
+	/**
+	 * The "Model" of this presenter. Manages the game in memory
+	 */
 	private volatile Board board;
+	/**
+	 * The "View" of this presenter. Manages the GUI
+	 */
 	private GameView gameView;
+	/**
+	 * the Consumer that is triggered when the user clicks the notification button and decides to let the pokemon go
+	 */
 	private final static Consumer<Presenter> LET_POKE_GO = p -> p.board.confirmGrab();
+	/**
+	 * When in an add Attempt the Thing that the user wants to add
+	 */
 	private Thing thingToAdd = null;
+	/**
+	 * Always increments whenever an object is added. Used for purposes of Board's <Integer, Thing> Map
+	 */
+	//TODO: change this to something better
 	private int currCount =0;
+	/**
+	 * Map between GameSpaces and the Things that they represent
+	 */
 	private Map<GameSpace, Thing> allThings = new HashMap<GameSpace, Thing>();
+	/**
+	 * The current state of the game. By default this is GAMEPLAY
+	 */
 	private CurrentState state = CurrentState.GAMEPLAY;
+	/**
+	 * When an InfoWindow is opened, this will be set to that infoWindow
+	 */
 	private InfoWindow currentWindow = null;
-	private static Image notificationBackground = GuiUtils.readImage("/sprites/ui/pikabackground.jpg");
-	String oldString;
-	String newString;
+	/**
+	 * The background of the InfoWindow that pops up when the notification button is pressed
+	 */
+	private static Image notificationWindowBackground = GuiUtils.readImage("/sprites/ui/pikabackground.jpg");
+	private String oldString; //TODO: Remove this or add debug feature
+	private String newString;
 	public Presenter() {};
 	
+	/**
+	 * Creates a new Presenter with the provided Board and GameView
+	 * @param b the Board (or "model" in MVP)
+	 * @param gv the Board (or "view" in MVP)
+	 */
 	public Presenter(Board b, GameView gv) {
 		board = b;
 		gameView = gv;
 		oldString = board.toString();
 	}
+	/**
+	 * Checks if the gameSpace is present
+	 * @param gs the gameSpace to check
+	 * @return true if the space is present
+	 */
 	public boolean containsGameSpace(GameSpace gs) {
 		return allThings.containsKey(gs);
 	}
-	public  mapEntry removeGameSpace(GameSpace gs) {
+	/**
+	 * Removes the GameSpace from the GUI and removes the thing that it corresponds to from the board
+	 * @param gs the GameSpae to remove
+	 * @return the mapEntry that was removed
+	 */
+	private  mapEntry removeGameSpace(GameSpace gs) {
 		if (!allThings.containsKey(gs))
 			throw new RuntimeException("Attempted To Remove Non-Existant GameSpace");
 		board.removeThing(allThings.get(gs));
 		allThings.get(gs);
 		return new mapEntry(gs, allThings.remove(gs));
 	}
+	/**
+	 * Updates the notification counter of the notifaction button and updates the display of the GUI
+	 */
 	public void updateGUI() {
 		if (board == null || gameView == null)
 			return;
 		gameView.setWildPokemonCount(board.numPokemonWaiting());
 		gameView.updateDisplay();
 	}
+	/**
+	 * Calls the boards update method
+	 */
 	public void updateBoard() {
 		if (board == null || gameView == null)
 			return;
@@ -57,12 +113,24 @@ public class Presenter {
 			oldString = newString;
 		}
 	}
+	/**
+	 * Sets the board of this Presenter
+	 * @param b the board to set 
+	 */
 	public void setBoard(Board b) {
 		this.board = b;
 	}
+	/**
+	 * Sets the GameView of this Presenter
+	 * @param gv the GameView to set
+	 */
 	public void setGameView(GameView gv) {
 		this.gameView = gv;
 	}
+	/**
+	 * To be called whenever the notification button is clicked. Displays the PopUp InfoWindow with the next pokemon in the wild pokemon queue in the board
+	 *@sets CurrentState.NOTIFICATION_WINDOW
+	 */
 	public void NotificationClicked() {
 		if (!board.wildPokemonPresent() || state != CurrentState.GAMEPLAY)
 			return;
@@ -71,6 +139,10 @@ public class Presenter {
 		currentWindow = iw;
 		gameView.displayPanelCentered(iw);										
 	}
+	/**
+	 * Called when a GameSpace is succesfully added to the board. Adds the provided GameSpace to <GameSpace, Thing> map and adds the thing (thingToAdd) to the board
+	 * @param gs
+	 */
 	private void addGameSpace(GameSpace gs) {
 		if (thingToAdd == null)
 			return;
@@ -78,16 +150,31 @@ public class Presenter {
 		allThings.put(gs, thingToAdd);
 		finishAdding();
 	}
+	/**
+	 * Finalizes the add by getting rid of thingToAdd and changing the state of the game back to GAMEPLAY
+	 * @sets CurrentState.GAMEPLAY
+	 */
 	private void finishAdding() {
 		thingToAdd = null;
 		state = CurrentState.GAMEPLAY;
 	}
+	/**
+	 * To be called when the provided GameSpace is succesfully added  to the board
+	 * @param gs the GameSpace that was added
+	 * @param type the type of add (from queue, moving, etc.)
+	 */
 	public void notifyAdded(GameSpace gs, AddType type) {
 		addGameSpace(gs);
 		if (type == AddType.POKE_FROM_QUEUE)
 			board.confirmGrab();
 	}
 	
+	/**
+	 * To be called when the provided GameSpace was being added, but the user decided to cancel the add (hit escape).
+	 * If this was a AddType.POKE_FROM_QUEUE, will place the pokemon back in the queue
+	 * @param gs the GameSpace that was being added 
+	 * @param type
+	 */
 	public void notifyAddCanceled(GameSpace gs, AddType type) {
 		if (type == AddType.POKE_FROM_QUEUE)
 			{
@@ -95,15 +182,31 @@ public class Presenter {
 			}
 		finishAdding();
 	}
+	/**
+	 * To be called when the user initializes an add Attempt with a Thing that doesn't yet have a created GameSpace
+	 * @param t The Thing that the user wants to add
+	 * @param type the context of the add
+	 */
 	public void attemptAddThing(Thing t, AddType type) {
 		GameSpace gs = new GameSpace(GuiUtils.readAndTrimImage(t.getImage()));
 		attemptAddExistingThing(new mapEntry(gs, t), type);
 	}
+	/**
+	 * To be called when the user initalizes an add Attempt for a GameSpace that has already been created
+	 * @param entry the mapping between the GameSpace and the Thing
+	 * @param type the context of the add
+	 * @sets CurrentState.PLACING_SPACE
+	 */
 	private void attemptAddExistingThing(mapEntry entry, AddType type) {
 		state = CurrentState.PLACING_SPACE;
 		thingToAdd = entry.thing;
-		gameView.attemptThingAdd(entry.gameSpace, type);
+		gameView.attemptGameSpaceAdd(entry.gameSpace, type);
 	}
+	/**
+	 * To be called when the user attempts to move a GameSpace.
+	 * @param gs the GameSpace that the user wants to move
+	 * @return false if the user is not allowed to move the GameSpace (they are currently in the Notification Window for example)
+	 */
 	public boolean attemptMoveGameSpace(GameSpace gs) {
 		if (!containsGameSpace(gs))
 			throw new IllegalArgumentException("GameSpace " + gs + "Not found on board");
@@ -113,10 +216,17 @@ public class Presenter {
 		attemptAddExistingThing(entry, AddType.PRIOR_ON_BOARD);
 		return true;
 	}
+	/**
+	 * To be called when the User Clicks the notification button and then clicks cancel. Undos the board grab, and sets the state of the game back to GamePlay
+	 * @sets CurrentState.GAMEPLAY
+	 */
 	private void undoNotificationClicked() {
 		board.undoGrab();
 		state = CurrentState.GAMEPLAY;
 	}
+	/**
+	 * To be called when the currentWindow's enter button is pressed
+	 */
 	public void Entered() {
 		switch(state) {
 			case NOTIFICATION_WINDOW:
@@ -124,6 +234,9 @@ public class Presenter {
 				break;
 		}
 	}
+	/**
+	 * To be called when the currentWindow's cancel button is pressed
+	 */
 	public void Canceled() {
 		switch(state) {
 			case NOTIFICATION_WINDOW:
@@ -132,6 +245,9 @@ public class Presenter {
 		}
 
 	}
+	/**
+	 * Gets rid of the currentWindow
+	 */
 	public void CleanUp() {
 		switch(state) {
 			case NOTIFICATION_WINDOW:
@@ -141,9 +257,17 @@ public class Presenter {
 		}
 		
 	}
+	/**
+	 * to be called when the currentWindow is no longer being used
+	 */
 	public void Finish() {
 		state = CurrentState.GAMEPLAY;
 	}
+	/**
+	 * Generates a new InfoWindow corresponding to the next pokemon in the queue, and giving the user the option to add it, set it free or cancel the request and place it back in the queue
+	 * @param p the next pokemon in the queue
+	 * @return the InfoWindow
+	 */
 	private InfoWindow wildPokemonWindow(Pokemon p) {
 		InfoWindow iw = new InfoWindow()
 				.setPresenter(this)
@@ -152,16 +276,33 @@ public class Presenter {
 				.addEnterButton("Place")
 				.addButton("Set Free", LET_POKE_GO, true, false, true)
 				.addCancelButton()
-				.setBackgroundImage(notificationBackground)
+				.setBackgroundImage(notificationWindowBackground)
 				.Create();
 		return iw;
 	}
+	/**
+	 * The CurrentState of GamePlay
+	 * @author DOSullivan
+	 *
+	 */
 	private enum CurrentState {
 		GAMEPLAY, NOTIFICATION_WINDOW, PLACING_SPACE
 	}
+	/**
+	 * The context of the Add Attempt
+	 * POKE_FROM_QUEUE == notifcation butotn was pressed
+	 * PRIOR_ON_BOARD == moving around a thing that was already placed
+	 * @author DOSullivan
+	 *
+	 */
 	public enum AddType{
 		POKE_FROM_QUEUE, PRIOR_ON_BOARD
 	}
+	/**
+	 * A mapping between a thing and a GameSpace
+	 * @author DOSullivan
+	 *
+	 */
 	private static class mapEntry{
 		public Thing thing;
 		public GameSpace gameSpace;
