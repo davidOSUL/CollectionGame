@@ -5,11 +5,21 @@ import java.util.Set;
 
 import effects.Event;
 import thingFramework.Attribute;
+/**
+ * Manages all the Board Attributes (attributes of the board as a whole rather than to a specific Thing)
+ * @author David O'Sullivan
+ */
 public final class BoardAttributeManager {
 
 	private BoardAttributeManager() {
 		
 	}
+	/**
+	 * Builds Board events based on input name
+	 * @param nameOfEvent gph = gold Per Hour, gpm = Gold Per Minute, popularity boost = Increase popularity of board on place, decrease on remove
+	 * @param valueOfEvent the amount to effect the attribute by
+	 * @return the created event
+	 */
 	private static Event eventBuilder(String nameOfEvent, Object valueOfEvent) {
 		Event event;
 		
@@ -28,10 +38,16 @@ public final class BoardAttributeManager {
 		}
 		return event;
 	}
-	public static List<Event> getEvents(Set<Attribute> set) {
-		List<Event> events = new ArrayList<Event>(set.size());
+	/**
+	 * Takes in a set of Attributes that effect the state of the board and generates the associated events for them
+	 * @param boardAttributes A Set of Attributes that modify the state of the board. 
+	 * Specifically, must be set of attributes that contain AttributeType Thing.BOARDTYPE
+	 * @return The List of generated events
+	 */
+	public static List<Event> getEvents(Set<Attribute> boardAttributes) {
+		List<Event> events = new ArrayList<Event>(boardAttributes.size());
 		int i =0;
-		for (Attribute at: set) {
+		for (Attribute at: boardAttributes) {
 			events.add(eventBuilder(at.getName(), at.getValue()));
 		}
 		return events;

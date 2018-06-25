@@ -34,9 +34,12 @@ public class Presenter {
 	public boolean containsGameSpace(GameSpace gs) {
 		return allThings.containsKey(gs);
 	}
-	public Thing removeGameSpace(GameSpace gs) {
+	public  mapEntry removeGameSpace(GameSpace gs) {
+		if (!allThings.containsKey(gs))
+			throw new RuntimeException("Attempted To Remove Non-Existant GameSpace");
 		board.removeThing(allThings.get(gs));
-		return allThings.remove(gs);
+		allThings.get(gs);
+		return new mapEntry(gs, allThings.remove(gs));
 	}
 	public void updateGUI() {
 		if (board == null || gameView == null)
@@ -73,29 +76,41 @@ public class Presenter {
 			return;
 		board.addThing(currCount++, thingToAdd);
 		allThings.put(gs, thingToAdd);
+		finishAdding();
+	}
+	private void finishAdding() {
 		thingToAdd = null;
 		state = CurrentState.GAMEPLAY;
 	}
-	public void notifyAddedPokemonFromQueue(GameSpace gs) {
+	public void notifyAdded(GameSpace gs, AddType type) {
 		addGameSpace(gs);
-		board.confirmGrab();
+		if (type == AddType.POKE_FROM_QUEUE)
+			board.confirmGrab();
 	}
-	public void notifyMovedGameSpace(GameSpace gs) {
-		addGameSpace(gs);
+	
+	public void notifyAddCanceled(GameSpace gs, AddType type) {
+		if (type == AddType.POKE_FROM_QUEUE)
+			{
+				board.undoGrab();
+			}
+		finishAdding();
 	}
 	public void attemptAddThing(Thing t, AddType type) {
-		state = CurrentState.PLACING_SPACE;
 		GameSpace gs = new GameSpace(GuiUtils.readAndTrimImage(t.getImage()));
-		thingToAdd = t;
-		gameView.attemptThingAdd(gs, type);
+		attemptAddExistingThing(new mapEntry(gs, t), type);
+	}
+	private void attemptAddExistingThing(mapEntry entry, AddType type) {
+		state = CurrentState.PLACING_SPACE;
+		thingToAdd = entry.thing;
+		gameView.attemptThingAdd(entry.gameSpace, type);
 	}
 	public boolean attemptMoveGameSpace(GameSpace gs) {
 		if (!containsGameSpace(gs))
 			throw new IllegalArgumentException("GameSpace " + gs + "Not found on board");
 		if (state != CurrentState.GAMEPLAY)
 			return false;
-		Thing t = removeGameSpace(gs);
-		attemptAddThing(t, AddType.PRIOR_ON_BOARD);
+		mapEntry entry = removeGameSpace(gs);
+		attemptAddExistingThing(entry, AddType.PRIOR_ON_BOARD);
 		return true;
 	}
 	private void undoNotificationClicked() {
@@ -147,6 +162,13 @@ public class Presenter {
 	public enum AddType{
 		POKE_FROM_QUEUE, PRIOR_ON_BOARD
 	}
-	
+	private static class mapEntry{
+		public Thing thing;
+		public GameSpace gameSpace;
+		public mapEntry(GameSpace gs, Thing t) {
+			gameSpace = gs;
+			thing = t;
+		}
+	}
 	
 }

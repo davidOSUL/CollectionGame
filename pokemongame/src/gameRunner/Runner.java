@@ -13,6 +13,10 @@ import game.Board;
 import gui.mvpFramework.GameView;
 import gui.mvpFramework.Presenter;
 
+/**
+ * Starts the game and keeps it running
+ * @author David O'Sullivan
+ */
 public class Runner  {
 	
 	public static void main(String... args) {

@@ -532,13 +532,16 @@ public class Board implements Serializable {
 		return grabbedPokemon;
 	}
 	/**
-	 * Installed gets and removes pokemon from queue
+	 * Instantally gets and removes pokemon from queue
 	 * @return The next pokemon in the queue
 	 */
 	public Pokemon grabAndConfirm() {
 		grabWildPokemon();
 		return confirmGrab();
 	}
+	/**
+	 * @return the number of pokemon waiting the queue
+	 */
 	public int numPokemonWaiting() {
 		return foundPokemon.size();
 	}

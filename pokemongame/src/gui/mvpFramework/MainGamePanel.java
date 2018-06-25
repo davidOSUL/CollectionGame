@@ -4,11 +4,13 @@ import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.function.BiConsumer;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -17,6 +19,7 @@ import gui.guiComponents.Grid;
 import gui.guiComponents.Grid.GridSpace;
 import gui.guiComponents.NotificationButton;
 import gui.guiutils.GuiUtils;
+import gui.guiutils.KeyBindingManager;
 import gui.mouseAdapters.MouseClickWithThreshold;
 import gui.mvpFramework.Presenter.AddType;
 
@@ -41,12 +44,16 @@ public class MainGamePanel extends JPanel{
 	private static final long MIN_WAIT_TO_ADD = 300; //Wait after clicking before can add to board
 	private GameView gv;
 	private GridSpace currentMoving = null;
+	private Image imageBeforeRotation = null;
+	private Point oldPoint = null;
 	private Grid activeGrid = null;
 	private boolean setHighlight = false;
 	
 	private static final Image NOTIFICATION_LOGO = GuiUtils.getScaledImage(GuiUtils.readImage("/sprites/ui/pokeball.png"), 50, 50);
 	private static final Point NOTIFICATION_LOCATION = new Point(749, 44);
 	private NotificationButton notifications;
+	private static final int CONDITION = JComponent.WHEN_IN_FOCUSED_WINDOW; 
+	private KeyBindingManager keyBindings = new KeyBindingManager(getInputMap(CONDITION), getActionMap());
 	static {
 		int[] xLocations = {30,273,331,800,80,240};
 		int[] yLocations = {333,490,142,445,170,229};
@@ -116,6 +123,7 @@ public class MainGamePanel extends JPanel{
 				onMouseClicked(e);
 			 }
 		});
+		setKeyBindings();
 		add(notifications);
 		revalidate();
 		repaint();
@@ -125,10 +133,13 @@ public class MainGamePanel extends JPanel{
 		if (addingSomething) {
 			if (SwingUtilities.isRightMouseButton(e)) {
 				AddType oldType = typeOfAdd;
-				GridSpace oldGridSpace = currentMoving;
-				endGameSpaceAdd();
+				Point oldOldPoint = oldPoint;
+				Image oldImageBeforeRotation = imageBeforeRotation;
+				GridSpace oldGridSpace = endGameSpaceAdd();
 				rotateGridSpace(oldGridSpace);
-				gameSpaceAdd(oldGridSpace, oldType);
+				gridSpaceAdd(oldGridSpace, oldType);
+				imageBeforeRotation = oldImageBeforeRotation;
+				oldPoint = oldOldPoint;
 				if (activeGrid != null) {
 					activeGrid.setHighlight(currentMoving);
 					setCurrentRelativeToActiveGrid(e);
@@ -147,9 +158,20 @@ public class MainGamePanel extends JPanel{
 		notifications.setNumNotifications(num);
 	}
 	public void gameSpaceAdd(GameSpace gs, AddType type){
+		if (gs instanceof GridSpace)
+			gridSpaceAdd((GridSpace) gs, type);
+		else
+		gridSpaceAdd(grids[DEFAULT_GRID].generateGridSpace(gs), type);
+	}
+	private void gridSpaceAdd(GridSpace gs, AddType type) {
 		this.typeOfAdd = type;
+		if (typeOfAdd == AddType.PRIOR_ON_BOARD)  {
+			oldPoint = gs.getLocation();
+			if (imageBeforeRotation == null)
+				imageBeforeRotation = gs.getImage();
+		}
 		addingSomething = true;
-		currentMoving = grids[DEFAULT_GRID].generateGridSpace(gs);
+		currentMoving = gs;
 		Point p = MouseInfo.getPointerInfo().getLocation();
 		if (p != null) {
 			SwingUtilities.convertPointFromScreen(p, this);
@@ -158,34 +180,50 @@ public class MainGamePanel extends JPanel{
 		add(currentMoving);
 		timeAddedTime = System.currentTimeMillis();
 	}
+	public void cancelGameSpaceAdd() {
+		if (typeOfAdd == AddType.PRIOR_ON_BOARD) {
+			currentMoving.setImage(imageBeforeRotation);
+			gridClick(currentMoving.getGrid(), oldPoint, true); //gridClick will call endGameSpaceAdd()
+		}
+		else {
+			gv.getPresenter().notifyAddCanceled(currentMoving, typeOfAdd);
+			endGameSpaceAdd();
+		}
+		
+		
+	}
 	private void rotateGridSpace(GridSpace gridSpace) {
 		gridSpace.setImage(GuiUtils.rotateImage90ClockwiseAndTrim(gridSpace.getImage()));
 	}
-	public void endGameSpaceAdd() {
+	public GridSpace endGameSpaceAdd() {
 		if (!addingSomething || currentMoving == null || typeOfAdd == null)
 			throw new RuntimeException("Not currently Adding GameSpace");
 		addingSomething = false;
 		remove(currentMoving);
+		GridSpace oldGS = currentMoving;
 		currentMoving = null;
 		setHighlight = false;
+		if (activeGrid != null)
+			activeGrid.removeHighlight();
+		activeGrid = null;
+		setHighlight = false;
 		typeOfAdd = null;
+		oldPoint = null;
+		imageBeforeRotation = null;
+		return oldGS;
 	}
-	private void gridClick(Grid currGrid, Point p) {
-		if (addingSomething && System.currentTimeMillis()-timeAddedTime > MIN_WAIT_TO_ADD) {
+	private void gridClick(Grid currGrid, Point p, boolean byPassTime) {
+		if (addingSomething && (byPassTime || System.currentTimeMillis()-timeAddedTime > MIN_WAIT_TO_ADD)) {
 			GameSpace result = currGrid.addGridSpaceSnapToGrid(currentMoving,p);
 			if (result != null) {
-				switch(typeOfAdd) {
-					case POKE_FROM_QUEUE:
-						gv.getPresenter().notifyAddedPokemonFromQueue(result);
-						break;
-					case PRIOR_ON_BOARD:
-						gv.getPresenter().notifyMovedGameSpace(result);
-						break;
-				}
+				gv.getPresenter().notifyAdded(result, typeOfAdd);
 				currGrid.removeHighlight();
 				endGameSpaceAdd();
 			}
 		}
+	}
+	private void gridClick(Grid currGrid, Point p) {
+		gridClick(currGrid, p, false);
 	}
 	private MouseClickWithThreshold<MainGamePanel> generateGridClickListener(Grid currGrid) {
 		BiConsumer<MainGamePanel, MouseEvent> input = (mgp, e) -> {
@@ -196,7 +234,15 @@ public class MainGamePanel extends JPanel{
 		MouseClickWithThreshold<MainGamePanel> mcwt = new MouseClickWithThreshold<MainGamePanel>(20, input, this, true); 
 		return mcwt;
 	}
-	
+
+	 private void setKeyBindings() {
+	      keyBindings.addKeyBinding(KeyEvent.VK_ESCAPE, () -> {
+	    	  if (addingSomething) {
+					cancelGameSpaceAdd();
+				}
+	      });
+	   }
+
 
 	
 

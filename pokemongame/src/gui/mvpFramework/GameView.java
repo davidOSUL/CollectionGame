@@ -30,6 +30,7 @@ public class GameView extends JFrame {
 		super(name);
 		mainGamePanel = new MainGamePanel(this);
 		setLayout(null);
+		setLocationByPlatform(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(WIDTH, HEIGHT);
 		JLabel backgroundLabel = new JLabel(new ImageIcon(GuiUtils.getScaledImage(background, WIDTH, HEIGHT)));
