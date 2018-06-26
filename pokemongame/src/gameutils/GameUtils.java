@@ -3,6 +3,7 @@ package gameutils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public final class GameUtils {
 	private GameUtils() {
@@ -38,6 +39,27 @@ public final class GameUtils {
 	 */
 	public static int roundToMultiple(int val, int MULT) {
 		return val < MULT ? MULT : ((val + MULT-1) / MULT)*MULT;
+	}
+	/**
+	 * Returns a new set consisting of the passed in list with all the duplicates removed (i.e. {a,a,b,b,c,c,c,d} -> {a,b,c,d})
+	 * @param list the list to remove duplicates from
+	 * @return the new list
+	 */
+	public static <T> List<T> removeDuplicateElementsOfList(List<? extends T> list) {
+		return list.stream().distinct().collect(Collectors.toList());
+	}
+	/**
+	 * Removes one occurence of each uniqiue element in the list (i.e. {a,a,b,b,c,c,c,d} -> {a,b,c,c}, and then returns
+	 * the set of unique elements (the items that were removed) (in this case {a,b,c,d})
+	 * @param list the list to remove items from.
+	 * @return Returns the list of items that was removed
+	 */
+	public static <T> List<T> removeOneInstanceOfEachElement(List<T> list) {
+		List<T> uniqueList = removeDuplicateElementsOfList(list);
+		for (T item : uniqueList) {
+			list.remove(item);
+		}
+		return uniqueList;
 	}
 	
 }

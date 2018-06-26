@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.EnumSet;
 import java.util.Set;
 
+import game.Board;
+
 
 public class Pokemon extends Thing implements Serializable {
 	
@@ -21,13 +23,27 @@ public class Pokemon extends Thing implements Serializable {
 	}
 
 	@Override
+	protected
 	boolean vallidateAttributes(Set<Attribute> attributes) {
 		// TODO Auto-generated method stub
 		return Attribute.validatePokemon(attributes);
 	}
 
 	@Override
+	protected
 	EnumSet<ThingType> setThingType() {
 		return EnumSet.of(ThingType.POKEMON);
+	}
+	@Override
+	public
+	void onPlace(Board board) {
+		board.notifyPokemonAdded(this);
+		
+	}
+	@Override
+	public
+	void onRemove(Board board) {
+		board.notifyPokemonRemoved(this);
+		
 	}
 }

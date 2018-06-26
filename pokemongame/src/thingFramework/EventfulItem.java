@@ -27,7 +27,7 @@ public class EventfulItem extends Item implements Serializable {
 		return events;
 	}
 	@Override
-	EnumSet<ThingType> setThingType() {
+	protected EnumSet<ThingType> setThingType() {
 		return EnumSet.of(ThingType.ITEM, ThingType.EVENTFULITEM);
 	}
 }

@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,14 +16,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-
 import effects.CustomPeriodEvent;
 import effects.Event;
 import gameutils.GameUtils;
 import loaders.ThingLoader;
-import thingFramework.Attribute;
 import thingFramework.EventfulItem;
 import thingFramework.Item;
 import thingFramework.Pokemon;
@@ -161,32 +158,24 @@ public class Board implements Serializable {
 	private volatile int gold = 0;
 	private volatile int popularity = 0;
 	/**
-	 * The map from board location to the thing at that location
+	 * A map from board location to a list of events that that thing at that location has.
+	 * Note that the checkForPokemon event is mapped to -1
 	 */
-	private BiMap<Integer, Thing> locationMap = HashBiMap.create();
+	private Map<Integer, List<Event>> events = new ConcurrentHashMap<Integer, List<Event>>();
 	/**
-	 * The map from board location to the set of boardAttributes from the thing at that location
-	 * (GPH, etc.)
+	 * Used to represent the state of the board. Contains all unique things on the board and the number that are present. 
 	 */
-	private Map<Integer, Set<Attribute>> boardAttributes = new HashMap<Integer, Set<Attribute>>();
+	private Map<Thing, Integer> elementsToQuantity = new HashMap<Thing, Integer>();
+	private Map<Thing, List<Event>> events2 = new ConcurrentHashMap<Thing, List<Event>>();
 	/**
 	 * All pokemon currently on the board
 	 */
-	private List<Pokemon> pokemon = new ArrayList<Pokemon>();
+	private int numPokemon = 0;
 	/**
 	 * The names of all pokemon on the board (no duplicates) used so that duplicate pokemon are
 	 * signifigantly less likely to show up
 	 */
 	private Set<String> pokemonAsASet = new HashSet<String>();
-	/**
-	 * All items currently on the board
-	 */
-	private List<Item> items = new ArrayList<Item>();
-	/**
-	 * A map from board location to a list of events that that thing at that location has.
-	 * Note that the checkForPokemon event is mapped to -1
-	 */
-	private Map<Integer, List<Event>> events = new ConcurrentHashMap<Integer, List<Event>>();
 	/**
 	 * The event that checks for pokemon on a certain period based on popularity
 	 * This is considered a "default" event and hence is mapped to a negative value of -1.
@@ -196,12 +185,17 @@ public class Board implements Serializable {
 	 * Also, this is probably redundant because keeptrackwhileoff for events is by default set to false.
 	 * But regardless, making it static makes sense.
 	 */
-	private transient static  Event checkForPokemon = checkForPokemonEvent(); 
-	private transient ExecutorService es = Executors.newFixedThreadPool(5);
+	private transient static final Event checkForPokemon = checkForPokemonEvent(); 
+	private transient ExecutorService eventExecutorService = Executors.newFixedThreadPool(5);
+	/**
+	 * Blank item to store the checkForPokemon event
+	 */
+	private transient static final Thing checkForPokemonThing = Item.generateBlankItem();
 	public Board() {
-		events.put(-1, Arrays.asList(checkForPokemon));
+		events2.put(checkForPokemonThing, Arrays.asList(checkForPokemon));
 	}
 	public Board(int gold, int popularity) {
+		this();
 		this.setGold(gold);
 		this.setPopularity(popularity);
 	}
@@ -215,15 +209,23 @@ public class Board implements Serializable {
 			events.get(k).forEach((Event x) ->
 			{
 				if (!x.onPlaceExecuted()) {
-					es.execute(x.executeOnPlace(this));
+					eventExecutorService.execute(x.executeOnPlace(this));
 				}
-				es.execute(x.executePeriod(this));
+				eventExecutorService.execute(x.executePeriod(this));
 			});
 		}
 		
 
 	}
-	
+	private void executeEvents() {
+		events2.forEach((k, v) -> v.forEach((event) ->
+		{
+			if (!event.onPlaceExecuted()) {
+				eventExecutorService.execute(event.executeOnPlace(this));
+			}
+			eventExecutorService.execute(event.executePeriod(this));
+		}));
+	}
 	/**
 	 * @return the "default" event that will check for new wild pokemon
 	 */
@@ -341,9 +343,9 @@ public class Board implements Serializable {
 		double C = 100;
 		double D =3;
 		double E = 1;
-		if (pokemon.size() <= 2)
+		if (numPokemon <= 2)
 			return 100;
-		double answer = Math.max(MIN_PERCENT_CHANCE_POKEMON_FOUND, Math.min(MAX_PERCENT_CHANCE_POKEMON_FOUND, (getPopularity()*A)+(getGold()/B)+(C/(D*pokemon.size()+E))));
+		double answer = Math.max(MIN_PERCENT_CHANCE_POKEMON_FOUND, Math.min(MAX_PERCENT_CHANCE_POKEMON_FOUND, (getPopularity()*A)+(getGold()/B)+(C/(D*numPokemon+E))));
 		return answer;
 	}
 	/**
@@ -361,64 +363,25 @@ public class Board implements Serializable {
 		
 	}
 	/**
-	 * @param location the integer location mapping to a spot on the board. Will removeThing(location) if object already exists there
 	 * @param thing the thing to add
 	 */
-	public synchronized void addThing(int location, Thing thing) {
-		if (locationMap.containsKey(location))
-			removeThing(location);
-		locationMap.put(location, thing);
-		boardAttributes.put(location, thing.getBoardAttributes());
-		if (isPokemon(thing)) {
-			pokemon.add((Pokemon) thing);
-			pokemonAsASet.add(thing.getName());
-		}
-			
-		if (isItem(thing))
-			items.add((Item) thing);
-		if (isEventfulItem(thing)) {
-			events.put(location, ((EventfulItem) thing).getEvents());
-		}
-		if (events.containsKey(location)) {
-			events.put(location, GameUtils.union(BoardAttributeManager.getEvents(thing.getBoardAttributes()), events.get(location)));
-		}
-		else {
-			events.put(location, BoardAttributeManager.getEvents(thing.getBoardAttributes()));
-		}
-		
-		
+	public synchronized void addThing(Thing thing) {
+		addElementToThingMap(thing);
+		thing.onPlace(this);
 	}
 	/**
-	 * @param location the integer location mapping to a spot on the board
+	 * @param thing The thing to add
 	 * @throws Error "Sets out of sync" if the location is null or failed to remove item
 	 */
-	public synchronized void removeThing(int location) {
-		boolean allGood = false;
-		Thing t = locationMap.get(location);
-		locationMap.remove(location);
-		boardAttributes.remove(location);
-		List<Event> removedEvents = events.remove(location); //will remove events if any exist at that location
-		for (Event e: removedEvents) {
-			es.execute(e.executeOnRemove(this));
+	public synchronized void removeThing(Thing thing) {
+		if (thing==null) {
+			throw new RuntimeException("Attempted to Remove a Pokemon Not Presently on Board");
 		}
-		if (isPokemon(t)) {
-			//TODO: fix the absolute mess that is duplicate handling
-			allGood = pokemon.remove(t);
-			pokemonAsASet.remove(t.getName());
-		}
-		if (isItem(t))
-			allGood = allGood && items.remove(t);
-		if (!allGood || t==null) {
-			throw new Error("SETS OUT OF SYNC");
-		}
+		removeElementFromThingMap(thing);
+		thing.onRemove(this);
+		
 	}
-	/**
-	 * @param location the integer location mapping to a spot on the board
-	 * @throws Error "Sets out of sync" if the location is null or failed to remove item
-	 */
-	public synchronized void removeThing(Thing t) {
-		removeThing(locationMap.inverse().get(t));
-	}
+
 	/**
 	 * Pause the game timer, will not resume until unPause() is called
 	 */
@@ -445,12 +408,6 @@ public class Board implements Serializable {
 		this.stm = new SessionTimeManager(totalGameTime);
 		
 	}
-	private static boolean isPokemon(Thing t) {
-		return t.getThingTypes().contains(ThingType.POKEMON);
-	}
-	private static boolean isItem(Thing t) {
-		return t.getThingTypes().contains(ThingType.ITEM);
-	}
 	private static boolean isEventfulItem(Thing t) {
 		return t.getThingTypes().contains(ThingType.EVENTFULITEM);
 	}
@@ -475,6 +432,55 @@ public class Board implements Serializable {
 	public synchronized void subtractPopularity(int popularity) {
 		addPopularity(-popularity);
 	}
+	public void notifyPokemonAdded(Pokemon p) {
+		numPokemon++;
+		pokemonAsASet.add(p.getName());
+	}
+	public void notifyPokemonRemoved(Pokemon p) {
+		//TODO: fix the absolute mess that is duplicate handling
+		numPokemon--;
+	    pokemonAsASet.remove(p.getName());
+	}
+	/**
+	 * Adds the element to the map from thing to # present, updating accordingly, and adding events if necessary. 
+	 * @param thing the Thing to ADd
+	 */
+	private void addElementToThingMap(Thing thing) {
+		elementsToQuantity.merge(thing, 1, (old,v) -> old+1 ); //set value to 1 if not present, increment if is
+		addAssociatedEvents(thing);
+	}
+	/**
+	 * Removes one quantity of this thing from the map (i.e. decrements the value and removes if newVal == 0)
+	 * Will also call all associated events onRemove, and will permanently remove those events if newVal == 0
+	 * @param thing the Thing to add
+	 */
+	private void removeElementFromThingMap(Thing thing) {
+		elementsToQuantity.compute(thing, (k, v) -> (v-1 == 0) ? null : v-1); //if removing the last instance, remove from map, else subtract
+		removeAssociatedEvents(thing);  //execute onRemove and permanently remove if this is the last instance
+	}
+	/**
+	 * If the thing hasn't been added to the board yet, update the event set
+	 * @param thing The thing to get the events for
+	 */
+	private void addAssociatedEvents(Thing thing) {
+		if (isEventfulItem(thing)) {
+			events2.merge(thing, ((EventfulItem) thing).getEvents(), GameUtils::union);
+		}
+		events2.merge(thing, BoardAttributeManager.getEvents(thing.getBoardAttributes()), GameUtils::union);
+	}
+	/**
+	 * calls executeOnRemove for all associated events. Permanetly removes events from event set if none left
+	 * @param thing the Thing to call the executeOnRemove events on
+	 * @param permanentlyRemove if true will also remove those events from the set
+	 */
+	private void removeAssociatedEvents(Thing thing) {
+		events2.compute(thing, (k, v) -> {
+			final List<Event> removedEvents = GameUtils.removeOneInstanceOfEachElement(v); //get one set of events
+			removedEvents.forEach(event -> eventExecutorService.execute(event.executeOnRemove(Board.this)));
+			return v.isEmpty() ? null : v;
+		});
+		
+	}
 	/**
 	 * @return true if there is a pokemon in the foundPokemon Queue (that is, a wild pokemon spawned)
 	 */
@@ -487,8 +493,9 @@ public class Board implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder s = new StringBuilder();
-		for (Map.Entry<Integer, Thing> entry : locationMap.entrySet()) {
-			s.append("\n" + entry.getValue().toString() + "\n");
+		for (Entry<Thing, Integer> entry : elementsToQuantity.entrySet()) {
+			for (int i = 0; i < entry.getValue(); i++)
+			s.append("\n" + entry.getKey().toString() + "\n");
 		}
 		return s.toString();
 		//return s.append("Gold: " + getGold() + "\n" + "POP: " + getPopularity()).toString();
@@ -515,6 +522,7 @@ public class Board implements Serializable {
 	}
 	/**
 	 * Confirm removal of pokemon from queue
+	 * @return The Pokemon that was confirmed to be grabbed
 	 */
 	public Pokemon confirmGrab() {
 		if (grabbedPokemon == null) {
@@ -547,6 +555,7 @@ public class Board implements Serializable {
 	public int numPokemonWaiting() {
 		return foundPokemon.size();
 	}
+	
 	
 	
 }

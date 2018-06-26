@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import game.Board;
+
 public abstract class Thing implements Serializable {
 	/**
 	 * 
@@ -22,6 +24,13 @@ public abstract class Thing implements Serializable {
 	private final EnumSet<ThingType> types;
 	private final Set<Attribute> attributes; 
 	private final Map<String, Attribute> attributeNameMap;
+	protected Thing() {
+		types = null;
+		attributes = null;
+		attributeNameMap = null;
+		name = null;
+		image = null;
+	}
 	public Thing(String name, String image, Set<Attribute> attributes) {
 		if (!vallidateAttributes(attributes))
 			throw new Error("INVALID ATTRIBUTE FOR: " + name);
@@ -60,8 +69,10 @@ public abstract class Thing implements Serializable {
 	private final boolean vallidateAttribute(Attribute at) {
 		return vallidateAttributes(new HashSet<Attribute>(Arrays.asList(at)));
 	}
-	abstract boolean vallidateAttributes(Set<Attribute> attributes);
-	abstract EnumSet<ThingType> setThingType();
+	protected abstract boolean vallidateAttributes(Set<Attribute> attributes);
+	protected abstract EnumSet<ThingType> setThingType();
+	public abstract void onPlace(Board board);
+	public abstract void onRemove(Board board);
 	public final EnumSet<ThingType> getThingTypes() {
 		return types;
 	}
