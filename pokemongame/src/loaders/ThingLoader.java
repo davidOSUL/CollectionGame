@@ -230,6 +230,9 @@ public final class ThingLoader {
 	public Pokemon getPokemon(String name) {
 		return pokemonMap.get(name);
 	}
+	public Pokemon generateDuplicatePokemon(String name) {
+		return new Pokemon(pokemonMap.get(name));
+	}
 	public boolean hasPokemon(String name) {
 		return pokemonMap.containsKey(name);
 	}

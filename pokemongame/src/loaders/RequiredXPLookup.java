@@ -19,21 +19,27 @@ import thingFramework.ExperienceGroup;
  */
 public final class RequiredXPLookup {
 	private static final Path pathToXp = FileSystems.getDefault().getPath("resources/InputFiles/XPLookup.csv");
+	/**
+	 * Map From The Level to an array of integers containing both the total XP you'd have to be to be at that level as well as the amount of additional XP needed to get to the next level
+	 */
 	private static Map<Integer, Integer[]> levelToXP = new HashMap<Integer, Integer[]>();
+	/**
+	 * Map from the ExperienceGroup (as an ordinal) to a Map mapping XP to level
+	 */
 	private static Map<Integer, TreeMap<Integer, Integer>> xpToLevels = new HashMap<Integer, TreeMap<Integer, Integer>>();
 	static {
 		try {
 			List<String> lines = Files.readAllLines(pathToXp, StandardCharsets.UTF_8);
 			int j =0;
 			for (String line: lines) {
-				String[] values = line.split(",");
-				Integer level = Integer.parseInt(values[6]);
+				String[] values = line.split(","); //the current line
+				Integer level = Integer.parseInt(values[6]); //the level associated with that xp
 				Integer[] xpVals = new Integer[values.length];
 				for (int i =0; i < values.length; i++) {
 					if (i!=6 && j!=99)
 					xpVals[i]= Integer.parseInt(values[i]);
 					if (j == 99 && i <6)
-					xpVals[i]= Integer.parseInt(values[i]);
+					xpVals[i]= Integer.parseInt(values[i]); //the last line doesn't contain "next xp" as once you are at the last level there is no where else to go
 
 				}
 				levelToXP.put(level, xpVals);

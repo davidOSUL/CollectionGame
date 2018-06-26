@@ -16,6 +16,9 @@ public class Pokemon extends Thing implements Serializable {
 		super(name, image, attributes);
 		
 	}
+	public Pokemon(Pokemon p) {
+		this(p.getName(), p.getImage(), p.getAttributes());
+	}
 
 	@Override
 	boolean vallidateAttributes(Set<Attribute> attributes) {

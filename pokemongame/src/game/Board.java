@@ -70,7 +70,7 @@ public class Board implements Serializable {
 	/**
 	 * The chance that a pokemon with a name of a pokemon already on the board will spawn
 	 */
-	private static final double PERCENT_CHANCE_DUPLICATE_SPAWNS = 5;
+	private static final double PERCENT_CHANCE_DUPLICATE_SPAWNS = 0;//TODO: Once duplicate is fixed change back to 5
 	/**
 	 * The minimum period in minutes at which new pokemon are checked for
 	 */
@@ -283,6 +283,7 @@ public class Board implements Serializable {
 					lookForPokemon(true);
 				else
 					foundPokemon.add(thingLoader.getPokemon(name));
+				//TODO: fix the absolute mess that is duplicate handling
 			}
 			else
 				foundPokemon.add(thingLoader.getPokemon(name));
@@ -401,6 +402,7 @@ public class Board implements Serializable {
 			es.execute(e.executeOnRemove(this));
 		}
 		if (isPokemon(t)) {
+			//TODO: fix the absolute mess that is duplicate handling
 			allGood = pokemon.remove(t);
 			pokemonAsASet.remove(t.getName());
 		}
