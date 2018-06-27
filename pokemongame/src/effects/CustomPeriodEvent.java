@@ -12,9 +12,9 @@ public class CustomPeriodEvent extends Event {
 	 */
 	private static final long serialVersionUID = 1L;
 	private Function<Board, Double> generatePeriod = x -> {return -1.0;};
-	private long numCurrentPeriodsElapsed = 0;
-	private long timeOfLastChange = System.currentTimeMillis();
-	private double currentPeriodVal = -1;
+	private volatile long numCurrentPeriodsElapsed = 0;
+	private volatile long timeOfLastChange = System.currentTimeMillis();
+	private volatile double currentPeriodVal = -1;
 	private static final double MIN_PERIOD = .01;
 	public CustomPeriodEvent(Consumer<Board> onPeriod, Function<Board, Double> generatePeriod) {
 		super(onPeriod, Integer.MAX_VALUE);
@@ -47,6 +47,10 @@ public class CustomPeriodEvent extends Event {
 				addToTotalPeriods();
 			}
 		}
+	}
+	@Override
+	public Event createNewEventCopy() {
+		return new CustomPeriodEvent(getOnPlace(), getOnPeriod(), generatePeriod);
 	}
 	@Override
 	public Runnable executePeriod(Board b) {

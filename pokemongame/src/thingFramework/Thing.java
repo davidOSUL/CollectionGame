@@ -25,8 +25,9 @@ public abstract class Thing implements Serializable {
 	private final Set<Attribute> attributes; 
 	private final Map<String, Attribute> attributeNameMap;
 	protected Thing() {
-		types = null;
+		types = setThingType();
 		attributes = null;
+		boardAttributes = null;
 		attributeNameMap = null;
 		name = null;
 		image = null;
@@ -53,6 +54,8 @@ public abstract class Thing implements Serializable {
 	}
 	
 	private final Set<Attribute> getAttributesThatContainType(AttributeType at) {
+		if (attributes == null)
+			return new HashSet<Attribute>();
 		Set<Attribute> validAttributes = new HashSet<Attribute>();
 		for (Attribute attribute: attributes) {
 			if (attribute.containsType(at))

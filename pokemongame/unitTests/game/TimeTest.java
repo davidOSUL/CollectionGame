@@ -18,7 +18,7 @@ public class TimeTest {
 //			Thread.sleep(10);
 //			System.out.println(b.getGold() + " " + b.getPopularity() + " " + b.getTotalGameTime());
 //		}
-		b.addThing(0, b.getPokemon("Charmander"));
+		b.addThing(b.getPokemon("Charmander"));
 		b.addGold(10);
 		b.addPopularity(10000);
 		int i = 1;
@@ -29,7 +29,7 @@ public class TimeTest {
 		while (true) {
 			if (b.wildPokemonPresent()) {
 				Pokemon p = b.grabAndConfirm();
-				b.addThing(i++, p);
+				b.addThing(p);
 			}
 			b.update();
 			//System.out.println(b.getGold() + " " + b.getTotalGameTime());

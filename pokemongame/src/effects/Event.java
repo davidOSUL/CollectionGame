@@ -15,7 +15,7 @@ public class Event implements Serializable {
 	private long timeCreated;
 	private volatile long numPeriodsElapsed = 0;
 	private boolean isPeriodic = false;
-	private boolean onPlaceExecuted = false;
+	private volatile boolean onPlaceExecuted = false;
 	private boolean keepTrackWhileOff = false;
 	private final static double MIN_PERIOD = .01;
 	public Event() {
@@ -70,7 +70,7 @@ public class Event implements Serializable {
 		onPlaceExecuted = false;
 		onRemove.accept(b);
 	}
-	public boolean onPlaceExecuted() {
+	public synchronized boolean onPlaceExecuted() {
 		return onPlaceExecuted;
 	}
 	private synchronized void executeIfTime(Board b) {
@@ -90,6 +90,9 @@ public class Event implements Serializable {
 			
 		}
 	}
+	public Event createNewEventCopy() {
+		return new Event(onPlace, onPeriod, onRemove, period);
+	}
 	public boolean hasPeriodicity() {
 		return isPeriodic;
 	}
@@ -106,6 +109,9 @@ public class Event implements Serializable {
 	}
 	protected Consumer<Board> getOnPeriod() {
 		return onPeriod;
+	}
+	public Consumer<Board> getOnPlace() {
+		return onPlace;
 	}
 	protected synchronized void addToTotalPeriods() {
 		numPeriodsElapsed++;

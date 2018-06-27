@@ -12,7 +12,7 @@ public class Item extends Thing implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Item() {}
+	protected Item() {}
 	public Item(String name, String image, Set<Attribute> attributes) {
 		super(name, image, attributes);
 		

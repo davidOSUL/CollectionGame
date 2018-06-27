@@ -82,12 +82,14 @@ public class Presenter {
 	/**
 	 * Removes the GameSpace from the GUI and removes the thing that it corresponds to from the board
 	 * @param gs the GameSpae to remove
+	 * @param removeFromBoard if true will remove the thing from board, otherwise just removes it from allThings map
 	 * @return the mapEntry that was removed
 	 */
-	private  mapEntry removeGameSpace(GameSpace gs) {
+	private  mapEntry removeGameSpace(GameSpace gs, boolean removeFromBoard) {
 		if (!allThings.containsKey(gs))
 			throw new RuntimeException("Attempted To Remove Non-Existant GameSpace");
-		board.removeThing(allThings.get(gs));
+		if (removeFromBoard)
+			board.removeThing(allThings.get(gs));
 		allThings.get(gs);
 		return new mapEntry(gs, allThings.remove(gs));
 	}
@@ -109,7 +111,7 @@ public class Presenter {
 		board.update();
 		newString = board.toString();
 		if (!newString.equals(oldString)) {
-			System.out.println("\n---GAME TIME---: "+ board.getTotalGameTime() + "\n" + board.toString() + "GOLD: " + board.getGold() + "\nPOP:" + board.getPopularity() + "\n-------");
+			System.out.println("\n---GAME TIME---: "+ board.getTotalGameTime() + "\n" + board +   "\n-------");
 			oldString = newString;
 		}
 	}
@@ -140,13 +142,15 @@ public class Presenter {
 		gameView.displayPanelCentered(iw);										
 	}
 	/**
-	 * Called when a GameSpace is succesfully added to the board. Adds the provided GameSpace to <GameSpace, Thing> map and adds the thing (thingToAdd) to the board
+	 * Called when a GameSpace is sucessfully added to the board. Adds the provided GameSpace to <GameSpace, Thing> map and adds the thing (thingToAdd) to the board if
+	 * AddType == POKE_FROM_QUEUE
 	 * @param gs
 	 */
-	private void addGameSpace(GameSpace gs) {
+	private void addGameSpace(GameSpace gs, AddType type) {
 		if (thingToAdd == null)
 			return;
-		board.addThing(currCount++, thingToAdd);
+		if (type == AddType.POKE_FROM_QUEUE)
+			board.addThing(thingToAdd);
 		allThings.put(gs, thingToAdd);
 		finishAdding();
 	}
@@ -164,7 +168,7 @@ public class Presenter {
 	 * @param type the type of add (from queue, moving, etc.)
 	 */
 	public void notifyAdded(GameSpace gs, AddType type) {
-		addGameSpace(gs);
+		addGameSpace(gs, type);
 		if (type == AddType.POKE_FROM_QUEUE)
 			board.confirmGrab();
 	}
@@ -212,7 +216,7 @@ public class Presenter {
 			throw new IllegalArgumentException("GameSpace " + gs + "Not found on board");
 		if (state != CurrentState.GAMEPLAY)
 			return false;
-		mapEntry entry = removeGameSpace(gs);
+		mapEntry entry = removeGameSpace(gs, false);
 		attemptAddExistingThing(entry, AddType.PRIOR_ON_BOARD);
 		return true;
 	}

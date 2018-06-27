@@ -14,7 +14,10 @@ public class EventfulItem extends Item implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	private List<Event> events;
-	
+	private EventfulItem(Event... e) {
+		super();
+		events = Arrays.asList(e);
+	}
 	public EventfulItem(String name, String image, Set<Attribute> attributes, List<Event> events) {
 		super(name, image, attributes);
 		this.events = events;
@@ -29,5 +32,8 @@ public class EventfulItem extends Item implements Serializable {
 	@Override
 	protected EnumSet<ThingType> setThingType() {
 		return EnumSet.of(ThingType.ITEM, ThingType.EVENTFULITEM);
+	}
+	public static Item generateBlankEventItem(Event... e) {
+		return new EventfulItem(e);
 	}
 }
