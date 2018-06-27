@@ -46,4 +46,8 @@ public class Pokemon extends Thing implements Serializable {
 		board.notifyPokemonRemoved(this);
 		
 	}
+	@Override
+	public Thing makeCopy() {
+		return new Pokemon(this);
+	}
 }

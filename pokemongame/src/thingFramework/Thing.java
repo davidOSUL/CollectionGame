@@ -42,6 +42,10 @@ public abstract class Thing implements Serializable {
 		this.image = image;
 		attributeNameMap = generateAttributeNameMap(attributes);
 	}
+	public abstract Thing makeCopy();
+	public Thing(Thing t) {
+		this(t.getName(), t.getImage(), t.getAttributes());
+	}
 	public final boolean containsAttribute(String name) {
 		return attributeNameMap.containsKey(name);
 	}

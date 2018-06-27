@@ -26,6 +26,9 @@ public class EventfulItem extends Item implements Serializable {
 		this(name, image, attributes, Arrays.asList(e));
 	
 	}
+	public EventfulItem(EventfulItem ei) {
+		this(ei.getName(), ei.getImage(),ei.getAttributes(), ei.getEvents());
+	}
 	public List<Event> getEvents() {
 		return events;
 	}
@@ -35,5 +38,9 @@ public class EventfulItem extends Item implements Serializable {
 	}
 	public static Item generateBlankEventItem(Event... e) {
 		return new EventfulItem(e);
+	}
+	@Override
+	public Thing makeCopy() {
+		return new EventfulItem(this);
 	}
 }

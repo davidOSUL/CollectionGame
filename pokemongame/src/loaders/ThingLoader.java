@@ -212,10 +212,10 @@ public final class ThingLoader {
 		}
 		return attributes;
 	}
-	public  Set<Thing> getThingSet() {
+	public Set<Thing> getThingSet() {
 			return thingSet;
 	}
-	public  Set<Pokemon> getPokemonSet() {
+	public Set<Pokemon> getPokemonSet() {
 		return new HashSet<Pokemon>(pokemonMap.values());
 	}
 	public Set<Item> getItemSet() {
@@ -225,22 +225,19 @@ public final class ThingLoader {
 		return eventfulItemSet;
 	}
 	public Thing getThing(String name) {
-		return thingMap.get(name);
+		return thingMap.get(name).makeCopy();
 	}
 	public Pokemon getPokemon(String name) {
-		return pokemonMap.get(name);
-	}
-	public Pokemon generateDuplicatePokemon(String name) {
 		return new Pokemon(pokemonMap.get(name));
 	}
 	public boolean hasPokemon(String name) {
 		return pokemonMap.containsKey(name);
 	}
 	public Item getItem(String name) {
-		return itemMap.get(name);
+		return new Item(itemMap.get(name));
 	}
 	public EventfulItem getEventfulItem(String name) {
-		return eventfulItemMap.get(name);
+		return new EventfulItem(eventfulItemMap.get(name));
 	}
 	/**
 	 * Currently serves no purpose in the logic past debugging

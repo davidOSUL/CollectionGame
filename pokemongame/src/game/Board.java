@@ -11,8 +11,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
 import effects.CustomPeriodEvent;
@@ -22,7 +20,6 @@ import loaders.ThingLoader;
 import thingFramework.EventfulItem;
 import thingFramework.Pokemon;
 import thingFramework.Thing;
-import thingFramework.Thing.ThingType;
 /**
  * The "Model" in the MVP model. Manages the game state in memory.
  * <br> NOTE: newSession should be called at the beggining of a new session. </br>
@@ -98,10 +95,6 @@ public class Board implements Serializable {
 	 */
 	private static final ThingLoader thingLoader = new ThingLoader(THING_LIST_LOCATION, PATH_TO_DESCRIPTIONS, EVENT_MAP_LOCATION, EVOLUTIONS_LOCATION, LEVELS_OF_EVOLUTION_LOCATION, EXTRA_ATTRIBUTE_LOCATIONS);
 	/**
-	 * Set of all the pokemon in the game, gotten from thingLoader
-	 */
-	private static final Set<Pokemon> allPokemon = thingLoader.getPokemonSet();
-	/**
 	 * A map from the sum of the chance of a pokemon being found (out of RUNNING_TOTAL) and all chances
 	 * of pokemon loaded in before it, to the name of that pokemon. This will be in order, sorted by the sum.
 	 */
@@ -113,7 +106,7 @@ public class Board implements Serializable {
 	/**
 	 * Map from pokemon names to their RARITY (NOT CHANCE) value
 	 */
-	private static final Map<String, Integer> pokeRarity = Thing.mapFromSetToAttributeValue(allPokemon, "rarity");  
+	private static final Map<String, Integer> pokeRarity = Thing.mapFromSetToAttributeValue(thingLoader.getPokemonSet(), "rarity");  
 	/**
 	 * The queue of found wild pokemon (pokemon generated from a lookForPokemon() call)
 	 */
@@ -162,14 +155,14 @@ public class Board implements Serializable {
 	private Map<Thing, Integer> elementsToQuantity = new LinkedHashMap<Thing, Integer>();
 	private Map<Thing, ThingEventSetManager> events = new ConcurrentHashMap<Thing, ThingEventSetManager>();
 	/**
-	 * All pokemon currently on the board
+	 * The number of pokemon currently on the board
 	 */
 	private volatile int numPokemon = 0;
 	/**
-	 * The names of all pokemon on the board (no duplicates) used so that duplicate pokemon are
+	 * The pokemon on the board or in the queue (no duplicates) used so that duplicate pokemon are
 	 * signifigantly less likely to show up
 	 */
-	private volatile Set<String> pokemonAsASet = new HashSet<String>();
+	private volatile Set<Pokemon> uniquePokemon = new HashSet<Pokemon>();
 	/**
 	 * The event that checks for pokemon on a certain period based on popularity
 	 * This is considered a "default" event and hence is mapped to a negative value of -1.
@@ -180,7 +173,6 @@ public class Board implements Serializable {
 	 * But regardless, making it static makes sense.
 	 */
 	private transient static final Event checkForPokemon = checkForPokemonEvent(); 
-	private transient ExecutorService eventExecutorService = Executors.newFixedThreadPool(5);
 	/**
 	 * Blank item to store the checkForPokemon event
 	 */
@@ -198,7 +190,7 @@ public class Board implements Serializable {
 	/**
 	 * To be called on every game tick. Updates time and events
 	 */
-	public void update() {
+	public synchronized void update() {
 		stm.updateGameTime();
 		executeEvents();
 
@@ -212,9 +204,11 @@ public class Board implements Serializable {
 		events.forEach((k, v) -> v.getEvents().forEach((event) ->
 		{
 			if (!event.onPlaceExecuted()) {
-				eventExecutorService.execute(event.executeOnPlace(Board.this));
+				event.executeOnPlace(Board.this).run();
+				//eventExecutorService.execute(event.executeOnPlace(Board.this));
 			}
-			eventExecutorService.execute(event.executePeriod(Board.this));
+			//eventExecutorService.execute(event.executePeriod(Board.this));
+			event.executePeriod(Board.this).run();
 		})); 
 		
 	}
@@ -275,10 +269,19 @@ public class Board implements Serializable {
 
 
 			}
-		} while(name != null && pokemonAsASet.contains(name) && !testPercentChance(PERCENT_CHANCE_DUPLICATE_SPAWNS) && attempts < MAX_ATTEMPTS);
-		if (name != null && (PERCENT_CHANCE_DUPLICATE_SPAWNS != 0 || !pokemonAsASet.contains(name)))
-			foundPokemon.add(thingLoader.getPokemon(name));	//TODO: for some reason duplicate pokemon are still spawning even when PERCENT_CHANCE_DUPLICATE_SPAWNS is 0
+		} while(name != null && uniquePokemon.contains(name) && !testPercentChance(PERCENT_CHANCE_DUPLICATE_SPAWNS) && attempts < MAX_ATTEMPTS);
+		if (name != null && (PERCENT_CHANCE_DUPLICATE_SPAWNS != 0 || !uniquePokemon.contains(name))) {
+			addToFoundPokemon(name);
+		}
 
+	}
+	/**
+	 * @param Adds the provided pokemon to the foundPokemon queue and updates the set of pokemon names
+	 */
+	private void addToFoundPokemon(String name) {
+		Pokemon p = thingLoader.getPokemon(name);
+		foundPokemon.addLast(p);
+		uniquePokemon.add(p);
 	}
 	/**
      * Called by lookForPokemon(), will find the next pokemon taking into account rarity
@@ -412,9 +415,6 @@ public class Board implements Serializable {
 		this.stm = new SessionTimeManager(totalGameTime);
 
 	}
-	private static boolean isEventfulItem(Thing t) {
-		return t.getThingTypes().contains(ThingType.EVENTFULITEM);
-	}
 	public synchronized int getGold() {
 		return gold;
 	}
@@ -438,11 +438,11 @@ public class Board implements Serializable {
 	}
 	public synchronized void notifyPokemonAdded(Pokemon p) {
 		numPokemon++;
-		pokemonAsASet.add(p.getName());
 	}
 	public synchronized void notifyPokemonRemoved(Pokemon p) {
 		numPokemon--;
-		pokemonAsASet.remove(p.getName());
+		if (!elementsToQuantity.containsKey(p)) //by now the elementsToQuantity map has been updated so check if its been removed
+			uniquePokemon.remove(p);
 	}
 	/**
 	 * Adds the element to the map from thing to # present, updating accordingly, and adding events if necessary. 
@@ -531,6 +531,7 @@ public class Board implements Serializable {
 		}
 		Pokemon p = grabbedPokemon;
 		grabbedPokemon = null;
+		uniquePokemon.remove(p.getName());
 		return p;
 	}
 	/**

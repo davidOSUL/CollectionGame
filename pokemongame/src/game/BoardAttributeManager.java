@@ -39,7 +39,7 @@ public final class BoardAttributeManager {
 		return event;
 	}
 	/**
-	 * Takes in a set of Attributes that effect the state of the board and generates the associated events for them
+	 * Takes in a set of Attributes that effect the state of the board and generates the associated events for them. Creates new instances of the events. 
 	 * @param boardAttributes A Set of Attributes that modify the state of the board. 
 	 * Specifically, must be set of attributes that contain AttributeType Thing.BOARDTYPE
 	 * @return The List of generated events

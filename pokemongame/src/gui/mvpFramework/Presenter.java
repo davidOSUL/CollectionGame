@@ -60,7 +60,6 @@ public class Presenter {
 	private String oldString; //TODO: Remove this or add debug feature
 	private String newString;
 	public Presenter() {};
-	
 	/**
 	 * Creates a new Presenter with the provided Board and GameView
 	 * @param b the Board (or "model" in MVP)

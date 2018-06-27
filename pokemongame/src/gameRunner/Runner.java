@@ -41,7 +41,7 @@ public class Runner  {
 		});	
 		ScheduledExecutorService es = Executors.newSingleThreadScheduledExecutor();
 		es.scheduleAtFixedRate(() -> p.updateBoard(), 0, 10, TimeUnit.MILLISECONDS);
-
+		
 		
 	}
 

@@ -18,7 +18,9 @@ public class Item extends Thing implements Serializable {
 		
 		
 	}
-
+	public Item(Item i) {
+		this(i.getName(), i.getImage(), i.getAttributes());
+	}
 	@Override
 	protected
 	boolean vallidateAttributes(Set<Attribute> attributes) {
@@ -43,6 +45,10 @@ public class Item extends Thing implements Serializable {
 	}
 	public static Item generateBlankItem() {
 		return new Item();
+	}
+	@Override
+	public Thing makeCopy() {
+		return new Item(this);
 	}
 
 	
