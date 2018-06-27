@@ -143,6 +143,8 @@ public abstract class Thing implements Serializable {
 	}
 	@Override
 	public String toString() {
+		if (name == null)
+			return "BLANK ITEM";
 		return name + (containsAttribute("description") ? ": " + getAttributeVal("description").toString() : "");
 	}
 	 public String getImage() {

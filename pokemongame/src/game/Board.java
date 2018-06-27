@@ -2,15 +2,14 @@ package game;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import effects.CustomPeriodEvent;
@@ -62,7 +61,7 @@ public class Board implements Serializable {
 	/**
 	 * The chance that a pokemon with a name of a pokemon already on the board will spawn
 	 */
-	private static final double PERCENT_CHANCE_DUPLICATE_SPAWNS = 0;//TODO: Once duplicate is fixed change back to 5
+	private static final double PERCENT_CHANCE_DUPLICATE_SPAWNS = 100;//TODO: Once duplicate is fixed change back to 5
 	/**
 	 * The minimum period in minutes at which new pokemon are checked for
 	 */
@@ -150,19 +149,19 @@ public class Board implements Serializable {
 	private volatile int gold = 0;
 	private volatile int popularity = 0;
 	/**
-	 * Used to represent the state of the board. Contains all unique things on the board and the number that are present. 
+	 * Used to represent the state of the board. Contains all things on board.
 	 */
-	private Map<Thing, Integer> elementsToQuantity = new LinkedHashMap<Thing, Integer>();
-	private Map<Thing, ThingEventSetManager> events = new ConcurrentHashMap<Thing, ThingEventSetManager>();
+	private Set<Thing> thingsOnBoard = new LinkedHashSet<Thing>();
+	private EventManager events; 
 	/**
 	 * The number of pokemon currently on the board
 	 */
 	private volatile int numPokemon = 0;
 	/**
-	 * The pokemon on the board or in the queue (no duplicates) used so that duplicate pokemon are
-	 * signifigantly less likely to show up
+	 * The pokemon on the board or in the queue used so that duplicate pokemon are
+	 * signifigantly less likely to show up. Map from the name of the pokemon to the # present
 	 */
-	private volatile Set<Pokemon> uniquePokemon = new HashSet<Pokemon>();
+	private volatile Map<String, Integer> uniquePokemonLookup = new HashMap<String, Integer>();
 	/**
 	 * The event that checks for pokemon on a certain period based on popularity
 	 * This is considered a "default" event and hence is mapped to a negative value of -1.
@@ -179,7 +178,8 @@ public class Board implements Serializable {
 	private transient static final Thing checkForPokemonThing = EventfulItem.generateBlankEventItem(checkForPokemon);
 	//TODO: Put all possible things with their associated events in a manager of its own, should be able to grab events with quantity > 0 
 	public Board() {
-		events.put(checkForPokemonThing, new ThingEventSetManager(checkForPokemonThing, 1));
+		events = new EventManager(this);
+		events.addThing(checkForPokemonThing);
 	}
 	public Board(int gold, int popularity) {
 		this();
@@ -201,16 +201,7 @@ public class Board implements Serializable {
 	 * ThingEventSetManager has. 
 	 */
 	private void executeEvents() {
-		events.forEach((k, v) -> v.getEvents().forEach((event) ->
-		{
-			if (!event.onPlaceExecuted()) {
-				event.executeOnPlace(Board.this).run();
-				//eventExecutorService.execute(event.executeOnPlace(Board.this));
-			}
-			//eventExecutorService.execute(event.executePeriod(Board.this));
-			event.executePeriod(Board.this).run();
-		})); 
-		
+		events.runEvents();
 	}
 	/**
 	 * @return the "default" event that will check for new wild pokemon
@@ -269,19 +260,29 @@ public class Board implements Serializable {
 
 
 			}
-		} while(name != null && uniquePokemon.contains(name) && !testPercentChance(PERCENT_CHANCE_DUPLICATE_SPAWNS) && attempts < MAX_ATTEMPTS);
-		if (name != null && (PERCENT_CHANCE_DUPLICATE_SPAWNS != 0 || !uniquePokemon.contains(name))) {
+		} while(name != null && !isUniquePokemon(name) && !testPercentChance(PERCENT_CHANCE_DUPLICATE_SPAWNS) && attempts < MAX_ATTEMPTS);
+		if (name != null && (PERCENT_CHANCE_DUPLICATE_SPAWNS != 0 || isUniquePokemon(name))) {
 			addToFoundPokemon(name);
 		}
 
 	}
 	/**
-	 * @param Adds the provided pokemon to the foundPokemon queue and updates the set of pokemon names
+	 * @param Using thing loader creates a new instance of a pokemon with the given name.
+	 * Adds the provided pokemon to the foundPokemon queue and updates the set of pokemon names in addToUniquePokemonLookup
 	 */
 	private void addToFoundPokemon(String name) {
 		Pokemon p = thingLoader.getPokemon(name);
 		foundPokemon.addLast(p);
-		uniquePokemon.add(p);
+		addToUniquePokemonLookup(p);
+	}
+	private void addToUniquePokemonLookup(Pokemon p) {
+		uniquePokemonLookup.merge(p.getName(), 1, (old, v) -> old+1);
+	}
+	private void removeFromUniquePokemonLookup(Pokemon p) {
+		uniquePokemonLookup.compute(p.getName(), (k, v) -> (v-1 == 0) ? null : v-1);
+	}
+	private boolean isUniquePokemon(String name) {
+		return !uniquePokemonLookup.containsKey(name);
 	}
 	/**
      * Called by lookForPokemon(), will find the next pokemon taking into account rarity
@@ -437,19 +438,26 @@ public class Board implements Serializable {
 		addPopularity(-popularity);
 	}
 	public synchronized void notifyPokemonAdded(Pokemon p) {
+		boolean test = false;
+		for (Thing thing : thingsOnBoard) {
+			test = test || (thing.getName().equals(p.getName()) && thing != p);
+		}
+		if (test == true) {
+			System.out.println("Hi");
+		}
 		numPokemon++;
+		addToUniquePokemonLookup(p);
 	}
 	public synchronized void notifyPokemonRemoved(Pokemon p) {
 		numPokemon--;
-		if (!elementsToQuantity.containsKey(p)) //by now the elementsToQuantity map has been updated so check if its been removed
-			uniquePokemon.remove(p);
+		removeFromUniquePokemonLookup(p);
 	}
 	/**
 	 * Adds the element to the map from thing to # present, updating accordingly, and adding events if necessary. 
 	 * @param thing the Thing to ADd
 	 */
 	private void addElementToThingMap(Thing thing) {
-		elementsToQuantity.merge(thing, 1, (old,v) -> old+1 ); //set value to 1 if not present, increment if is
+		thingsOnBoard.add(thing);
 		addAssociatedEvents(thing);
 	}
 	/**
@@ -458,7 +466,7 @@ public class Board implements Serializable {
 	 * @param thing the Thing to add
 	 */
 	private void removeElementFromThingMap(Thing thing) {
-		elementsToQuantity.compute(thing, (k, v) -> (v-1 == 0) ? null : v-1); //if removing the last instance, remove from map, else subtract
+		thingsOnBoard.remove(thing);
 		removeAssociatedEvents(thing);  //execute onRemove and permanently remove if this is the last instance
 	}
 	/**
@@ -466,11 +474,7 @@ public class Board implements Serializable {
 	 * @param thing The thing to get the events for
 	 */
 	private void addAssociatedEvents(Thing thing) {
-		if (events.containsKey(thing)) {
-			events.get(thing).increaseQuantity();
-		}else {
-			events.put(thing, new ThingEventSetManager(thing, 1));
-		}
+		events.addThing(thing);
 	}
 	/**
 	 * calls executeOnRemove for all associated events. Permanetly removes events from event set if none left
@@ -478,10 +482,7 @@ public class Board implements Serializable {
 	 * @param permanentlyRemove if true will also remove those events from the set
 	 */
 	private void removeAssociatedEvents(Thing thing) {
-		events.get(thing).decreaseQuantity();
-		if (events.get(thing).isEmpty())
-			events.remove(thing);
-
+		events.removeThing(thing);
 	}
 	/**
 	 * @return true if there is a pokemon in the foundPokemon Queue (that is, a wild pokemon spawned)
@@ -495,9 +496,8 @@ public class Board implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder s = new StringBuilder();
-		for (Entry<Thing, Integer> entry : elementsToQuantity.entrySet()) {
-			for (int i = 0; i < entry.getValue(); i++)
-				s.append("\n" + entry.getKey().toString() + "\n");
+		for (Thing entry : thingsOnBoard) {
+			s.append("\n" + entry.toString() + "\n");
 		}
 		return s.append("GOLD: " + getGold() + "\nPOP:" +getPopularity()).toString();
 	}
@@ -531,7 +531,7 @@ public class Board implements Serializable {
 		}
 		Pokemon p = grabbedPokemon;
 		grabbedPokemon = null;
-		uniquePokemon.remove(p.getName());
+		removeFromUniquePokemonLookup(p);
 		return p;
 	}
 	/**
