@@ -25,6 +25,8 @@ import gameutils.GameUtils;
 import gui.guiutils.CommonConstants;
 import gui.guiutils.GuiUtils;
 import gui.mouseAdapters.DoubleClickWithThreshold;
+import gui.mouseAdapters.MouseClickWithThreshold;
+import gui.mouseAdapters.MouseClickWithThreshold.ClickType;
 import gui.mvpFramework.GameView;
 
 /**
@@ -168,8 +170,6 @@ public class Grid extends GameSpace {
 		if (subX == 0 || subY == 0) 
 			return;
 		Graphics2D g2d = (Graphics2D) g;
-		//Stroke stroke = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0);
-		//g2d.setStroke(stroke);
 		g2d.setPaint(Color.gray);
 		for (int x = 0; x < numColumns; x++) {
 			for (int y = 0; y < numRows; y++) {
@@ -344,6 +344,7 @@ public class Grid extends GameSpace {
 	public GridSpace generateGridSpace(GameSpace g) {
 		return new GridSpace(g);
 	}
+
 	/**
 	 * A GameSpace aligned to the current Grid
 	 * @author David O'Sullivan
@@ -461,13 +462,21 @@ public class Grid extends GameSpace {
 		 * Adds "double click to move" listeners
 		 */
 		private void addListeners() {
-			BiConsumer<GameView, MouseEvent> input = (gv, e) -> {
-				if (gv.getPresenter().attemptMoveGameSpace(this))
-					Grid.this.removeGridSpace(this);
+			BiConsumer<GameView, MouseEvent> onDoubleClick = (gv, e) -> {
+				gv.getPresenter().attemptMoveGridSpace(this);
 			};
-			MouseListener ml = new DoubleClickWithThreshold<GameView>(CLICK_DIST_THRESH, input, gv);
-			this.addMouseListener(ml);
-			listeners.add(ml);
+			MouseListener dubClickListener = new DoubleClickWithThreshold<GameView>(CLICK_DIST_THRESH, onDoubleClick, gv);
+			this.addMouseListener(dubClickListener);
+			listeners.add(dubClickListener);	
+			BiConsumer<GameView, MouseEvent> onRightClick = (gv, e) -> {
+				gv.getPresenter().attemptDeleteGridSpace(this); //TODO: PopupMenu
+			};
+			MouseListener rightClickListener = new MouseClickWithThreshold<GameView>(CLICK_DIST_THRESH, onRightClick, gv, false, ClickType.RIGHT);
+			this.addMouseListener(rightClickListener);
+			listeners.add(rightClickListener);
+		}
+		public void removeFromGrid() {
+			Grid.this.removeGridSpace(this);
 		}
 		/**
 		 * Removes all mouse listeners
@@ -498,6 +507,12 @@ public class Grid extends GameSpace {
 			super.setImage(newImage);
 		}
 	}
+	/**
+	 *Very simple implementation of Point. Exactly the same but with a different name, used to help distinguish
+	 *between absolute points and grid points
+	 * @author DOSullivan
+	 *
+	 */
 	private static class GridPoint extends Point {
 		/**
 		 * 

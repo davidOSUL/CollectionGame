@@ -4,11 +4,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="resources"/>
 	<classpathentry kind="src" path="unitTests"/>
-	<classpathentry kind="lib" path="H:/Users/da/Downloads/guava-23.0.jar" sourcepath="H:/Users/da/Downloads/guava-23.0-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/H:/Users/da/Downloads/guava-23.0-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

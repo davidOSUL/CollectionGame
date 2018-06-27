@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 
 import game.Board;
 import gui.guiComponents.GameSpace;
+import gui.guiComponents.Grid.GridSpace;
 import gui.guiComponents.InfoWindow;
 import gui.guiutils.GuiUtils;
 import thingFramework.Pokemon;
@@ -36,6 +37,10 @@ public class Presenter {
 	 * When in an add Attempt the Thing that the user wants to add
 	 */
 	private Thing thingToAdd = null;
+	/**
+	 * When in a delete attempt, this is the GameSpace that the user wants to delete
+	 */
+	private GridSpace gridSpaceToDelete = null;
 	/**
 	 * Always increments whenever an object is added. Used for purposes of Board's <Integer, Thing> Map
 	 */
@@ -137,8 +142,11 @@ public class Presenter {
 			return;
 		state =  CurrentState.NOTIFICATION_WINDOW;
 		InfoWindow iw = wildPokemonWindow(board.grabWildPokemon());
+		setCurrentWindow(iw);									
+	}
+	private void setCurrentWindow(InfoWindow iw) {
 		currentWindow = iw;
-		gameView.displayPanelCentered(iw);										
+		gameView.displayPanelCentered(iw);
 	}
 	/**
 	 * Called when a GameSpace is sucessfully added to the board. Adds the provided GameSpace to <GameSpace, Thing> map and adds the thing (thingToAdd) to the board if
@@ -151,13 +159,14 @@ public class Presenter {
 		if (type == AddType.POKE_FROM_QUEUE)
 			board.addThing(thingToAdd);
 		allThings.put(gs, thingToAdd);
-		finishAdding();
+		finishAddAttempt();
 	}
 	/**
-	 * Finalizes the add by getting rid of thingToAdd and changing the state of the game back to GAMEPLAY
+	 * Finalizes the add attempt by getting rid of thingToAdd and changing the state of the game back to GAMEPLAY
+	 * Will be called whether or not the gamespace was actually added to the board
 	 * @sets CurrentState.GAMEPLAY
 	 */
-	private void finishAdding() {
+	private void finishAddAttempt() {
 		thingToAdd = null;
 		state = CurrentState.GAMEPLAY;
 	}
@@ -183,7 +192,7 @@ public class Presenter {
 			{
 				board.undoGrab();
 			}
-		finishAdding();
+		finishAddAttempt();
 	}
 	/**
 	 * To be called when the user initializes an add Attempt with a Thing that doesn't yet have a created GameSpace
@@ -210,14 +219,44 @@ public class Presenter {
 	 * @param gs the GameSpace that the user wants to move
 	 * @return false if the user is not allowed to move the GameSpace (they are currently in the Notification Window for example)
 	 */
-	public boolean attemptMoveGameSpace(GameSpace gs) {
+	public boolean attemptMoveGridSpace(GridSpace gs) {
+		if (!containsGameSpace(gs))
+			throw new IllegalArgumentException("GridSpace " + gs + "Not found on board");
+		if (state != CurrentState.GAMEPLAY)
+			return false;
+		gs.removeFromGrid();
+		mapEntry entry = removeGameSpace(gs, false);
+		attemptAddExistingThing(entry, AddType.PRIOR_ON_BOARD);
+		return true;
+	}
+	/**
+	 * To be called when the user attempts to delete a GameSpace
+	 * @param gs the GridSpace that the user wants to delete
+	 * @return false if the user is not allowed to delete the GameSpace (they are currently in the Notification Window for example)
+	 */
+	public boolean attemptDeleteGridSpace(GridSpace gs) {
 		if (!containsGameSpace(gs))
 			throw new IllegalArgumentException("GameSpace " + gs + "Not found on board");
 		if (state != CurrentState.GAMEPLAY)
 			return false;
-		mapEntry entry = removeGameSpace(gs, false);
-		attemptAddExistingThing(entry, AddType.PRIOR_ON_BOARD);
+		state = CurrentState.DELETE_CONFIRM_WINDOW;
+		Thing thingToDelete = allThings.get(gs);
+		InfoWindow deleteWindow = attemptToDeleteWindow(thingToDelete);
+		setCurrentWindow(deleteWindow);
+		gridSpaceToDelete = gs;
 		return true;
+		
+	}
+	private void confirmDelete() {
+		if (state != CurrentState.DELETE_CONFIRM_WINDOW || gridSpaceToDelete == null) 
+			throw new RuntimeException("No Delete to Confirm");
+		this.removeGameSpace(gridSpaceToDelete, true);
+		gridSpaceToDelete.removeFromGrid();
+		finishDeleteAttempt();
+	}
+	private void finishDeleteAttempt() {
+		gridSpaceToDelete = null;
+		state = CurrentState.GAMEPLAY;
 	}
 	/**
 	 * To be called when the User Clicks the notification button and then clicks cancel. Undos the board grab, and sets the state of the game back to GamePlay
@@ -235,6 +274,9 @@ public class Presenter {
 			case NOTIFICATION_WINDOW:
 				attemptAddThing(board.getGrabbed(), AddType.POKE_FROM_QUEUE);	
 				break;
+			case DELETE_CONFIRM_WINDOW:
+				confirmDelete();
+				break;
 		}
 	}
 	/**
@@ -245,6 +287,9 @@ public class Presenter {
 			case NOTIFICATION_WINDOW:
 				undoNotificationClicked();
 			break;
+			case DELETE_CONFIRM_WINDOW:
+				finishDeleteAttempt();
+				break;
 		}
 
 	}
@@ -252,13 +297,8 @@ public class Presenter {
 	 * Gets rid of the currentWindow
 	 */
 	public void CleanUp() {
-		switch(state) {
-			case NOTIFICATION_WINDOW:
-				gameView.removeDisplay(currentWindow);
-				currentWindow = null;
-				break;
-		}
-		
+		gameView.removeDisplay(currentWindow);
+		currentWindow = null;	
 	}
 	/**
 	 * to be called when the currentWindow is no longer being used
@@ -275,9 +315,20 @@ public class Presenter {
 		InfoWindow iw = new InfoWindow()
 				.setPresenter(this)
 				.setInfo("A wild " + p.getName() + " appeared!")
-				.setItem(p)
+				.setThing(p)
 				.addEnterButton("Place")
 				.addButton("Set Free", LET_POKE_GO, true, false, true)
+				.addCancelButton()
+				.setBackgroundImage(notificationWindowBackground)
+				.Create();
+		return iw;
+	}
+	private InfoWindow attemptToDeleteWindow(Thing t) {
+		InfoWindow iw = new InfoWindow()
+				.setPresenter(this)
+				.setInfo("Are you sure you want to set " + t.getName() + "free?")
+				.setThing(t)
+				.addEnterButton("Yes")
 				.addCancelButton()
 				.setBackgroundImage(notificationWindowBackground)
 				.Create();
@@ -289,7 +340,7 @@ public class Presenter {
 	 *
 	 */
 	private enum CurrentState {
-		GAMEPLAY, NOTIFICATION_WINDOW, PLACING_SPACE
+		GAMEPLAY, NOTIFICATION_WINDOW, PLACING_SPACE, DELETE_CONFIRM_WINDOW
 	}
 	/**
 	 * The context of the Add Attempt

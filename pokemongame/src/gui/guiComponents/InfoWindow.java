@@ -70,7 +70,7 @@ public class InfoWindow extends JPanel {
 	 * @param t the Thing to get a picture from
 	 * @return the new info window
 	 */
-	public InfoWindow setItem(Thing t) {
+	public InfoWindow setThing(Thing t) {
 		this.t = t;
 		return this;
 	}

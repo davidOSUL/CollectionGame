@@ -132,6 +132,8 @@ public class MainGamePanel extends JPanel{
 	 * Creates a new MainGamePanel
 	 * @param gv the GameView that houses this panel
 	 */
+	//TODO: Pokemon get stuck moving around Grid when object is in the way
+	
 	public MainGamePanel(GameView gv) {
 		this.gv = gv;
 		notifications = new NotificationButton(NOTIFICATION_LOGO, NOTIFICATION_LOCATION, x -> {x.NotificationClicked();}, gv, true );

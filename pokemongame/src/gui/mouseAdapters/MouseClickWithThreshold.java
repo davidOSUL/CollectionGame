@@ -18,9 +18,10 @@ public class MouseClickWithThreshold<T> extends MouseAdapter {
 	private Point currentPoint;
 	private BiConsumer<T, MouseEvent> function;
 	private T actOn;
-	private boolean allowNonLeftClick = false;
+	private boolean allowNonPrimaryClick = false;
+	private ClickType type;
 	/**
-	 * Creates a new MouseClickWithThreshold with the specified allowableDistance, and what should happen when the mouse is clicked. Only allows left clicks.
+	 * Creates a new MouseClickWithThreshold with the specified allowableDistance, and what should happen when the mouse is clicked. Doesn't allow non primary clicks. By default, the primary click is Left click
 	 * @param allowableDistance the maximum allowableDistance (pixels) from the location of mouse being pressed to location of mouse release to count as a press
 	 * @param function the effect that the mouse should have when clicked. 
 	 * @param actOn what will be passed into function when it is called
@@ -29,17 +30,30 @@ public class MouseClickWithThreshold<T> extends MouseAdapter {
 		this.allowableDistance = allowableDistance;
 		this.function = function;
 		this.actOn = actOn;
+		this.type = ClickType.LEFT;
 	}
 	/**
-	 * Creates a new MouseClickWithThreshold with the specified allowableDistance, and what should happen when the mouse is clicked. Can allows non-left clicks
+	 * Creates a new MouseClickWithThreshold with the specified allowableDistance, and what should happen when the mouse is clicked.
 	 * @param allowableDistance the maximum allowableDistance (pixels) from the location of mouse being pressed to location of mouse release to count as a press
 	 * @param function the effect that the mouse should have when clicked. 
 	 * @param actOn what will be passed into function when it is called
-	 * @param allowNonLeftClick if set to true will allow all clicks to trigger event, not just left clicks
+	 * @param allowNonPrimaryClick if set to true will allow all clicks to trigger event, not just the primary click
 	 */
-	public MouseClickWithThreshold(int allowableDistance, BiConsumer<T, MouseEvent> function, T actOn, boolean allowNonLeftClick) {
+	public MouseClickWithThreshold(int allowableDistance, BiConsumer<T, MouseEvent> function, T actOn, boolean allowNonPrimaryClick) {
 		this(allowableDistance, function, actOn);
-		this.allowNonLeftClick = allowNonLeftClick;
+		this.allowNonPrimaryClick = allowNonPrimaryClick;
+	}
+	/**
+	 * Creates a new MouseClickWithThreshold with the specified allowableDistance, and what should happen when the mouse is clicked. 
+	 * @param allowableDistance the maximum allowableDistance (pixels) from the location of mouse being pressed to location of mouse release to count as a press
+	 * @param function the effect that the mouse should have when clicked. 
+	 * @param actOn what will be passed into function when it is called
+	 * @param allowNonPrimaryClick if set to true will allow all clicks to trigger event, not just the primary click
+	 * @param type Which mouse button to consider the primary click
+	 */
+	public MouseClickWithThreshold(int allowableDistance, BiConsumer<T, MouseEvent> function, T actOn, boolean allowNonPrimaryClick, ClickType type) {
+		this(allowableDistance, function, actOn, allowNonPrimaryClick);
+		this.type = type;
 	}
 	@Override
 	public void mousePressed(MouseEvent e) {
@@ -47,8 +61,21 @@ public class MouseClickWithThreshold<T> extends MouseAdapter {
 	}
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		if (currentPoint.distance(e.getPoint()) < allowableDistance && (allowNonLeftClick || SwingUtilities.isLeftMouseButton(e))) {
+		if (currentPoint.distance(e.getPoint()) < allowableDistance && (allowNonPrimaryClick || isPrimaryClick(e))) {
 			function.accept(actOn, e);
+		}
+	}
+	public enum ClickType{
+		LEFT, RIGHT
+	}
+	public boolean isPrimaryClick(MouseEvent e) {
+		switch(type) {
+		case LEFT:
+			return SwingUtilities.isLeftMouseButton(e);
+		case RIGHT:
+			return SwingUtilities.isRightMouseButton(e);
+		default:
+			return SwingUtilities.isLeftMouseButton(e);
 		}
 	}
 	
