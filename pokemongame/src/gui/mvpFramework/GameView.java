@@ -108,6 +108,9 @@ public class GameView extends JFrame {
 	public  void setWildPokemonCount(int num) {
 		mainGamePanel.updateNotifications(num);
 	}
+	public void setBoardAttributes(int gold, int popularity) {
+		mainGamePanel.updateDisplayedAttributes(gold, popularity);
+	}
 	/**
 	 * Revalidates and repaints the display
 	 */
@@ -115,6 +118,7 @@ public class GameView extends JFrame {
 		revalidate();
 		repaint();
 	}
+	
 	
 
 	

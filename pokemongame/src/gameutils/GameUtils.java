@@ -61,5 +61,13 @@ public final class GameUtils {
 		}
 		return uniqueList;
 	}
+	public static <T> ArrayList<T> toArrayList(T[] elements) {
+		ArrayList<T> newList = new ArrayList<T>();
+		for (T t: elements) {
+			newList.add(t);
+		}
+		return newList;
+		
+	}
 	
 }

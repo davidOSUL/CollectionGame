@@ -1,5 +1,10 @@
 package thingFramework;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import effects.Event;
+
 public interface Eventful {
- //TODO: implement this (pokemon and item should implement and onPlace and onRemove affected accordingly)
+ public List<Event> getEvents();
 }

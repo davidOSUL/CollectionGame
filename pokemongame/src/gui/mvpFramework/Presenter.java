@@ -104,6 +104,7 @@ public class Presenter {
 		if (board == null || gameView == null)
 			return;
 		gameView.setWildPokemonCount(board.numPokemonWaiting());
+		gameView.setBoardAttributes(board.getGold(), board.getPopularity());
 		gameView.updateDisplay();
 	}
 	/**
@@ -326,7 +327,7 @@ public class Presenter {
 	private InfoWindow attemptToDeleteWindow(Thing t) {
 		InfoWindow iw = new InfoWindow()
 				.setPresenter(this)
-				.setInfo("Are you sure you want to set " + t.getName() + "free?")
+				.setInfo("Are you sure you want to set " + t.getName() + " free?")
 				.setThing(t)
 				.addEnterButton("Yes")
 				.addCancelButton()

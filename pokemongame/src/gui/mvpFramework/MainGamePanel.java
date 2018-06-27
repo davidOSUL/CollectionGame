@@ -1,5 +1,7 @@
 package gui.mvpFramework;
 
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.Point;
@@ -11,7 +13,9 @@ import java.awt.event.MouseMotionAdapter;
 import java.util.function.BiConsumer;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import gui.guiComponents.GameSpace;
@@ -115,7 +119,10 @@ public class MainGamePanel extends JPanel{
 	 * The manager for all key stroke events in this panel
 	 */
 	private KeyBindingManager keyBindings = new KeyBindingManager(getInputMap(CONDITION), getActionMap());
+	private JLabel displayLabel = new JLabel();
+	private static Rectangle displayLabelLocation = new Rectangle(new Point(279, 458));
 	static { //create the rectangles corresponding to the locations of all of the grids
+		displayLabelLocation.add(new Point(814, 511));
 		int[] xLocations = {30,273,331,800,80,240};
 		int[] yLocations = {333,490,142,445,170,229};
 		for (int i = 0; i < NUM_GRIDS; i++) {
@@ -197,6 +204,10 @@ public class MainGamePanel extends JPanel{
 		});
 		setKeyBindings();
 		add(notifications);
+		displayLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		displayLabel.setBounds(displayLabelLocation);
+		displayLabel.setOpaque(true);
+		add(displayLabel);
 		revalidate();
 		repaint();
 		setVisible(true);
@@ -205,7 +216,8 @@ public class MainGamePanel extends JPanel{
 	 * If in the process of an add Attempt and the click was a right click, rotate the GridSpace
 	 * @param e
 	 */
-	private void onMouseClicked(MouseEvent e) { 
+	private void onMouseClicked(MouseEvent e) {
+		System.out.println(e.getPoint());
 		if (addingSomething) {
 			if (SwingUtilities.isRightMouseButton(e)) {
 				//save all old information that we will need
@@ -360,7 +372,14 @@ public class MainGamePanel extends JPanel{
 		MouseClickWithThreshold<MainGamePanel> mcwt = new MouseClickWithThreshold<MainGamePanel>(20, input, this, true); 
 		return mcwt;
 	}
-
+	/**
+	 * Update the Display to display the gold/popularity on the board
+	 * @param gold The PokeCash value
+	 * @param popularity the current popularity
+	 */
+	public void updateDisplayedAttributes(int gold, int popularity) {
+		displayLabel.setText("   PokeCash: " + gold + "        Popularity: " + popularity);
+	}
 	 /**
 	 * Sets all key Bindings for this game panel
 	 */

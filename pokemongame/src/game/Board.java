@@ -17,6 +17,7 @@ import effects.Event;
 import gameutils.GameUtils;
 import loaders.ThingLoader;
 import thingFramework.EventfulItem;
+import thingFramework.Item;
 import thingFramework.Pokemon;
 import thingFramework.Thing;
 /**
@@ -175,7 +176,7 @@ public class Board implements Serializable {
 	/**
 	 * Blank item to store the checkForPokemon event
 	 */
-	private transient static final Thing checkForPokemonThing = EventfulItem.generateBlankEventItem(checkForPokemon);
+	private transient static final Item checkForPokemonThing = Item.generateBlankItemWithEvents(checkForPokemon);
 	//TODO: Put all possible things with their associated events in a manager of its own, should be able to grab events with quantity > 0 
 	public Board() {
 		events = new EventManager(this);
