@@ -10,6 +10,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
 import gui.gameComponents.GameSpace;
+import gui.gameComponents.Grid.GridSpace;
 import gui.guiutils.GuiUtils;
 import gui.mvpFramework.Presenter.AddType;
 
@@ -93,12 +94,21 @@ public class GameView extends JFrame {
 		updateDisplay();		
 	}
 	/**
-	 * Starts the process of attempting to add the provided GameSpace to the maingamePanel
+	 * Starts the process of attempting to add the newly created provided GameSpace to the maingamePanel.
+	 * Converts the GameSpace to a gridSpace on the default grid and then adds. 
 	 * @param gs the GameSpace to add
 	 * @param type the context of the add (e.g. pokemon from queue, moving an existing GameSpace, etc.)
 	 */
-	public void attemptGameSpaceAdd(GameSpace gs, AddType type) {
-		mainGamePanel.gameSpaceAdd(gs, type);
+	public void attemptNewGridSpaceAdd(GameSpace gs, AddType type) {
+		mainGamePanel.gridSpaceAdd(mainGamePanel.generateGridSpaceWithDefaultGrid(gs), type);
+	}
+	/**
+	 * Starts the process of attempting to add the existing GridSpace to the maingamePanel
+	 * @param gs the GameSpace to add
+	 * @param type the context of the add (e.g. pokemon from queue, moving an existing GameSpace, etc.)
+	 */
+	public void attemptExistingGridSpaceAdd(GridSpace gs, AddType type) {
+		mainGamePanel.gridSpaceAdd(gs, type);
 	}
 	/**
 	 * Sets the value of the notification button

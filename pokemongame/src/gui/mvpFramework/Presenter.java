@@ -50,26 +50,21 @@ public class Presenter {
 	 */
 	private GridSpace gridSpaceToDelete = null;
 	/**
-	 * Always increments whenever an object is added. Used for purposes of Board's <Integer, Thing> Map
+	 * Map between GridSpaces and the Things that they represent
 	 */
-	//TODO: change this to something better
-	private int currCount =0;
-	/**
-	 * Map between GameSpaces and the Things that they represent
-	 */
-	private Map<GameSpace, Thing> allThings = new HashMap<GameSpace, Thing>();
+	private Map<GridSpace, Thing> allThings = new HashMap<GridSpace, Thing>();
 	/**
 	 * The current state of the game. By default this is GAMEPLAY
 	 */
 	private CurrentState state = CurrentState.GAMEPLAY;
 	/**
-	 * When an InfoWindow is opened, this will be set to that infoWindow
+	 * When an JPanel is opened, this will be set to that JPanel
 	 */
 	private JPanel currentWindow = null;
 	/**
-	 * The background of the InfoWindow that pops up when the notification button is pressed
+	 * The background of the JPanel that pops up when the notification button is pressed
 	 */
-	private static Image notificationWindowBackground = GuiUtils.readImage("/sprites/ui/pikabackground.jpg");
+	private final static Image INFO_WINDOW_BACKGROUND = GuiUtils.readImage("/sprites/ui/pikabackground.jpg");
 	private String oldString; //TODO: Remove this or add debug feature
 	private String newString;
 	private volatile boolean toolTipsEnabled = true;
@@ -88,22 +83,22 @@ public class Presenter {
 		oldString = board.toString();
 	}
 	/**
-	 * Checks if the gameSpace is present
-	 * @param gs the gameSpace to check
+	 * Checks if the GridSpace is present
+	 * @param gs the GridSpace to check
 	 * @return true if the space is present
 	 */
-	public boolean containsGameSpace(GameSpace gs) {
+	public boolean containsGridSpace(GridSpace gs) {
 		return allThings.containsKey(gs);
 	}
 	/**
-	 * Removes the GameSpace from the GUI and removes the thing that it corresponds to from the board
-	 * @param gs the GameSpae to remove
+	 * Removes the GridSpace from the GUI and removes the thing that it corresponds to from the board
+	 * @param gs the GridSpace to remove
 	 * @param removeFromBoard if true will remove the thing from board, otherwise just removes it from allThings map
 	 * @return the mapEntry that was removed
 	 */
-	private  mapEntry removeGameSpace(GameSpace gs, boolean removeFromBoard) {
+	private  mapEntry removeGridSpace(GridSpace gs, boolean removeFromBoard) {
 		if (!allThings.containsKey(gs))
-			throw new RuntimeException("Attempted To Remove Non-Existant GameSpace");
+			throw new RuntimeException("Attempted To Remove Non-Existant GridSpace");
 		if (removeFromBoard)
 			board.removeThing(allThings.get(gs));
 		allThings.get(gs);
@@ -179,7 +174,7 @@ public class Presenter {
 		
 	}
 	/**
-	 * To be called whenever the notification button is clicked. Displays the PopUp InfoWindow with the next pokemon in the wild pokemon queue in the board
+	 * To be called whenever the notification button is clicked. Displays the PopUp JPanel with the next pokemon in the wild pokemon queue in the board
 	 *@sets CurrentState.NOTIFICATION_WINDOW
 	 */
 	public void NotificationClicked() {
@@ -189,16 +184,24 @@ public class Presenter {
 		JPanel wildPokemonWindow = wildPokemonWindow(board.grabWildPokemon());
 		setCurrentWindow(wildPokemonWindow);									
 	}
+	/**
+	 * To be called whenever the shop button is clicked
+	 */
+	public void shopClicked() {
+		System.out.println("SHOP CLICK");
+		//TODO: implement
+	}
+
 	private void setCurrentWindow(JPanel window) {
 		currentWindow = window;
 		gameView.displayPanelCentered(window);
 	}
 	/**
-	 * Called when a GameSpace is sucessfully added to the board. Adds the provided GameSpace to <GameSpace, Thing> map and adds the thing (thingToAdd) to the board if
+	 * Called when a GridSpace is sucessfully added to the board. Adds the provided GridSpace to <GridSpace, Thing> map and adds the thing (thingToAdd) to the board if
 	 * AddType == POKE_FROM_QUEUE
 	 * @param gs
 	 */
-	private void addGameSpace(GameSpace gs, AddType type) {
+	private void addGridSpace(GridSpace gs, AddType type) {
 		if (thingToAdd == null)
 			return;
 		if (type == AddType.POKE_FROM_QUEUE)
@@ -223,7 +226,7 @@ public class Presenter {
 	}
 	/**
 	 * Finalizes the add attempt by getting rid of thingToAdd and changing the state of the game back to GAMEPLAY
-	 * Will be called whether or not the gamespace was actually added to the board
+	 * Will be called whether or not the GridSpace was actually added to the board
 	 * @sets CurrentState.GAMEPLAY
 	 */
 	private void finishAddAttempt() {
@@ -231,23 +234,23 @@ public class Presenter {
 		setState(CurrentState.GAMEPLAY);
 	}
 	/**
-	 * To be called when the provided GameSpace is succesfully added  to the board
-	 * @param gs the GameSpace that was added
+	 * To be called when the provided GridSpace is succesfully added  to the board
+	 * @param gs the GridSpace that was added
 	 * @param type the type of add (from queue, moving, etc.)
 	 */
-	public void notifyAdded(GameSpace gs, AddType type) {
-		addGameSpace(gs, type);
+	public void notifyAdded(GridSpace gs, AddType type) {
+		addGridSpace(gs, type);
 		if (type == AddType.POKE_FROM_QUEUE)
 			board.confirmGrab();
 	}
 
 	/**
-	 * To be called when the provided GameSpace was being added, but the user decided to cancel the add (hit escape).
+	 * To be called when the provided GridSpace was being added, but the user decided to cancel the add (hit escape).
 	 * If this was a AddType.POKE_FROM_QUEUE, will place the pokemon back in the queue
-	 * @param gs the GameSpace that was being added 
+	 * @param gs the GridSpace that was being added 
 	 * @param type
 	 */
-	public void notifyAddCanceled(GameSpace gs, AddType type) {
+	public void notifyAddCanceled(GridSpace gs, AddType type) {
 		if (type == AddType.POKE_FROM_QUEUE)
 		{
 			board.undoGrab();
@@ -255,49 +258,54 @@ public class Presenter {
 		finishAddAttempt();
 	}
 	/**
-	 * To be called when the user initializes an add Attempt with a Thing that doesn't yet have a created GameSpace
+	 * To be called when the user initializes an add Attempt with a Thing that doesn't yet have a created GridSpace
 	 * @param t The Thing that the user wants to add
-	 * @param type the context of the add
+	 * @param type the context of the add\
+	 * @sets CurrentState.PLACING_SPACE
 	 */
 	public void attemptAddThing(Thing t, AddType type) {
 		GameSpace gs = new GameSpace(GuiUtils.readAndTrimImage(t.getImage()), t.getName());
-		attemptAddExistingThing(new mapEntry(gs, t), type);
+		setState(CurrentState.PLACING_SPACE);
+		thingToAdd = t;
+		gameView.attemptNewGridSpaceAdd(gs, type);
 	}
 	/**
-	 * To be called when the user initalizes an add Attempt for a GameSpace that has already been created
-	 * @param entry the mapping between the GameSpace and the Thing
+	 * To be called when the user initalizes an add Attempt for a GridSpace that has already been created
+	 * @param entry the mapping between the GridSpace and the Thing
 	 * @param type the context of the add
 	 * @sets CurrentState.PLACING_SPACE
 	 */
 	private void attemptAddExistingThing(mapEntry entry, AddType type) {
 		setState(CurrentState.PLACING_SPACE);
 		thingToAdd = entry.thing;
-		gameView.attemptGameSpaceAdd(entry.gameSpace, type);
+		gameView.attemptExistingGridSpaceAdd(entry.gridSpace, type);
 	}
 	/**
-	 * To be called when the user attempts to move a GameSpace.
-	 * @param gs the GameSpace that the user wants to move
-	 * @return false if the user is not allowed to move the GameSpace (they are currently in the Notification Window for example)
+	 * To be called when the user attempts to move a GridSpace.
+	 * @param gs the GridSpace that the user wants to move
+	 * @return false if the user is not allowed to move the GridSpace (they are currently in the Notification Window for example)
+	 *@sets CurrentState.PLACING_SPACE if doesn't return false, otherwise keeps state the same
 	 */
 	public boolean attemptMoveGridSpace(GridSpace gs) {
-		if (!containsGameSpace(gs))
+		if (!containsGridSpace(gs))
 			throw new IllegalArgumentException("GridSpace " + gs + "Not found on board");
 		if (state != CurrentState.GAMEPLAY)
 			return false;
 		setState(CurrentState.PLACING_SPACE);
 		gs.removeFromGrid();
-		mapEntry entry = removeGameSpace(gs, false);
+		mapEntry entry = removeGridSpace(gs, false);
 		attemptAddExistingThing(entry, AddType.PRIOR_ON_BOARD);
 		return true;
 	}
 	/**
-	 * To be called when the user attempts to delete a GameSpace
+	 * To be called when the user attempts to delete a GridSpace
 	 * @param gs the GridSpace that the user wants to delete
-	 * @return false if the user is not allowed to delete the GameSpace (they are currently in the Notification Window for example)
+	 * @return false if the user is not allowed to delete the GridSpace (they are currently in the Notification Window for example)
+	 *@sets CurrentState.DELETE_CONFIRM_WINDOW if doesn't return false, otherwise keeps state the same
 	 */
 	public boolean attemptDeleteGridSpace(GridSpace gs) {
-		if (!containsGameSpace(gs))
-			throw new IllegalArgumentException("GameSpace " + gs + "Not found on board");
+		if (!containsGridSpace(gs))
+			throw new IllegalArgumentException("GridSpace " + gs + "Not found on board");
 		if (state != CurrentState.GAMEPLAY)
 			return false;
 		setState(CurrentState.DELETE_CONFIRM_WINDOW);
@@ -311,10 +319,13 @@ public class Presenter {
 	private void confirmDelete() {
 		if (state != CurrentState.DELETE_CONFIRM_WINDOW || gridSpaceToDelete == null) 
 			throw new RuntimeException("No Delete to Confirm");
-		this.removeGameSpace(gridSpaceToDelete, true);
+		this.removeGridSpace(gridSpaceToDelete, true);
 		gridSpaceToDelete.removeFromGrid();
 		finishDeleteAttempt();
 	}
+	/**
+	 * @sets CurrentState.GAMEPLAY
+	 */
 	private void finishDeleteAttempt() {
 		gridSpaceToDelete = null;
 		setState(CurrentState.GAMEPLAY);
@@ -363,14 +374,15 @@ public class Presenter {
 	}
 	/**
 	 * to be called when the currentWindow is no longer being used
+	 * @sets CurrentState.GAMEPLAY
 	 */
 	public void Finish() {
 		setState(CurrentState.GAMEPLAY);
 	}
 	/**
-	 * Generates a new InfoWindow corresponding to the next pokemon in the queue, and giving the user the option to add it, set it free or cancel the request and place it back in the queue
+	 * Generates a new JPanel corresponding to the next pokemon in the queue, and giving the user the option to add it, set it free or cancel the request and place it back in the queue
 	 * @param p the next pokemon in the queue
-	 * @return the InfoWindow
+	 * @return the JPanel
 	 */
 	private JPanel wildPokemonWindow(Pokemon p) {
 		return  new InfoWindowBuilder()
@@ -380,10 +392,15 @@ public class Presenter {
 				.addEnterButton("Place")
 				.addButton("Set Free", LET_POKE_GO, true, false, true)
 				.addCancelButton()
-				.setBackgroundImage(notificationWindowBackground)
+				.setBackgroundImage(INFO_WINDOW_BACKGROUND)
 				.createWindow();
 
 	}
+	/**
+	 * Generates a new JPanel confirming if the user actually wants to delete the passed in thing
+	 * @param t The thing that the user needs to confirm deletion of
+	 * @return the created JPanel
+	 */
 	private JPanel attemptToDeleteWindow(Thing t) {
 		return new InfoWindowBuilder()
 				.setPresenter(this)
@@ -391,7 +408,7 @@ public class Presenter {
 				.setThing(t)
 				.addEnterButton("Yes")
 				.addCancelButton()
-				.setBackgroundImage(notificationWindowBackground)
+				.setBackgroundImage(INFO_WINDOW_BACKGROUND)
 				.createWindow();
 
 	}
@@ -414,15 +431,15 @@ public class Presenter {
 		POKE_FROM_QUEUE, PRIOR_ON_BOARD
 	}
 	/**
-	 * A mapping between a thing and a GameSpace
+	 * A mapping between a thing and a GridSpace
 	 * @author DOSullivan
 	 *
 	 */
 	private static class mapEntry{
 		public Thing thing;
-		public GameSpace gameSpace;
-		public mapEntry(GameSpace gs, Thing t) {
-			gameSpace = gs;
+		public GridSpace gridSpace;
+		public mapEntry(GridSpace gs, Thing t) {
+			gridSpace = gs;
 			thing = t;
 		}
 	}

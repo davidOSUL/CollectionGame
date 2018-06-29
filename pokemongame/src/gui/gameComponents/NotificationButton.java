@@ -20,7 +20,7 @@ import gui.mvpFramework.Presenter;
  * A button that keeps track of number of notifications, displays number of notifications, and can disappear when the number of notifications is <=0
  * @author DOSullivan
  */
-public class NotificationButton extends GameSpace {
+public class NotificationButton extends PictureButton {
 
 	private static final long serialVersionUID = 1L;
 	private int numNotifications;

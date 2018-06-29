@@ -1,4 +1,5 @@
 package gui.mvpFramework;
+import static gameutils.Constants.DEBUG;
 
 import java.awt.Image;
 import java.awt.MouseInfo;
@@ -9,6 +10,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseMotionListener;
 import java.util.function.BiConsumer;
 
 import javax.swing.JComponent;
@@ -21,6 +23,7 @@ import gui.gameComponents.GameSpace;
 import gui.gameComponents.Grid;
 import gui.gameComponents.Grid.GridSpace;
 import gui.gameComponents.NotificationButton;
+import gui.gameComponents.PictureButton;
 import gui.guiutils.GuiUtils;
 import gui.guiutils.KeyBindingManager;
 import gui.mouseAdapters.MouseClickWithThreshold;
@@ -105,11 +108,17 @@ public class MainGamePanel extends JPanel{
 	/**
 	 * The Location of the new wild pokemon NotificationButton
 	 */
-	private static final Point NOTIFICATION_LOCATION = new Point(749, 44);
+	private static final Point NOTIFICATION_LOCATION = new Point(688, 44);
 	/**
 	 * the new wild pokemon NotificationButton
 	 */
 	private NotificationButton notifications;
+	
+	private static final Image SHOP_BUTTON_LOGO = GuiUtils.getScaledImage(GuiUtils.readImage("/sprites/ui/pokemart.jpeg"), 50, 50);
+	
+	private static final Point SHOP_BUTTON_LOCATION = new Point(749,44); //TODO
+	
+	private PictureButton shopButton; //TODO;
 	/**
 	 * When KeyBindings should happen
 	 */
@@ -118,16 +127,35 @@ public class MainGamePanel extends JPanel{
 	 * The manager for all key stroke events in this panel
 	 */
 	private KeyBindingManager keyBindings = new KeyBindingManager(getInputMap(CONDITION), getActionMap());
+	/**
+	 * Displays Current Board Attributes
+	 */
 	private JLabel displayLabel = new JLabel();
-	private static Rectangle displayLabelLocation = new Rectangle(new Point(279, 458));
+	/**
+	 * The location to display the Board attributesu
+	 */
+	private final static Rectangle DISPLAY_LABEL_LOCATION = new Rectangle(new Point(279, 458));
+	/**
+	 * Added to currentMoving so that clicks will trigger rotation
+	 */
 	private MouseListener onClick =  new MouseAdapter() { //allow rotation
 		 @Override
 		 public void mouseClicked(MouseEvent e) {
 			onMouseClicked(e);
 		 }
 	};
+	/**
+	 * Added to currentMoving so that moving the mouse into the gamespace moves it instead of keeping it still
+	 */
+	private MouseMotionListener onMove =  new MouseMotionAdapter() { 
+		 @Override
+		 public void mouseMoved(MouseEvent e) {
+			 Point location = currentMoving.getLocation();
+			currentMoving.setLocation(location.x + e.getPoint().x, location.y+e.getPoint().y);
+		 }
+	};
 	static { //create the rectangles corresponding to the locations of all of the grids
-		displayLabelLocation.add(new Point(814, 511));
+		DISPLAY_LABEL_LOCATION.add(new Point(814, 511));
 		int[] xLocations = {30,273,331,800,80,240};
 		int[] yLocations = {333,490,142,445,170,229};
 		for (int i = 0; i < NUM_GRIDS; i++) {
@@ -148,71 +176,27 @@ public class MainGamePanel extends JPanel{
 	
 	public MainGamePanel(GameView gv) {
 		this.gv = gv;
-		notifications = new NotificationButton(NOTIFICATION_LOGO, NOTIFICATION_LOCATION, x -> {x.NotificationClicked();}, gv, true );
+		
 		setSize(GameView.WIDTH,GameView.HEIGHT);
         setLayout(null);
 		setFocusable(true);
 		setOpaque(false);
-			for (int i = 0; i < NUM_GRIDS; i++) { //create the grids
-				Grid currGrid = new Grid(gridLocs[i], GRID_SPACE_DIM, GRID_SPACE_DIM, gv);
-				currGrid.addMouseMotionListener(new MouseMotionAdapter() {
-					 @Override
-					 public void mouseMoved(MouseEvent e) { //set highlights when mouse is moved
-						if (addingSomething) {
-							if (!setHighlight) {
-								activeGrid = currGrid; //TODO: Fix this because setHighlight could be set even if currGrid doesn't if there isn't space
-								currGrid.setHighlight(currentMoving);
-								setHighlight = true;
-							}
-							/*
-							 * Sets location of currentMoving. This is important in case when mouse is hovered over grid,
-							 * but there isn't room so grid doesn't set highlight. We would still want the object to be visible
-							 * and at the right location
-							 */
-							MainGamePanel.this.dispatchEvent(e); 
-							currGrid.updateHighlight(e.getPoint());
-						}
-					}
-				});
-				currGrid.addMouseListener(generateGridClickListener(currGrid)); //listener for attempting to place
-				currGrid.addMouseListener(new MouseAdapter() {
-					@Override
-					public void mouseExited(MouseEvent e) { //remove highlight
-						if (addingSomething) {
-							activeGrid = null;
-							currGrid.removeHighlight();
-							setHighlight = false;
-						}
-					}
-				});
-				add(currGrid);
-				grids[i] = currGrid;
-			}
-		this.addMouseMotionListener(new MouseMotionAdapter() { //move currentMoving around screen
-			 @Override
-			 public void mouseMoved(MouseEvent e) {
-				if (addingSomething) {
-					if (activeGrid != null) {
-						setCurrentRelativeToActiveGrid(e);
-					}
-					else {
-						currentMoving.setLocation(e.getPoint());
-					}
-				}
-			}
-		});
-		/*this.addMouseListener(new MouseAdapter() { //allow rotation
-			 @Override
-			 public void mouseClicked(MouseEvent e) {
-				onMouseClicked(e);
-			 }
-		});*/
+		
+		setUpGrids();
+		addListeners();
 		setKeyBindings();
+		
+		notifications = new NotificationButton(NOTIFICATION_LOGO, NOTIFICATION_LOCATION, presenter -> {presenter.NotificationClicked();}, gv, true );
 		add(notifications);
+		
+		shopButton = new PictureButton(SHOP_BUTTON_LOGO, SHOP_BUTTON_LOCATION, presenter -> presenter.shopClicked(), gv);
+		add(shopButton);
+		
 		displayLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		displayLabel.setBounds(displayLabelLocation);
+		displayLabel.setBounds(DISPLAY_LABEL_LOCATION);
 		displayLabel.setOpaque(true);
 		add(displayLabel);
+		
 		revalidate();
 		repaint();
 		setVisible(true);
@@ -222,6 +206,7 @@ public class MainGamePanel extends JPanel{
 	 * @param e
 	 */
 	private void onMouseClicked(MouseEvent e) {
+		if (DEBUG)
 		System.out.println(e.getPoint());
 		if (addingSomething) {
 			if (SwingUtilities.isRightMouseButton(e)) {
@@ -259,23 +244,15 @@ public class MainGamePanel extends JPanel{
 	public void updateNotifications(int num) {
 		notifications.setNumNotifications(num);
 	}
-	/**
-	 * Start a new Add Attempt
-	 * @param gs the GameSpace to attempt to add
-	 * @param type the type of add
-	 */
-	public void gameSpaceAdd(GameSpace gs, AddType type){
-		if (gs instanceof GridSpace)
-			gridSpaceAdd((GridSpace) gs, type);
-		else
-		gridSpaceAdd(grids[DEFAULT_GRID].generateGridSpace(gs), type);
+	public GridSpace generateGridSpaceWithDefaultGrid(GameSpace gs) {
+		return grids[DEFAULT_GRID].generateGridSpace(gs);
 	}
 	/**
 	 * Start a new Add Attempt
 	 * @param gs the GridSpace to attempt to add
 	 * @param type the type of add
 	 */
-	private void gridSpaceAdd(GridSpace gs, AddType type) {
+	public void gridSpaceAdd(GridSpace gs, AddType type) {
 		this.typeOfAdd = type;
 		if (typeOfAdd == AddType.PRIOR_ON_BOARD)  {
 			oldPoint = gs.getLocation();
@@ -285,6 +262,7 @@ public class MainGamePanel extends JPanel{
 		addingSomething = true;
 		currentMoving = gs;
 		currentMoving.addMouseListener(onClick);
+		currentMoving.addMouseMotionListener(onMove);
 		Point p = MouseInfo.getPointerInfo().getLocation();
 		if (p != null) {
 			SwingUtilities.convertPointFromScreen(p, this);
@@ -326,6 +304,7 @@ public class MainGamePanel extends JPanel{
 		remove(currentMoving);
 		GridSpace oldGS = currentMoving;
 		oldGS.removeMouseListener(onClick);
+		oldGS.removeMouseMotionListener(onMove);
 		currentMoving = null;
 		setHighlight = false;
 		if (activeGrid != null)
@@ -347,7 +326,7 @@ public class MainGamePanel extends JPanel{
 	 */
 	private void gridClick(Grid currGrid, Point p, boolean byPassTime) {
 		if (addingSomething && (byPassTime || System.currentTimeMillis()-timeAddedTime > MIN_WAIT_TO_ADD)) {
-			GameSpace result = currGrid.addGridSpaceSnapToGrid(currentMoving,p);
+			GridSpace result = currGrid.addGridSpaceSnapToGrid(currentMoving,p);
 			if (result != null) { //if add is succesful (has room, etc.)
 				gv.getPresenter().notifyAdded(result, typeOfAdd);
 				currGrid.removeHighlight();
@@ -397,7 +376,69 @@ public class MainGamePanel extends JPanel{
 				}
 	      });
 	   }
-
+	/**
+	 * adds grids to board and adds their listeners
+	 */
+	private void setUpGrids() {
+		for (int i = 0; i < NUM_GRIDS; i++) { //create the grids
+			Grid currGrid = new Grid(gridLocs[i], GRID_SPACE_DIM, GRID_SPACE_DIM, gv);
+			currGrid.addMouseMotionListener(new MouseMotionAdapter() {
+				 @Override
+				 public void mouseMoved(MouseEvent e) { //set highlights when mouse is moved
+					if (addingSomething) {
+						if (!setHighlight) {
+							activeGrid = currGrid; //TODO: Fix this because setHighlight could be set even if currGrid doesn't if there isn't space
+							currGrid.setHighlight(currentMoving);
+							setHighlight = true;
+						}
+						/*
+						 * Sets location of currentMoving. This is important in case when mouse is hovered over grid,
+						 * but there isn't room so grid doesn't set highlight. We would still want the object to be visible
+						 * and at the right location
+						 */
+						MainGamePanel.this.dispatchEvent(e); 
+						currGrid.updateHighlight(e.getPoint());
+					}
+				}
+			});
+			currGrid.addMouseListener(generateGridClickListener(currGrid)); //listener for attempting to place
+			currGrid.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseExited(MouseEvent e) { //remove highlight
+					if (addingSomething) {
+						activeGrid = null;
+						currGrid.removeHighlight();
+						setHighlight = false;
+					}
+				}
+			});
+			add(currGrid);
+			grids[i] = currGrid;
+		}
+	}
+	private void addListeners() {
+		this.addMouseMotionListener(new MouseMotionAdapter() { //move currentMoving around screen
+			 @Override
+			 public void mouseMoved(MouseEvent e) {
+				if (addingSomething) {
+					if (activeGrid != null) {
+						setCurrentRelativeToActiveGrid(e);
+					}
+					else {
+						currentMoving.setLocation(e.getPoint());
+					}
+				}
+			}
+		});
+		if (DEBUG) {
+			this.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					System.out.println(e.getPoint());
+				}
+			});
+		}
+	}
 
 	
 
