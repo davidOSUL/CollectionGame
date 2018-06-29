@@ -1,4 +1,4 @@
-package gui.guiComponents;
+package gui.gameComponents;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -22,11 +22,10 @@ import java.util.function.BiConsumer;
 import javax.swing.BorderFactory;
 
 import gameutils.GameUtils;
-import gui.guiutils.CommonConstants;
+import gui.guiutils.GUIConstants;
 import gui.guiutils.GuiUtils;
 import gui.mouseAdapters.DoubleClickWithThreshold;
-import gui.mouseAdapters.MouseClickWithThreshold;
-import gui.mouseAdapters.MouseClickWithThreshold.ClickType;
+import gui.mouseAdapters.SelectionWindowBuilder;
 import gui.mvpFramework.GameView;
 
 /**
@@ -66,7 +65,7 @@ public class Grid extends GameSpace {
 	 */
 	private GameView gv;
 
-	private static final int CLICK_DIST_THRESH = CommonConstants.CLICK_DIST_THRESH;
+	private static final int CLICK_DIST_THRESH = GUIConstants.CLICK_DIST_THRESH;
 	/**
 	 * Creates a new Grid with specified subDimensions, location, and width/height
 	 * @param x x location of grid
@@ -344,7 +343,7 @@ public class Grid extends GameSpace {
 	public GridSpace generateGridSpace(GameSpace g) {
 		return new GridSpace(g);
 	}
-
+	
 	/**
 	 * A GameSpace aligned to the current Grid
 	 * @author David O'Sullivan
@@ -385,6 +384,7 @@ public class Grid extends GameSpace {
 		 */
 		private GridSpace(GameSpace g, int x_g, int y_g) {
 			super(g, x_g*subX, y_g*subY);
+			setName(g.getName());
 			p_g = new GridPoint(x_g, y_g);
 			if (!g.isEmpty()) {
 				setImage( g.getImage());
@@ -434,7 +434,7 @@ public class Grid extends GameSpace {
 		}
 		/**
 		 * Calls GameSpaces paint method and also creates a border
-		 * @see gui.guiComponents.GameSpace#paintComponent(java.awt.Graphics)
+		 * @see gui.gameComponents.GameSpace#paintComponent(java.awt.Graphics)
 		 */
 		@Override
 		protected void paintComponent(Graphics g) {
@@ -467,13 +467,19 @@ public class Grid extends GameSpace {
 			};
 			MouseListener dubClickListener = new DoubleClickWithThreshold<GameView>(CLICK_DIST_THRESH, onDoubleClick, gv);
 			this.addMouseListener(dubClickListener);
-			listeners.add(dubClickListener);	
-			BiConsumer<GameView, MouseEvent> onRightClick = (gv, e) -> {
-				gv.getPresenter().attemptDeleteGridSpace(this); //TODO: PopupMenu
+			listeners.add(dubClickListener);
+			MouseListener options = getDefaultPopupListener();
+			listeners.add(options);
+			addMouseListener(options);
+		}
+		private MouseListener getDefaultPopupListener() {
+			SelectionWindowBuilder<GameView> swb = new SelectionWindowBuilder<GameView>(CLICK_DIST_THRESH, "Options");
+			BiConsumer<GameView, MouseEvent> onClickDelete = (gv, e) -> {			
+				gv.getPresenter().attemptDeleteGridSpace(this);
 			};
-			MouseListener rightClickListener = new MouseClickWithThreshold<GameView>(CLICK_DIST_THRESH, onRightClick, gv, false, ClickType.RIGHT);
-			this.addMouseListener(rightClickListener);
-			listeners.add(rightClickListener);
+			return swb.addOption("Set " + getName() + " Free", onClickDelete, gv)
+					.addOption("Move " + getName() + " To Bank").getListener();
+			
 		}
 		public void removeFromGrid() {
 			Grid.this.removeGridSpace(this);
@@ -494,7 +500,7 @@ public class Grid extends GameSpace {
 	
 		/**
 		 * Makes image "snap" to the size of this Grid
-		 * @see gui.guiComponents.GameSpace#setImage(java.awt.Image)
+		 * @see gui.gameComponents.GameSpace#setImage(java.awt.Image)
 		 */
 		@Override
 		public void setImage(Image curr) {

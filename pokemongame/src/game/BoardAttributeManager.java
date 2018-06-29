@@ -26,12 +26,15 @@ public final class BoardAttributeManager {
 		switch (nameOfEvent) {
 			case "gph":
 				event = new Event(board -> board.addGold((Integer) valueOfEvent), 60);
+				event.addToName("GPH: ");
 				break;
 			case "gpm":
 				event =  new Event(board -> board.addGold((Integer) valueOfEvent), 1);
+				event.addToName("GPM: ");
 				break;
 			case "popularity boost":
 				event = new Event(board -> board.addPopularity((Integer) valueOfEvent), board -> board.subtractPopularity((Integer) valueOfEvent));
+				event.addToName("POP: ");
 				break;
 			default:
 				throw new Error("EVENT NOT FOUND");

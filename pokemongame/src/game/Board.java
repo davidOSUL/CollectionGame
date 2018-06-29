@@ -1,4 +1,6 @@
 package game;
+import static gameutils.Constants.DEBUG;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -16,7 +18,7 @@ import effects.CustomPeriodEvent;
 import effects.Event;
 import gameutils.GameUtils;
 import loaders.ThingLoader;
-import thingFramework.EventfulItem;
+import thingFramework.Eventful;
 import thingFramework.Item;
 import thingFramework.Pokemon;
 import thingFramework.Thing;
@@ -191,7 +193,7 @@ public class Board implements Serializable {
 	/**
 	 * To be called on every game tick. Updates time and events
 	 */
-	public synchronized void update() {
+	public void update() {
 		stm.updateGameTime();
 		executeEvents();
 
@@ -201,7 +203,7 @@ public class Board implements Serializable {
 	 * Executes all the events in the events Set, goes through each of its entries and executes the list of events that the 
 	 * ThingEventSetManager has. 
 	 */
-	private void executeEvents() {
+	private synchronized void executeEvents() {
 		events.runEvents();
 	}
 	/**
@@ -439,13 +441,6 @@ public class Board implements Serializable {
 		addPopularity(-popularity);
 	}
 	public synchronized void notifyPokemonAdded(Pokemon p) {
-		boolean test = false;
-		for (Thing thing : thingsOnBoard) {
-			test = test || (thing.getName().equals(p.getName()) && thing != p);
-		}
-		if (test == true) {
-			System.out.println("Hi");
-		}
 		numPokemon++;
 		addToUniquePokemonLookup(p);
 	}
@@ -458,6 +453,8 @@ public class Board implements Serializable {
 	 * @param thing the Thing to ADd
 	 */
 	private void addElementToThingMap(Thing thing) {
+		if (DEBUG)
+			System.out.println("Adding: " + thing.toString() + "\n");
 		thingsOnBoard.add(thing);
 		addAssociatedEvents(thing);
 	}
@@ -472,18 +469,18 @@ public class Board implements Serializable {
 	}
 	/**
 	 * If the thing hasn't been added to the board yet, update the event set
-	 * @param thing The thing to get the events for
+	 * @param eventful The eventful to get the events for
 	 */
-	private void addAssociatedEvents(Thing thing) {
-		events.addThing(thing);
+	private void addAssociatedEvents(Eventful eventful) {
+		events.addThing(eventful);
 	}
 	/**
 	 * calls executeOnRemove for all associated events. Permanetly removes events from event set if none left
-	 * @param thing the Thing to call the executeOnRemove events on
+	 * @param eventful the eventful to call the executeOnRemove events on, and remove future events from running
 	 * @param permanentlyRemove if true will also remove those events from the set
 	 */
-	private void removeAssociatedEvents(Thing thing) {
-		events.removeThing(thing);
+	private void removeAssociatedEvents(Eventful eventful) {
+		events.removeThing(eventful);
 	}
 	/**
 	 * @return true if there is a pokemon in the foundPokemon Queue (that is, a wild pokemon spawned)

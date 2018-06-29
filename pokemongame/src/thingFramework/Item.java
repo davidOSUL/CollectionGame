@@ -11,7 +11,7 @@ import game.Board;
 import game.BoardAttributeManager;
 import gameutils.GameUtils;
 
-public class Item extends Thing implements Serializable, Eventful {
+public class Item extends Thing implements Serializable, Eventful{
 	
 	/**
 	 * 
@@ -21,7 +21,8 @@ public class Item extends Thing implements Serializable, Eventful {
 	protected Item() {}
 	private Item(Event...events) {
 		this();
-		this.events.addAll(GameUtils.toArrayList(events));
+		if (events != null)
+			this.events.addAll(GameUtils.toArrayList(events));
 	}
 	public Item(String name, String image, Set<Attribute> attributes) {
 		super(name, image, attributes);
@@ -34,7 +35,8 @@ public class Item extends Thing implements Serializable, Eventful {
 	}
 	public Item(String name, String image, Set<Attribute> attributes, List<Event> events ) {
 		this(name, image, attributes);
-		this.events.addAll(events);
+		if (events != null)
+			this.events.addAll(events);
 	}
 	public Item(Item i) {
 		this(i.getName(), i.getImage(), i.getAttributes(), i.getEvents());

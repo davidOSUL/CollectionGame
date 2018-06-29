@@ -2,8 +2,6 @@ package gui.mvpFramework;
 
 import java.awt.Image;
 import java.awt.Point;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -11,7 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
-import gui.guiComponents.GameSpace;
+import gui.gameComponents.GameSpace;
 import gui.guiutils.GuiUtils;
 import gui.mvpFramework.Presenter.AddType;
 
@@ -37,6 +35,7 @@ public class GameView extends JFrame {
 		super(name);
 		mainGamePanel = new MainGamePanel(this);
 		setLayout(null);
+		setResizable(false);
 		setLocationByPlatform(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(WIDTH, HEIGHT);

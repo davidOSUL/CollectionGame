@@ -1,7 +1,5 @@
 package gui.mvpFramework;
 
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.Point;
@@ -9,6 +7,7 @@ import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.util.function.BiConsumer;
 
@@ -18,10 +17,10 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
-import gui.guiComponents.GameSpace;
-import gui.guiComponents.Grid;
-import gui.guiComponents.Grid.GridSpace;
-import gui.guiComponents.NotificationButton;
+import gui.gameComponents.GameSpace;
+import gui.gameComponents.Grid;
+import gui.gameComponents.Grid.GridSpace;
+import gui.gameComponents.NotificationButton;
 import gui.guiutils.GuiUtils;
 import gui.guiutils.KeyBindingManager;
 import gui.mouseAdapters.MouseClickWithThreshold;
@@ -121,6 +120,12 @@ public class MainGamePanel extends JPanel{
 	private KeyBindingManager keyBindings = new KeyBindingManager(getInputMap(CONDITION), getActionMap());
 	private JLabel displayLabel = new JLabel();
 	private static Rectangle displayLabelLocation = new Rectangle(new Point(279, 458));
+	private MouseListener onClick =  new MouseAdapter() { //allow rotation
+		 @Override
+		 public void mouseClicked(MouseEvent e) {
+			onMouseClicked(e);
+		 }
+	};
 	static { //create the rectangles corresponding to the locations of all of the grids
 		displayLabelLocation.add(new Point(814, 511));
 		int[] xLocations = {30,273,331,800,80,240};
@@ -196,12 +201,12 @@ public class MainGamePanel extends JPanel{
 				}
 			}
 		});
-		this.addMouseListener(new MouseAdapter() { //allow rotation
+		/*this.addMouseListener(new MouseAdapter() { //allow rotation
 			 @Override
 			 public void mouseClicked(MouseEvent e) {
 				onMouseClicked(e);
 			 }
-		});
+		});*/
 		setKeyBindings();
 		add(notifications);
 		displayLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -279,6 +284,7 @@ public class MainGamePanel extends JPanel{
 		}
 		addingSomething = true;
 		currentMoving = gs;
+		currentMoving.addMouseListener(onClick);
 		Point p = MouseInfo.getPointerInfo().getLocation();
 		if (p != null) {
 			SwingUtilities.convertPointFromScreen(p, this);
@@ -319,6 +325,7 @@ public class MainGamePanel extends JPanel{
 		addingSomething = false;
 		remove(currentMoving);
 		GridSpace oldGS = currentMoving;
+		oldGS.removeMouseListener(onClick);
 		currentMoving = null;
 		setHighlight = false;
 		if (activeGrid != null)

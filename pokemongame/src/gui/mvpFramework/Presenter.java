@@ -1,14 +1,22 @@
 package gui.mvpFramework;
+import static gameutils.Constants.DEBUG;
+import static gameutils.Constants.PRINT_BOARD;
 
+import java.awt.Color;
 import java.awt.Image;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import javax.swing.JPanel;
+import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
+
 import game.Board;
-import gui.guiComponents.GameSpace;
-import gui.guiComponents.Grid.GridSpace;
-import gui.guiComponents.InfoWindow;
+import gui.displayComponents.DescriptionToolTipBuilder;
+import gui.displayComponents.InfoWindowBuilder;
+import gui.gameComponents.GameSpace;
+import gui.gameComponents.Grid.GridSpace;
 import gui.guiutils.GuiUtils;
 import thingFramework.Pokemon;
 import thingFramework.Thing;
@@ -57,20 +65,24 @@ public class Presenter {
 	/**
 	 * When an InfoWindow is opened, this will be set to that infoWindow
 	 */
-	private InfoWindow currentWindow = null;
+	private JPanel currentWindow = null;
 	/**
 	 * The background of the InfoWindow that pops up when the notification button is pressed
 	 */
 	private static Image notificationWindowBackground = GuiUtils.readImage("/sprites/ui/pikabackground.jpg");
 	private String oldString; //TODO: Remove this or add debug feature
 	private String newString;
-	public Presenter() {};
+	private volatile boolean toolTipsEnabled = true;
+	public Presenter() {
+		setUpToolTips();
+	};
 	/**
 	 * Creates a new Presenter with the provided Board and GameView
 	 * @param b the Board (or "model" in MVP)
 	 * @param gv the Board (or "view" in MVP)
 	 */
 	public Presenter(Board b, GameView gv) {
+		this();
 		board = b;
 		gameView = gv;
 		oldString = board.toString();
@@ -106,6 +118,24 @@ public class Presenter {
 		gameView.setWildPokemonCount(board.numPokemonWaiting());
 		gameView.setBoardAttributes(board.getGold(), board.getPopularity());
 		gameView.updateDisplay();
+		updateToolTips();
+	}
+	private void updateToolTips() {
+		if (toolTipsEnabled)
+			allThings.forEach((gs, thing) -> gs.setToolTipText(DescriptionToolTipBuilder.getToolTipText(thing.toString())));
+	}
+	private void setUpToolTips() {
+		ToolTipManager.sharedInstance().setInitialDelay(100);
+		UIManager.put("ToolTip.background", Color.WHITE);
+	}
+	private void stopToolTips() {
+		toolTipsEnabled = false;
+		allThings.forEach((gs, thing) -> {
+			gs.setToolTipText(null);
+		});
+	}
+	private void resumeToolTips() {
+		toolTipsEnabled = true;
 	}
 	/**
 	 * Calls the boards update method
@@ -114,10 +144,12 @@ public class Presenter {
 		if (board == null || gameView == null)
 			return;
 		board.update();
-		newString = board.toString();
-		if (!newString.equals(oldString)) {
-			System.out.println("\n---GAME TIME---: "+ board.getTotalGameTime() + "\n" + board +   "\n-------");
-			oldString = newString;
+		if (DEBUG || PRINT_BOARD) {
+			newString = board.toString();
+			if (!newString.equals(oldString)) {
+				System.out.println("\n---GAME TIME---: "+ board.getTotalGameTime() + "\n" + board +   "\n-------");
+				oldString = newString;
+			}
 		}
 	}
 	/**
@@ -141,13 +173,13 @@ public class Presenter {
 	public void NotificationClicked() {
 		if (!board.wildPokemonPresent() || state != CurrentState.GAMEPLAY)
 			return;
-		state =  CurrentState.NOTIFICATION_WINDOW;
-		InfoWindow iw = wildPokemonWindow(board.grabWildPokemon());
-		setCurrentWindow(iw);									
+		setState( CurrentState.NOTIFICATION_WINDOW);
+		JPanel wildPokemonWindow = wildPokemonWindow(board.grabWildPokemon());
+		setCurrentWindow(wildPokemonWindow);									
 	}
-	private void setCurrentWindow(InfoWindow iw) {
-		currentWindow = iw;
-		gameView.displayPanelCentered(iw);
+	private void setCurrentWindow(JPanel window) {
+		currentWindow = window;
+		gameView.displayPanelCentered(window);
 	}
 	/**
 	 * Called when a GameSpace is sucessfully added to the board. Adds the provided GameSpace to <GameSpace, Thing> map and adds the thing (thingToAdd) to the board if
@@ -163,13 +195,28 @@ public class Presenter {
 		finishAddAttempt();
 	}
 	/**
+	 * Sets the state and updates the tool tip manager accordingly
+	 * @param state The new state of the game
+	 */
+	private void setState(CurrentState state) {
+		if (toolTipsEnabled && state != CurrentState.GAMEPLAY) {
+			//stopToolTips();
+		}
+		if (state == CurrentState.GAMEPLAY && !toolTipsEnabled) {
+			resumeToolTips();
+		}
+		this.state = state;
+		
+			
+	}
+	/**
 	 * Finalizes the add attempt by getting rid of thingToAdd and changing the state of the game back to GAMEPLAY
 	 * Will be called whether or not the gamespace was actually added to the board
 	 * @sets CurrentState.GAMEPLAY
 	 */
 	private void finishAddAttempt() {
 		thingToAdd = null;
-		state = CurrentState.GAMEPLAY;
+		setState(CurrentState.GAMEPLAY);
 	}
 	/**
 	 * To be called when the provided GameSpace is succesfully added  to the board
@@ -201,7 +248,7 @@ public class Presenter {
 	 * @param type the context of the add
 	 */
 	public void attemptAddThing(Thing t, AddType type) {
-		GameSpace gs = new GameSpace(GuiUtils.readAndTrimImage(t.getImage()));
+		GameSpace gs = new GameSpace(GuiUtils.readAndTrimImage(t.getImage()), t.getName());
 		attemptAddExistingThing(new mapEntry(gs, t), type);
 	}
 	/**
@@ -211,7 +258,7 @@ public class Presenter {
 	 * @sets CurrentState.PLACING_SPACE
 	 */
 	private void attemptAddExistingThing(mapEntry entry, AddType type) {
-		state = CurrentState.PLACING_SPACE;
+		setState(CurrentState.PLACING_SPACE);
 		thingToAdd = entry.thing;
 		gameView.attemptGameSpaceAdd(entry.gameSpace, type);
 	}
@@ -225,6 +272,7 @@ public class Presenter {
 			throw new IllegalArgumentException("GridSpace " + gs + "Not found on board");
 		if (state != CurrentState.GAMEPLAY)
 			return false;
+		setState(CurrentState.PLACING_SPACE);
 		gs.removeFromGrid();
 		mapEntry entry = removeGameSpace(gs, false);
 		attemptAddExistingThing(entry, AddType.PRIOR_ON_BOARD);
@@ -240,9 +288,9 @@ public class Presenter {
 			throw new IllegalArgumentException("GameSpace " + gs + "Not found on board");
 		if (state != CurrentState.GAMEPLAY)
 			return false;
-		state = CurrentState.DELETE_CONFIRM_WINDOW;
+		setState(CurrentState.DELETE_CONFIRM_WINDOW);
 		Thing thingToDelete = allThings.get(gs);
-		InfoWindow deleteWindow = attemptToDeleteWindow(thingToDelete);
+		JPanel deleteWindow = attemptToDeleteWindow(thingToDelete);
 		setCurrentWindow(deleteWindow);
 		gridSpaceToDelete = gs;
 		return true;
@@ -257,7 +305,7 @@ public class Presenter {
 	}
 	private void finishDeleteAttempt() {
 		gridSpaceToDelete = null;
-		state = CurrentState.GAMEPLAY;
+		setState(CurrentState.GAMEPLAY);
 	}
 	/**
 	 * To be called when the User Clicks the notification button and then clicks cancel. Undos the board grab, and sets the state of the game back to GamePlay
@@ -265,7 +313,7 @@ public class Presenter {
 	 */
 	private void undoNotificationClicked() {
 		board.undoGrab();
-		state = CurrentState.GAMEPLAY;
+		setState(CurrentState.GAMEPLAY);
 	}
 	/**
 	 * To be called when the currentWindow's enter button is pressed
@@ -305,15 +353,15 @@ public class Presenter {
 	 * to be called when the currentWindow is no longer being used
 	 */
 	public void Finish() {
-		state = CurrentState.GAMEPLAY;
+		setState(CurrentState.GAMEPLAY);
 	}
 	/**
 	 * Generates a new InfoWindow corresponding to the next pokemon in the queue, and giving the user the option to add it, set it free or cancel the request and place it back in the queue
 	 * @param p the next pokemon in the queue
 	 * @return the InfoWindow
 	 */
-	private InfoWindow wildPokemonWindow(Pokemon p) {
-		InfoWindow iw = new InfoWindow()
+	private JPanel wildPokemonWindow(Pokemon p) {
+		return  new InfoWindowBuilder()
 				.setPresenter(this)
 				.setInfo("A wild " + p.getName() + " appeared!")
 				.setThing(p)
@@ -321,19 +369,19 @@ public class Presenter {
 				.addButton("Set Free", LET_POKE_GO, true, false, true)
 				.addCancelButton()
 				.setBackgroundImage(notificationWindowBackground)
-				.Create();
-		return iw;
+				.createWindow();
+		
 	}
-	private InfoWindow attemptToDeleteWindow(Thing t) {
-		InfoWindow iw = new InfoWindow()
+	private JPanel attemptToDeleteWindow(Thing t) {
+		return new InfoWindowBuilder()
 				.setPresenter(this)
 				.setInfo("Are you sure you want to set " + t.getName() + " free?")
 				.setThing(t)
 				.addEnterButton("Yes")
 				.addCancelButton()
 				.setBackgroundImage(notificationWindowBackground)
-				.Create();
-		return iw;
+				.createWindow();
+		
 	}
 	/**
 	 * The CurrentState of GamePlay

@@ -1,4 +1,4 @@
-package gui.guiComponents;
+package gui.gameComponents;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -10,7 +10,7 @@ import java.awt.event.MouseEvent;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import gui.guiutils.CommonConstants;
+import gui.guiutils.GUIConstants;
 import gui.guiutils.GuiUtils;
 import gui.mouseAdapters.MouseClickWithThreshold;
 import gui.mvpFramework.GameView;
@@ -27,7 +27,7 @@ public class NotificationButton extends GameSpace {
 	private boolean hideOnEmpty;
 	private Consumer<Presenter> onClick = x -> {};
 	private GameView gv;
-	private static final int CLICK_DIST_THRESH = CommonConstants.CLICK_DIST_THRESH;
+	private static final int CLICK_DIST_THRESH = GUIConstants.CLICK_DIST_THRESH;
 	private static final Font DEFAULT_FONT = new Font("TimesRoman", Font.BOLD, 30);
 	/**
 	 * Creates a new Notification Button with the given image at location (0,0)
@@ -87,7 +87,7 @@ public class NotificationButton extends GameSpace {
 	}
 	/**
 	 * if (!hideOnEmpty || numNotifications > 0) Adds on the number of notifications in NotificationButton.DEFAULT_FONT, centered on the button
-	 * @see gui.guiComponents.GameSpace#paintComponent(java.awt.Graphics)
+	 * @see gui.gameComponents.GameSpace#paintComponent(java.awt.Graphics)
 	 */
 	@Override
 	protected void paintComponent(Graphics g) {

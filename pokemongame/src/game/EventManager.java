@@ -1,19 +1,15 @@
 package game;
 
-import java.util.HashMap;
+import static gameutils.Constants.DEBUG;
+
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import effects.Event;
-import gameutils.GameUtils;
 import thingFramework.Eventful;
-import thingFramework.EventfulItem;
 import thingFramework.Thing;
-import thingFramework.Thing.ThingType;
 public class EventManager {
 	private Set<Eventful> events = new HashSet<Eventful>();
 	private Queue<Runnable> removalEvents = new ConcurrentLinkedQueue<Runnable>();
@@ -37,6 +33,10 @@ public class EventManager {
 		events.forEach(eventful -> eventful.getEvents().forEach((event) ->
 		{
 			if (!event.onPlaceExecuted()) {
+				if (DEBUG) {
+					System.out.println("running event: " + ((Thing)eventful).getName());
+					event.addToName("EVENT FROM: " + ((Thing)eventful).getName());
+				}
 				event.executeOnPlace(board).run();
 			}
 			event.executePeriod(board).run();

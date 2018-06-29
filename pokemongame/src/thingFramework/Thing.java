@@ -12,7 +12,7 @@ import java.util.Set;
 
 import game.Board;
 
-public abstract class Thing implements Serializable {
+public abstract class Thing implements Serializable, Eventful{
 	/**
 	 * 
 	 */
@@ -141,6 +141,10 @@ public abstract class Thing implements Serializable {
 	public final String getName() {
 		return name;
 	}
+	/**
+	 * @return Name as well as description attribute
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		if (name == null)

@@ -1,4 +1,4 @@
-package gui.guiComponents;
+package gui.gameComponents;
 
 public @interface AddToGrid {
 

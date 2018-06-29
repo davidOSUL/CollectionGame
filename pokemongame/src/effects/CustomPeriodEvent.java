@@ -28,30 +28,26 @@ public class CustomPeriodEvent extends Event {
 		double period = generatePeriod.apply(b);
 		period = Math.max(MIN_PERIOD, period);
 		if (currentPeriodVal != period) {
-			timeOfLastChange = keepTrackWhileOff() ? System.currentTimeMillis() : b.getTotalGameTime();
+			timeOfLastChange = keepTrackWhileOff() ? b.getTotalGameTime() : b.getSessionGameTime();
 			currentPeriodVal = period;
 			numCurrentPeriodsElapsed = 0;
 		}
 		if (!keepTrackWhileOff()) {
-			if (difAsMinutes(b.getTotalGameTime()-timeOfLastChange) / period > (numCurrentPeriodsElapsed+1)) {
+			if (difAsMinutes(b.getSessionGameTime()-timeOfLastChange) / period >= (numCurrentPeriodsElapsed+1)) {
 				getOnPeriod().accept(b);
 				numCurrentPeriodsElapsed++;
 				addToTotalPeriods();
 			}
 		}
 		else {
-			long currentTime = System.currentTimeMillis();
-			if (difAsMinutes(currentTime-timeOfLastChange) / period > (numCurrentPeriodsElapsed+1)) {
+			if (difAsMinutes(b.getTotalGameTime()-timeOfLastChange) / period >= (numCurrentPeriodsElapsed+1)) {
 				getOnPeriod().accept(b);
 				numCurrentPeriodsElapsed++;
 				addToTotalPeriods();
 			}
 		}
 	}
-	@Override
-	public Event createNewEventCopy() {
-		return new CustomPeriodEvent(getOnPlace(), getOnPeriod(), generatePeriod);
-	}
+
 	@Override
 	public Runnable executePeriod(Board b) {
 		return new Runnable() {

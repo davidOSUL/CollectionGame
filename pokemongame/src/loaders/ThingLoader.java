@@ -19,7 +19,6 @@ import gameutils.GameUtils;
 import thingFramework.Attribute;
 import thingFramework.AttributeNotFoundException;
 import thingFramework.AttributeType;
-import thingFramework.EventfulItem;
 import thingFramework.Item;
 import thingFramework.Pokemon;
 import thingFramework.Thing;
@@ -38,11 +37,9 @@ public final class ThingLoader {
 	private Set<Pokemon> pokemonSet = new HashSet<Pokemon>();
 	private  Set<Item> itemSet = new HashSet<Item>();
 	private Set<String> pokemonToGenerateAttributesFor = new HashSet<String>();
-	private  Set<EventfulItem> eventfulItemSet = new HashSet<EventfulItem>();
 	private final Map<String, Thing> thingMap = new HashMap<String, Thing>();
 	private final Map<String, Item> itemMap = new HashMap<String, Item>();
 	private final Map<String, Pokemon> pokemonMap = new HashMap<String, Pokemon>();
-	private final Map<String, EventfulItem> eventfulItemMap = new HashMap<String, EventfulItem>();
 	public ThingLoader(String pathToThings) {
 		this.path = FileSystems.getDefault().getPath(pathToThings);
 		eb = new EventBuilder();
@@ -117,7 +114,7 @@ public final class ThingLoader {
 			String attribute = values[i];
 			String value = values[i+1];
 			if (thingMap.containsKey(name))
-			thingMap.get(name).addAttribute(Attribute.generateAttribute(attribute, value));
+				thingMap.get(name).addAttribute(Attribute.generateAttribute(attribute, value));
 		}
 	}
 	
@@ -129,9 +126,6 @@ public final class ThingLoader {
 	 * <br> ITEM Name, texture, attribute:val, attribute:val,... </br> 
 	 * <br> ITEM Name, texture, attribute:val, attribute:val,... </br> 
 	 * <br> ... </br> 
-	 * <br> ITEM EVENTFULITEM Name, texture, attribute:val, attribute:val,... </br> 
-	 * <br> ITEM EVENTFULITEM Name, texture, attribute:val, attribute:val,... </br> 
-	 * <br> ... </br>
 	 * <br> Duplicates SHOULD NOT appear in list</br>
 	 */
 	private void load() {
@@ -155,8 +149,6 @@ public final class ThingLoader {
 		pokemonSet = Collections.unmodifiableSet(pokemonSet);
 		itemSet.addAll(itemMap.values());
 		itemSet = Collections.unmodifiableSet(itemSet);
-		eventfulItemSet.addAll(eventfulItemMap.values());
-		eventfulItemSet = Collections.unmodifiableSet(eventfulItemSet);
 	}
 	private void loadPokemon(String[] values) {
 		String name = values[1];
@@ -168,24 +160,13 @@ public final class ThingLoader {
 		
 	}
 	private void loadItem(String[] values) {
-		if (values[1].equals("EVENTFULITEM")) {
-			String name = values[2];
-			String texture = ITEM_SPRITE_LOC+ values[3];
-			List<Event> e = eb.getEvents(name);
-			Set<Attribute> attributes = loadAttributes(values, 4, name);
-			EventfulItem ei = new EventfulItem(name, texture, attributes, e);
-			thingMap.put(name, ei);
-			itemMap.put(name, ei);
-			eventfulItemMap.put(name, ei);
-		}
-		else {
 			String name = values[1];
 			String texture = ITEM_SPRITE_LOC + values[2];
+			List<Event> listOfEvents = eb.getEvents(name);
 			Set<Attribute> attributes = loadAttributes(values, 3, name);
-			Item i = new Item(name, texture, attributes);
+			Item i = new Item(name, texture, attributes, listOfEvents);
 			thingMap.put(name, i);
 			itemMap.put(name, i);
-		}
 	}
 	
 	private Set<Attribute> loadAttributes(String[] values, int startLocation, String name) {
@@ -201,7 +182,7 @@ public final class ThingLoader {
 				throw new Error("DUPLICATE ATTRIBUTE: " + nameValuePair[0] + "FOR: " + name);
 			else
 				attributeNames.add(nameValuePair[0]);
-			if (nameValuePair[0].equals(GEN_CODE))
+			if (nameValuePair[0].equals(GEN_CODE)) //if we want to generate random attributes
 				pokemonToGenerateAttributesFor.add(name);
 			else if (nameValuePair.length == 2) 
 				attributes.add(Attribute.generateAttribute(nameValuePair[0], nameValuePair[1]));
@@ -221,9 +202,6 @@ public final class ThingLoader {
 	public Set<Item> getItemSet() {
 		return itemSet;
 	}
-	public Set<EventfulItem> getEventfulItemSet() {
-		return eventfulItemSet;
-	}
 	public Thing getThing(String name) {
 		return thingMap.get(name).makeCopy();
 	}
@@ -235,9 +213,6 @@ public final class ThingLoader {
 	}
 	public Item getItem(String name) {
 		return new Item(itemMap.get(name));
-	}
-	public EventfulItem getEventfulItem(String name) {
-		return new EventfulItem(eventfulItemMap.get(name));
 	}
 	/**
 	 * Currently serves no purpose in the logic past debugging
@@ -415,6 +390,7 @@ public final class ThingLoader {
 					e.printStackTrace();
 				}
 				String[] attributes = {"gpm", "gph", "popularity boost", "happiness"};
+				//TODO: Change code so that I can allow myself to delete the below comment
 				//Yes I know this is pretty fucking stupid that I'm converting it to string only to unconvert it to string again. I immensely regret setting up attributes the way I did, but I don't have the bandwidth to change it.
 				String[] values = {Integer.toString(calcGPM(rarity)), Integer.toString(calcGPH(rarity)), Integer.toString(calcPopularity(rarity)), Integer.toString(calcHappiness(rarity))};
 				p.addAttributes(Attribute.generateAttributes(attributes, values));

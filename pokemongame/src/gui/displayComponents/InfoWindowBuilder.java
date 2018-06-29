@@ -1,4 +1,4 @@
-package gui.guiComponents;
+package gui.displayComponents;
 
 import java.awt.Dimension;
 import java.awt.Image;
@@ -26,7 +26,7 @@ import thingFramework.Thing;
  * Must call Create() to finalize creation of InfoWindow
  * @author DOSullivan
  */
-public class InfoWindow extends JPanel {
+public class InfoWindowBuilder {
 	/**
 	 * 
 	 */
@@ -42,10 +42,11 @@ public class InfoWindow extends JPanel {
 	private boolean isEntered = false;
 	private Image backgroundImage = null;
 	private Presenter p;
+	private JPanel panel = new JPanel();
 	/**
 	 * Create a new InfoWindow with Default Width and Height
 	 */
-	public InfoWindow() {
+	public InfoWindowBuilder() {
 		this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	}
 	/**
@@ -53,15 +54,15 @@ public class InfoWindow extends JPanel {
 	 * @param width the width of the info window
 	 * @param height the height of the info window
 	 */
-	public InfoWindow(int width, int height) {
-		this.setBounds(0,0, width, height);
+	public InfoWindowBuilder(int width, int height) {
+		panel.setBounds(0,0, width, height);
 	}
 	/**
 	 * Sets the caption (the text below the picture)
 	 * @param s the caption
 	 * @return the new InfoWindow
 	 */
-	public InfoWindow setCaption(String s) {
+	public InfoWindowBuilder setCaption(String s) {
 		this.pictureCaption = s;
 		return this;
 	}
@@ -70,7 +71,7 @@ public class InfoWindow extends JPanel {
 	 * @param t the Thing to get a picture from
 	 * @return the new info window
 	 */
-	public InfoWindow setThing(Thing t) {
+	public InfoWindowBuilder setThing(Thing t) {
 		this.t = t;
 		return this;
 	}
@@ -79,7 +80,7 @@ public class InfoWindow extends JPanel {
 	 * @param info the text to add
 	 * @return the new info window
 	 */
-	public InfoWindow setInfo(String info) {
+	public InfoWindowBuilder setInfo(String info) {
 		this.info = info;
 		return this;
 	}
@@ -88,7 +89,7 @@ public class InfoWindow extends JPanel {
 	 * @param p the presenter
 	 * @return the New Info Window
 	 */
-	public InfoWindow setPresenter(Presenter p) {
+	public InfoWindowBuilder setPresenter(Presenter p) {
 		this.p = p;
 		return this;
 	}
@@ -97,8 +98,8 @@ public class InfoWindow extends JPanel {
 	 * @param i the background image
 	 * @return the new Info Window
 	 */
-	public InfoWindow setBackgroundImage(Image i) {
-		this.backgroundImage = GuiUtils.changeOpacity(GuiUtils.getScaledImage(i, getWidth(), getHeight()), .5f);
+	public InfoWindowBuilder setBackgroundImage(Image i) {
+		this.backgroundImage = GuiUtils.changeOpacity(GuiUtils.getScaledImage(i, panel.getWidth(), panel.getHeight()), .5f);
 		return this;
 	}
 	/**
@@ -110,7 +111,7 @@ public class InfoWindow extends JPanel {
 	 * @param cleanUp have the button call the Presenters CleanUp() method when clicked
 	 * @return the new Info Window
 	 */
-	public InfoWindow addButton(String name, Consumer<Presenter> con, boolean setFinish, boolean setEntered, boolean cleanUp) {
+	public InfoWindowBuilder addButton(String name, Consumer<Presenter> con, boolean setFinish, boolean setEntered, boolean cleanUp) {
 		JButton jb = new JButton(name);
 		BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
 			if (cleanUp)
@@ -131,17 +132,17 @@ public class InfoWindow extends JPanel {
 	 * takes all the info that has been added so far and finalizes it
 	 * @return the created info window
 	 */
-	public InfoWindow Create() {
+	public JPanel createWindow() {
 
 		JLayeredPane result = new JLayeredPane();
-		result.setPreferredSize(new Dimension(getWidth(), getHeight()));
+		result.setPreferredSize(new Dimension(panel.getWidth(), panel.getHeight()));
 
 		JPanel foreground = new JPanel();
-		foreground.setBounds(0, 0, getWidth(), getHeight());
+		foreground.setBounds(0, 0, panel.getWidth(), panel.getHeight());
 		foreground.setOpaque(false);
 		
 		foreground.setLayout(new BoxLayout(foreground, BoxLayout.Y_AXIS));
-		foreground.setPreferredSize(new Dimension(getWidth(), getHeight()));
+		foreground.setPreferredSize(new Dimension(panel.getWidth(), panel.getHeight()));
 		
 		JPanel infoPan = new JPanel();
 		infoPan.add(new JLabel(info));
@@ -170,7 +171,7 @@ public class InfoWindow extends JPanel {
 		foreground.repaint();
 		if (backgroundImage != null) {
 			JLabel backgroundLabel = new JLabel(new ImageIcon(backgroundImage));
-			backgroundLabel.setBounds(0,0, getWidth(), getHeight());
+			backgroundLabel.setBounds(0,0, panel.getWidth(), panel.getHeight());
 			result.add(backgroundLabel, JLayeredPane.DEFAULT_LAYER);
 		}
 		
@@ -178,12 +179,12 @@ public class InfoWindow extends JPanel {
 		result.revalidate();
 		result.repaint();
 		result.setVisible(true);
-		add(result);
-		repaint();
-		revalidate();
-		setVisible(true);
+		panel.add(result);
+		panel.repaint();
+		panel.revalidate();
+		panel.setVisible(true);
 
-		return this;
+		return panel;
 		
 	}
 	/**
@@ -191,7 +192,7 @@ public class InfoWindow extends JPanel {
 	 * @param text the text on the button
 	 * @return the new info window
 	 */
-	public InfoWindow addCancelButton(String text) {
+	public InfoWindowBuilder addCancelButton(String text) {
 		JButton jb = new JButton(text);
 		BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
 			p.CleanUp();
@@ -208,7 +209,7 @@ public class InfoWindow extends JPanel {
 	 * @param text the text on the button
 	 * @return the new info window
 	 */
-	public InfoWindow addEnterButton(String text) {
+	public InfoWindowBuilder addEnterButton(String text) {
 		JButton jb = new JButton(text);
 		BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
 			p.CleanUp(); 
@@ -225,7 +226,7 @@ public class InfoWindow extends JPanel {
 	 * @param text the text on the button
 	 * @return the new info window
 	 */
-	public InfoWindow addEnterButton() {
+	public InfoWindowBuilder addEnterButton() {
 		return addEnterButton("Enter");
 	}
 	/**
@@ -233,7 +234,7 @@ public class InfoWindow extends JPanel {
 	 * @param text the text on the button
 	 * @return the new info window
 	 */
-	public InfoWindow addCancelButton() {
+	public InfoWindowBuilder addCancelButton() {
 		return addCancelButton("Cancel");
 	}
 	
