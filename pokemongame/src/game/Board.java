@@ -1,5 +1,6 @@
 package game;
 import static gameutils.Constants.DEBUG;
+import static gameutils.Constants.RAPID_SPAWN;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,7 +29,6 @@ import thingFramework.Thing;
  * @author David O'Sullivan
  *
  */
-//TODO: Add Debug mode instead of randomly commenting things lol
 public class Board implements Serializable {
 	private static final long serialVersionUID = 1L;
 	/**
@@ -64,7 +64,7 @@ public class Board implements Serializable {
 	/**
 	 * The chance that a pokemon with a name of a pokemon already on the board will spawn
 	 */
-	private static final double PERCENT_CHANCE_DUPLICATE_SPAWNS = 100;//TODO: Once duplicate is fixed change back to 5
+	private static final double PERCENT_CHANCE_DUPLICATE_SPAWNS = RAPID_SPAWN ? 100 : 5;
 	/**
 	 * The minimum period in minutes at which new pokemon are checked for
 	 */
@@ -224,9 +224,7 @@ public class Board implements Serializable {
 		double A=  4; //max value+1
 		double B = 60; //"length" of near-constant values
 		double C = 1.3; //steepness of drop
-		return 1.666e-5;
-		//TODO: Uncomment this
-		//return Math.max(MIN_POKEPERIOD, A-Math.pow(getPopularity()/B, C));
+		return RAPID_SPAWN ? 1.666e-5 : Math.max(MIN_POKEPERIOD, A-Math.pow(getPopularity()/B, C));
 	}
 
 	/**
@@ -309,8 +307,7 @@ public class Board implements Serializable {
 	 * more likely
 	 */
 	private void lookForPokemon() {
-		//TODO: change this back to false
-		lookForPokemon(true); 
+		lookForPokemon(RAPID_SPAWN ? true : false); 
 	}
 	/**
 	 * Looks for pokemon, but gurantees that one is found (as supposed to having a percent chance that none are found)
@@ -405,11 +402,23 @@ public class Board implements Serializable {
 	public void unPause() {
 		stm.unPause();
 	}
+	/**
+	 * @return total time both on and offline
+	 */
 	public synchronized long getTotalGameTime() {
 		return stm.getTotalGameTime();
 	}
+	/**
+	 * @return total time in this game session
+	 */
 	public synchronized long getSessionGameTime() {
 		return stm.getSessionGameTime();
+	}
+	/**
+	 * @return total time throughout all game sessions
+	 */
+	public synchronized long getTotalInGameTime() {
+		return stm.getTotalInGameTime();
 	}
 	/**
 	 * Start a new session using a board
@@ -418,6 +427,9 @@ public class Board implements Serializable {
 	public void newSession(long totalGameTime) {
 		this.stm = new SessionTimeManager(totalGameTime);
 
+	}
+	public synchronized void endSession() {
+		stm.signifySessionEnd();
 	}
 	public synchronized int getGold() {
 		return gold;

@@ -12,8 +12,18 @@ public class SessionTimeManager implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	private long timeElapsedOnStartup = 0;
+	/**
+	 * Total game time, both in game and when game is closed
+	 */
 	private long totalGameTime = 0;
 	private long pauseDeficit = 0;
+	/**
+	 * Sum of all session Game times
+	 */
+	private long totalInGameTime = 0;
+	/**
+	 * Total time in current game session
+	 */
 	private transient long sessionGameTime = 0;
 	private transient long timeOnPause = 0;
 	private transient boolean paused = false;
@@ -43,6 +53,18 @@ public class SessionTimeManager implements Serializable {
 	 */
 	public long getSessionGameTime() {
 		return sessionGameTime;
+	}
+	/**
+	 * Must be called at the end of a session to update totalInGameTime
+	 */
+	public void signifySessionEnd() {
+		totalInGameTime += getSessionGameTime();
+	}
+	/**
+	 * Return the total time that was elapsed throughout all sessions
+	 */
+	public long getTotalInGameTime() {
+		return totalInGameTime;
 	}
 	/**
 	 * To be called on every game tick, updates the elapsed time

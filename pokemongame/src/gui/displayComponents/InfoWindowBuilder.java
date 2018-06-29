@@ -31,7 +31,7 @@ public class InfoWindowBuilder {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Thing t;
+	private Thing thing;
 	private String pictureCaption;
 	private String info;
 	private List<JButton> buttons = new ArrayList<JButton>();
@@ -41,7 +41,8 @@ public class InfoWindowBuilder {
 	private boolean isDone = false;
 	private boolean isEntered = false;
 	private Image backgroundImage = null;
-	private Presenter p;
+	private Presenter presenter;
+	private JLabel image;
 	private JPanel panel = new JPanel();
 	/**
 	 * Create a new InfoWindow with Default Width and Height
@@ -72,7 +73,7 @@ public class InfoWindowBuilder {
 	 * @return the new info window
 	 */
 	public InfoWindowBuilder setThing(Thing t) {
-		this.t = t;
+		this.thing = t;
 		return this;
 	}
 	/**
@@ -90,7 +91,7 @@ public class InfoWindowBuilder {
 	 * @return the New Info Window
 	 */
 	public InfoWindowBuilder setPresenter(Presenter p) {
-		this.p = p;
+		this.presenter = p;
 		return this;
 	}
 	/**
@@ -114,8 +115,10 @@ public class InfoWindowBuilder {
 	public InfoWindowBuilder addButton(String name, Consumer<Presenter> con, boolean setFinish, boolean setEntered, boolean cleanUp) {
 		JButton jb = new JButton(name);
 		BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
-			if (cleanUp)
+			if (cleanUp) {
+				cleanUp();
 				p.CleanUp();
+			}
 			con.accept(p);
 			if (setEntered)
 				p.Entered();
@@ -124,9 +127,13 @@ public class InfoWindowBuilder {
 			
 			
 		};
-		jb.addMouseListener(new MouseClickWithThreshold<Presenter>(CLICK_DIST_THRESH, input, p));
+		jb.addMouseListener(new MouseClickWithThreshold<Presenter>(CLICK_DIST_THRESH, input, presenter));
 		buttons.add(jb);
 		return this;
+	}
+	private void cleanUp() {
+		if (image != null);
+		DescriptionManager.getInstance().removeDescription(image);
 	}
 	/**
 	 * takes all the info that has been added so far and finalizes it
@@ -150,8 +157,11 @@ public class InfoWindowBuilder {
 		
 		JPanel itemPan = new JPanel();
 		JLabel jl = new JLabel("");
-		if (t!=null)
-			jl = new JLabel(new ImageIcon(GuiUtils.readImage(t.getImage())));
+		if (thing!=null) {
+			jl = new JLabel(new ImageIcon(GuiUtils.readImage(thing.getImage())));
+			DescriptionManager.getInstance().setDescription(jl, thing.toString());
+			image = jl;
+		}
 		jl.setText(pictureCaption);
 		itemPan.add(jl);
 		itemPan.setOpaque(false);
@@ -195,12 +205,13 @@ public class InfoWindowBuilder {
 	public InfoWindowBuilder addCancelButton(String text) {
 		JButton jb = new JButton(text);
 		BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
+			cleanUp();
 			p.CleanUp();
 			p.Canceled();	
 			
 			
 		};
-		jb.addMouseListener(new MouseClickWithThreshold<Presenter>(CLICK_DIST_THRESH, input, p));
+		jb.addMouseListener(new MouseClickWithThreshold<Presenter>(CLICK_DIST_THRESH, input, presenter));
 		buttons.add(jb);
 		return this;
 	}
@@ -212,12 +223,13 @@ public class InfoWindowBuilder {
 	public InfoWindowBuilder addEnterButton(String text) {
 		JButton jb = new JButton(text);
 		BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
+			cleanUp();
 			p.CleanUp(); 
 			p.Entered();
 			
 			
 		};
-		jb.addMouseListener(new MouseClickWithThreshold<Presenter>(CLICK_DIST_THRESH, input, p));
+		jb.addMouseListener(new MouseClickWithThreshold<Presenter>(CLICK_DIST_THRESH, input, presenter));
 		buttons.add(jb);
 		return this;
 	}

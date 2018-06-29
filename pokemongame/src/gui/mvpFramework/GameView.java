@@ -37,8 +37,8 @@ public class GameView extends JFrame {
 		setLayout(null);
 		setResizable(false);
 		setLocationByPlatform(true);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(WIDTH, HEIGHT);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JLabel backgroundLabel = new JLabel(new ImageIcon(GuiUtils.getScaledImage(background, WIDTH, HEIGHT)));
 		backgroundLabel.setSize(WIDTH, HEIGHT);
 		//backgroundLabel.setOpaque(true);

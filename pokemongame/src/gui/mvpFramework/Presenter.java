@@ -1,19 +1,19 @@
 package gui.mvpFramework;
 import static gameutils.Constants.DEBUG;
 import static gameutils.Constants.PRINT_BOARD;
+import static gui.guiutils.GUIConstants.SHOW_CONFIRM_ON_CLOSE;
 
-import java.awt.Color;
 import java.awt.Image;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.ToolTipManager;
-import javax.swing.UIManager;
 
 import game.Board;
-import gui.displayComponents.DescriptionToolTipBuilder;
+import gui.displayComponents.DescriptionManager;
 import gui.displayComponents.InfoWindowBuilder;
 import gui.gameComponents.GameSpace;
 import gui.gameComponents.Grid.GridSpace;
@@ -73,8 +73,8 @@ public class Presenter {
 	private String oldString; //TODO: Remove this or add debug feature
 	private String newString;
 	private volatile boolean toolTipsEnabled = true;
+	private volatile boolean saved = false;
 	public Presenter() {
-		setUpToolTips();
 	};
 	/**
 	 * Creates a new Presenter with the provided Board and GameView
@@ -83,8 +83,8 @@ public class Presenter {
 	 */
 	public Presenter(Board b, GameView gv) {
 		this();
-		board = b;
-		gameView = gv;
+		setBoard(b);
+		setGameView(gv);
 		oldString = board.toString();
 	}
 	/**
@@ -121,17 +121,14 @@ public class Presenter {
 		updateToolTips();
 	}
 	private void updateToolTips() {
+		//TODO: Make time based events have countdown timer
 		if (toolTipsEnabled)
-			allThings.forEach((gs, thing) -> gs.setToolTipText(DescriptionToolTipBuilder.getToolTipText(thing.toString())));
-	}
-	private void setUpToolTips() {
-		ToolTipManager.sharedInstance().setInitialDelay(100);
-		UIManager.put("ToolTip.background", Color.WHITE);
+			allThings.forEach((gs, thing) -> DescriptionManager.getInstance().setDescription(gs, thing));
 	}
 	private void stopToolTips() {
 		toolTipsEnabled = false;
 		allThings.forEach((gs, thing) -> {
-			gs.setToolTipText(null);
+			DescriptionManager.getInstance().removeDescription(gs);
 		});
 	}
 	private void resumeToolTips() {
@@ -165,6 +162,21 @@ public class Presenter {
 	 */
 	public void setGameView(GameView gv) {
 		this.gameView = gv;
+		if (SHOW_CONFIRM_ON_CLOSE) {
+			gameView.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+			gameView.addWindowListener(new java.awt.event.WindowAdapter() {
+				@Override
+				public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+					if (JOptionPane.showConfirmDialog(gameView, 
+							"Are you sure to quit without saving?", "", 
+							JOptionPane.YES_NO_OPTION,
+							JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION && !saved){
+								System.exit(0);
+					}
+				}
+			});
+		}
+		
 	}
 	/**
 	 * To be called whenever the notification button is clicked. Displays the PopUp InfoWindow with the next pokemon in the wild pokemon queue in the board
@@ -200,14 +212,14 @@ public class Presenter {
 	 */
 	private void setState(CurrentState state) {
 		if (toolTipsEnabled && state != CurrentState.GAMEPLAY) {
-			//stopToolTips();
+			stopToolTips();
 		}
 		if (state == CurrentState.GAMEPLAY && !toolTipsEnabled) {
 			resumeToolTips();
 		}
 		this.state = state;
-		
-			
+
+
 	}
 	/**
 	 * Finalizes the add attempt by getting rid of thingToAdd and changing the state of the game back to GAMEPLAY
@@ -228,7 +240,7 @@ public class Presenter {
 		if (type == AddType.POKE_FROM_QUEUE)
 			board.confirmGrab();
 	}
-	
+
 	/**
 	 * To be called when the provided GameSpace was being added, but the user decided to cancel the add (hit escape).
 	 * If this was a AddType.POKE_FROM_QUEUE, will place the pokemon back in the queue
@@ -237,9 +249,9 @@ public class Presenter {
 	 */
 	public void notifyAddCanceled(GameSpace gs, AddType type) {
 		if (type == AddType.POKE_FROM_QUEUE)
-			{
-				board.undoGrab();
-			}
+		{
+			board.undoGrab();
+		}
 		finishAddAttempt();
 	}
 	/**
@@ -294,7 +306,7 @@ public class Presenter {
 		setCurrentWindow(deleteWindow);
 		gridSpaceToDelete = gs;
 		return true;
-		
+
 	}
 	private void confirmDelete() {
 		if (state != CurrentState.DELETE_CONFIRM_WINDOW || gridSpaceToDelete == null) 
@@ -320,12 +332,12 @@ public class Presenter {
 	 */
 	public void Entered() {
 		switch(state) {
-			case NOTIFICATION_WINDOW:
-				attemptAddThing(board.getGrabbed(), AddType.POKE_FROM_QUEUE);	
-				break;
-			case DELETE_CONFIRM_WINDOW:
-				confirmDelete();
-				break;
+		case NOTIFICATION_WINDOW:
+			attemptAddThing(board.getGrabbed(), AddType.POKE_FROM_QUEUE);	
+			break;
+		case DELETE_CONFIRM_WINDOW:
+			confirmDelete();
+			break;
 		}
 	}
 	/**
@@ -333,12 +345,12 @@ public class Presenter {
 	 */
 	public void Canceled() {
 		switch(state) {
-			case NOTIFICATION_WINDOW:
-				undoNotificationClicked();
+		case NOTIFICATION_WINDOW:
+			undoNotificationClicked();
 			break;
-			case DELETE_CONFIRM_WINDOW:
-				finishDeleteAttempt();
-				break;
+		case DELETE_CONFIRM_WINDOW:
+			finishDeleteAttempt();
+			break;
 		}
 
 	}
@@ -370,7 +382,7 @@ public class Presenter {
 				.addCancelButton()
 				.setBackgroundImage(notificationWindowBackground)
 				.createWindow();
-		
+
 	}
 	private JPanel attemptToDeleteWindow(Thing t) {
 		return new InfoWindowBuilder()
@@ -381,7 +393,7 @@ public class Presenter {
 				.addCancelButton()
 				.setBackgroundImage(notificationWindowBackground)
 				.createWindow();
-		
+
 	}
 	/**
 	 * The CurrentState of GamePlay
@@ -414,5 +426,5 @@ public class Presenter {
 			thing = t;
 		}
 	}
-	
+
 }

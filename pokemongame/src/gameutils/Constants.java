@@ -13,6 +13,10 @@ public final class Constants {
 	 * Set to true to print board, even if DEBUG is false
 	 */
 	public final static boolean PRINT_BOARD = true;
+	/**
+	 * Change duplicate percentage to 100% and make pokemons spawn automatically and rapidly
+	 */
+	public final static boolean RAPID_SPAWN = true;
 	private Constants() {
 		// TODO Auto-generated constructor stub
 	}

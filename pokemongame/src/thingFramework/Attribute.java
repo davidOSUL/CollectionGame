@@ -48,7 +48,7 @@ public class Attribute implements Serializable{
 	 * The rarity of a pokemon, on scale of 1-10, derived from catchrate. 
 	 * higher is more rare. This version of rarity is used for display purposes only
 	 */
-	private static final Attribute RARITY_OUT_OF_10 = new Attribute(7, "Rarity (out of 10)", "rarity10", ParseType.INTEGER, new Integer(1), AttributeType.CHARACTERISTIC, AttributeType.DISPLAYTYPE, AttributeType.POKEONLY);
+	private static final Attribute RARITY_OUT_OF_10 = new Attribute(7, "Rarity", "rarity10", ParseType.INTEGER, new Integer(1), AttributeType.CHARACTERISTIC, AttributeType.DISPLAYTYPE, AttributeType.POKEONLY);
 	/**
 	 * The catch rate of a pokemon on a scale from 3-255
 	 */
@@ -156,7 +156,15 @@ public class Attribute implements Serializable{
 	}
 	@Override
 	public String toString() {
-		return displayName + ": " + (parsetype.equals(ParseType.ENUMSETPOKEMONTYPE) ? getValue().toString().replace("[", "") : getValue().toString());
+		StringBuilder sb = new StringBuilder(displayName);
+		sb.append(": ");
+		if (parsetype.equals(ParseType.ENUMSETPOKEMONTYPE))
+			sb.append( getValue().toString().replace("[", ""));
+		else
+			sb.append(getValue().toString());
+		if (this.getName().equals(RARITY_OUT_OF_10.getName()))
+			sb.append("/10");
+		return sb.toString();
 		
 	}
 	public static boolean isValidAttribute(String name) {
