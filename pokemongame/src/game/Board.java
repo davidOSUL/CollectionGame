@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -31,28 +32,6 @@ import thingFramework.Thing;
  */
 public class Board implements Serializable {
 	private static final long serialVersionUID = 1L;
-	/**
-	 * The location of the levels of evolution
-	 */
-	private static final String LEVELS_OF_EVOLUTION_LOCATION = "resources/InputFiles/levelsOfEvolve.csv";
-	/**
-	 * Location of which pokemon evolve to what
-	 */
-	private static final String EVOLUTIONS_LOCATION = "resources/InputFiles/evolutions.csv";
-	/**
-	 * The location of the csv of all the thing to import into the game
-	 */
-	private static final String THING_LIST_LOCATION = "resources/InputFiles/pokemonList.csv";
-	/**
-	 * The location of all pregenerated "basic" events to load into the game. I.E.
-	 * items that have events that can be described by methods in the ThingLoader class
-	 */
-	private static final String EVENT_MAP_LOCATION = "resources/InputFiles/eventMapList.csv";
-	/**
-	 * Location of csv containing extra attributes for things. Format as specified in thingloader
-	 */
-	private static final String[] EXTRA_ATTRIBUTE_LOCATIONS = {"resources/InputFiles/extraAttributes.csv"};
-	private static final String PATH_TO_DESCRIPTIONS = "resources/InputFiles/descriptionList.csv";
 	/**
 	 * The minimum amount of popularity a player can have
 	 */
@@ -93,10 +72,6 @@ public class Board implements Serializable {
 	 */
 	private static final double MAX_PERCENT_CHANCE_POPULARITY_BOOSTS = 90;
 	/**
-	 * Loads all things into the game
-	 */
-	private static final ThingLoader thingLoader = new ThingLoader(THING_LIST_LOCATION, PATH_TO_DESCRIPTIONS, EVENT_MAP_LOCATION, EVOLUTIONS_LOCATION, LEVELS_OF_EVOLUTION_LOCATION, EXTRA_ATTRIBUTE_LOCATIONS);
-	/**
 	 * A map from the sum of the chance of a pokemon being found (out of RUNNING_TOTAL) and all chances
 	 * of pokemon loaded in before it, to the name of that pokemon. This will be in order, sorted by the sum.
 	 */
@@ -108,7 +83,7 @@ public class Board implements Serializable {
 	/**
 	 * Map from pokemon names to their RARITY (NOT CHANCE) value
 	 */
-	private static final Map<String, Integer> pokeRarity = Thing.mapFromSetToAttributeValue(thingLoader.getPokemonSet(), "rarity");  
+	private static final Map<String, Integer> pokeRarity = Thing.mapFromSetToAttributeValue(ThingLoader.sharedInstance().getPokemonSet(), "rarity");  
 	/**
 	 * The queue of found wild pokemon (pokemon generated from a lookForPokemon() call)
 	 */
@@ -179,8 +154,10 @@ public class Board implements Serializable {
 	 * Blank item to store the checkForPokemon event
 	 */
 	private transient static final Item checkForPokemonThing = Item.generateBlankItemWithEvents(checkForPokemon);
+	private final Shop shop;
 	//TODO: Put all possible things with their associated events in a manager of its own, should be able to grab events with quantity > 0 
 	public Board() {
+		shop = new Shop();
 		events = new EventManager(this);
 		events.addThing(checkForPokemonThing);
 	}
@@ -272,7 +249,7 @@ public class Board implements Serializable {
 	 * Adds the provided pokemon to the foundPokemon queue and updates the set of pokemon names in addToUniquePokemonLookup
 	 */
 	private void addToFoundPokemon(String name) {
-		Pokemon p = thingLoader.getPokemon(name);
+		Pokemon p = ThingLoader.sharedInstance().generateNewPokemon(name);
 		foundPokemon.addLast(p);
 		addToUniquePokemonLookup(p);
 	}
@@ -446,6 +423,9 @@ public class Board implements Serializable {
 	public synchronized void addGold(int gold) {
 		setGold(Math.max(MINGOLD, getGold()+gold));
 	}
+	public synchronized void subtractGold(int gold) {
+		addGold(-gold);
+	}
 	public synchronized void addPopularity(int popularity) {
 		setPopularity(Math.max(MINPOP, getPopularity()+popularity));
 	}
@@ -500,8 +480,16 @@ public class Board implements Serializable {
 	public boolean wildPokemonPresent() {
 		return !foundPokemon.isEmpty();
 	}
+	/**
+	 * For debugging purposes only. Gets the pokemon with the given name
+	 * @param name the name of the pokemon
+	 * @return the new pokemon
+	 */
 	public Pokemon getPokemon(String name) {
-		return thingLoader.getPokemon(name);
+		if (DEBUG)
+			return ThingLoader.sharedInstance().generateNewPokemon(name);
+		else
+			throw new RuntimeException("Method should not be called when not debugging");
 	}
 	@Override
 	public String toString() {
@@ -567,7 +555,39 @@ public class Board implements Serializable {
 	public int numPokemonWaiting() {
 		return foundPokemon.size();
 	}
-
+	/**
+	 * @return a queue (sorted by display rank) of all the items presently in the shop
+	 */
+	public Queue<ShopItem> getItemsInShop() {
+		return shop.itemsInOrder();
+	}
+	/**
+	 * @param thingName the thing in the shop to purchase
+	 * @return true if have enough money to purchase, false otherwise
+	 */
+	public boolean canPurchase(String thingName) {
+		return (shop.getCost(thingName) <= getGold());
+	}
+	/**
+	 * If have enough money, generate a new Thing corresponding to the thingName in the shop, and subtract the cost of that thing
+	 * @param thingName the name of the thing in the shop
+	 * @return the newly generated thing
+	 */
+	public Thing purchase(String thingName) {
+		if (!canPurchase(thingName))
+			return null;
+		subtractGold(shop.getCost(thingName));
+		return shop.purchase(thingName);
+		
+	}
+	public void sellBack(String thingName, int goldToAdd) {
+		shop.addToShopStock(thingName);
+		addGold(goldToAdd);
+	}
+	public void sellBack(String thingName, double percentOfOriginalVal) {
+		sellBack(thingName, percentOfOriginalVal*shop.getCost(thingName)); //TODO: fix this so it allows for getting cost of shop items that arent in shop anymore
+	}
+	
 
 
 }

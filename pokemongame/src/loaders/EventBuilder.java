@@ -71,7 +71,7 @@ public class EventBuilder {
 				Event e = null;
 				switch (te) {
 				case RANDOMGOLD:
-					int[] integerInputs = parseAllInRangeToInt(inputs, lower, upper-1); //upper-1 because the last input will be a double that we have to parse seperately
+					int[] integerInputs = GameUtils.parseAllInRangeToInt(inputs, lower, upper-1); //upper-1 because the last input will be a double that we have to parse seperately
 					e = generateRandomGoldEvent(integerInputs[0], integerInputs[1], Double.parseDouble(inputs[upper]));
 					description.append(te.getDescription(integerInputs[0], integerInputs[1], Double.parseDouble(inputs[upper])));
 					break;
@@ -102,22 +102,6 @@ public class EventBuilder {
 	 */
 	public String getEventDescription(String thingName) {
 		return eventNameToDescription.get(thingName);
-	}
-	/**
-	 * Returns a new array where the first index is Integer.parseInt(input[LowerIndex]), the last is Integer.parseInt(input[UpperIndex]),
-	 * and in between is all the parsed values of the the values between those indices
-	 * @param input the string array to parse
-	 * @param LowerIndex the first index of the array to parse
-	 * @param UpperIndex the last index of the array to the pase
-	 * @return the parsed int array corresponding to the values between LowerIndex and UpperINdex
-	 */
-	private int[] parseAllInRangeToInt(String[] input, int LowerIndex, int UpperIndex) {
-		int[] output = new int[UpperIndex-LowerIndex+1];
-		int j = 0;
-		for (int i = LowerIndex; i <= UpperIndex; i++) {
-			output[j++] = Integer.parseInt(input[i]);
-		}
-		return output;
 	}
 	/**
 	 * Generates an event that every periodInMinute minutes will with a percentChance chance add the specified amount of gold to the board

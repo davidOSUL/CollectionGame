@@ -1,9 +1,6 @@
 package loaders;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,7 +27,6 @@ public final class ThingLoader {
 	private static final String GEN_CODE = "RANDOMATTRIBUTES";
 	private static final String POKE_SPRITE_LOC = "/sprites/pokemon/";
 	private static final String ITEM_SPRITE_LOC = "/sprites/items/";
-	private final Path path;
 	private Path[] pathsToExtraAttributes = null;
 	private final EventBuilder eb;
 	private  Set<Thing> thingSet = new HashSet<Thing>();
@@ -39,29 +35,52 @@ public final class ThingLoader {
 	private Set<String> pokemonToGenerateAttributesFor = new HashSet<String>();
 	private final Map<String, Thing> thingMap = new HashMap<String, Thing>();
 	private final Map<String, Item> itemMap = new HashMap<String, Item>();
-	private final Map<String, Pokemon> pokemonMap = new HashMap<String, Pokemon>();
-	public ThingLoader(String pathToThings) {
-		this.path = FileSystems.getDefault().getPath(pathToThings);
-		eb = new EventBuilder();
-		load();
+	private final Map<String, Pokemon> pokemonMap = new HashMap<String, Pokemon>();	
+	/**
+	 * The location of the levels of evolution
+	 */
+	private static final String LEVELS_OF_EVOLUTION_LOCATION = "resources/InputFiles/levelsOfEvolve.csv";
+	/**
+	 * Location of which pokemon evolve to what
+	 */
+	private static final String EVOLUTIONS_LOCATION = "resources/InputFiles/evolutions.csv";
+	/**
+	 * The location of the csv of all the thing to import into the game
+	 */
+	private static final String[] THING_LIST_LOCATIONS = {"resources/InputFiles/pokemonList.csv"};
+	/**
+	 * The location of all pregenerated "basic" events to load into the game. I.E.
+	 * items that have events that can be described by methods in the ThingLoader class
+	 */
+	private static final String EVENT_MAP_LOCATION = "resources/InputFiles/eventMapList.csv";
+	/**
+	 * Location of csv containing extra attributes for things. Format as specified in thingloader
+	 */
+	private static final String[] EXTRA_ATTRIBUTE_LOCATIONS = {"resources/InputFiles/extraAttributes.csv"};
+	private static final String PATH_TO_DESCRIPTIONS = "resources/InputFiles/descriptionList.csv";
+	private static final ThingLoader INSTANCE = new ThingLoader(THING_LIST_LOCATIONS, PATH_TO_DESCRIPTIONS, EVENT_MAP_LOCATION, EVOLUTIONS_LOCATION, LEVELS_OF_EVOLUTION_LOCATION, EXTRA_ATTRIBUTE_LOCATIONS);
+	private ThingLoader(String[] pathToThings) {
+		this(pathToThings, null);
 	}
-	public ThingLoader(String pathToThings, String pathToEvents) {
-		this.path = FileSystems.getDefault().getPath(pathToThings);
-		eb = new EventBuilder(pathToEvents);
-		load();
+	private ThingLoader(String[] pathToThings, String pathToEvents) {
+		if (pathToEvents == null)
+			eb = new EventBuilder();
+		else
+			eb = new EventBuilder(pathToEvents);
+		for (String path : pathToThings)
+			load(GameUtils.getPath(path));
 	}
-	public ThingLoader(String pathToThings, String pathToDescriptions, String pathToEvents, String pathToEvolutions, String pathToLevelsOfEvolve, String... pathsToExtraAttributes) {
+	private ThingLoader(String[] pathToThings, String pathToDescriptions, String pathToEvents, String pathToEvolutions, String pathToLevelsOfEvolve, String... pathsToExtraAttributes) {
 		this(pathToThings, pathToEvents);
-		this.pathsToExtraAttributes = new Path[pathsToExtraAttributes.length];
-		int i = 0;
 		for (String path: pathsToExtraAttributes) {
-			this.pathsToExtraAttributes[i++] = FileSystems.getDefault().getPath(path);
+			 loadExtraAttributes(GameUtils.getPath(path));
 		}
-		loadExtraAttributes();
 		new PokemonEvolutionLoader(pathToEvolutions, pathToLevelsOfEvolve).load();
 		new GenerateAttributes().generate(pokemonToGenerateAttributesFor);
 		new DescriptionLoader(pathToDescriptions).load();
-		System.out.println("");
+	}
+	public static ThingLoader sharedInstance() {
+		return INSTANCE;
 	}
 	/**
 	 * <br> Assumes sheets of the form:</br>
@@ -75,13 +94,10 @@ public final class ThingLoader {
 	 * <br>Name can be mentioned on more than one line for different attributes</br>
 	 * <br>Names that don't exist can be mentioned, they will be ignored</br>
 	 */
-	private void loadExtraAttributes() {
-		for (Path pathToExtraAttributes: pathsToExtraAttributes) {
+	private void loadExtraAttributes(Path pathToExtraAttributes) {
 			CurrentIteratorValue civ = CurrentIteratorValue.UNKNOWN;
 			try {
-				List<String> lines = Files.readAllLines(pathToExtraAttributes, StandardCharsets.UTF_8);
-				for (String line: lines) {
-					String[] values = line.split(",");
+				for (String[] values : CSVReader.readCSV(pathToExtraAttributes)) {
 					String potentialInput = values[0].toUpperCase().trim();
 					if (potentialInput.equals("POKEMON"))
 						civ = CurrentIteratorValue.POKEMON;
@@ -100,13 +116,13 @@ public final class ThingLoader {
 						}
 					}
 
-
 				}
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
+		
 	}
 	private void loadExtraAttribute(String[] values) {
 		String name = values[0];
@@ -128,12 +144,9 @@ public final class ThingLoader {
 	 * <br> ... </br> 
 	 * <br> Duplicates SHOULD NOT appear in list</br>
 	 */
-	private void load() {
-		thingMap.put("Small Table", new Item("Small Table", null, new HashSet<Attribute>(), eb.getEvents("Small Table")));
+	private void load(Path path) {
 		try {
-			List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
-			for (String line: lines) {
-				String[] values = line.split(",");
+			for (String[] values : CSVReader.readCSV(path)) {
 				String type = values[0];
 				if (type.equals("POKEMON"))
 					loadPokemon(values);
@@ -197,36 +210,87 @@ public final class ThingLoader {
 		}
 		return attributes;
 	}
+	public String getThingImage(String thingName) {
+		return thingMap.get(thingName).getImage();
+	}
+	/**
+	 * Get all things that exist in the game
+	 * @return an unmodifiable set of all things
+	 */
 	public Set<Thing> getThingSet() {
 			return thingSet;
 	}
+	/**
+	 * Get all pokemon that exist in the game
+	 * @return an unmodifiable set of all pokemon
+	 */
 	public Set<Pokemon> getPokemonSet() {
-		return new HashSet<Pokemon>(pokemonMap.values());
+		return pokemonSet;
 	}
+	/**
+	 * Get all things that exist in the game
+	 * @return an unmodifiable set of all items
+	 */
 	public Set<Item> getItemSet() {
 		return itemSet;
 	}
-	public Thing getThing(String name) {
+	/**
+	 * Creates a new instance of the thing with the given name with all the characterstics that were loaded in on the game start
+	 * @param name the name of thing 
+	 * @return The new thing. Throws NullPointerException if not present
+	 */
+	public Thing generateNewThing(String name) {
 		return thingMap.get(name).makeCopy();
 	}
-	public Pokemon getPokemon(String name) {
+	/**
+	 * Creates a new instance of the Pokemon with the given name with all the characterstics that were loaded in on the game start
+	 * @param name the name of pokemon
+	 * @return The new thing. Throws NullPointerException if not present
+	 */
+	public Pokemon generateNewPokemon(String name) {
 		return new Pokemon(pokemonMap.get(name));
 	}
-	private Thing getOriginalThing(String name) {
+	/**
+	 * Creates a new instance of the item with the given name with all the characterstics that were loaded in on the game start
+	 * @param name the name of thing 
+	 * @return The new thing. Throws NullPointerException if not present
+	 */
+	public Item generateNewItem(String name) {
+		return new Item(itemMap.get(name));
+	}
+	
+	/**
+	 * Returns the originally created thing with the given name
+	 * @param name the name of the thing
+	 * @return the thing
+	 */
+	private Thing getThing(String name) {
 		return thingMap.get(name);
 	}
-	private Pokemon getOriginalPokemon(String name) {
+	/**
+	 * Returns the originally created pokemon with the given name
+	 * @param name the name of the pokemon
+	 * @return the pokemon
+	 */
+	private Pokemon getPokemon(String name) {
 		return pokemonMap.get(name);
 	}
+	
+	/**
+	 * @param name the name of the thing to lookup
+	 * @return true if that thing was loaded in
+	 */
 	public boolean hasThing(String name) {
 		return thingMap.containsKey(name);
 	}
+	/**
+	 * @param name the name of the pokemon to lookup
+	 * @return true if that Pokemon was loaded in
+	 */
 	public boolean hasPokemon(String name) {
 		return pokemonMap.containsKey(name);
 	}
-	public Item getItem(String name) {
-		return new Item(itemMap.get(name));
-	}
+	
 	/**
 	 * Currently serves no purpose in the logic past debugging
 	 * @author David O'Sullivan
@@ -242,19 +306,15 @@ public final class ThingLoader {
 		 */
 		private Set<String> namesLoaded = new HashSet<String>();
 		public PokemonEvolutionLoader(String pathToEvolutions, String pathToLevelsOfEvolve) {
-			this.pathToEvolutions = FileSystems.getDefault().getPath(pathToEvolutions);
-			this.pathToLevelsOfEvolve = FileSystems.getDefault().getPath(pathToLevelsOfEvolve);
+			this.pathToEvolutions = GameUtils.getPath(pathToEvolutions);
+			this.pathToLevelsOfEvolve = GameUtils.getPath(pathToLevelsOfEvolve);
 		}
 		private void load() {
 			try {
-				List<String> lines = Files.readAllLines(pathToLevelsOfEvolve, StandardCharsets.UTF_8);
-				for (String line: lines) {
-					String[] values = line.split(",");
+				for (String[] values: CSVReader.readCSV(pathToLevelsOfEvolve)) {
 					loadLevel(values);
 				}
-				lines = Files.readAllLines(pathToEvolutions, StandardCharsets.UTF_8);
-				for (String line: lines) {
-					String[] values = line.split(",", -1);
+				for (String[] values : CSVReader.readCSV(pathToEvolutions, -1)) {
 					loadEvolution(values);
 				}
 			} catch (IOException e) {
@@ -320,7 +380,7 @@ public final class ThingLoader {
 	private final class DescriptionLoader {
 		Path pathToDescriptions;
 		public DescriptionLoader(String pathToDescriptions) {
-			this.pathToDescriptions = FileSystems.getDefault().getPath(pathToDescriptions);
+			this.pathToDescriptions = GameUtils.getPath(pathToDescriptions);
 
 		}
 		/**
@@ -331,10 +391,8 @@ public final class ThingLoader {
 		 */
 		private void load() {
 			try {
-				List<String> lines = Files.readAllLines(pathToDescriptions, StandardCharsets.UTF_8);
 				Map<String, String> nameToDescription = new HashMap<String, String>();
-				for (String line: lines) {
-					String[] values = line.replace("\"", "").split(":");
+				for (String[] values : CSVReader.readCSV(pathToDescriptions, x -> x.replace("\"", ""), ":")) {
 					if (values.length < 2)
 						continue;
 					String name = values[0];
@@ -342,8 +400,7 @@ public final class ThingLoader {
 						continue;
 					String description = values[1].trim();
 					nameToDescription.put(name, description);
-					
-				}
+				}	
 				for (Thing t: getThingSet()) {
 					StringBuilder descriptionBuilder = new StringBuilder();
 					String name = t.getName();
@@ -351,12 +408,12 @@ public final class ThingLoader {
 						descriptionBuilder.append(nameToDescription.get(name));
 					}
 					if (hasPokemon(name)) {
-						descriptionBuilder.append(generateStatDescriptions(getOriginalPokemon(name)));
+						descriptionBuilder.append(generateStatDescriptions(getPokemon(name)));
 					}
 					if (eb.getEventDescription(name) != null) {
 						descriptionBuilder.append(eb.getEventDescription(name));
 					}
-					getOriginalThing(name).addAttribute(Attribute.generateAttribute("description", descriptionBuilder.toString()));
+					getThing(name).addAttribute(Attribute.generateAttribute("description", descriptionBuilder.toString()));
 				}
 			
 			} catch (IOException e) {

@@ -1,5 +1,7 @@
 package gameutils;
 
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -8,6 +10,25 @@ import java.util.stream.Collectors;
 public final class GameUtils {
 	private GameUtils() {
 		
+	}
+	/**
+	 * Returns a new array where the first index is Integer.parseInt(input[LowerIndex]), the last is Integer.parseInt(input[UpperIndex]),
+	 * and in between is all the parsed values of the the values between those indices
+	 * @param input the string array to parse
+	 * @param LowerIndex the first index of the array to parse
+	 * @param UpperIndex the last index of the array to the pase
+	 * @return the parsed int array corresponding to the values between LowerIndex and UpperINdex
+	 */
+	public static int[] parseAllInRangeToInt(String[] input, int LowerIndex, int UpperIndex) {
+		int[] output = new int[UpperIndex-LowerIndex+1];
+		int j = 0;
+		for (int i = LowerIndex; i <= UpperIndex; i++) {
+			output[j++] = Integer.parseInt(input[i]);
+		}
+		return output;
+	}
+	public static Path getPath(String pathName) {
+		return FileSystems.getDefault().getPath(pathName);
 	}
 	/**
 	 * @param percentChance the percent chance of an event occuring
