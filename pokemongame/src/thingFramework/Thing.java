@@ -10,7 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import effects.Event;
 import game.Board;
+import game.BoardAttributeManager;
+import gameutils.GameUtils;
 
 public abstract class Thing implements Serializable, Eventful{
 	/**
@@ -24,6 +27,7 @@ public abstract class Thing implements Serializable, Eventful{
 	private final EnumSet<ThingType> types;
 	private final Set<Attribute> attributes; 
 	private final Map<String, Attribute> attributeNameMap;
+	private List<Event> eventList= new ArrayList<Event>();
 	protected Thing() {
 		types = setThingType();
 		attributes = null;
@@ -31,6 +35,11 @@ public abstract class Thing implements Serializable, Eventful{
 		attributeNameMap = null;
 		name = null;
 		image = null;
+	}
+	protected Thing(Event...events) {
+		this();
+		if (events != null)
+			eventList.addAll(GameUtils.toArrayList(events));
 	}
 	public Thing(String name, String image, Set<Attribute> attributes) {
 		if (!vallidateAttributes(attributes))
@@ -41,6 +50,18 @@ public abstract class Thing implements Serializable, Eventful{
 		this.name = name ;
 		this.image = image;
 		attributeNameMap = generateAttributeNameMap(attributes);
+		eventList.addAll(BoardAttributeManager.getEvents(getBoardAttributes()));
+	}
+	public Thing(String name, String image, Set<Attribute> attributes, Event...events ) {
+		this(name, image, attributes, GameUtils.toArrayList(events));
+	}
+	public Thing(String name, String image, Set<Attribute> attributes, List<Event> events) {
+		this(name, image, attributes);
+		if (events != null)
+			eventList.addAll(events);
+	}
+	public List<Event> getEvents() {
+		return eventList;
 	}
 	public abstract Thing makeCopy();
 	public Thing(Thing t) {

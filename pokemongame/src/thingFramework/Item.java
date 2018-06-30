@@ -1,14 +1,12 @@
 package thingFramework;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
 import effects.Event;
 import game.Board;
-import game.BoardAttributeManager;
 import gameutils.GameUtils;
 
 public class Item extends Thing implements Serializable, Eventful{
@@ -17,26 +15,18 @@ public class Item extends Thing implements Serializable, Eventful{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private List<Event> events = new ArrayList<Event>();
 	protected Item() {}
 	private Item(Event...events) {
-		this();
-		if (events != null)
-			this.events.addAll(GameUtils.toArrayList(events));
+		super(events);
 	}
 	public Item(String name, String image, Set<Attribute> attributes) {
 		super(name, image, attributes);
-		events.addAll(BoardAttributeManager.getEvents(getBoardAttributes()));
-		
-		
 	}
 	public Item(String name, String image, Set<Attribute> attributes, Event...events ) {
-		this(name, image, attributes, GameUtils.toArrayList(events));
+		super(name, image, attributes, GameUtils.toArrayList(events));
 	}
 	public Item(String name, String image, Set<Attribute> attributes, List<Event> events ) {
-		this(name, image, attributes);
-		if (events != null)
-			this.events.addAll(events);
+		super(name, image, attributes, events);
 	}
 	public Item(Item i) {
 		this(i.getName(), i.getImage(), i.getAttributes(), i.getEvents());
@@ -73,10 +63,7 @@ public class Item extends Thing implements Serializable, Eventful{
 	public Thing makeCopy() {
 		return new Item(this);
 	}
-	@Override
-	public List<Event> getEvents() {
-		return events;
-	}
+
 
 	
 }

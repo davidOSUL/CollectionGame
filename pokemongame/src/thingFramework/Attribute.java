@@ -32,9 +32,9 @@ public class Attribute implements Serializable{
 	 */
 	private static final Attribute TYPES = new Attribute(4, "type", ParseType.ENUMSETPOKEMONTYPE, EnumSet.of(PokemonType.NORMAL), AttributeType.DISPLAYTYPE, AttributeType.CHARACTERISTIC);
 	/**
-	 * Current Happiness of a pokemon
+	 * Current Happiness of a pokemon (/10)
 	 */
-	private static final Attribute HAPPINESS = new Attribute(5, "happiness", ParseType.INTEGER, new Integer(0),AttributeType.CHANGINGVAL, AttributeType.DISPLAYTYPE, AttributeType.POKEONLY);
+	private static final Attribute HAPPINESS = new Attribute(5, "happiness", ParseType.INTEGER, new Integer(0),AttributeType.CHANGINGVAL, AttributeType.DISPLAYTYPE, AttributeType.POKEONLY, AttributeType.OUTOFTEN);
 	/**
 	 * Current Level of a pokemon
 	 */
@@ -48,7 +48,7 @@ public class Attribute implements Serializable{
 	 * The rarity of a pokemon, on scale of 1-10, derived from catchrate. 
 	 * higher is more rare. This version of rarity is used for display purposes only
 	 */
-	private static final Attribute RARITY_OUT_OF_10 = new Attribute(7, "Rarity", "rarity10", ParseType.INTEGER, new Integer(1), AttributeType.CHARACTERISTIC, AttributeType.DISPLAYTYPE, AttributeType.POKEONLY);
+	private static final Attribute RARITY_OUT_OF_10 = new Attribute(7, "Rarity", "rarity10", ParseType.INTEGER, new Integer(1), AttributeType.CHARACTERISTIC, AttributeType.DISPLAYTYPE, AttributeType.POKEONLY, AttributeType.OUTOFTEN);
 	/**
 	 * The catch rate of a pokemon on a scale from 3-255
 	 */
@@ -162,7 +162,7 @@ public class Attribute implements Serializable{
 			sb.append( getValue().toString().replace("[", ""));
 		else
 			sb.append(getValue().toString());
-		if (this.getName().equals(RARITY_OUT_OF_10.getName()))
+		if (this.containsType(AttributeType.OUTOFTEN))
 			sb.append("/10");
 		return sb.toString();
 		

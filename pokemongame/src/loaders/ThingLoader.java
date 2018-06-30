@@ -61,7 +61,7 @@ public final class ThingLoader {
 		new PokemonEvolutionLoader(pathToEvolutions, pathToLevelsOfEvolve).load();
 		new GenerateAttributes().generate(pokemonToGenerateAttributesFor);
 		new DescriptionLoader(pathToDescriptions).load();
-
+		System.out.println("");
 	}
 	/**
 	 * <br> Assumes sheets of the form:</br>
@@ -129,6 +129,7 @@ public final class ThingLoader {
 	 * <br> Duplicates SHOULD NOT appear in list</br>
 	 */
 	private void load() {
+		thingMap.put("Small Table", new Item("Small Table", null, new HashSet<Attribute>(), eb.getEvents("Small Table")));
 		try {
 			List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
 			for (String line: lines) {
@@ -143,6 +144,7 @@ public final class ThingLoader {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		thingSet.addAll(thingMap.values());
 		thingSet = Collections.unmodifiableSet(thingSet);
 		pokemonSet.addAll(pokemonMap.values());
@@ -150,11 +152,13 @@ public final class ThingLoader {
 		itemSet.addAll(itemMap.values());
 		itemSet = Collections.unmodifiableSet(itemSet);
 	}
+	//TODO: Change all getPokemons, to getOrignalPokemons
 	private void loadPokemon(String[] values) {
 		String name = values[1];
 		String texture = POKE_SPRITE_LOC + values[2];
+		List<Event> listOfEvents = eb.getEvents(name);
 		Set<Attribute> attributes = loadAttributes(values, 3, name);
-		Pokemon pm = new Pokemon(name, texture, attributes);
+		Pokemon pm = new Pokemon(name, texture, attributes, listOfEvents);
 		thingMap.put(name, pm);
 		pokemonMap.put(name, pm);
 		
@@ -207,6 +211,15 @@ public final class ThingLoader {
 	}
 	public Pokemon getPokemon(String name) {
 		return new Pokemon(pokemonMap.get(name));
+	}
+	private Thing getOriginalThing(String name) {
+		return thingMap.get(name);
+	}
+	private Pokemon getOriginalPokemon(String name) {
+		return pokemonMap.get(name);
+	}
+	public boolean hasThing(String name) {
+		return thingMap.containsKey(name);
 	}
 	public boolean hasPokemon(String name) {
 		return pokemonMap.containsKey(name);
@@ -318,27 +331,33 @@ public final class ThingLoader {
 		 */
 		private void load() {
 			try {
-				Set<Pokemon> pokemonInDescriptionList = new HashSet<Pokemon>();
 				List<String> lines = Files.readAllLines(pathToDescriptions, StandardCharsets.UTF_8);
+				Map<String, String> nameToDescription = new HashMap<String, String>();
 				for (String line: lines) {
 					String[] values = line.replace("\"", "").split(":");
 					if (values.length < 2)
 						continue;
 					String name = values[0];
+					if (!hasThing(name)) 
+						continue;
 					String description = values[1].trim();
-					if (!name.contains("(") && hasPokemon(name)) {
-						Pokemon p = getPokemon(name);
-						pokemonInDescriptionList.add(p);
-						p.addAttribute(Attribute.generateAttribute("description", description + generateStatDescriptions(p)));
-
-					}
+					nameToDescription.put(name, description);
 					
 				}
-				for (Pokemon p: pokemonSet) {
-					if (!pokemonInDescriptionList.contains(p))
-						p.addAttribute(Attribute.generateAttribute("description", generateStatDescriptions(p)));
+				for (Thing t: getThingSet()) {
+					StringBuilder descriptionBuilder = new StringBuilder();
+					String name = t.getName();
+					if (nameToDescription.containsKey(name)) {  
+						descriptionBuilder.append(nameToDescription.get(name));
+					}
+					if (hasPokemon(name)) {
+						descriptionBuilder.append(generateStatDescriptions(getOriginalPokemon(name)));
+					}
+					if (eb.getEventDescription(name) != null) {
+						descriptionBuilder.append(eb.getEventDescription(name));
+					}
+					getOriginalThing(name).addAttribute(Attribute.generateAttribute("description", descriptionBuilder.toString()));
 				}
-			
 			
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

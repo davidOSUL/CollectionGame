@@ -32,7 +32,8 @@ public enum AttributeType {
 	 * An attribute that should be displayed in the pokemon's description. Note that this is part of the description
 	 * and hence the description attribute itself does not have one, as it is just made up of these guys.
 	 */
-	DISPLAYTYPE
+	DISPLAYTYPE,
+	OUTOFTEN
 	
 	
 }
