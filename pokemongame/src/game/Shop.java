@@ -7,7 +7,8 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-import loaders.ShopItemLoader;
+import shopLoader.ShopItem;
+import shopLoader.ShopItemLoader;
 import thingFramework.Thing;
 
 //TODO
@@ -61,6 +62,7 @@ public class Shop implements Serializable{
 		
 
 	}
+	
 	private void throwIfNotPresent(String name) {
 		if (!hasThingForPurchase(name))
 			throw new IllegalArgumentException(name + " is not currently in the shop");

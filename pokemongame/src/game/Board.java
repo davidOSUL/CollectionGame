@@ -20,6 +20,7 @@ import effects.CustomPeriodEvent;
 import effects.Event;
 import gameutils.GameUtils;
 import loaders.ThingLoader;
+import shopLoader.ShopItem;
 import thingFramework.Eventful;
 import thingFramework.Item;
 import thingFramework.Pokemon;
@@ -584,6 +585,7 @@ public class Board implements Serializable {
 		shop.addToShopStock(thingName);
 		addGold(goldToAdd);
 	}
+	//TODO: might want to make shop take in ShopItems instead of thingName
 	public void sellBack(String thingName, double percentOfOriginalVal) {
 		sellBack(thingName, percentOfOriginalVal*shop.getCost(thingName)); //TODO: fix this so it allows for getting cost of shop items that arent in shop anymore
 	}

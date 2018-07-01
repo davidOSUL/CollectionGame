@@ -1,4 +1,4 @@
-package game;
+package shopLoader;
 
 import java.io.Serializable;
 
@@ -21,7 +21,7 @@ public class ShopItem implements Serializable{
 	 * @param cost the cost
 	 * @param displayRank the order that the ShopItem should be displayed relative to other shopItems (1 first, 2 second, etc.)
 	 */
-	public ShopItem(String thingName, int initialQuantity, int cost, int displayRank) {
+	protected ShopItem(String thingName, int initialQuantity, int cost, int displayRank) {
 		this.setThingName(thingName);
 		this.setQuantity(initialQuantity);
 		this.setCost(cost);
@@ -30,13 +30,18 @@ public class ShopItem implements Serializable{
 	}
 	/**
 	 * Construct a new ShopItem using an array of ints for the last three values. Equivalent to <code>ShopItem(thingName, quantityCostAndRank[0], quantityCostAndRank[1], quantityCostAndRank[2])</code>
+	 * Should only be called by ShopItemLoader
 	 * @param thingName the name of the thing
 	 * @param quantityCostAndRank an array where the first value is quantity, the second is cost, and the third is displayRank
 	 */
-	public ShopItem(String thingName, int[] quantityCostAndRank) {
+	protected ShopItem(String thingName, int[] quantityCostAndRank) {
 		this(thingName, quantityCostAndRank[0], quantityCostAndRank[1], quantityCostAndRank[2]);
 	}
-	public ShopItem(ShopItem shopItem) {
+	/**
+	 * Construct a new ShopItem using all the values of the passed in shopItem. Should only be called by ShopItemLoader
+	 * @param shopItem the shop item to call
+	 */
+	protected ShopItem(ShopItem shopItem) {
 		this(shopItem.getThingName(), shopItem.getCost(), shopItem.getCost(), shopItem.getDisplayRank());
 	}
 	/**

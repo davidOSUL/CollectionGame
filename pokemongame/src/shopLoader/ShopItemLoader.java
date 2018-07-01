@@ -1,4 +1,4 @@
-package loaders;
+package shopLoader;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -8,8 +8,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import game.ShopItem;
 import gameutils.GameUtils;
+import loaders.CSVReader;
+import loaders.ThingLoader;
 import thingFramework.Thing;
 
 public class ShopItemLoader {
