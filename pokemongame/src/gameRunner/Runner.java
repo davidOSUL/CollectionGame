@@ -26,7 +26,7 @@ public class Runner  {
 		    public void run() {
 		    	
 		        GameView gv = new GameView("Pokemon Collection Game V. Alpha");
-		        Board board = new Board(); 
+		        Board board = new Board(100000000, 0 ); 
 		        p.setBoard(board);
 		        p.setGameView(gv);
 		        gv.setPresenter(p);

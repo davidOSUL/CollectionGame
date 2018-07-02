@@ -47,43 +47,46 @@ public class EventBuilder {
 	 * Loads all the events at the provided path
 	 * @param p the path of the eventMapList.csv file
 	 */
-	private void loadEventsFromPath(Path p) {
-		List<String> lines = null;
+	private void loadEventsFromPath(Path p) {			
 		try {
-			lines = Files.readAllLines(p, StandardCharsets.UTF_8);
+			for (String[] vals: CSVReader.readCSV(p)) {
+				StringBuilder description = new StringBuilder();
+				String newline = "";
+				String name=vals[0]; //e.g. smalltable
+				List<Event> events = new ArrayList<Event>();
+				for (int i = 1; i < vals.length; i++) {
+					description.append(newline);
+					String[] inputs = vals[i].split(":"); //e.g. randomgold:3:4:5, where 3,4,5 are the inputs to the generate function
+					String type = inputs[0]; //the type of event
+					TypicalEvents te = TypicalEvents.valueOf(type.toUpperCase().trim());
+					int lower = te.getLower();
+					int upper = te.getUpper();
+					Event e = null;
+					switch (te) {
+					case RANDOMGOLD:
+						int[] integerInputs = GameUtils.parseAllInRangeToInt(inputs, lower, upper-1); //upper-1 because the last input will be a double that we have to parse seperately
+						e = generateRandomGoldEvent(integerInputs[0], integerInputs[1], Double.parseDouble(inputs[upper]));
+						description.append(te.getDescription(integerInputs[0], integerInputs[1], Double.parseDouble(inputs[upper])));
+						break;
+					}
+					if (e != null)
+						events.add(e);
+					else
+						throw new Error("ISSUE ADDING EVENT TO EVENTFULITEM: " + name);
+					newline = "\n";
+				}
+				mapEvents.put(name, events); //place the created event
+				eventNameToDescription.put(name, description.toString());
+			}
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		for (String s: lines) {
-			StringBuilder description = new StringBuilder();
-			String newline = "";
-			String[] vals = s.split(",");
-			String name=vals[0]; //e.g. smalltable
-			List<Event> events = new ArrayList<Event>();
-			for (int i = 1; i < vals.length; i++) {
-				description.append(newline);
-				String[] inputs = vals[i].split(":"); //e.g. randomgold:3:4:5, where 3,4,5 are the inputs to the generate function
-				String type = inputs[0]; //the type of event
-				TypicalEvents te = TypicalEvents.valueOf(type.toUpperCase().trim());
-				int lower = te.getLower();
-				int upper = te.getUpper();
-				Event e = null;
-				switch (te) {
-				case RANDOMGOLD:
-					int[] integerInputs = GameUtils.parseAllInRangeToInt(inputs, lower, upper-1); //upper-1 because the last input will be a double that we have to parse seperately
-					e = generateRandomGoldEvent(integerInputs[0], integerInputs[1], Double.parseDouble(inputs[upper]));
-					description.append(te.getDescription(integerInputs[0], integerInputs[1], Double.parseDouble(inputs[upper])));
-					break;
-				}
-				if (e != null)
-					events.add(e);
-				else
-					throw new Error("ISSUE ADDING EVENT TO EVENTFULITEM: " + name);
-				newline = "\n";
-			}
-			mapEvents.put(name, events); //place the created event
-			eventNameToDescription.put(name, description.toString());
+		} catch (Error e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
 	}
