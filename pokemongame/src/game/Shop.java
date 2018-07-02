@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Queue;
+import java.util.Set;
+import java.util.TreeSet;
 
 import shopLoader.ShopItem;
 import shopLoader.ShopItemLoader;
@@ -24,24 +24,24 @@ public class Shop implements Serializable{
 	/**
 	 * Mantains priorty queue of all values in "itemsInShop" map, sorted by displayrank
 	 */
-	private Queue<ShopItem> itemsInOrder;
+	private Set<ShopItem> itemsInOrder;
 	/**
 	 * Creates a new Shop with the default initial itmes from ShopItemLoader added
 	 */
 	public Shop() {
 		ShopItemLoader.sharedInstance().generateInitialShopItems().forEach(shopItem -> itemsInShop.put(shopItem.getThingName(), shopItem));
-		itemsInOrder = new PriorityQueue<ShopItem>(itemsInShop.size(), new Comparator<ShopItem>() {
+		itemsInOrder = new TreeSet<ShopItem>(new Comparator<ShopItem>() {
 		    @Override
 		    public int compare(ShopItem s1, ShopItem s2) {
 		        return Integer.compare(s1.getDisplayRank(), s2.getDisplayRank());
 		    }
 		});
-		itemsInShop.forEach((k, v) -> itemsInOrder.add(v));
+		itemsInOrder.addAll(itemsInShop.values());
 	}
 	/**
 	 * @return a queue sorted in order of the shop items display rank
 	 */
-	public Queue<ShopItem> itemsInOrder() {
+	public Set<ShopItem> itemsInOrder() {
 		return itemsInOrder;
 	}
 	/**
@@ -85,6 +85,14 @@ public class Shop implements Serializable{
 		Thing thing = ShopItemLoader.sharedInstance().generateNewThing(name);
 		removeOne(name);
 		return thing;
+	}
+	public Thing purchase(ShopItem item) {
+		if (!itemsInOrder.contains(item))
+			throw new IllegalArgumentException(item.getThingName() + " is not currently in the shop");
+		return purchase(item.getThingName());
+	}
+	public Thing getThingCopy(ShopItem item) {
+		return ShopItemLoader.sharedInstance().generateNewThing(item.getThingName());
 	}
 	public int getCost(String name) {
 		throwIfNotPresent(name);

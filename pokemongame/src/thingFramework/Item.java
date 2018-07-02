@@ -8,8 +8,9 @@ import java.util.Set;
 import effects.Event;
 import game.Board;
 import gameutils.GameUtils;
+import interfaces.Imagable;
 
-public class Item extends Thing implements Serializable, Eventful{
+public class Item extends Thing implements Serializable, Eventful, Imagable{
 	
 	/**
 	 * 

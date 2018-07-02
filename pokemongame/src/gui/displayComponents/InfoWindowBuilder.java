@@ -19,7 +19,7 @@ import javax.swing.JPanel;
 import gui.guiutils.GuiUtils;
 import gui.mouseAdapters.MouseClickWithThreshold;
 import gui.mvpFramework.Presenter;
-import thingFramework.Thing;
+import interfaces.Imagable;
 
 /**
  * A Pop-Up Window that interfaces with a provided Presenter. All Features are added incrementally, only adding what is needed.
@@ -31,11 +31,11 @@ public class InfoWindowBuilder {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Thing thing;
+	private Imagable imagable;
 	private String pictureCaption;
 	private String info;
 	private List<JButton> buttons = new ArrayList<JButton>();
-	private static final int DEFAULT_WIDTH = 300;
+	private static final int DEFAULT_WIDTH = 350;
 	private static final int DEFAULT_HEIGHT = 200;
 	private static final int CLICK_DIST_THRESH = 20;
 	private boolean isDone = false;
@@ -44,6 +44,9 @@ public class InfoWindowBuilder {
 	private Presenter presenter;
 	private JLabel image;
 	private JPanel panel = new JPanel();
+	private boolean setScale = false;
+	private int scaleWidth = 0;
+	private int scaleHeight = 0;
 	/**
 	 * Create a new InfoWindow with Default Width and Height
 	 */
@@ -68,12 +71,19 @@ public class InfoWindowBuilder {
 		return this;
 	}
 	/**
-	 * Sets the Item associated with this info window, this is used to set the picture on the info window
-	 * @param t the Thing to get a picture from
+	 * Sets the Item associated with this info window, this is used to set the picture on the info window, as well as the tool tip
+	 * using that Imagable's toString method
+	 * @param i the Imagable to get a picture from
 	 * @return the new info window
 	 */
-	public InfoWindowBuilder setThing(Thing t) {
-		this.thing = t;
+	public InfoWindowBuilder setImagable(Imagable i) {
+		this.imagable = i;
+		return this;
+	}
+	public InfoWindowBuilder setScale(int width, int height) {
+		setScale = true;
+		scaleWidth = width;
+		scaleHeight = height;
 		return this;
 	}
 	/**
@@ -157,9 +167,12 @@ public class InfoWindowBuilder {
 		
 		JPanel itemPan = new JPanel();
 		JLabel jl = new JLabel("");
-		if (thing!=null) {
-			jl = new JLabel(new ImageIcon(GuiUtils.readImage(thing.getImage())));
-			DescriptionManager.getInstance().setDescription(jl, thing.toString());
+		if (imagable!=null) {
+			Image i = GuiUtils.readImage(imagable.getImage());
+			if (setScale && i.getWidth(null) > scaleWidth && i.getHeight(null) > scaleHeight)
+				i = GuiUtils.getScaledImage(i, scaleWidth, scaleHeight);
+			jl = new JLabel(new ImageIcon(i));
+			DescriptionManager.getInstance().setDescription(jl, imagable.toString());
 			image = jl;
 		}
 		jl.setText(pictureCaption);

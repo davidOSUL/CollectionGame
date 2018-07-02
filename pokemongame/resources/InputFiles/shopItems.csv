@@ -1,0 +1,12 @@
+Thing,InitialQuantity,Cost,Rank,Default?
+Bulbasaur,1,999999,1,yes
+Ivysaur,1,999999,2,yes
+Venusaur,1,999999,3,yes
+Charmander,1,999999,4,yes
+Charmeleon,1,999999,5,yes
+Charizard,1,999999,6,yes
+Squirtle,1,999999,7,yes
+Wartortle,1,999999,8,yes
+Blastoise,1,999999,9,yes
+Caterpie,1,999999,10,yes
+Small Table,10,20,0,yes

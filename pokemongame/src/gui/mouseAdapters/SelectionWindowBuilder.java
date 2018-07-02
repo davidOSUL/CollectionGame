@@ -41,11 +41,8 @@ public class SelectionWindowBuilder<T> {
 	 * @return this
 	 */
 	public SelectionWindowBuilder<T> addOption(String name, BiConsumer<T, MouseEvent> onClick, T actOn) {
-		JMenuItem item = new JMenuItem(name);
 		MouseListener listener = new MouseClickWithThreshold<T>(allowableDistance, onClick, actOn);
-		item.addMouseListener(listener);
-		menu.add(item);
-		return this;
+		return addOption(name, listener);
 	}
 	/**
 	 * Adds a new Element to the Popupmenu, uses the passed in allowableDistance as the value for the maximum distance

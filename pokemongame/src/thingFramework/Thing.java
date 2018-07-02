@@ -14,8 +14,9 @@ import effects.Event;
 import game.Board;
 import game.BoardAttributeManager;
 import gameutils.GameUtils;
+import interfaces.Imagable;
 
-public abstract class Thing implements Serializable, Eventful{
+public abstract class Thing implements Serializable, Eventful, Imagable{
 	/**
 	 * 
 	 */

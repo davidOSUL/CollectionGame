@@ -203,7 +203,7 @@ public class Grid extends GameSpace {
 	 * @return null if unable to add the component (e.g. no room in grid), the GridSpace that was added otherwise
 	 */
 	@AddToGrid
-	public GridSpace addGridSpaceSnapToGrid(GameSpace g, Point p) {
+	public GridSpace addGridSpaceSnapToGrid(GridSpace g, Point p) {
 		if (p.x > subX*numColumns || p.y > subY*numRows)
 			return null;
 		return addGridSpace(g, getSnapPoint(p));
@@ -216,7 +216,7 @@ public class Grid extends GameSpace {
 	 * @return null if there was not room at that location for that GameSpace, the gridspace assigned to this grid otherwise
 	 */
 	@AddToGrid
-	public GridSpace addGridSpace(GameSpace g, GridPoint p_g) {
+	public GridSpace addGridSpace(GridSpace g, GridPoint p_g) {
 		GridSpace gridSpace = new GridSpace(g, p_g);
 		if (!hasRoom(p_g, gridSpace.numColumns, gridSpace.numRows))
 			return null;	
@@ -228,7 +228,7 @@ public class Grid extends GameSpace {
 	 * @return null if there is no available spot in current grid, the gridspace assigned to grid otherwise
 	 */
 	@AddToGrid
-	public GridSpace addGridSpaceFirstFit(GameSpace g) {
+	public GridSpace addGridSpaceFirstFit(GridSpace g) {
 		GridSpace gridSpace = new GridSpace(g);
 		Spot s = findFirstFit(gridSpace);
 		if (s == null)
@@ -252,7 +252,6 @@ public class Grid extends GameSpace {
 			spot.resident = g;
 		}
 		add(g);
-		g.addListeners();
 		return g;
 	}
 	/**
@@ -341,7 +340,7 @@ public class Grid extends GameSpace {
 	 * @return the generated GridSpace
 	 */
 	public GridSpace generateGridSpace(GameSpace g) {
-		return new GridSpace(g);
+		return new GridSpace(g, 0,0);
 	}
 	
 	/**
@@ -353,6 +352,7 @@ public class Grid extends GameSpace {
 		private int numColumns;
 		private int numRows;
 		private GridPoint p_g;
+		private boolean isShopItem = false;
 		private final List<MouseListener> listeners = new ArrayList<MouseListener>();
 		/**
 		 * Creates a new GridSpace at a specified GridPoint and with specified dimensions.
@@ -397,17 +397,17 @@ public class Grid extends GameSpace {
 		 * @param g the GameSpace reference
 		 * @param p_g the GridPoint
 		 */
-		private GridSpace(GameSpace g, GridPoint p_g) {
+		private GridSpace(GridSpace g, GridPoint p_g) {
 			this(g, p_g.x, p_g.y);
+			setIsShopItem(g.isShopItem);
 		}
 		/**
 		 * Creates a new GridSpace at location p_g = (0,0) copying size/image from the provided gameSpace (and snapping to this grid accordingly)
 		 * @param g
 		 */
-		private GridSpace(GameSpace g) {
+		private GridSpace(GridSpace g) {
 			this(g,0,0);
 		}
-		
 		/**
 		 * Sets the location of this Grid to the specified GridPoint
 		 * @param p_g the grid point to set the location to 
@@ -421,7 +421,16 @@ public class Grid extends GameSpace {
 		public int getArea() {
 			return numColumns * numRows;
 		}
-
+		/**
+		 * Set whether or not this gridspace is a shop item (used so that user can click to sell back to shop)
+		 * @param isShopItem whether or not this is a shop item
+		 */
+		public void setIsShopItem(boolean isShopItem) {
+			this.isShopItem = isShopItem;
+		}
+		public boolean isShopItem() {
+			return this.isShopItem;
+		}
 		/**
 		 * Compares areas of GridSpaces
 		 * @param gridSpace The GridSpace to compare to
@@ -459,9 +468,10 @@ public class Grid extends GameSpace {
 		}
 	
 		/**
-		 * Adds "double click to move" listeners
+		 * Adds "double click to move" listeners, as well as popup listeners
 		 */
 		private void addListeners() {
+			removeListeners();
 			BiConsumer<GameView, MouseEvent> onDoubleClick = (gv, e) -> {
 				gv.getPresenter().attemptMoveGridSpace(this);
 			};
@@ -477,12 +487,23 @@ public class Grid extends GameSpace {
 			BiConsumer<GameView, MouseEvent> onClickDelete = (gv, e) -> {			
 				gv.getPresenter().attemptDeleteGridSpace(this);
 			};
+			BiConsumer<GameView, MouseEvent> onClickSellBack = (gv, e) -> {			
+				gv.getPresenter().attemptSellBackGridSpace(this);
+			};
+			if (isShopItem) {
+				swb.addOption("Sell " + getName() + " back for " + gv.getPresenter().getGridSpaceSellBackValue(this) + 
+						GuiUtils.getToolTipDollar(),
+						onClickSellBack, gv);
+			}
 			return swb.addOption("Set " + getName() + " Free", onClickDelete, gv)
 					.addOption("Move " + getName() + " To Bank").getListener();
 			
 		}
 		public void removeFromGrid() {
 			Grid.this.removeGridSpace(this);
+		}
+		public void updateListeners() {
+			addListeners();
 		}
 		/**
 		 * Removes all mouse listeners

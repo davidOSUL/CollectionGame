@@ -8,7 +8,7 @@ import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.KeyStroke;
 
-import functional.Procedure;
+import interfaces.Procedure;
 
 /**
  * Manages key bindings by adding quicker method of adding Key Stroke actions

@@ -20,6 +20,7 @@ import javax.imageio.ImageIO;
  * @author DOSullivan
  */
 public final class GuiUtils {
+	private static String pokeCash = "<html><img src=\"" + GuiUtils.class.getResource("/sprites/ui/dollar.png") + "\">";
 	private GuiUtils() {}
 	/**
 	 * Checks if two Rectangles overlap with each other
@@ -42,7 +43,36 @@ public final class GuiUtils {
 	 
 	    return true;
 	}
-	
+	public static BufferedImage overlayText(Image image, String text, Point p, Font f) {
+		BufferedImage input = newBufferedImage(image);
+		Graphics2D g2d = input.createGraphics();
+		g2d.setFont(f);
+		g2d.setColor(Color.BLACK);
+		g2d.drawString(text, p.x, p.y);
+		return input;
+	}
+	public static BufferedImage overlayImage(Image image, Image overlay, Point p) {
+		BufferedImage input =  newBufferedImage(image);
+		Graphics2D g2d = input.createGraphics();
+		g2d.drawImage(overlay, p.x, p.y, null);
+		return input;
+		
+	}
+	public static String getToolTipDollar() {
+		//return pokeCash;
+		return "$";
+	}
+	/**
+	 * Creates a NEW instance of a buffered image, copying over from an image
+	 * @param image the image to copy from
+	 * @return the new buffered image
+	 */
+	public static BufferedImage newBufferedImage(Image image) {
+		BufferedImage bi = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2 = bi.createGraphics();
+		g2.drawImage(image, 0, 0, bi.getWidth(), bi.getHeight(), null);
+		return bi;
+	}
 	/**
 	 * Returns a new BufferedImage which is the passed in image with all of white space around it gotten rid of
 	 * @param image the buffered image to trim
@@ -99,7 +129,7 @@ public final class GuiUtils {
 	 * @param h the new height
 	 * @return the new image
 	 */
-	public static Image getScaledImage(Image srcImg, int w, int h){
+	public static BufferedImage getScaledImage(Image srcImg, int w, int h){
 	    BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 	    Graphics2D g2 = resizedImg.createGraphics();
 
@@ -115,7 +145,7 @@ public final class GuiUtils {
 	 * @param opacity the opacity given as a decimal (0 is transparent, 1 is the origianl image. E.g. .5 would be 50% transparent)
 	 * @return the new image
 	 */
-	public static Image changeOpacity(Image i, float opacity) {
+	public static BufferedImage changeOpacity(Image i, float opacity) {
 		BufferedImage bi = new BufferedImage(i.getWidth(null), i.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2 = bi.createGraphics();
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
@@ -135,6 +165,9 @@ public final class GuiUtils {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	public static BufferedImage readTrimAndScaleImage(String input, int w, int h) {
+		return getScaledImage(readAndTrimImage(input),w ,h);
 	}
 	/**
 	 * Reads an image from the given path and then trims it and returns that new image
@@ -159,7 +192,7 @@ public final class GuiUtils {
 	 * @param color the background color
 	 * @return the new filled-in image
 	 */
-	public static Image FillIn(Image image, Color color) {
+	public static BufferedImage FillIn(Image image, Color color) {
 		BufferedImage bi = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2 = bi.createGraphics();
 		g2.setPaint(color);
@@ -196,7 +229,7 @@ public final class GuiUtils {
 	 * @param curr the original image
 	 * @return the rotated image
 	 */
-	public static Image rotateImage90ClockwiseAndTrim(Image curr) {
+	public static BufferedImage rotateImage90ClockwiseAndTrim(Image curr) {
 		BufferedImage img = toBufferedImage(curr);
 		int         width  = img.getWidth();
 	    int         height = img.getHeight();

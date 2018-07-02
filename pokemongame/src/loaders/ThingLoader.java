@@ -47,7 +47,7 @@ public final class ThingLoader {
 	/**
 	 * The location of the csv of all the thing to import into the game
 	 */
-	private static final String[] THING_LIST_LOCATIONS = {"resources/InputFiles/pokemonList.csv"};
+	private static final String[] THING_LIST_LOCATIONS = {"resources/InputFiles/pokemonList.csv", "resources/InputFiles/itemList.csv"};
 	/**
 	 * The location of all pregenerated "basic" events to load into the game. I.E.
 	 * items that have events that can be described by methods in the ThingLoader class
@@ -69,6 +69,12 @@ public final class ThingLoader {
 			eb = new EventBuilder(pathToEvents);
 		for (String path : pathToThings)
 			load(GameUtils.getPath(path));
+		thingSet.addAll(thingMap.values());
+		thingSet = Collections.unmodifiableSet(thingSet);
+		pokemonSet.addAll(pokemonMap.values());
+		pokemonSet = Collections.unmodifiableSet(pokemonSet);
+		itemSet.addAll(itemMap.values());
+		itemSet = Collections.unmodifiableSet(itemSet);
 	}
 	private ThingLoader(String[] pathToThings, String pathToDescriptions, String pathToEvents, String pathToEvolutions, String pathToLevelsOfEvolve, String... pathsToExtraAttributes) {
 		this(pathToThings, pathToEvents);
@@ -158,12 +164,7 @@ public final class ThingLoader {
 			e.printStackTrace();
 		}
 		
-		thingSet.addAll(thingMap.values());
-		thingSet = Collections.unmodifiableSet(thingSet);
-		pokemonSet.addAll(pokemonMap.values());
-		pokemonSet = Collections.unmodifiableSet(pokemonSet);
-		itemSet.addAll(itemMap.values());
-		itemSet = Collections.unmodifiableSet(itemSet);
+		
 	}
 	//TODO: Change all getPokemons, to getOrignalPokemons
 	private void loadPokemon(String[] values) {
@@ -209,6 +210,9 @@ public final class ThingLoader {
 				throw new Error("WRONG NUMBER OF ATTRIBUTE INFO : " + Arrays.toString(nameValuePair) + "FOR: " + name);
 		}
 		return attributes;
+	}
+	public String getThingDescription(String thingName) {
+		return thingMap.get(thingName).toString();
 	}
 	public String getThingImage(String thingName) {
 		return thingMap.get(thingName).getImage();

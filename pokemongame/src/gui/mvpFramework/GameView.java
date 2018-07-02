@@ -4,10 +4,10 @@ import java.awt.Image;
 import java.awt.Point;
 
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
 
 import gui.gameComponents.GameSpace;
 import gui.gameComponents.Grid.GridSpace;
@@ -77,19 +77,19 @@ public class GameView extends JFrame {
 	}
 	
 	/**
-	 * Adds to the POPUP_LAYER of this GameView's LayeredPane() the provided JPanel. Displays in the center of the JFrame.
-	 * @param jp the JPanel to center and display as a pop up
+	 * Adds to the POPUP_LAYER of this GameView's LayeredPane() the provided JComponent. Displays in the center of the JFrame.
+	 * @param jp the JComponent to center and display as a pop up
 	 */
-	public void displayPanelCentered(JPanel jp) {
+	public void displayComponentCentered(JComponent jp) {
 		jp.setLocation(getCenterPoint(jp.getWidth(), jp.getHeight()));
 		getLayeredPane().add(jp, JLayeredPane.POPUP_LAYER);
 		updateDisplay();
 	}
 	/**
-	 * Removes the provided JPanel from the POPUP_LAYER
-	 * @param jp the JPanel to remove
+	 * Removes the provided JComponent from the POPUP_LAYER
+	 * @param jp the JComponent to remove
 	 */
-	public void removeDisplay(JPanel jp) {
+	public void removeDisplay(JComponent jp) {
 		getLayeredPane().remove(jp);
 		updateDisplay();		
 	}
@@ -126,6 +126,9 @@ public class GameView extends JFrame {
 	public void updateDisplay() {
 		revalidate();
 		repaint();
+	}
+	public void setInShop(boolean inShop) {
+		mainGamePanel.setInShop(inShop);
 	}
 	
 	

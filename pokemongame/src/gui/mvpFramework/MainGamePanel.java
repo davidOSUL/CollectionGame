@@ -115,8 +115,7 @@ public class MainGamePanel extends JPanel{
 	private NotificationButton notifications;
 	
 	private static final Image SHOP_BUTTON_LOGO = GuiUtils.getScaledImage(GuiUtils.readImage("/sprites/ui/pokemart.jpeg"), 50, 50);
-	
-	private static final Point SHOP_BUTTON_LOCATION = new Point(749,44); //TODO
+	private static final Point SHOP_BUTTON_LOCATION = new Point(749,44); 
 	
 	private PictureButton shopButton; //TODO;
 	/**
@@ -167,7 +166,10 @@ public class MainGamePanel extends JPanel{
 		}
 	}
 	private static final long serialVersionUID = 1L;
-
+	/**
+	 * set to true when the user is in the shop. used so that escape can close the shop window
+	 */
+	private boolean inShop = false;
 	/**
 	 * Creates a new MainGamePanel
 	 * @param gv the GameView that houses this panel
@@ -275,14 +277,17 @@ public class MainGamePanel extends JPanel{
 	 * Stop the current Add Attempt, and undo any changes 
 	 */
 	public void cancelGameSpaceAdd() {
-		if (typeOfAdd == AddType.PRIOR_ON_BOARD) {
+		switch(typeOfAdd) {
+		case PRIOR_ON_BOARD:
 			currentMoving.setImage(imageBeforeRotation);
 			gridClick(currentMoving.getGrid(), oldPoint, true); //gridClick will call endGameSpaceAdd()
-		}
-		else {
+			break;
+		default:
 			gv.getPresenter().notifyAddCanceled(currentMoving, typeOfAdd);
 			endGameSpaceAdd();
+			break;
 		}
+		
 		
 		
 	}
@@ -328,7 +333,10 @@ public class MainGamePanel extends JPanel{
 		if (addingSomething && (byPassTime || System.currentTimeMillis()-timeAddedTime > MIN_WAIT_TO_ADD)) {
 			GridSpace result = currGrid.addGridSpaceSnapToGrid(currentMoving,p);
 			if (result != null) { //if add is succesful (has room, etc.)
+				if (typeOfAdd == AddType.ITEM_FROM_SHOP)
+					result.setIsShopItem(true);
 				gv.getPresenter().notifyAdded(result, typeOfAdd);
+				result.updateListeners();
 				currGrid.removeHighlight();
 				endGameSpaceAdd();
 			}
@@ -374,6 +382,9 @@ public class MainGamePanel extends JPanel{
 	    	  if (addingSomething) {
 					cancelGameSpaceAdd();
 				}
+	    	  if (inShop) {
+	    		  gv.getPresenter().closeShop();
+	    	  }
 	      });
 	   }
 	/**
@@ -438,6 +449,9 @@ public class MainGamePanel extends JPanel{
 				}
 			});
 		}
+	}
+	public void setInShop(boolean inShop) {
+		this.inShop = inShop;
 	}
 
 	

@@ -2,9 +2,10 @@ package shopLoader;
 
 import java.io.Serializable;
 
+import interfaces.Imagable;
 import loaders.ThingLoader;
 
-public class ShopItem implements Serializable{
+public class ShopItem implements Serializable, Imagable{
 	/**
 	 * 
 	 */
@@ -14,6 +15,7 @@ public class ShopItem implements Serializable{
 	private int cost;
 	private int displayRank;
 	private String image;
+	private String description;
 	/**
 	 * Construct a new ShopItem with the given paramter
 	 * @param thingName the thingName
@@ -27,6 +29,7 @@ public class ShopItem implements Serializable{
 		this.setCost(cost);
 		this.setDisplayRank(displayRank);
 		setImage();
+		setDescription();
 	}
 	/**
 	 * Construct a new ShopItem using an array of ints for the last three values. Equivalent to <code>ShopItem(thingName, quantityCostAndRank[0], quantityCostAndRank[1], quantityCostAndRank[2])</code>
@@ -42,7 +45,7 @@ public class ShopItem implements Serializable{
 	 * @param shopItem the shop item to call
 	 */
 	protected ShopItem(ShopItem shopItem) {
-		this(shopItem.getThingName(), shopItem.getCost(), shopItem.getCost(), shopItem.getDisplayRank());
+		this(shopItem.getThingName(), shopItem.getQuantity(), shopItem.getCost(), shopItem.getDisplayRank());
 	}
 	/**
 	 * @return the thingName
@@ -106,6 +109,26 @@ public class ShopItem implements Serializable{
 	}
 	public void increaseQuantity() {
 		quantity++;
+	}
+	/**
+	 * @return name/description of the associated thing
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return getDescription();
+	}
+	/**
+	 * @return name/description of the associated thing;
+	 */
+	public String getDescription() {
+		return description;
+	}
+	/**
+	 * @param description the description to set
+	 */
+	private void setDescription() {
+		this.description = ThingLoader.sharedInstance().getThingDescription(thingName);
 	}
 	
 

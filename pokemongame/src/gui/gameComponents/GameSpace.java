@@ -161,6 +161,16 @@ public class GameSpace extends JComponent {
 	public boolean isEmpty() {
 		return imageAtSpace == null;
 	}
+	@Override
+	public void setSize(Dimension d) {
+		super.setSize(d);
+		super.setPreferredSize(d);
+	}
+	@Override
+	public void setSize(int x, int y) {
+		super.setSize(x,y);
+		super.setPreferredSize(new Dimension(x, y));
+	}
 	/*private void removeToolTip() {
 		if (currentTip != null) {
 			currentTip.setTipText(null);

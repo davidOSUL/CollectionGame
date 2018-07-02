@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -94,12 +93,17 @@ public class Board implements Serializable {
 	 */
 	private Pokemon grabbedPokemon = null;
 	/**
+	 * This is the current ShopItem that may be purchased if the purchase is confirmed or it may be refunded if the purchase is canceled
+	 */
+	private ShopItem grabbedShopItem = null;
+	/**
 	 * This is the value of the total chance rarities of every pokemon. In other words,
 	 * it is the denominator for determining the percent chance that a certain pokemon
 	 * will show up (that is the probability will be: getRelativeChanceRarity(pokemon.rarity)/RUNNING_TOTAL)
 	 */
 	private static final long RUNNING_TOTAL;
 	private static final int MAX_ATTEMPTS = 50;
+	private double sellBackPercent = .5;
 	static {
 		long rt = 0; //running total
 
@@ -559,36 +563,54 @@ public class Board implements Serializable {
 	/**
 	 * @return a queue (sorted by display rank) of all the items presently in the shop
 	 */
-	public Queue<ShopItem> getItemsInShop() {
+	public Set<ShopItem> getItemsInShop() {
 		return shop.itemsInOrder();
 	}
 	/**
-	 * @param thingName the thing in the shop to purchase
+	 * @param item the item in the shop to purchase
 	 * @return true if have enough money to purchase, false otherwise
 	 */
-	public boolean canPurchase(String thingName) {
-		return (shop.getCost(thingName) <= getGold());
+	public boolean canPurchase(ShopItem item) {
+		return (item.getCost() <= getGold());
+	}
+	/**
+	 * If have enough money, start the purchase attempt
+	 * @param item the ShopItem in the shop
+	 * @return a Thing (for display purposes) that corresponds to the item
+	 */
+	public Thing startPurchase(ShopItem item) {
+		if (canPurchase(item)) {
+			grabbedShopItem = item;
+			return shop.getThingCopy(item);
+		}
+		return null;
+		
 	}
 	/**
 	 * If have enough money, generate a new Thing corresponding to the thingName in the shop, and subtract the cost of that thing
-	 * @param thingName the name of the thing in the shop
 	 * @return the newly generated thing
 	 */
-	public Thing purchase(String thingName) {
-		if (!canPurchase(thingName))
+	public Thing confirmPurchase() {
+		if (!canPurchase(grabbedShopItem))
 			return null;
-		subtractGold(shop.getCost(thingName));
-		return shop.purchase(thingName);
+		subtractGold(grabbedShopItem.getCost());
+		return shop.purchase(grabbedShopItem);
 		
 	}
-	public void sellBack(String thingName, int goldToAdd) {
-		shop.addToShopStock(thingName);
-		addGold(goldToAdd);
+	/**
+	 * Cancel the purchase attempt
+	 */
+	public void cancelPurchase() {
+		grabbedShopItem = null;
 	}
-	//TODO: might want to make shop take in ShopItems instead of thingName
-	public void sellBack(String thingName, double percentOfOriginalVal) {
-		sellBack(thingName, percentOfOriginalVal*shop.getCost(thingName)); //TODO: fix this so it allows for getting cost of shop items that arent in shop anymore
+	public void sellBack(ShopItem item) {
+		shop.addToShopStock(item.getThingName());
+		addGold(getSellBackValue(item));
 	}
+	public int getSellBackValue(ShopItem item) {
+		return Math.max(1 , (int)(item.getCost()*sellBackPercent));
+	}
+	
 	
 
 

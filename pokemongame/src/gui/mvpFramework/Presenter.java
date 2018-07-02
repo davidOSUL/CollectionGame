@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -15,9 +16,11 @@ import javax.swing.JPanel;
 import game.Board;
 import gui.displayComponents.DescriptionManager;
 import gui.displayComponents.InfoWindowBuilder;
+import gui.displayComponents.ShopWindow;
 import gui.gameComponents.GameSpace;
 import gui.gameComponents.Grid.GridSpace;
 import gui.guiutils.GuiUtils;
+import shopLoader.ShopItem;
 import thingFramework.Pokemon;
 import thingFramework.Thing;
 
@@ -60,15 +63,25 @@ public class Presenter {
 	/**
 	 * When an JPanel is opened, this will be set to that JPanel
 	 */
-	private JPanel currentWindow = null;
+	private JComponent currentWindow = null;
 	/**
 	 * The background of the JPanel that pops up when the notification button is pressed
 	 */
 	private final static Image INFO_WINDOW_BACKGROUND = GuiUtils.readImage("/sprites/ui/pikabackground.jpg");
+	/**
+	 * Map of all things that are on board and were sold via the shop
+	 */
+	private Map<GridSpace, ShopItem> soldThings = new HashMap<GridSpace, ShopItem>();
 	private String oldString; //TODO: Remove this or add debug feature
 	private String newString;
 	private volatile boolean toolTipsEnabled = true;
 	private volatile boolean saved = false;
+	/**
+	 * When attempting to purchase an item this is ShopItem the user wants to purchase one thing from 
+	 */
+	private ShopItem itemToPurchase = null;
+	private ShopItem itemToSellBack = null;
+	private ShopWindow shopWindow;
 	public Presenter() {
 	};
 	/**
@@ -80,7 +93,6 @@ public class Presenter {
 		this();
 		setBoard(b);
 		setGameView(gv);
-		oldString = board.toString();
 	}
 	/**
 	 * Checks if the GridSpace is present
@@ -91,9 +103,10 @@ public class Presenter {
 		return allThings.containsKey(gs);
 	}
 	/**
-	 * Removes the GridSpace from the GUI and removes the thing that it corresponds to from the board
+	 * Removes the GridSpace from the GUI and removes the thing that it corresponds to from the board. Also removes it
+	 * from allThings and soldThings (if present)
 	 * @param gs the GridSpace to remove
-	 * @param removeFromBoard if true will remove the thing from board, otherwise just removes it from allThings map
+	 * @param removeFromBoard if true will remove the thing from board, otherwise just removes it from allThings map/soldThings map
 	 * @return the mapEntry that was removed
 	 */
 	private  mapEntry removeGridSpace(GridSpace gs, boolean removeFromBoard) {
@@ -101,7 +114,8 @@ public class Presenter {
 			throw new RuntimeException("Attempted To Remove Non-Existant GridSpace");
 		if (removeFromBoard)
 			board.removeThing(allThings.get(gs));
-		allThings.get(gs);
+		if (gs.isShopItem())
+			soldThings.remove(gs);
 		return new mapEntry(gs, allThings.remove(gs));
 	}
 	/**
@@ -150,6 +164,7 @@ public class Presenter {
 	 */
 	public void setBoard(Board b) {
 		this.board = b;
+		oldString = board.toString();
 	}
 	/**
 	 * Sets the GameView of this Presenter
@@ -157,6 +172,8 @@ public class Presenter {
 	 */
 	public void setGameView(GameView gv) {
 		this.gameView = gv;
+		shopWindow = new ShopWindow(gv);
+		shopWindow.updateItems(board.getItemsInShop());
 		if (SHOW_CONFIRM_ON_CLOSE) {
 			gameView.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			gameView.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -184,17 +201,17 @@ public class Presenter {
 		JPanel wildPokemonWindow = wildPokemonWindow(board.grabWildPokemon());
 		setCurrentWindow(wildPokemonWindow);									
 	}
-	/**
-	 * To be called whenever the shop button is clicked
-	 */
-	public void shopClicked() {
-		System.out.println("SHOP CLICK");
-		//TODO: implement
-	}
+	
 
-	private void setCurrentWindow(JPanel window) {
+	/**
+	 * Sets the current window to the passed in window, and removes the currentWindow if any
+	 * @param window the window to display
+	 */
+	private void setCurrentWindow(JComponent window) {
+		if (currentWindow != null)
+			gameView.removeDisplay(currentWindow);
 		currentWindow = window;
-		gameView.displayPanelCentered(window);
+		gameView.displayComponentCentered(window);
 	}
 	/**
 	 * Called when a GridSpace is sucessfully added to the board. Adds the provided GridSpace to <GridSpace, Thing> map and adds the thing (thingToAdd) to the board if
@@ -204,10 +221,12 @@ public class Presenter {
 	private void addGridSpace(GridSpace gs, AddType type) {
 		if (thingToAdd == null)
 			return;
-		if (type == AddType.POKE_FROM_QUEUE)
+		if (type == AddType.POKE_FROM_QUEUE || type == AddType.ITEM_FROM_SHOP)
 			board.addThing(thingToAdd);
 		allThings.put(gs, thingToAdd);
-		finishAddAttempt();
+		if (gs.isShopItem())
+			soldThings.put(gs, itemToPurchase);
+
 	}
 	/**
 	 * Sets the state and updates the tool tip manager accordingly
@@ -225,12 +244,13 @@ public class Presenter {
 
 	}
 	/**
-	 * Finalizes the add attempt by getting rid of thingToAdd and changing the state of the game back to GAMEPLAY
+	 * Finalizes the add attempt by getting rid of thingToAdd, itemToPurchase, and changing the state of the game back to GAMEPLAY
 	 * Will be called whether or not the GridSpace was actually added to the board
 	 * @sets CurrentState.GAMEPLAY
 	 */
 	private void finishAddAttempt() {
 		thingToAdd = null;
+		itemToPurchase = null;
 		setState(CurrentState.GAMEPLAY);
 	}
 	/**
@@ -240,8 +260,16 @@ public class Presenter {
 	 */
 	public void notifyAdded(GridSpace gs, AddType type) {
 		addGridSpace(gs, type);
-		if (type == AddType.POKE_FROM_QUEUE)
+		switch(type) {
+		case POKE_FROM_QUEUE:
 			board.confirmGrab();
+			break;
+		case ITEM_FROM_SHOP:
+			board.confirmPurchase();
+			shopWindow.updateItems(board.getItemsInShop());
+			break;
+		}
+		finishAddAttempt();
 	}
 
 	/**
@@ -251,9 +279,13 @@ public class Presenter {
 	 * @param type
 	 */
 	public void notifyAddCanceled(GridSpace gs, AddType type) {
-		if (type == AddType.POKE_FROM_QUEUE)
-		{
+		switch (type) {
+		case POKE_FROM_QUEUE:
 			board.undoGrab();
+			break;
+		case ITEM_FROM_SHOP:
+			board.cancelPurchase();
+			break;
 		}
 		finishAddAttempt();
 	}
@@ -264,7 +296,10 @@ public class Presenter {
 	 * @sets CurrentState.PLACING_SPACE
 	 */
 	public void attemptAddThing(Thing t, AddType type) {
-		GameSpace gs = new GameSpace(GuiUtils.readAndTrimImage(t.getImage()), t.getName());
+		Image i = GuiUtils.readAndTrimImage(t.getImage());
+		if (t.getName().equals("Small Table"))
+			i = GuiUtils.getScaledImage(i, 40, 40);
+		GameSpace gs = new GameSpace(i, t.getName());
 		setState(CurrentState.PLACING_SPACE);
 		thingToAdd = t;
 		gameView.attemptNewGridSpaceAdd(gs, type);
@@ -292,6 +327,8 @@ public class Presenter {
 		if (state != CurrentState.GAMEPLAY)
 			return false;
 		setState(CurrentState.PLACING_SPACE);
+		if (gs.isShopItem())
+			itemToPurchase = soldThings.get(gs);
 		gs.removeFromGrid();
 		mapEntry entry = removeGridSpace(gs, false);
 		attemptAddExistingThing(entry, AddType.PRIOR_ON_BOARD);
@@ -319,6 +356,7 @@ public class Presenter {
 	private void confirmDelete() {
 		if (state != CurrentState.DELETE_CONFIRM_WINDOW || gridSpaceToDelete == null) 
 			throw new RuntimeException("No Delete to Confirm");
+		soldThings.remove(gridSpaceToDelete);
 		this.removeGridSpace(gridSpaceToDelete, true);
 		gridSpaceToDelete.removeFromGrid();
 		finishDeleteAttempt();
@@ -331,11 +369,95 @@ public class Presenter {
 		setState(CurrentState.GAMEPLAY);
 	}
 	/**
+	 * To be called when the user attempts to sell back a GridSpace. Essentially a modified delete attempt that also gives user
+	 * back money
+	 * @param gs the GridSpace that the user wants to sell back
+	 * @return false if the user is not allowed to sell back the GridSpace (they are currently in the Notification Window for example)
+	 *@sets CurrentState.SELL_BACK_CONFIRM_WINDOW if doesn't return false, otherwise keeps state the same
+	 */
+	public boolean attemptSellBackGridSpace(GridSpace gs) {
+		if (!containsGridSpace(gs))
+			throw new IllegalArgumentException("GridSpace " + gs + "Not found on board");
+		if (!soldThings.containsKey(gs))
+			throw new IllegalArgumentException("GridSpace " + gs + "Not a sold item");
+		if (state != CurrentState.GAMEPLAY)
+			return false;
+		setState(CurrentState.SELL_BACK_CONFIRM_WINDOW);
+	    itemToSellBack = soldThings.get(gs);
+		JPanel sellBackWindow = attemptToSellBackWindow(itemToSellBack);
+		setCurrentWindow(sellBackWindow);
+		gridSpaceToDelete = gs;
+		return true;
+
+	}
+	private void confirmSellBack() {
+		if (state != CurrentState.SELL_BACK_CONFIRM_WINDOW || gridSpaceToDelete == null || itemToSellBack == null) 
+			throw new RuntimeException("No Delete to Confirm");
+		board.sellBack(itemToSellBack);
+		soldThings.remove(gridSpaceToDelete);
+		this.removeGridSpace(gridSpaceToDelete, true);
+		gridSpaceToDelete.removeFromGrid();
+		shopWindow.updateItems(board.getItemsInShop());
+		finishSellBackAttempt();
+	}
+	/**
+	 * @sets CurrentState.GAMEPLAY
+	 */
+	private void finishSellBackAttempt() {
+		itemToSellBack = null;
+		finishDeleteAttempt();
+		
+	}
+	public int getGridSpaceSellBackValue(GridSpace gs) {
+		return board.getSellBackValue(soldThings.get(gs));
+	}
+	
+	/**
 	 * To be called when the User Clicks the notification button and then clicks cancel. Undos the board grab, and sets the state of the game back to GamePlay
 	 * @sets CurrentState.GAMEPLAY
 	 */
 	private void undoNotificationClicked() {
 		board.undoGrab();
+		setState(CurrentState.GAMEPLAY);
+	}
+	/**
+	 * To be called whenever the shop button is clicked
+	 *@sets CurrentState.IN_SHOP
+	 */
+	public void shopClicked() {
+		if (state != CurrentState.GAMEPLAY)
+			return;
+		System.out.println("SHOP CLICK");
+		setState(CurrentState.IN_SHOP);
+		setCurrentWindow(shopWindow.getShopWindow());
+		gameView.setInShop(true);
+		
+	}
+	
+	public void attemptPurchaseThing(ShopItem item) {
+		if (!board.canPurchase(item))
+			return;
+		closeShop();
+		setState(CurrentState.PURCHASE_CONFIRM_WINDOW);
+		JPanel confirmPurchaseWindow = confirmPurchaseWindow(item);
+		setCurrentWindow(confirmPurchaseWindow);
+		itemToPurchase = item;
+	}
+	/**
+	 * Starts the purchase of the item. Will not subtract money till placed (so that if the user cancels, nothing happens)
+	 */
+	public void confirmWantToPurchase() {
+		Thing thing = board.startPurchase(itemToPurchase);
+		attemptAddThing(thing, AddType.ITEM_FROM_SHOP);
+	}
+	/**
+	 * Close the shop window
+	 */
+	public void closeShop() {
+		if (state != CurrentState.IN_SHOP)
+			throw new RuntimeException("not in shop!");
+		CleanUp();
+		gameView.setInShop(false);
 		setState(CurrentState.GAMEPLAY);
 	}
 	/**
@@ -348,6 +470,12 @@ public class Presenter {
 			break;
 		case DELETE_CONFIRM_WINDOW:
 			confirmDelete();
+			break;
+		case PURCHASE_CONFIRM_WINDOW:
+			confirmWantToPurchase();
+			break;
+		case SELL_BACK_CONFIRM_WINDOW:
+			confirmSellBack();
 			break;
 		}
 	}
@@ -362,6 +490,13 @@ public class Presenter {
 		case DELETE_CONFIRM_WINDOW:
 			finishDeleteAttempt();
 			break;
+		case PURCHASE_CONFIRM_WINDOW:
+			setState(CurrentState.GAMEPLAY);
+			shopClicked();
+			break;
+		case SELL_BACK_CONFIRM_WINDOW:
+			finishSellBackAttempt();
+			break;
 		}
 
 	}
@@ -373,7 +508,7 @@ public class Presenter {
 		currentWindow = null;	
 	}
 	/**
-	 * to be called when the currentWindow is no longer being used
+	 * to be called when the currentWindow is no longer being used. As of right now, Only called by custom buttons, not by default enter/cancel buttons
 	 * @sets CurrentState.GAMEPLAY
 	 */
 	public void Finish() {
@@ -388,7 +523,7 @@ public class Presenter {
 		return  new InfoWindowBuilder()
 				.setPresenter(this)
 				.setInfo("A wild " + p.getName() + " appeared!")
-				.setThing(p)
+				.setImagable(p)
 				.addEnterButton("Place")
 				.addButton("Set Free", LET_POKE_GO, true, false, true)
 				.addCancelButton()
@@ -405,12 +540,35 @@ public class Presenter {
 		return new InfoWindowBuilder()
 				.setPresenter(this)
 				.setInfo("Are you sure you want to set " + t.getName() + " free?")
-				.setThing(t)
+				.setImagable(t)
+				.setScale(96, 96)
 				.addEnterButton("Yes")
 				.addCancelButton()
 				.setBackgroundImage(INFO_WINDOW_BACKGROUND)
 				.createWindow();
 
+	}
+	private JPanel confirmPurchaseWindow(ShopItem item) {
+		return new InfoWindowBuilder()
+				.setPresenter(this)
+				.setInfo("Are you sure you want to purchase " + item.getThingName() + " for " + item.getCost() + GuiUtils.getToolTipDollar() + "?")
+				.setImagable(item)
+				.setScale(96, 96)
+				.addEnterButton("Yes")
+				.addCancelButton()
+				.setBackgroundImage(INFO_WINDOW_BACKGROUND)
+				.createWindow();
+	}
+	private JPanel attemptToSellBackWindow(ShopItem item) {
+		return new InfoWindowBuilder()
+				.setPresenter(this)
+				.setInfo("Are you sure you want to Sell Back " + item.getThingName() + " for " + board.getSellBackValue(item) +"?")
+				.setImagable(item)
+				.setScale(96, 96)
+				.addEnterButton("Yes")
+				.addCancelButton()
+				.setBackgroundImage(INFO_WINDOW_BACKGROUND)
+				.createWindow();
 	}
 	/**
 	 * The CurrentState of GamePlay
@@ -418,7 +576,7 @@ public class Presenter {
 	 *
 	 */
 	private enum CurrentState {
-		GAMEPLAY, NOTIFICATION_WINDOW, PLACING_SPACE, DELETE_CONFIRM_WINDOW
+		GAMEPLAY, NOTIFICATION_WINDOW, PLACING_SPACE, DELETE_CONFIRM_WINDOW, IN_SHOP, PURCHASE_CONFIRM_WINDOW, SELL_BACK_CONFIRM_WINDOW
 	}
 	/**
 	 * The context of the Add Attempt
@@ -428,7 +586,7 @@ public class Presenter {
 	 *
 	 */
 	public enum AddType{
-		POKE_FROM_QUEUE, PRIOR_ON_BOARD
+		POKE_FROM_QUEUE, PRIOR_ON_BOARD, ITEM_FROM_SHOP
 	}
 	/**
 	 * A mapping between a thing and a GridSpace
