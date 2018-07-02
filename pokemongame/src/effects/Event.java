@@ -78,6 +78,8 @@ public class Event implements Serializable {
 	private synchronized void runRemove(Board b) {
 		onPlaceExecuted.set(false);
 		onRemove.accept(b);
+		if (DEBUG)
+			System.out.println("runOnRemove from " + this);
 	}
 	public synchronized boolean onPlaceExecuted() {
 		return onPlaceExecuted.get();

@@ -10,6 +10,8 @@ import java.awt.event.MouseListener;
 import javax.swing.JComponent;
 import javax.swing.JToolTip;
 
+import gui.gameComponents.grid.GridSpace;
+
 
 /**
  * Component with image that autoexpands when image is added and returns to the passed in value for width/height when there is no image
@@ -18,9 +20,6 @@ import javax.swing.JToolTip;
 public class GameSpace extends JComponent {
 	private static final long serialVersionUID = 1L;
 	private Image imageAtSpace = null;
-	private MouseListener toolTipListener = null;
-	private JToolTip currentTip = null;
-	private boolean toolTipsEnabled = false;
 	private static final int DEFAULT_WIDTH = 100;
 	private static final int DEFAULT_HEIGHT = 100;
 	private Dimension emptyDimension = new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
@@ -171,75 +170,4 @@ public class GameSpace extends JComponent {
 		super.setSize(x,y);
 		super.setPreferredSize(new Dimension(x, y));
 	}
-	/*private void removeToolTip() {
-		if (currentTip != null) {
-			currentTip.setTipText(null);
-			currentTip.setEnabled(false);
-			remove(currentTip);
-		}
-		currentTip = null;
-	}
-	@Override
-	public void setToolTipText(String text) {
-		if (currentTip == null) {
-			createToolTip();
-			super.setToolTipText(text);
-		}
-		if (text == null) {
-			removeToolTip();
-		}
-		else 
-		currentTip.setTipText(text);
-		
-	}
-	@Override
-	public JToolTip createToolTip() {
-		currentTip = super.createToolTip();
-		currentTip.setBackground(Color.GREEN);
-		return currentTip;
-	}*/
-	
-	
-
-	
 }
-/*
- * public void updateToolTip(String description) {
-		currentTip.setTipText(DescriptionToolTipBuilder.getToolTipText(description));
-	}
-	public void enableToolTip() {
-	 if (!toolTipsEnabled) {
-		createToolTip();
-		toolTipsEnabled = true;
-		/*toolTipListener = new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				System.out.println("HI");
-				currentTip.setLocation(e.getPoint());
-				currentTip.setSize(100, 100);
-				add(currentTip);
-		
-			}
-			@Override
-			public void mouseExited(MouseEvent e) {
-				System.out.println("BYTE");
-				remove(currentTip);
-			}
-		};
-		addMouseListener(toolTipListener);
-	 }
-	}
-	public void disableToolTip() {
-		removeMouseListener(toolTipListener);
-		if (currentTip != null)
-			remove(currentTip);
-		toolTipListener = null;
-		currentTip = null;
-		toolTipsEnabled = false;
-	}
-	@Override
-	public JToolTip createToolTip() {
-		currentTip = super.createToolTip();
-		return currentTip;
-	}
- */

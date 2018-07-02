@@ -18,7 +18,7 @@ import gui.displayComponents.DescriptionManager;
 import gui.displayComponents.InfoWindowBuilder;
 import gui.displayComponents.ShopWindow;
 import gui.gameComponents.GameSpace;
-import gui.gameComponents.Grid.GridSpace;
+import gui.gameComponents.grid.GridSpace;
 import gui.guiutils.GuiUtils;
 import shopLoader.ShopItem;
 import thingFramework.Pokemon;
@@ -277,7 +277,8 @@ public class Presenter {
 	 * @param type the type of add (from queue, moving, etc.)
 	 */
 	public void notifyAdded(GridSpace gs, AddType type) {
-		addGridSpace(gs, type);
+		if (type.isNewThing)
+			addGridSpace(gs, type);
 		switch(type) {
 		case POKE_FROM_QUEUE:
 			board.confirmGrab();
@@ -287,27 +288,19 @@ public class Presenter {
 			board.confirmPurchase();
 			shopWindow.updateItems(board.getItemsInShop());
 			break;
-		case PRIOR_ON_BOARD:
-			if (shopItemBeingMoved != null)
-				soldThings.put(gs, shopItemBeingMoved);
-			break;
-			
 		}
 		gs.updateListeners(soldThings.containsKey(gs));
 		finishAddAttempt();
 	}
 	/**
-	 * Called when a GridSpace is sucessfully added to the board. Adds the provided GridSpace to <GridSpace, Thing> map and adds the thing (thingToAdd) to the board if
-	 * AddType == POKE_FROM_QUEUE
+	 * Adds the provided GridSpace to <GridSpace, Thing> map and also adds the thing (thingToAdd) to the board.
 	 * @param gs
 	 */
 	private void addGridSpace(GridSpace gs, AddType type) {
 		if (thingToAdd == null)
 			return;
-		if (type == AddType.POKE_FROM_QUEUE || type == AddType.ITEM_FROM_SHOP)
 			board.addThing(thingToAdd);
-		allThings.put(gs, thingToAdd);
-		if (type == AddType.ITEM_FROM_SHOP);
+			allThings.put(gs, thingToAdd);		
 	}
 
 	/**
@@ -355,8 +348,7 @@ public class Presenter {
 		gameView.attemptExistingGridSpaceAdd(entry.gridSpace, type);
 	}
 	/**
-	 * To be called when the user attempts to move a GridSpace.  This gets a bit more complicated,
-	 * because whenever a gridspace is moved, it creates a new instance (to accomidate for potential changes in gridSize, and rotations, etc). 
+	 * To be called when the user attempts to move a GridSpace.  
 	 * @param gs the GridSpace that the user wants to move
 	 * @return false if the user is not allowed to move the GridSpace (they are currently in the Notification Window for example)
 	 *@sets CurrentState.PLACING_SPACE if doesn't return false, otherwise keeps state the same
@@ -368,9 +360,7 @@ public class Presenter {
 			return false;
 		setState(CurrentState.PLACING_SPACE);
 		gs.removeFromGrid();
-		if (soldThings.containsKey(gs))
-			shopItemBeingMoved = soldThings.get(gs);
-		AllThingsMapEntry entry = removeGridSpace(gs, false);
+		AllThingsMapEntry entry = new AllThingsMapEntry(gs, allThings.get(gs));
 		attemptAddExistingThing(entry, AddType.PRIOR_ON_BOARD);
 		return true;
 	}
@@ -625,7 +615,11 @@ public class Presenter {
 	 *
 	 */
 	public enum AddType{
-		POKE_FROM_QUEUE, PRIOR_ON_BOARD, ITEM_FROM_SHOP
+		POKE_FROM_QUEUE(true), PRIOR_ON_BOARD(false), ITEM_FROM_SHOP(true);
+		private boolean isNewThing;
+		private AddType(boolean newThing) {
+			this.isNewThing = newThing;
+		}
 	}
 	/**
 	 * A mapping between a thing and a GridSpace

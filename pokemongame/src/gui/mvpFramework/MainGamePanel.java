@@ -20,10 +20,10 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import gui.gameComponents.GameSpace;
-import gui.gameComponents.Grid;
-import gui.gameComponents.Grid.GridSpace;
 import gui.gameComponents.NotificationButton;
 import gui.gameComponents.PictureButton;
+import gui.gameComponents.grid.Grid;
+import gui.gameComponents.grid.GridSpace;
 import gui.guiutils.GuiUtils;
 import gui.guiutils.KeyBindingManager;
 import gui.mouseAdapters.MouseClickWithThreshold;

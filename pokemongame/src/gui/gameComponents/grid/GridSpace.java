@@ -1,4 +1,4 @@
-package gui.gameComponents;
+package gui.gameComponents.grid;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -14,8 +14,8 @@ import java.util.function.BiConsumer;
 import javax.swing.BorderFactory;
 
 import gameutils.GameUtils;
-import gui.gameComponents.Grid.GridPoint;
-import gui.gameComponents.Grid.GridSpace;
+import gui.gameComponents.GameSpace;
+import gui.gameComponents.grid.Grid.GridPoint;
 import gui.guiutils.GuiUtils;
 import gui.mouseAdapters.DoubleClickWithThreshold;
 import gui.mouseAdapters.SelectionWindowBuilder;
@@ -31,8 +31,6 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	private int numRows;
 	private GridPoint p_g;
 	private Grid grid;
-	private int subX;
-	private int subY;
 	private final List<MouseListener> listeners = new ArrayList<MouseListener>();
 	/**
 	 * Creates a new GridSpace at a specified GridPoint and with specified dimensions.
@@ -45,6 +43,7 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 		super(x_g*grid.getSubX(),y_g*grid.getSubY(),numCols*grid.getSubX(),numRows*grid.getSubY());
 		numColumns = numCols;
 		this.numRows = numRows;
+		this.grid = grid;
 		p_g = new GridPoint(x_g, y_g);
 	}
 	/**
@@ -53,24 +52,38 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	 * @param numCols the number of columns (in spots) starting at the provided coordinate
 	 * @param numRows the number of rows (in spots) starting at the provided coordinate
 	 */
-	private GridSpace(GridPoint p_g, int numCols, int numRows) {
-		this(p_g.x, p_g.y, numCols, numRows);
+	private GridSpace(Grid grid, GridPoint p_g, int numCols, int numRows) {
+		this(grid, p_g.x, p_g.y, numCols, numRows);
 	}
 	/**
-	 * Creates a new GridSpace at the specified location, copying size/image from the provided gameSpace (and snapping to this grid accordingly)
+	 * Creates a new GridSpace at the specified location, copying size/image from the provided gameSpace (and snapping to this grid accordingly).
+	 * This will be "formatted" to the grid. Note that this does NOT add the Grid to the GridSpace
 	 * @param g the GameSpace reference
 	 * @param x_g the x coordinate of the GridPoint 
 	 * @param y_g the ycoordinate of the GridPoint
 	 */
-	private GridSpace(GameSpace g, int x_g, int y_g) {
-		super(g, x_g*subX, y_g*subY);
+	protected GridSpace(Grid grid, GameSpace g, int x_g, int y_g) {
+		super(g, x_g*grid.getSubX(), y_g*grid.getSubY());
 		setName(g.getName());
 		p_g = new GridPoint(x_g, y_g);
+		setGrid(grid, p_g);
 		if (!g.isEmpty()) {
 			setImage( g.getImage());
 		}
-		numColumns = getWidth() / subX;
-		numRows = getHeight() / subY;
+	}
+
+	/**
+	 * Changes the grid that houses this GridSpace. Essentially "formats" the grid space so that it fits. 
+	 * Note that this does NOT add the Grid to the GridSpace
+	 * @param grid the new grid
+	 * @param p_g the GridPoint within that grid
+	 */
+	protected void setGrid(Grid grid, GridPoint p_g) {
+		this.grid = grid;
+		this.p_g = p_g;
+		setLocation(p_g.x*grid.getSubX(), p_g.y*grid.getSubY());
+		numColumns = getWidth() / grid.getSubX();
+		numRows = getHeight() / grid.getSubY();
 	}
 	/**
 	 * Creates a new GridSpace at the specified location, copying size/image from the provided gameSpace (and snapping to this grid accordingly)
@@ -78,21 +91,21 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	 * @param p_g the GridPoint
 	 */
 	private GridSpace(GridSpace g, GridPoint p_g) {
-		this(g, p_g.x, p_g.y);
+		this(g.getGrid(), g, p_g.x, p_g.y);
 	}
 	/**
 	 * Creates a new GridSpace at location p_g = (0,0) copying size/image from the provided gameSpace (and snapping to this grid accordingly)
 	 * @param g
 	 */
 	private GridSpace(GridSpace g) {
-		this(g,0,0);
+		this(g.getGrid(), g,0,0);
 	}
 	/**
 	 * Sets the location of this Grid to the specified GridPoint
 	 * @param p_g the grid point to set the location to 
 	 */
-	private void setGridLocation(GridPoint p_g) {
-		this.setLocation(p_g.x*subX, p_g.y*subY);
+	protected void setGridLocation(GridPoint p_g) {
+		this.setLocation(p_g.x*grid.getSubX(), p_g.y*grid.getSubY());
 	}
 	/**
 	 * @return the area of this GridSpace
@@ -130,23 +143,26 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	 * Assigns the location of this GridSpace to the provided GridPoint
 	 * @param p_g the GridPoint to change the location to
 	 */
-	private void setPoint(GridPoint p_g) {
+	protected void setPoint(GridPoint p_g) {
 		this.p_g = p_g;
-		this.setLocation(p_g.x*subX, p_g.y*subY);
+		this.setLocation(p_g.x*grid.getSubX(), p_g.y*grid.getSubY());
+	}
+	protected int getNumColumns() {
+		return numColumns;
+	}
+	protected int getNumRows() {
+		return numRows;
+	}
+	protected GridPoint getGridPoint() {
+		return p_g;
 	}
 
-	/**
-	 * Adds "double click to move" listeners, as well as popup listeners
-	 */
-	private void addListeners() {
-		addListeners(false);
-	}
 	private void addListeners(boolean hasSellBackOption) {
 		removeListeners();
 		BiConsumer<GameView, MouseEvent> onDoubleClick = (gv, e) -> {
 			gv.getPresenter().attemptMoveGridSpace(this);
 		};
-		MouseListener dubClickListener = new DoubleClickWithThreshold<GameView>(CLICK_DIST_THRESH, onDoubleClick, gv);
+		MouseListener dubClickListener = new DoubleClickWithThreshold<GameView>(Grid.CLICK_DIST_THRESH, onDoubleClick, grid.getGameView());
 		this.addMouseListener(dubClickListener);
 		listeners.add(dubClickListener);
 		MouseListener options = getDefaultPopupListener(hasSellBackOption);
@@ -154,7 +170,7 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 		addMouseListener(options);
 	}
 	private MouseListener getDefaultPopupListener(boolean hasSellBackOption) {
-		SelectionWindowBuilder<GameView> swb = new SelectionWindowBuilder<GameView>(CLICK_DIST_THRESH, "Options");
+		SelectionWindowBuilder<GameView> swb = new SelectionWindowBuilder<GameView>(Grid.CLICK_DIST_THRESH, "Options");
 		BiConsumer<GameView, MouseEvent> onClickDelete = (gv, e) -> {			
 			gv.getPresenter().attemptDeleteGridSpace(this);
 		};
@@ -162,20 +178,20 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 			gv.getPresenter().attemptSellBackGridSpace(this);
 		};
 		if (hasSellBackOption) {
-			swb.addOption("Sell " + getName() + " back for " + gv.getPresenter().getGridSpaceSellBackValue(this) + 
+			swb.addOption("Sell " + getName() + " back for " + grid.getGameView().getPresenter().getGridSpaceSellBackValue(this) + 
 					GuiUtils.getToolTipDollar(),
-					onClickSellBack, gv);
+					onClickSellBack, grid.getGameView());
 		}
-		return swb.addOption(gv.getPresenter().getDiscardText(this), onClickDelete, gv)
+		return swb.addOption(grid.getGameView().getPresenter().getDiscardText(this), onClickDelete, grid.getGameView())
 				.addOption("Move " + getName() + " To Bank").getListener();
 		
 	}
 	/**
-	 * Removes this GridSpace from whatever grid it is in, also removes listeners
+	 * Removes this GridSpace from whatever grid it is in, also removes listeners. Does NOT set grid to null (nor should it: moving)
 	 * @see Grid#removeGridSpace(GridSpace)
 	 */
 	public void removeFromGrid() {
-		Grid.this.removeGridSpace(this);
+		grid.removeGridSpace(this);
 	}
 	/**
 	 * Updates the listeners
@@ -194,7 +210,7 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	 * @return the Grid Associated with this GridSpace
 	 */
 	public Grid getGrid() {
-		return Grid.this;
+		return grid;
 	}
 
 
@@ -204,8 +220,12 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	 */
 	@Override
 	public void setImage(Image curr) {
-		int newImageWidth = GameUtils.roundToMultiple(curr.getWidth(this), subX);
-		int newImageHeight = GameUtils.roundToMultiple(curr.getHeight(this), subY);
+		if (grid == null) {
+			super.setImage(curr);
+			return;
+		}
+		int newImageWidth = GameUtils.roundToMultiple(curr.getWidth(this), grid.getSubX());
+		int newImageHeight = GameUtils.roundToMultiple(curr.getHeight(this), grid.getSubY());
 		BufferedImage newImage = new BufferedImage(newImageWidth, newImageHeight, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D bGr = newImage.createGraphics();
 		bGr.drawImage(curr, 0, 0, null);

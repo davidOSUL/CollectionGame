@@ -10,7 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 
 import gui.gameComponents.GameSpace;
-import gui.gameComponents.Grid.GridSpace;
+import gui.gameComponents.grid.GridSpace;
 import gui.guiutils.GuiUtils;
 import gui.mvpFramework.Presenter.AddType;
 
