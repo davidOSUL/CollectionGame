@@ -14,7 +14,7 @@ import loaders.ThingLoader;
 import thingFramework.Thing;
 
 public class ShopItemLoader {
-	private static final String pathToShopItems = "resources/InputFiles/shopItems.csv";
+	private static final String SHOP_ITEM_PATH = "/InputFiles/shopItems.csv";
 	private static final ShopItemLoader INSTANCE = new ShopItemLoader();
 	/**
 	 * The set of all possible items for the shop to have
@@ -29,7 +29,7 @@ public class ShopItemLoader {
 	 */
 	private Map<String, ShopItem> shopItemMap = new HashMap<String, ShopItem>();
 	private ShopItemLoader() {
-		load(GameUtils.getPath(pathToShopItems));
+		load(SHOP_ITEM_PATH);
 		shopItems = Collections.unmodifiableSet(shopItems);
 		initialShopItems = Collections.unmodifiableSet(initialShopItems);
 	}
@@ -64,7 +64,7 @@ public class ShopItemLoader {
 	 *<br> ... </br>
 	 * @param path the path to the CSV with the shop items
 	 */
-	private void load(Path path) {
+	private void load(String path) {
 		try {
 			for (String[] values : CSVReader.readCSV(path, true)) {
 				int[] quantityCostAndRank = GameUtils.parseAllInRangeToInt(values, 1, 3);

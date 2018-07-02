@@ -18,7 +18,11 @@ public final class DescriptionManager {
 	}
 	private DescriptionManager() {
 		ToolTipManager.sharedInstance().setInitialDelay(100);
+		 ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
 		UIManager.put("ToolTip.background", Color.WHITE);
+	}
+	public void setEnabled(boolean enabled) {
+		ToolTipManager.sharedInstance().setEnabled(enabled);
 	}
 	/**
 	 * Set the ToolTip Description for a given component. Automatically formats text to work with newline characters

@@ -255,7 +255,7 @@ public class Grid extends GameSpace {
 		return g;
 	}
 	/**
-	 * Removes the GridSpace from the grid
+	 * Removes the GridSpace from the grid, also removes its listeners
 	 * @param g The GridSpace to be removed
 	 * @invariant g exists on this Grid
 	 */
@@ -344,15 +344,14 @@ public class Grid extends GameSpace {
 	}
 	
 	/**
-	 * A GameSpace aligned to the current Grid
+	 * A GameSpace aligned to a Grid
 	 * @author David O'Sullivan
 	 */
-	public class GridSpace extends GameSpace implements Comparable{
+	public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 		private static final long serialVersionUID = 1L;
 		private int numColumns;
 		private int numRows;
 		private GridPoint p_g;
-		private boolean isShopItem = false;
 		private final List<MouseListener> listeners = new ArrayList<MouseListener>();
 		/**
 		 * Creates a new GridSpace at a specified GridPoint and with specified dimensions.
@@ -399,7 +398,6 @@ public class Grid extends GameSpace {
 		 */
 		private GridSpace(GridSpace g, GridPoint p_g) {
 			this(g, p_g.x, p_g.y);
-			setIsShopItem(g.isShopItem);
 		}
 		/**
 		 * Creates a new GridSpace at location p_g = (0,0) copying size/image from the provided gameSpace (and snapping to this grid accordingly)
@@ -422,23 +420,12 @@ public class Grid extends GameSpace {
 			return numColumns * numRows;
 		}
 		/**
-		 * Set whether or not this gridspace is a shop item (used so that user can click to sell back to shop)
-		 * @param isShopItem whether or not this is a shop item
-		 */
-		public void setIsShopItem(boolean isShopItem) {
-			this.isShopItem = isShopItem;
-		}
-		public boolean isShopItem() {
-			return this.isShopItem;
-		}
-		/**
 		 * Compares areas of GridSpaces
 		 * @param gridSpace The GridSpace to compare to
 		 * @see java.lang.Comparable#compareTo(java.lang.Object)
 		 */
 		@Override
-		public int compareTo(Object gridSpace) {
-			GridSpace g = (GridSpace) gridSpace;
+		public int compareTo(GridSpace g) {
 			return g.getArea() == getArea() ? 0 : getArea() > g.getArea() ? 1 : -1;
 		}
 		/**
@@ -471,6 +458,9 @@ public class Grid extends GameSpace {
 		 * Adds "double click to move" listeners, as well as popup listeners
 		 */
 		private void addListeners() {
+			addListeners(false);
+		}
+		private void addListeners(boolean hasSellBackOption) {
 			removeListeners();
 			BiConsumer<GameView, MouseEvent> onDoubleClick = (gv, e) -> {
 				gv.getPresenter().attemptMoveGridSpace(this);
@@ -478,11 +468,11 @@ public class Grid extends GameSpace {
 			MouseListener dubClickListener = new DoubleClickWithThreshold<GameView>(CLICK_DIST_THRESH, onDoubleClick, gv);
 			this.addMouseListener(dubClickListener);
 			listeners.add(dubClickListener);
-			MouseListener options = getDefaultPopupListener();
+			MouseListener options = getDefaultPopupListener(hasSellBackOption);
 			listeners.add(options);
 			addMouseListener(options);
 		}
-		private MouseListener getDefaultPopupListener() {
+		private MouseListener getDefaultPopupListener(boolean hasSellBackOption) {
 			SelectionWindowBuilder<GameView> swb = new SelectionWindowBuilder<GameView>(CLICK_DIST_THRESH, "Options");
 			BiConsumer<GameView, MouseEvent> onClickDelete = (gv, e) -> {			
 				gv.getPresenter().attemptDeleteGridSpace(this);
@@ -490,25 +480,33 @@ public class Grid extends GameSpace {
 			BiConsumer<GameView, MouseEvent> onClickSellBack = (gv, e) -> {			
 				gv.getPresenter().attemptSellBackGridSpace(this);
 			};
-			if (isShopItem) {
+			if (hasSellBackOption) {
 				swb.addOption("Sell " + getName() + " back for " + gv.getPresenter().getGridSpaceSellBackValue(this) + 
 						GuiUtils.getToolTipDollar(),
 						onClickSellBack, gv);
 			}
-			return swb.addOption("Set " + getName() + " Free", onClickDelete, gv)
+			return swb.addOption(gv.getPresenter().getDiscardText(this), onClickDelete, gv)
 					.addOption("Move " + getName() + " To Bank").getListener();
 			
 		}
+		/**
+		 * Removes this GridSpace from whatever grid it is in, also removes listeners
+		 * @see Grid#removeGridSpace(GridSpace)
+		 */
 		public void removeFromGrid() {
 			Grid.this.removeGridSpace(this);
 		}
-		public void updateListeners() {
-			addListeners();
+		/**
+		 * Updates the listeners
+		 * @param hasSellBackOption if set to true will add option to sell back to shop
+		 */
+		public void updateListeners(boolean hasSellBackOption) {
+			addListeners(hasSellBackOption);
 		}
 		/**
 		 * Removes all mouse listeners
 		 */
-		private void removeListeners() {
+		public void removeListeners() {
 			listeners.forEach(ml -> this.removeMouseListener(ml));
 		}
 		/**

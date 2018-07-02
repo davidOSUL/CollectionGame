@@ -24,11 +24,11 @@ public class ShopWindow {
 	/**
 	 * How big the pictures of the things should be
 	 */
-	private static final int PICTURE_DIM = 50;
+	private static final int PICTURE_DIM = 48;
 	/**
 	 * The Point on the sprite image template where the iamge begins
 	 */
-	private static final Point SPRITE_IMAGE_LOC = new Point(15, 15);
+	private static final Point SPRITE_IMAGE_LOC = new Point(16, 16);
 	/**
 	 * The Point on the sprite image template where the quantity should be written
 	 */

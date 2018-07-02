@@ -59,6 +59,9 @@ public class Pokemon extends Thing implements Serializable, Eventful, Imagable {
 	public Thing makeCopy() {
 		return new Pokemon(this);
 	}
-	
+	@Override
+	public String getDiscardText() {
+		return "Set " + getName() + " free";
+	}
 	
 }

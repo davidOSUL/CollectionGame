@@ -65,6 +65,9 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 		return eventList;
 	}
 	public abstract Thing makeCopy();
+	public String getDiscardText() {
+		return "Discard " + getName();
+	}
 	public Thing(Thing t) {
 		this(t.getName(), t.getImage(), t.getAttributes());
 	}

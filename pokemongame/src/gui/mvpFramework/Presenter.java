@@ -72,9 +72,11 @@ public class Presenter {
 	 * Map of all things that are on board and were sold via the shop
 	 */
 	private Map<GridSpace, ShopItem> soldThings = new HashMap<GridSpace, ShopItem>();
+	private ShopItem shopItemBeingMoved = null;
 	private String oldString; //TODO: Remove this or add debug feature
 	private String newString;
 	private volatile boolean toolTipsEnabled = true;
+	private volatile boolean popupMenusEnabled = true;
 	private volatile boolean saved = false;
 	/**
 	 * When attempting to purchase an item this is ShopItem the user wants to purchase one thing from 
@@ -109,14 +111,25 @@ public class Presenter {
 	 * @param removeFromBoard if true will remove the thing from board, otherwise just removes it from allThings map/soldThings map
 	 * @return the mapEntry that was removed
 	 */
-	private  mapEntry removeGridSpace(GridSpace gs, boolean removeFromBoard) {
+	private  AllThingsMapEntry removeGridSpace(GridSpace gs, boolean removeFromBoard) {
+		return removeGridSpace(gs, removeFromBoard, true);
+	}
+	/**
+	 * Removes the GridSpace from the GUI and removes the thing that it corresponds to from the board. Also removes it
+	 * from allThings.
+	 * @param gs the GridSpace to remove
+	 * @param removeFromBoard if true will remove the thing from board, otherwise just removes it from allThings map/soldThings map
+	 * @param removeFromSoldThings if true will remove the thing from soldThings map
+	 * @return the mapEntry that was removed
+	 */
+	private AllThingsMapEntry removeGridSpace(GridSpace gs, boolean removeFromBoard, boolean removeFromSoldThings) {
 		if (!allThings.containsKey(gs))
 			throw new RuntimeException("Attempted To Remove Non-Existant GridSpace");
 		if (removeFromBoard)
 			board.removeThing(allThings.get(gs));
-		if (gs.isShopItem())
+		if (removeFromSoldThings)
 			soldThings.remove(gs);
-		return new mapEntry(gs, allThings.remove(gs));
+		return new AllThingsMapEntry(gs, allThings.remove(gs));
 	}
 	/**
 	 * Updates the notification counter of the notifaction button and updates the display of the GUI
@@ -213,6 +226,76 @@ public class Presenter {
 		currentWindow = window;
 		gameView.displayComponentCentered(window);
 	}
+	
+	private void stopPopupMenus() {
+		popupMenusEnabled = false;
+		allThings.forEach((gs, t) -> gs.removeListeners());
+	}
+	private void resumePopupMenus() {
+		popupMenusEnabled = true;
+		allThings.forEach((gs, t) -> gs.updateListeners(soldThings.containsKey(gs)));
+	}
+	/**
+	 * Sets the state and updates the tool tip manager accordingly
+	 * @param state The new state of the game
+	 */
+	private void setState(CurrentState state) {
+		if (state != CurrentState.GAMEPLAY) {
+			if (toolTipsEnabled)
+				stopToolTips();
+			if (popupMenusEnabled)
+				stopPopupMenus();
+			
+		}
+		if (state == CurrentState.GAMEPLAY && !toolTipsEnabled) {
+			if (!toolTipsEnabled)
+				resumeToolTips();
+			if (!popupMenusEnabled)
+				resumePopupMenus();
+		}
+		this.state = state;
+
+
+	}
+	public String getDiscardText(GameSpace gs) {
+		return allThings.get(gs).getDiscardText();
+	}
+	/**
+	 * Finalizes the add attempt by getting rid of thingToAdd, itemToPurchase, and changing the state of the game back to GAMEPLAY
+	 * Will be called whether or not the GridSpace was actually added to the board
+	 * @sets CurrentState.GAMEPLAY
+	 */
+	private void finishAddAttempt() {
+		thingToAdd = null;
+		itemToPurchase = null;
+		shopItemBeingMoved = null;
+		setState(CurrentState.GAMEPLAY);
+	}
+	/**
+	 * To be called when the provided GridSpace is succesfully added  to the board.
+	 * @param gs the GridSpace that was added
+	 * @param type the type of add (from queue, moving, etc.)
+	 */
+	public void notifyAdded(GridSpace gs, AddType type) {
+		addGridSpace(gs, type);
+		switch(type) {
+		case POKE_FROM_QUEUE:
+			board.confirmGrab();
+			break;
+		case ITEM_FROM_SHOP:
+			soldThings.put(gs, itemToPurchase);
+			board.confirmPurchase();
+			shopWindow.updateItems(board.getItemsInShop());
+			break;
+		case PRIOR_ON_BOARD:
+			if (shopItemBeingMoved != null)
+				soldThings.put(gs, shopItemBeingMoved);
+			break;
+			
+		}
+		gs.updateListeners(soldThings.containsKey(gs));
+		finishAddAttempt();
+	}
 	/**
 	 * Called when a GridSpace is sucessfully added to the board. Adds the provided GridSpace to <GridSpace, Thing> map and adds the thing (thingToAdd) to the board if
 	 * AddType == POKE_FROM_QUEUE
@@ -224,57 +307,13 @@ public class Presenter {
 		if (type == AddType.POKE_FROM_QUEUE || type == AddType.ITEM_FROM_SHOP)
 			board.addThing(thingToAdd);
 		allThings.put(gs, thingToAdd);
-		if (gs.isShopItem())
-			soldThings.put(gs, itemToPurchase);
-
-	}
-	/**
-	 * Sets the state and updates the tool tip manager accordingly
-	 * @param state The new state of the game
-	 */
-	private void setState(CurrentState state) {
-		if (toolTipsEnabled && state != CurrentState.GAMEPLAY) {
-			stopToolTips();
-		}
-		if (state == CurrentState.GAMEPLAY && !toolTipsEnabled) {
-			resumeToolTips();
-		}
-		this.state = state;
-
-
-	}
-	/**
-	 * Finalizes the add attempt by getting rid of thingToAdd, itemToPurchase, and changing the state of the game back to GAMEPLAY
-	 * Will be called whether or not the GridSpace was actually added to the board
-	 * @sets CurrentState.GAMEPLAY
-	 */
-	private void finishAddAttempt() {
-		thingToAdd = null;
-		itemToPurchase = null;
-		setState(CurrentState.GAMEPLAY);
-	}
-	/**
-	 * To be called when the provided GridSpace is succesfully added  to the board
-	 * @param gs the GridSpace that was added
-	 * @param type the type of add (from queue, moving, etc.)
-	 */
-	public void notifyAdded(GridSpace gs, AddType type) {
-		addGridSpace(gs, type);
-		switch(type) {
-		case POKE_FROM_QUEUE:
-			board.confirmGrab();
-			break;
-		case ITEM_FROM_SHOP:
-			board.confirmPurchase();
-			shopWindow.updateItems(board.getItemsInShop());
-			break;
-		}
-		finishAddAttempt();
+		if (type == AddType.ITEM_FROM_SHOP);
 	}
 
 	/**
 	 * To be called when the provided GridSpace was being added, but the user decided to cancel the add (hit escape).
-	 * If this was a AddType.POKE_FROM_QUEUE, will place the pokemon back in the queue
+	 * If this was a AddType.POKE_FROM_QUEUE, will place the pokemon back in the queue. This is NOT called when a move is canceled, as there is
+	 * no need to update the game state
 	 * @param gs the GridSpace that was being added 
 	 * @param type
 	 */
@@ -310,13 +349,14 @@ public class Presenter {
 	 * @param type the context of the add
 	 * @sets CurrentState.PLACING_SPACE
 	 */
-	private void attemptAddExistingThing(mapEntry entry, AddType type) {
+	private void attemptAddExistingThing(AllThingsMapEntry entry, AddType type) {
 		setState(CurrentState.PLACING_SPACE);
 		thingToAdd = entry.thing;
 		gameView.attemptExistingGridSpaceAdd(entry.gridSpace, type);
 	}
 	/**
-	 * To be called when the user attempts to move a GridSpace.
+	 * To be called when the user attempts to move a GridSpace.  This gets a bit more complicated,
+	 * because whenever a gridspace is moved, it creates a new instance (to accomidate for potential changes in gridSize, and rotations, etc). 
 	 * @param gs the GridSpace that the user wants to move
 	 * @return false if the user is not allowed to move the GridSpace (they are currently in the Notification Window for example)
 	 *@sets CurrentState.PLACING_SPACE if doesn't return false, otherwise keeps state the same
@@ -327,10 +367,10 @@ public class Presenter {
 		if (state != CurrentState.GAMEPLAY)
 			return false;
 		setState(CurrentState.PLACING_SPACE);
-		if (gs.isShopItem())
-			itemToPurchase = soldThings.get(gs);
 		gs.removeFromGrid();
-		mapEntry entry = removeGridSpace(gs, false);
+		if (soldThings.containsKey(gs))
+			shopItemBeingMoved = soldThings.get(gs);
+		AllThingsMapEntry entry = removeGridSpace(gs, false);
 		attemptAddExistingThing(entry, AddType.PRIOR_ON_BOARD);
 		return true;
 	}
@@ -427,7 +467,6 @@ public class Presenter {
 	public void shopClicked() {
 		if (state != CurrentState.GAMEPLAY)
 			return;
-		System.out.println("SHOP CLICK");
 		setState(CurrentState.IN_SHOP);
 		setCurrentWindow(shopWindow.getShopWindow());
 		gameView.setInShop(true);
@@ -539,7 +578,7 @@ public class Presenter {
 	private JPanel attemptToDeleteWindow(Thing t) {
 		return new InfoWindowBuilder()
 				.setPresenter(this)
-				.setInfo("Are you sure you want to set " + t.getName() + " free?")
+				.setInfo("Are you sure you want to " + GuiUtils.decapitalize(t.getDiscardText()) + "?")
 				.setImagable(t)
 				.setScale(96, 96)
 				.addEnterButton("Yes")
@@ -562,7 +601,7 @@ public class Presenter {
 	private JPanel attemptToSellBackWindow(ShopItem item) {
 		return new InfoWindowBuilder()
 				.setPresenter(this)
-				.setInfo("Are you sure you want to Sell Back " + item.getThingName() + " for " + board.getSellBackValue(item) +"?")
+				.setInfo("Are you sure you want to Sell Back " + item.getThingName() + " for " + board.getSellBackValue(item) + GuiUtils.getToolTipDollar() +"?")
 				.setImagable(item)
 				.setScale(96, 96)
 				.addEnterButton("Yes")
@@ -593,13 +632,14 @@ public class Presenter {
 	 * @author DOSullivan
 	 *
 	 */
-	private static class mapEntry{
+	private static class AllThingsMapEntry{
 		public Thing thing;
 		public GridSpace gridSpace;
-		public mapEntry(GridSpace gs, Thing t) {
+		public AllThingsMapEntry(GridSpace gs, Thing t) {
 			gridSpace = gs;
 			thing = t;
 		}
 	}
+
 
 }

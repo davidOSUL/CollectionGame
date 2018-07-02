@@ -27,9 +27,6 @@ public final class GameUtils {
 		}
 		return output;
 	}
-	public static Path getPath(String pathName) {
-		return FileSystems.getDefault().getPath(pathName);
-	}
 	/**
 	 * @param percentChance the percent chance of an event occuring
 	 * @return whether or not that event occurs

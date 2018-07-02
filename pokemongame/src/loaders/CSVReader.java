@@ -23,7 +23,7 @@ public final class CSVReader {
 	 * @return the List of inputs read
 	 * @throws IOException if file can't be found
 	 */
-	public static List<String[]> readCSV(Path path) throws IOException {
+	public static List<String[]> readCSV(String path) throws IOException {
 		return readCSV(path, null);
 	}
 	/**
@@ -33,7 +33,7 @@ public final class CSVReader {
 	 * @return the List of inputs read
 	 * @throws IOException if file can't be found
 	 */
-	public static List<String[]> readCSV(Path path, boolean ignoreFirstLine) throws IOException {
+	public static List<String[]> readCSV(String path, boolean ignoreFirstLine) throws IOException {
 		return readCSV(path, null, ",", 0, ignoreFirstLine);
 	}
 	/**
@@ -43,7 +43,7 @@ public final class CSVReader {
 	 * @return the List of inputs read
 	 * @throws IOException if file can't be found
 	 */
-	public static List<String[]> readCSV(Path path, int splitLimit) throws IOException {
+	public static List<String[]> readCSV(String path, int splitLimit) throws IOException {
 		return readCSV(path, null, ",", splitLimit);	
 	}
 	/**
@@ -54,7 +54,7 @@ public final class CSVReader {
 	 * @return the List of inputs read
 	 * @throws IOException if file can't be found
 	 */
-	public static List<String[]> readCSV(Path path, Function<String, String> modifyLineBy) throws IOException {
+	public static List<String[]> readCSV(String path, Function<String, String> modifyLineBy) throws IOException {
 		return readCSV(path, modifyLineBy, ",");
 	}
 	/**
@@ -66,7 +66,7 @@ public final class CSVReader {
 	 * @return the List of inputs read
 	 * @throws IOException if file can't be found
 	 */
-	public static List<String[]> readCSV(Path path, Function<String, String> modifyLineBy, String splitBy) throws IOException {
+	public static List<String[]> readCSV(String path, Function<String, String> modifyLineBy, String splitBy) throws IOException {
 		return readCSV(path, modifyLineBy, splitBy, 0);
 	}
 	/**
@@ -80,7 +80,7 @@ public final class CSVReader {
 	 * @return the List of inputs read
 	 * @throws IOException if file can't be found
 	 */
-	public static List<String[]> readCSV(Path path, Function<String, String> modifyLineBy, String splitBy, int splitLimit) throws IOException{
+	public static List<String[]> readCSV(String path, Function<String, String> modifyLineBy, String splitBy, int splitLimit) throws IOException{
 		return readCSV(path, modifyLineBy, splitBy, splitLimit, false);
 	}
 	/**
@@ -95,11 +95,11 @@ public final class CSVReader {
 	 * @return the List of inputs read
 	 * @throws IOException if file can't be found
 	 */
-	public static List<String[]> readCSV(Path path, Function<String, String> modifyLineBy, String splitBy, int splitLimit, boolean ignoreFirstLine) throws IOException{
+	public static List<String[]> readCSV(String path, Function<String, String> modifyLineBy, String splitBy, int splitLimit, boolean ignoreFirstLine) throws IOException{
 		if (modifyLineBy == null)
 			modifyLineBy = x -> {return x;};
 			List<String> doc;
-			try (InputStream resource = CSVReader.class.getResourceAsStream(path.) {
+			try (InputStream resource = CSVReader.class.getResourceAsStream(path)) {
 				  doc =
 				      new BufferedReader(new InputStreamReader(resource,
 				          StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
@@ -113,5 +113,7 @@ public final class CSVReader {
 		}
 		return valueList;
 	}
+	
+	
 
 }

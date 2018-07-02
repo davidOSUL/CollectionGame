@@ -333,10 +333,7 @@ public class MainGamePanel extends JPanel{
 		if (addingSomething && (byPassTime || System.currentTimeMillis()-timeAddedTime > MIN_WAIT_TO_ADD)) {
 			GridSpace result = currGrid.addGridSpaceSnapToGrid(currentMoving,p);
 			if (result != null) { //if add is succesful (has room, etc.)
-				if (typeOfAdd == AddType.ITEM_FROM_SHOP)
-					result.setIsShopItem(true);
 				gv.getPresenter().notifyAdded(result, typeOfAdd);
-				result.updateListeners();
 				currGrid.removeHighlight();
 				endGameSpaceAdd();
 			}

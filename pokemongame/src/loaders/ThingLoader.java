@@ -27,7 +27,6 @@ public final class ThingLoader {
 	private static final String GEN_CODE = "RANDOMATTRIBUTES";
 	private static final String POKE_SPRITE_LOC = "/sprites/pokemon/";
 	private static final String ITEM_SPRITE_LOC = "/sprites/items/";
-	private Path[] pathsToExtraAttributes = null;
 	private final EventBuilder eb;
 	private  Set<Thing> thingSet = new HashSet<Thing>();
 	private Set<Pokemon> pokemonSet = new HashSet<Pokemon>();
@@ -39,25 +38,25 @@ public final class ThingLoader {
 	/**
 	 * The location of the levels of evolution
 	 */
-	private static final String LEVELS_OF_EVOLUTION_LOCATION = "resources/InputFiles/levelsOfEvolve.csv";
+	private static final String LEVELS_OF_EVOLUTION_LOCATION = "/InputFiles/levelsOfEvolve.csv";
 	/**
 	 * Location of which pokemon evolve to what
 	 */
-	private static final String EVOLUTIONS_LOCATION = "resources/InputFiles/evolutions.csv";
+	private static final String EVOLUTIONS_LOCATION = "/InputFiles/evolutions.csv";
 	/**
 	 * The location of the csv of all the thing to import into the game
 	 */
-	private static final String[] THING_LIST_LOCATIONS = {"resources/InputFiles/pokemonList.csv", "resources/InputFiles/itemList.csv"};
+	private static final String[] THING_LIST_LOCATIONS = {"/InputFiles/pokemonList.csv", "/InputFiles/itemList.csv"};
 	/**
 	 * The location of all pregenerated "basic" events to load into the game. I.E.
 	 * items that have events that can be described by methods in the ThingLoader class
 	 */
-	private static final String EVENT_MAP_LOCATION = "resources/InputFiles/eventMapList.csv";
+	private static final String EVENT_MAP_LOCATION = "/InputFiles/eventMapList.csv";
 	/**
 	 * Location of csv containing extra attributes for things. Format as specified in thingloader
 	 */
-	private static final String[] EXTRA_ATTRIBUTE_LOCATIONS = {"resources/InputFiles/extraAttributes.csv"};
-	private static final String PATH_TO_DESCRIPTIONS = "resources/InputFiles/descriptionList.csv";
+	private static final String[] EXTRA_ATTRIBUTE_LOCATIONS = {"/InputFiles/extraAttributes.csv"};
+	private static final String PATH_TO_DESCRIPTIONS = "/InputFiles/descriptionList.csv";
 	private static final ThingLoader INSTANCE = new ThingLoader(THING_LIST_LOCATIONS, PATH_TO_DESCRIPTIONS, EVENT_MAP_LOCATION, EVOLUTIONS_LOCATION, LEVELS_OF_EVOLUTION_LOCATION, EXTRA_ATTRIBUTE_LOCATIONS);
 	private ThingLoader(String[] pathToThings) {
 		this(pathToThings, null);
@@ -68,7 +67,7 @@ public final class ThingLoader {
 		else
 			eb = new EventBuilder(pathToEvents);
 		for (String path : pathToThings)
-			load(GameUtils.getPath(path));
+			load(path);
 		thingSet.addAll(thingMap.values());
 		thingSet = Collections.unmodifiableSet(thingSet);
 		pokemonSet.addAll(pokemonMap.values());
@@ -79,7 +78,7 @@ public final class ThingLoader {
 	private ThingLoader(String[] pathToThings, String pathToDescriptions, String pathToEvents, String pathToEvolutions, String pathToLevelsOfEvolve, String... pathsToExtraAttributes) {
 		this(pathToThings, pathToEvents);
 		for (String path: pathsToExtraAttributes) {
-			 loadExtraAttributes(GameUtils.getPath(path));
+			 loadExtraAttributes(path);
 		}
 		new PokemonEvolutionLoader(pathToEvolutions, pathToLevelsOfEvolve).load();
 		new GenerateAttributes().generate(pokemonToGenerateAttributesFor);
@@ -100,7 +99,7 @@ public final class ThingLoader {
 	 * <br>Name can be mentioned on more than one line for different attributes</br>
 	 * <br>Names that don't exist can be mentioned, they will be ignored</br>
 	 */
-	private void loadExtraAttributes(Path pathToExtraAttributes) {
+	private void loadExtraAttributes(String pathToExtraAttributes) {
 			CurrentIteratorValue civ = CurrentIteratorValue.UNKNOWN;
 			try {
 				for (String[] values : CSVReader.readCSV(pathToExtraAttributes)) {
@@ -150,7 +149,7 @@ public final class ThingLoader {
 	 * <br> ... </br> 
 	 * <br> Duplicates SHOULD NOT appear in list</br>
 	 */
-	private void load(Path path) {
+	private void load(String path) {
 		try {
 			for (String[] values : CSVReader.readCSV(path)) {
 				String type = values[0];
@@ -304,14 +303,14 @@ public final class ThingLoader {
 		POKEMON, ITEM, UNKNOWN
 	}
 	private final class PokemonEvolutionLoader {
-		Path pathToEvolutions, pathToLevelsOfEvolve;
+		String pathToEvolutions, pathToLevelsOfEvolve;
 		/**
 		 * There may be duplicate elements due to pokemon being weird, so we avoid this
 		 */
 		private Set<String> namesLoaded = new HashSet<String>();
 		public PokemonEvolutionLoader(String pathToEvolutions, String pathToLevelsOfEvolve) {
-			this.pathToEvolutions = GameUtils.getPath(pathToEvolutions);
-			this.pathToLevelsOfEvolve = GameUtils.getPath(pathToLevelsOfEvolve);
+			this.pathToEvolutions = pathToEvolutions;
+			this.pathToLevelsOfEvolve = pathToLevelsOfEvolve;
 		}
 		private void load() {
 			try {
@@ -382,9 +381,9 @@ public final class ThingLoader {
 		}
 	}
 	private final class DescriptionLoader {
-		Path pathToDescriptions;
+		String pathToDescriptions;
 		public DescriptionLoader(String pathToDescriptions) {
-			this.pathToDescriptions = GameUtils.getPath(pathToDescriptions);
+			this.pathToDescriptions = pathToDescriptions;
 
 		}
 		/**
@@ -412,10 +411,10 @@ public final class ThingLoader {
 						descriptionBuilder.append(nameToDescription.get(name));
 					}
 					if (hasPokemon(name)) {
-						descriptionBuilder.append(generateStatDescriptions(getPokemon(name)));
+						descriptionBuilder.append("\n" + generateStatDescriptions(getPokemon(name)));
 					}
 					if (eb.getEventDescription(name) != null) {
-						descriptionBuilder.append(eb.getEventDescription(name));
+						descriptionBuilder.append("\n" + eb.getEventDescription(name));
 					}
 					getThing(name).addAttribute(Attribute.generateAttribute("description", descriptionBuilder.toString()));
 				}
@@ -439,9 +438,9 @@ public final class ThingLoader {
 				j++;
 				if (firstTime) {
 					if (j != orderedDisplays.keySet().size())
-					description.append("\n" + orderedDisplays.get(i) + "\n");
+					description.append(orderedDisplays.get(i) + "\n");
 					else
-					description.append("\n" + orderedDisplays.get(i));
+					description.append(orderedDisplays.get(i));
 					firstTime = false;
 				} else {
 				if (j != orderedDisplays.keySet().size())

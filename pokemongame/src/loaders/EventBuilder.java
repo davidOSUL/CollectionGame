@@ -40,16 +40,16 @@ public class EventBuilder {
 	 */
 	public EventBuilder(String path) {
 		this();
-		Path p = FileSystems.getDefault().getPath(path);
-		loadEventsFromPath(p);
+		//Path p = FileSystems.getDefault().getPath(path);
+		loadEventsFromPath(path);
 	}
 	/**
 	 * Loads all the events at the provided path
 	 * @param p the path of the eventMapList.csv file
 	 */
-	private void loadEventsFromPath(Path p) {			
+	private void loadEventsFromPath(String path) {			
 		try {
-			for (String[] vals: CSVReader.readCSV(p)) {
+			for (String[] vals: CSVReader.readCSV(path)) {
 				StringBuilder description = new StringBuilder();
 				String newline = "";
 				String name=vals[0]; //e.g. smalltable
