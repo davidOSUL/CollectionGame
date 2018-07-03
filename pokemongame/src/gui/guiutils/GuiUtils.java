@@ -264,4 +264,5 @@ public final class GuiUtils {
 		c[0] = Character.toLowerCase(c[0]);
 		return new String(c);
 	}
+	
 }

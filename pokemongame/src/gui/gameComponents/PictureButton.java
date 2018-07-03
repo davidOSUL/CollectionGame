@@ -19,7 +19,6 @@ import gui.mvpFramework.Presenter;
 public class PictureButton extends GameSpace {
 
 	private static final long serialVersionUID = 1L;
-	private GameView gv;
 	private static final int CLICK_DIST_THRESH = GUIConstants.CLICK_DIST_THRESH;
 	private boolean hasBorder = true;
 	/**

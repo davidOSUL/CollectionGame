@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.function.Consumer;
 
 import javax.swing.BorderFactory;
@@ -26,6 +28,7 @@ public class StartScreenBuilder {
 	private final static Image BUTTON_IMG = GuiUtils.readImage("/sprites/ui/blue_button03.png");
 	public static <T> JFrame getFrame(String title, boolean enabledContinue, Consumer<T> onNewGame, Consumer<T> onContinue, T actOn)  {
 		JFrame frame = new JFrame();
+		frame.setVisible(false);
 		frame.setSize(WINDOW_SIZE);
 		frame.setLayout(new BorderLayout());
 		frame.setTitle(title);
@@ -37,23 +40,30 @@ public class StartScreenBuilder {
 		panel.setSize(WINDOW_SIZE);
 		panel.setLayout(new GridLayout(2, 1));
 		panel.setBorder(PANEL_BORDER);*/
-		JButton newGameButton = new JButton("NewGame", new ImageIcon(BUTTON_IMG));
-		JButton continueGameButton = new JButton("Continue Game", new ImageIcon(BUTTON_IMG));
-		newGameButton.setVerticalTextPosition(JButton.CENTER);
-		newGameButton.setHorizontalTextPosition(JButton.CENTER);
-		newGameButton.setBorderPainted(false);
-		//newGameButton.setMargin(new Insets(0,0,0,0));
-		//PictureButton<T> newGameButton = new PictureButton<T>(BUTTON_IMG, onNewGame, actOn).setResize(true).disableBorder();
-		//PictureButton<T> continueGameButton =  new PictureButton<T>(BUTTON_IMG, onContinue, actOn).setResize(true).disableBorder();
-		//newGameButton.setText("New Game");
-		//continueGameButton.setText("Continue Game");
+		JButton newGameButton = ButtonWithBackgroundBuilder.generateButton(BUTTON_IMG, "New Game");
+		newGameButton.addActionListener(new ActionListener() { 
+			  public void actionPerformed(ActionEvent e) { 
+			    onNewGame.accept(actOn);
+			  } 
+		});
+	
+		JButton continueGameButton = ButtonWithBackgroundBuilder.generateButton(BUTTON_IMG, "Continue Game");
 		continueGameButton.setEnabled(enabledContinue);
+		continueGameButton.addActionListener(new ActionListener() { 
+			  public void actionPerformed(ActionEvent e) { 
+			    onContinue.accept(actOn);
+			  } 
+		});
 		background.add(newGameButton);
 		background.add(continueGameButton);
+		background.revalidate();
+		background.repaint();
+		background.setVisible(true);
 		frame.add(background, BorderLayout.CENTER);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.revalidate();
 		frame.repaint();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.pack();
 		return frame;
 	}
 }
