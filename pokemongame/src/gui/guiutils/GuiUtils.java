@@ -2,6 +2,7 @@ package gui.guiutils;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -138,6 +139,15 @@ public final class GuiUtils {
 		g2.dispose();
 
 		return resizedImg;
+	}
+	/**
+	 * Returns a new image with the width/height of the srcImage to the passed in dimension, scaling down the image 
+	 * @param srcImg the original image
+	 * @param d the dimension to scale to 
+	 * @return the new image
+	 */
+	public static BufferedImage getScaledImage(Image srcImage, Dimension d) {
+		return getScaledImage(srcImage, (int)d.getWidth(), (int)d.getHeight());
 	}
 	/**
 	 * Returns a new image which is the passed in image with the opacity changed to the given value

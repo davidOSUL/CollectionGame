@@ -190,13 +190,12 @@ public class Presenter {
 		if (SHOW_CONFIRM_ON_CLOSE) {
 			gameView.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			gameView.addWindowListener(new java.awt.event.WindowAdapter() {
+				Object[] options = {"Yes", "No"};
 				@Override
 				public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-					if (JOptionPane.showConfirmDialog(gameView, 
-							"Are you sure to quit without saving?", "", 
-							JOptionPane.YES_NO_OPTION,
-							JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION && !saved){
-								System.exit(0);
+					if (JOptionPane.showOptionDialog(gameView, "Are you sure to quit without saving?", "", 
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]) == JOptionPane.YES_OPTION && !saved) {
+						System.exit(0);
 					}
 				}
 			});

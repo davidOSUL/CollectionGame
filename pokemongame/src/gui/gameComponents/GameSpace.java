@@ -11,6 +11,7 @@ import javax.swing.JComponent;
 import javax.swing.JToolTip;
 
 import gui.gameComponents.grid.GridSpace;
+import gui.guiutils.GuiUtils;
 
 
 /**
@@ -22,6 +23,7 @@ public class GameSpace extends JComponent {
 	private Image imageAtSpace = null;
 	private static final int DEFAULT_WIDTH = 100;
 	private static final int DEFAULT_HEIGHT = 100;
+	private boolean resizeImage = false;
 	private Dimension emptyDimension = new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	/**
 	 * Creates a new empty GameSpace with Default width, height, and location = 0,0
@@ -57,6 +59,16 @@ public class GameSpace extends JComponent {
 	 */
 	public GameSpace(Image imageAtSpace) {
 		this(imageAtSpace, new Point(0,0));
+	}
+	/**
+	 * Creates a new GameSpace at location (0,0) and set with the specified image. As required by GameSpace, the size of the GameSpace will be set to the size of the image. If resize
+	 * image is set to true, then will size the image according to this.getSize() 
+	 * @param imageAtSpace The Image to set the GameSpace to 
+	 * @param resizeImage if true will resize image as gamespace changes size
+	 */
+	public GameSpace(Image imageAtSpace, boolean resizeImage) {
+		this(imageAtSpace, new Point(0,0));
+		this.resizeImage = resizeImage;
 	}
 	/**
 	 * Creates a new GameSpace at location (0,0) and set with the specified image. As required by GameSpace, the size of the GameSpace will be set to the size of the image
@@ -151,8 +163,12 @@ public class GameSpace extends JComponent {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		if (!isEmpty()) {}
-			g.drawImage(imageAtSpace, 0, 0, null);
+		if (!isEmpty())  {
+			if (resizeImage)
+				g.drawImage(GuiUtils.getScaledImage(imageAtSpace, getSize()), 0, 0, null);
+			else
+				g.drawImage(imageAtSpace, 0, 0, null);
+		}
 	}
 	/**
 	 * @return true if there is an image at this GameSpace, false otherwise
@@ -169,5 +185,6 @@ public class GameSpace extends JComponent {
 	public void setSize(int x, int y) {
 		super.setSize(x,y);
 		super.setPreferredSize(new Dimension(x, y));
+		
 	}
 }
