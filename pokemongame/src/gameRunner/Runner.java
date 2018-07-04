@@ -1,8 +1,8 @@
 package gameRunner;
 
-import java.awt.event.ActionEvent;
+import static gameutils.Constants.DEBUG;
+import java.awt.event.ActionEvent; 
 import java.awt.event.ActionListener;
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -39,7 +39,10 @@ public class Runner  {
 			@Override
 			public void run() {
 				Runner runner = new Runner();
-				runner.startGame();
+				if (DEBUG)
+					runner.notifyPressedNewGame();
+				else 
+					runner.startGame();
 			}
 		});
 	}

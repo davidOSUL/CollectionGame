@@ -205,7 +205,7 @@ public class MainGamePanel extends JPanel{
 	}
 	/**
 	 * If in the process of an add Attempt and the click was a right click, rotate the GridSpace
-	 * @param e
+	 * @param e the mouse event of the user's mouse click
 	 */
 	private void onMouseClicked(MouseEvent e) {
 		if (DEBUG)
@@ -218,7 +218,7 @@ public class MainGamePanel extends JPanel{
 				Image oldImageBeforeRotation = imageBeforeRotation;
 				GridSpace oldGridSpace = endGameSpaceAdd(); //end the current add attempt
 				rotateGridSpace90(oldGridSpace); //rotate the image
-				gridSpaceAdd(oldGridSpace, oldType); //restart the current add attempt with the new, rotated iamge
+				gridSpaceAdd(oldGridSpace, oldType); //restart the current add attempt with the new, rotated image
 				imageBeforeRotation = oldImageBeforeRotation;
 				oldPoint = oldOldPoint;
 				if (activeGrid != null) { //reset the highlight
