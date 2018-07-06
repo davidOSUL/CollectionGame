@@ -27,6 +27,7 @@ import userIO.GameSaver;
  * Starts the game and keeps it running
  * @author David O'Sullivan
  */
+//TODO: clear save upon hitting new game (confirm as well)
 public class Runner  {
 	private static final String title = "Pokemon Collection Game V. Alpha";
 	private final GameSaver saver;

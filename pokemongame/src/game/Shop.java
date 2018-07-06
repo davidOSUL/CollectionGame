@@ -5,6 +5,8 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -18,6 +20,7 @@ public class Shop implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private Set<String> itemsInitiallyInShop;
 	/**
 	 * Map between the name of an item and the corresponding shop item
 	 */
@@ -33,6 +36,8 @@ public class Shop implements Serializable{
 		ShopItemLoader.sharedInstance().generateInitialShopItems().forEach(shopItem -> itemsInShop.put(shopItem.getThingName(), shopItem));
 		itemsInOrder = new TreeSet<ShopItem>(ItemComparator.INSTANCE);
 		itemsInOrder.addAll(itemsInShop.values());
+		itemsInitiallyInShop = new HashSet<String>();
+		itemsInitiallyInShop.addAll(itemsInShop.keySet());
 	}
 	/**
 	 *Upon DeSerilization, this function is called by the JVM. This will allow us to update the shop inventory with new items in the future, keeping the old items
@@ -41,8 +46,28 @@ public class Shop implements Serializable{
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
 		//default serilization
 		ois.defaultReadObject();
-		//check for any updates to the shop!
-		ShopItemLoader.sharedInstance().generateInitialShopItems().forEach(shopItem -> itemsInShop.putIfAbsent(shopItem.getThingName(), shopItem));
+		//check for any additions to the shop
+		ShopItemLoader.sharedInstance().generateInitialShopItems().forEach(shopItem -> { //TODO: Put this in a method "start of session" along with more stuff from board
+			String name = shopItem.getThingName();
+			if (!itemsInitiallyInShop.contains(name)) {
+				itemsInitiallyInShop.add(name);
+				itemsInShop.put(name, shopItem);
+				itemsInOrder.add(shopItem);
+			}
+		});
+		Iterator<String> it = itemsInitiallyInShop.iterator();
+		while (it.hasNext()) {
+			String name = it.next();
+			if (!ShopItemLoader.sharedInstance().hasShopItem(name)) {
+				it.remove();
+				if (itemsInShop.containsKey(name)) {
+					itemsInOrder.remove(itemsInShop.get(name));
+					itemsInShop.remove(name);
+				}
+				
+			}
+		}
+		
 	}
 	/**
 	 * @return a queue sorted in order of the shop items display rank
@@ -56,7 +81,7 @@ public class Shop implements Serializable{
 	 */
 	public void addToShopStock(String name) {
 		if (!ShopItemLoader.sharedInstance().hasShopItem(name))
-			throw new IllegalArgumentException(name + " is not a valid shop item");
+			return; //TODO: add warning that they won't be able to repurchase
 		if (itemsInShop.containsKey(name)) {
 			itemsInShop.get(name).increaseQuantity();
 			return;
