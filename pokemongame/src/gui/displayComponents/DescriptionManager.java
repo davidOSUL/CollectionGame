@@ -6,6 +6,7 @@ import javax.swing.JComponent;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 
+import gui.guiutils.GuiUtils;
 import thingFramework.Thing;
 
 public final class DescriptionManager {
@@ -32,7 +33,7 @@ public final class DescriptionManager {
 	public void setDescription(JComponent comp, String description) {
 		if (comp == null)
 			throw new NullPointerException("Cant add description to null component");
-		String formattedText = getToolTipText(description);
+		String formattedText = GuiUtils.createNewLines(description);
 		comp.setToolTipText(formattedText);
 	}
 	/**
@@ -64,23 +65,6 @@ public final class DescriptionManager {
 	public void setBackgroundColor(Color c) {
 		UIManager.put("ToolTip.background", c);
 	}
-	/**
-	 * Generates tool tip text that breaks wherever a new line character is found
-	 * @param description the original text
-	 * @return the new text formatted for JToolTip
-	 */
-	private static String getToolTipText(String description) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("<html>");
-		String[] lines = description.split("\n");
-		for (int i = 0; i < lines.length-1; i++ ) {
-			sb.append(lines[i]);
-			sb.append("<br>");
-		}
-		sb.append(lines[lines.length-1]);
-		sb.append("</html>");
-		return sb.toString();
-		
-	}
+	
 
 }

@@ -49,10 +49,6 @@ public class EventManager implements Serializable{
 		removalEvents.forEach((runnable) -> runnable.run());
 		removalEvents.clear();
 	}
-	public void signifySessionEnd() {
-		events.forEach(eventful -> eventful.getEvents().forEach( event -> event.endSession()));
-		
-	}
 
 	
 

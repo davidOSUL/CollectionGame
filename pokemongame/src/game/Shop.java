@@ -45,8 +45,12 @@ public class Shop implements Serializable{
 	 */
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
 		//default serilization
-		ois.defaultReadObject();
-		//check for any additions to the shop
+		ois.defaultReadObject();		
+	}
+	/**
+	 * Will remove any items from the shop that aren't present in the shopItems list any more and also add any new ones that are. 
+	 */
+	public void checkForShopUpdates() {
 		ShopItemLoader.sharedInstance().generateInitialShopItems().forEach(shopItem -> { //TODO: Put this in a method "start of session" along with more stuff from board
 			String name = shopItem.getThingName();
 			if (!itemsInitiallyInShop.contains(name)) {
@@ -67,7 +71,6 @@ public class Shop implements Serializable{
 				
 			}
 		}
-		
 	}
 	/**
 	 * @return a queue sorted in order of the shop items display rank
@@ -76,12 +79,19 @@ public class Shop implements Serializable{
 		return itemsInOrder;
 	}
 	/**
+	 * @param name the name of the shop item
+	 * @return true if that name corresponds to a valid shop item
+	 */
+	public boolean isValidShopItem(String name) {
+		return ShopItemLoader.sharedInstance().hasShopItem(name);
+	}
+	/**
 	 * Adds a new ShopItem to the shop with quantity one if not present. Or if present increases its quantity by 1
 	 * @param name the name of the shop item to add
 	 */
 	public void addToShopStock(String name) {
-		if (!ShopItemLoader.sharedInstance().hasShopItem(name))
-			return; //TODO: add warning that they won't be able to repurchase
+		if (!isValidShopItem(name))
+			throw new IllegalArgumentException(name + " is not a valid shop item"); //TODO: add warning that they won't be able to repurchase
 		if (itemsInShop.containsKey(name)) {
 			itemsInShop.get(name).increaseQuantity();
 			return;
@@ -94,6 +104,11 @@ public class Shop implements Serializable{
 
 	}
 
+	/**
+	 * Throws an error if the shop item is <b>currently</b> not present in the shop (e.g. will throw an error for a valid shop itemn if it's
+	 * not for sale right now)
+	 * @param name
+	 */
 	private void throwIfNotPresent(String name) {
 		if (!hasThingForPurchase(name))
 			throw new IllegalArgumentException(name + " is not currently in the shop");

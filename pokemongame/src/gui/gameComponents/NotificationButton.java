@@ -96,4 +96,13 @@ public class NotificationButton extends PictureButton {
 			GuiUtils.drawCenteredString(g, Integer.toString(numNotifications), new Rectangle(0,0,getWidth(),getHeight()), DEFAULT_FONT, Color.black);
 		}
 	}
+	/**
+	 * Disables the border and returns this instance
+	 * @return this
+	 */
+	@Override
+	public NotificationButton disableBorder() {
+		super.disableBorder();
+		return this;
+	}
 }

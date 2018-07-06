@@ -16,8 +16,8 @@ public class Event implements Serializable {
 	private SerializableConsumer<Board> onPeriod = x -> {};
 	private SerializableConsumer<Board> onRemove =  x -> {};
 	private double period = -1; //period in minutes
-	private long gameTimeCreated;
-	private long sessionTimeCreated;
+	private long timeCreated;
+	private long inGameTimeCreated;
 	private volatile long numPeriodsElapsed = 0;
 	private boolean isPeriodic = false;
 	private volatile AtomicBoolean onPlaceExecuted =new AtomicBoolean(false);
@@ -68,8 +68,8 @@ public class Event implements Serializable {
 	}
 	private synchronized void runOnPlace(Board b) {
 		if (!onPlaceExecuted()) {
-			gameTimeCreated = b.getTotalGameTime();
-			sessionTimeCreated = b.getSessionGameTime();
+			timeCreated = b.getTotalTimeSinceStart();
+			inGameTimeCreated = b.getTotalInGameTime();
 		}
 		onPlaceExecuted.set(true);
 		onPlace.accept(b);
@@ -87,7 +87,7 @@ public class Event implements Serializable {
 	}
 	private synchronized void executeIfTime(Board b) {
 		if (!keepTrackWhileOff) {
-			if (hasPeriodicity() && millisAsMinutes(b.getSessionGameTime()-sessionTimeCreated) / period >= (numPeriodsElapsed+1)) {
+			if (hasPeriodicity() && millisAsMinutes(b.getTotalInGameTime()-inGameTimeCreated) / period >= (numPeriodsElapsed+1)) {
 				if (DEBUG)
 					System.out.println("perioddontkeeptrackwhile off from " + this);
 				onPeriod.accept(b);
@@ -95,7 +95,7 @@ public class Event implements Serializable {
 			}
 		}
 		else {
-			if (hasPeriodicity() && millisAsMinutes(b.getTotalGameTime()-gameTimeCreated) / period >= (numPeriodsElapsed+1)) {
+			if (hasPeriodicity() && millisAsMinutes(b.getTotalTimeSinceStart()-timeCreated) / period >= (numPeriodsElapsed+1)) {
 				if (DEBUG)
 					System.out.println("periodkeeptrackwhile off from " + this);
 				onPeriod.accept(b);
@@ -103,11 +103,6 @@ public class Event implements Serializable {
 			}
 
 		}
-	}
-	public void endSession() {
-		sessionTimeCreated = 0;
-		if (!keepTrackWhileOff()) 
-			numPeriodsElapsed = 0;
 	}
 	public boolean hasPeriodicity() {
 		return isPeriodic;

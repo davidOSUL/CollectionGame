@@ -1,6 +1,8 @@
 package gameRunner;
 
 import static gui.guiutils.GUIConstants.SKIP_LOAD_SCREEN;
+
+import java.awt.HeadlessException;
 import java.awt.event.ActionEvent; 
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -80,6 +82,21 @@ public class Runner  {
 	public synchronized void notifyPressedNewGame() {
 		if (!SwingUtilities.isEventDispatchThread())
 			setUpError("Should be on the the EDT");
+		try {
+			if (saver.hasSave()) {
+				Object[] options = {"Yes", "Cancel"};
+				if (JOptionPane.showOptionDialog(startScreen, "Are you sure you want to start a new game? This will delete your current save file", "Delete current save?", 
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]) == JOptionPane.YES_OPTION) {
+					saver.deleteSave();
+				}
+				else {
+					return;
+				}
+			}
+		} catch (HeadlessException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		exitStartWindow();
 		board = new Board(100000000, 0 ); 
 		p = new Presenter(board, title, saver);

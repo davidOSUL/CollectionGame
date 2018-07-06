@@ -13,12 +13,14 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import java.util.function.BiConsumer;
 
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
+import gui.displayComponents.BackgroundWithText;
 import gui.gameComponents.GameSpace;
 import gui.gameComponents.NotificationButton;
 import gui.gameComponents.PictureButton;
@@ -135,7 +137,7 @@ public class MainGamePanel extends JPanel{
 	/**
 	 * Image for the save button
 	 */
-	private static final Image SAVE_BUTTON_LOGO = GuiUtils.getScaledImage(GuiUtils.readImage("/sprites/pokemon/1.png"), 50, 50);
+	private static final Image SAVE_BUTTON_LOGO = GuiUtils.getScaledImage(GuiUtils.readImage("/sprites/ui/save_icon.png"), 50, 50);
 	/**
 	 * Location of the save button
 	 */
@@ -152,11 +154,11 @@ public class MainGamePanel extends JPanel{
 	/**
 	 * Displays Current Board Attributes
 	 */
-	private JLabel displayLabel = new JLabel();
+	private BackgroundWithText boardAttributesDisplay;
 	/**
 	 * The location to display the Board attributesu
 	 */
-	private final static Rectangle DISPLAY_LABEL_LOCATION = new Rectangle(new Point(279, 458));
+	private final static Rectangle ATTRIBUTE_LABEL_LOCATION = new Rectangle(new Point(279, 458));
 	/**
 	 * Added to currentMoving so that clicks will trigger rotation
 	 */
@@ -177,7 +179,7 @@ public class MainGamePanel extends JPanel{
 		 }
 	};
 	static { //create the rectangles corresponding to the locations of all of the grids
-		DISPLAY_LABEL_LOCATION.add(new Point(814, 511));
+		ATTRIBUTE_LABEL_LOCATION.add(new Point(814, 511));
 		int[] xLocations = {30,273,331,800,80,240};
 		int[] yLocations = {333,490,142,445,170,229};
 		for (int i = 0; i < NUM_GRIDS; i++) {
@@ -188,6 +190,18 @@ public class MainGamePanel extends JPanel{
 		
 		}
 	}
+	/**
+	 * the image for the background of the panel that displays attributes
+	 */
+	private static final Image ATTRIBUTES_BACKGROUND_IMAGE = GuiUtils.readImage("/sprites/ui/attributelabel.png");
+	/**
+	 * the location of the pokecash attribute text
+	 */
+	private static final Point POKECASH_ATTRIBUTE_LOCATION = new Point(344, 479);
+	/**
+	 * the location of the popularity attribute text
+	 */
+	private static final Point POPULARITY_ATTRIBUTE_LOCATION = new Point(634, 479);
 	private static final long serialVersionUID = 1L;
 	/**
 	 * set to true when the user is in the shop. used so that escape can close the shop window
@@ -211,19 +225,21 @@ public class MainGamePanel extends JPanel{
 		addListeners();
 		setKeyBindings();
 		
-		notifications = new NotificationButton(NOTIFICATION_LOGO, NOTIFICATION_LOCATION, presenter -> {presenter.NotificationClicked();}, gv, true );
+		notifications = new NotificationButton(NOTIFICATION_LOGO, NOTIFICATION_LOCATION, presenter -> {presenter.NotificationClicked();}, gv, true ).disableBorder();
 		add(notifications);
 		
-		shopButton = new PictureButton(SHOP_BUTTON_LOGO, SHOP_BUTTON_LOCATION, presenter -> presenter.shopClicked(), gv);
+		shopButton = new PictureButton(SHOP_BUTTON_LOGO, SHOP_BUTTON_LOCATION, presenter -> presenter.shopClicked(), gv).disableBorder();
 		add(shopButton);
 		
 		saveButton = new PictureButton(SAVE_BUTTON_LOGO, SAVE_BUTTON_LOCATION, presenter -> presenter.saveGame(), gv);
 		add(saveButton);
 		
-		displayLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		displayLabel.setBounds(DISPLAY_LABEL_LOCATION);
-		displayLabel.setOpaque(true);
-		add(displayLabel);
+		boardAttributesDisplay = new BackgroundWithText(ATTRIBUTES_BACKGROUND_IMAGE, new Point[] {POKECASH_ATTRIBUTE_LOCATION, POPULARITY_ATTRIBUTE_LOCATION});
+		boardAttributesDisplay.setBounds(ATTRIBUTE_LABEL_LOCATION);
+		//displayLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		//displayLabel.setBounds(DISPLAY_LABEL_LOCATION);
+		//displayLabel.setOpaque(false);
+		add(boardAttributesDisplay);
 		
 		revalidate();
 		repaint();
@@ -388,7 +404,8 @@ public class MainGamePanel extends JPanel{
 	 * @param popularity the current popularity
 	 */
 	public void updateDisplayedAttributes(int gold, int popularity) {
-		displayLabel.setText("   PokeCash: " + gold + "        Popularity: " + popularity);
+		boardAttributesDisplay.updateText(0, Integer.toString(gold));
+		boardAttributesDisplay.updateText(1, Integer.toString(popularity));
 	}
 	 /**
 	 * Sets all key Bindings for this game panel

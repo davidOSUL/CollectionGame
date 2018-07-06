@@ -35,7 +35,7 @@ public class TimeTest {
 			//System.out.println(b.getGold() + " " + b.getTotalGameTime());
 			newString = b.toString();
 			if (!newString.equals(oldString)) {
-				System.out.println("\n---GAME TIME---: "+ b.getTotalGameTime() + "\n" + b.toString() + "GOLD: " + b.getGold() + "\nPOP:" + b.getPopularity() + "\n-------");
+				System.out.println("\n---INGAME TIME---: "+ b.getTotalInGameTime() + "\n" + b.toString() + "GOLD: " + b.getGold() + "\nPOP:" + b.getPopularity() + "\n-------");
 				oldString = newString;
 			}
 				

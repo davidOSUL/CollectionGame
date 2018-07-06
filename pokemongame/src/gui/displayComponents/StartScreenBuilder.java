@@ -46,7 +46,6 @@ public class StartScreenBuilder {
 			    onNewGame.accept(actOn);
 			  } 
 		});
-	
 		JButton continueGameButton = ButtonWithBackgroundBuilder.generateButton(BUTTON_IMG, "Continue Game");
 		continueGameButton.setEnabled(enabledContinue);
 		continueGameButton.addActionListener(new ActionListener() { 

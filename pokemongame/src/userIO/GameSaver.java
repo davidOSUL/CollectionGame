@@ -21,6 +21,9 @@ public class GameSaver implements Serializable {
 		saveFile = new File(pathToSave);
 		
 	}
+	public void deleteSave() {
+		saveFile.delete();
+	}
 	public boolean hasSave() throws IOException {
 		return GameSaver.hasSave(saveFile);
 	}

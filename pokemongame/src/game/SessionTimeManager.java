@@ -1,65 +1,90 @@
 package game;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import gui.gameComponents.grid.GridSpace;
+import gui.gameComponents.grid.GridSpace.GridSpaceData;
+import loaders.shopLoader.ShopItem;
+import thingFramework.Thing;
 
 /**
  * Manages the Game Time
  * @author David O'Sullivan
  */
-//TODO: Fix this
-public class SessionTimeManager {
+public class SessionTimeManager implements Serializable{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private long timeElapsedOnStartup = 0;
 	/**
 	 * Total game time, both in game and when game is closed
 	 */
-	private long totalGameTime = 0;
-	private long pauseDeficit = 0;
+	private long totalTimeSinceStart = 0;
 	/**
-	 * Sum of all session Game times
+	 * Total amount of time spent in pause throughout all sessions
+	 */
+	private long totalPauseDeficit = 0;
+	/**
+	 * Sum of all ingame ("online) game times. This only goes up to the time of the last save
 	 */
 	private long totalInGameTime = 0;
 	/**
 	 * Total time in current game session
 	 */
 	private long sessionGameTime = 0;
+	/**
+	 * The time in millseconds that it was when the game was paused
+	 */
 	private long timeOnPause = 0;
+	/**
+	 * Whether or not the game is paused right now
+	 */
 	private boolean paused = false;
-	private final long startOfSession = System.currentTimeMillis();
+	/**
+	 * The start of the current game session
+	 */
+	private long startOfSession = System.currentTimeMillis();
+	/**
+	 * How much time was spent in pause this session only
+	 */
 	private long sessionPauseDeficit = 0;
+	/**
+	 * The original time when this game was started
+	 */
+	private final long startOfGame = System.currentTimeMillis();
 	/**
 	 * Create a new Time Manager with 0 already elapsed time. Should be called at the beginning of a new game. 
 	 */
+	private long totalInGameTimeOnStart = 0;
 	public SessionTimeManager() {
-		
+		signifyNewSession();
 	}
 	/**
-	 * Creates a new Time Manager with some given elapsed time. Should be called at the beginning of a new session. This will restart the sessionTIme to 0, but will continue counting the total Game TIme from the value given
-	 * @param totalElapsedTime the total game time so far
+	 * Must be called whenever a new session is started to reset all session dependent values
 	 */
-	public SessionTimeManager(long totalElapsedTime) {
-		this.timeElapsedOnStartup = totalElapsedTime;
+	public void signifyNewSession() {
+		startOfSession = System.currentTimeMillis();
+		sessionPauseDeficit = 0;
+		paused = false;
+		totalInGameTimeOnStart = totalInGameTime;
 	}
 	/**
-	 * @return The total Game Time through all sessions
+	 * @return The total time since the beggining of this game, both on and off screen
 	 */
-	public long getTotalGameTime() {
-		return totalGameTime;
+	public long getTotalTimeSinceStart() {
+		return totalTimeSinceStart;
 	}
 	/**
 	 * @return The total time elapsed this session
 	 */
 	public long getSessionGameTime() {
 		return sessionGameTime;
-	}
-	/**
-	 * Must be called at the end of a session to update totalInGameTime
-	 */
-	public void signifySessionEnd() {
-		totalInGameTime += getSessionGameTime();
 	}
 	/**
 	 * Return the total time that was elapsed throughout all sessions
@@ -72,14 +97,17 @@ public class SessionTimeManager {
 	 */
 	public void updateGameTime() {
 		if (!paused) {
-		totalGameTime = timeElapsedOnStartup+(System.currentTimeMillis() - startOfSession)-pauseDeficit;
-		sessionGameTime = (System.currentTimeMillis() - startOfSession)-sessionPauseDeficit;
+			totalTimeSinceStart = (System.currentTimeMillis() - startOfGame)-totalPauseDeficit;
+			sessionGameTime = (System.currentTimeMillis() - startOfSession)-sessionPauseDeficit;
+			totalInGameTime = sessionGameTime + totalInGameTimeOnStart;
 		}
 	}
 	/**
 	 * Temporarily stops counting time
 	 */
 	public void pause() {
+		if (paused)
+			return;
 		paused = true;
 		timeOnPause = System.currentTimeMillis();
 	}
@@ -87,8 +115,10 @@ public class SessionTimeManager {
 	 * Resumes counting time
 	 */
 	public void unPause() {
+		if (!paused)
+			return;
 		paused = false;
-		pauseDeficit += System.currentTimeMillis()-timeOnPause;
+		totalPauseDeficit += System.currentTimeMillis()-timeOnPause;
 		sessionPauseDeficit+=System.currentTimeMillis()-timeOnPause;
 	}
 }

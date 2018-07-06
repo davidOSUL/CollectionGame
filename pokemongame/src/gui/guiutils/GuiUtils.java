@@ -283,5 +283,30 @@ public final class GuiUtils {
 		c[0] = Character.toLowerCase(c[0]);
 		return new String(c);
 	}
-	
+	/**
+	 * Generates text that breaks wherever a new line character is found by replacing "\n" with "&lt;br&gt;"
+	 * @param description the original text
+	 * @return the new formatted text with "\n" replaced with "&lt;br&gt;"
+	 */
+	public static String createNewLines(String description) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<html>");
+		String[] lines = splitByLines(description);
+		for (int i = 0; i < lines.length-1; i++ ) {
+			sb.append(lines[i]);
+			sb.append("<br/>");
+		}
+		sb.append(lines[lines.length-1]);
+		sb.append("</html>");
+		return sb.toString();
+		
+	}
+	/**
+	 * Takes in a description and returns a String[] where each element of the array is a line of the text (split by "\n")
+	 * @param description the text to split
+	 * @return the lines
+	 */
+	public static String[] splitByLines(String description) {
+		return description.split("\n");
+	}
 }

@@ -141,21 +141,14 @@ public class Board implements Serializable {
 	 * 
 	 * 
 	 */
-	
-	/**
-	 * Manages the gametime and session time of the current board. Note that newSession should be called to 
-	 * update this when a new session is started. This is made transient to enforce that policy (null pointer exceptions will be thrown upon deserilization 
-	 * if newSession is not called)
-	 */
-	private transient SessionTimeManager stm = new SessionTimeManager();
 	/**
 	 * This is the currently Grabbed pokemon, it may be placed on the board and removed from foundPokemon or it may be put back
 	 */
-	private transient Pokemon grabbedPokemon = null;
+	private Pokemon grabbedPokemon = null;
 	/**
 	 * This is the current ShopItem that may be purchased if the purchase is confirmed or it may be refunded if the purchase is canceled
 	 */
-	private transient ShopItem grabbedShopItem = null;
+	private ShopItem grabbedShopItem = null;
 	/*
 	 * Non-transient instance variables
 	 * 
@@ -183,13 +176,18 @@ public class Board implements Serializable {
 	private volatile Map<String, Integer> uniquePokemonLookup = new HashMap<String, Integer>();
 	private final Shop shop;
 	private final EventManager events; 
-
+	/**
+	 * Manages the gametime and session time of the current board. Note that newSession should be called to 
+	 * update this when a new session is started.
+	 */
+	private final SessionTimeManager stm;
 	//TODO: Put all possible things with their associated events in a manager of its own, should be able to grab events with quantity > 0 
 	
 	
 	
 	public Board() {
 		shop = new Shop();
+		stm = new SessionTimeManager();
 		events = new EventManager(this);
 		events.addThing(checkForPokemonThing);
 	}
@@ -390,7 +388,6 @@ public class Board implements Serializable {
 	}
 	/**
 	 * @param thing The thing to add
-	 * @throws Error "Sets out of sync" if the location is null or failed to remove item
 	 */
 	public synchronized void removeThing(Thing thing) {
 		if (thing==null) {
@@ -400,7 +397,13 @@ public class Board implements Serializable {
 		thing.onRemove(this);
 
 	}
-
+	/**
+	 * To be called whenever the game is rebooted, regardless of time of last save
+	 */
+	public void onStartUp() {
+		shop.checkForShopUpdates();
+		stm.signifyNewSession();
+	}
 	/**
 	 * Pause the game timer, will not resume until unPause() is called
 	 */
@@ -413,11 +416,14 @@ public class Board implements Serializable {
 	public void unPause() {
 		stm.unPause();
 	}
+	public String getTimeStats() {
+		return "TotalTimeSinceStart: " + getTotalTimeSinceStart() + "\n" + " SessionGameTime: " + getSessionGameTime() + "\n TotalInGameTime: " + getTotalInGameTime();
+ 	}
 	/**
 	 * @return total time both on and offline
 	 */
-	public synchronized long getTotalGameTime() {
-		return stm.getTotalGameTime();
+	public synchronized long getTotalTimeSinceStart() {
+		return stm.getTotalTimeSinceStart();
 	}
 	/**
 	 * @return total time in this game session
@@ -431,21 +437,7 @@ public class Board implements Serializable {
 	public synchronized long getTotalInGameTime() {
 		return stm.getTotalInGameTime();
 	}
-	/**
-	 * Start a new session using a board. MUST be called at the start of a "continue game". Creates a NEW instance of the SessionTimeManager
-	 * @param totalGameTime the old totalGameTime
-	 */
-	public void newSession(long totalGameTime) {
-		this.stm = new SessionTimeManager(totalGameTime);
 
-	}
-	/**
-	 * Must be called at the end of a session to calculate total in game time
-	 */
-	public synchronized void endSession() {
-		stm.signifySessionEnd();
-		events.signifySessionEnd();
-	}
 	public synchronized int getGold() {
 		return gold;
 	}
@@ -636,9 +628,21 @@ public class Board implements Serializable {
 	public void cancelPurchase() {
 		grabbedShopItem = null;
 	}
+	/**
+	 * @param item the item to sell back
+	 *  @return false if the item is not able to be added back to the shop
+	 */
+	public boolean canAddBackToShopStock(ShopItem item) {
+		return shop.isValidShopItem(item.getThingName());
+	}
+	/**
+	 * Sell back the specified item, adding it back to the shop and adding that much gold to the user
+	 * @param item the item to sell back
+	 */
 	public void sellBack(ShopItem item) {
-		shop.addToShopStock(item.getThingName());
 		addGold(getSellBackValue(item));
+		if (canAddBackToShopStock(item))
+			shop.addToShopStock(item.getThingName());
 	}
 	public int getSellBackValue(ShopItem item) {
 		return Math.max(1 , (int)(item.getCost()*sellBackPercent));

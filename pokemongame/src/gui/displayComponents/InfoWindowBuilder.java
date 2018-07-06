@@ -20,6 +20,8 @@ import gui.guiutils.GuiUtils;
 import gui.mouseAdapters.MouseClickWithThreshold;
 import gui.mvpFramework.Presenter;
 import interfaces.Imagable;
+import sas.swing.MultiLineLabel;
+import sas.swing.plaf.MultiLineLabelUI;
 
 /**
  * A Pop-Up Window that interfaces with a provided Presenter. All Features are added incrementally, only adding what is needed.
@@ -162,7 +164,12 @@ public class InfoWindowBuilder {
 		foreground.setPreferredSize(new Dimension(panel.getWidth(), panel.getHeight()));
 		
 		JPanel infoPan = new JPanel();
-		infoPan.add(new JLabel(info));
+		MultiLineLabel label = new MultiLineLabel(info);
+		label.setPreferredSize(label.getMaximumSize());
+		label.setHorizontalTextAlignment(JLabel.CENTER);
+		label.setVerticalTextAlignment(JLabel.CENTER);
+		
+		infoPan.add(label);
 		infoPan.setOpaque(false);
 		
 		JPanel itemPan = new JPanel();

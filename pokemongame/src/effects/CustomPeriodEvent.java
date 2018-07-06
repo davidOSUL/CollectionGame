@@ -32,19 +32,19 @@ public class CustomPeriodEvent extends Event {
 			return;
 		period = Math.max(MIN_PERIOD, period);
 		if (currentPeriodVal != period) {
-			timeOfLastChange = keepTrackWhileOff() ? b.getTotalGameTime() : b.getSessionGameTime();
+			timeOfLastChange = keepTrackWhileOff() ? b.getTotalTimeSinceStart() : b.getTotalInGameTime();
 			currentPeriodVal = period;
 			numCurrentPeriodsElapsed = 0;
 		}
 		if (!keepTrackWhileOff()) {
-			if (millisAsMinutes(b.getSessionGameTime()-timeOfLastChange) / period >= (numCurrentPeriodsElapsed+1)) {
+			if (millisAsMinutes(b.getTotalInGameTime()-timeOfLastChange) / period >= (numCurrentPeriodsElapsed+1)) {
 				getOnPeriod().accept(b);
 				numCurrentPeriodsElapsed++;
 				addToTotalPeriods();
 			}
 		}
 		else {
-			if (millisAsMinutes(b.getTotalGameTime()-timeOfLastChange) / period >= (numCurrentPeriodsElapsed+1)) {
+			if (millisAsMinutes(b.getTotalTimeSinceStart()-timeOfLastChange) / period >= (numCurrentPeriodsElapsed+1)) {
 				getOnPeriod().accept(b);
 				numCurrentPeriodsElapsed++;
 				addToTotalPeriods();
@@ -62,13 +62,5 @@ public class CustomPeriodEvent extends Event {
 	}
 	public long numCurrentPeriodsElapsed() {
 		return numCurrentPeriodsElapsed;
-	}
-	@Override
-	public void endSession() {
-		super.endSession();
-		if (!keepTrackWhileOff()) {
-			timeOfLastChange = 0;
-			numCurrentPeriodsElapsed = 0;
-		}
 	}
 }
