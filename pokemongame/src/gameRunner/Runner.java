@@ -1,20 +1,27 @@
 package gameRunner;
 
-import static gameutils.Constants.DEBUG;
+import static gui.guiutils.GUIConstants.SKIP_LOAD_SCREEN;
 import java.awt.event.ActionEvent; 
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import game.Board;
 import gui.displayComponents.StartScreenBuilder;
+import gui.guiutils.GuiUtils;
 import gui.mvpFramework.GameView;
 import gui.mvpFramework.Presenter;
+import userIO.GameSaver;
 
 /**
  * Starts the game and keeps it running
@@ -22,10 +29,19 @@ import gui.mvpFramework.Presenter;
  */
 public class Runner  {
 	private static final String title = "Pokemon Collection Game V. Alpha";
-	JFrame startScreen;
-	Timer updateStartPanel;
+	private final GameSaver saver;
+	private JFrame startScreen;
+	private final Timer updateStartPanel;
+	private Presenter p;
+	private Board board;
 	private Runner() {
-		startScreen = StartScreenBuilder.getFrame(title, false, x-> x.notifyPressedNewGame(), x-> x.notifyPressedContinueGame(), this );
+		saver = new GameSaver();
+		try {
+			startScreen = StartScreenBuilder.getFrame(title, saver.hasSave(), x-> x.notifyPressedNewGame(), x-> x.notifyPressedContinueGame(), this );
+		} catch (IOException e) {
+			//TODO
+			e.printStackTrace();
+		}
 		ActionListener updateStartScreen = new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				startScreen.revalidate();
@@ -39,15 +55,15 @@ public class Runner  {
 			@Override
 			public void run() {
 				Runner runner = new Runner();
-				if (DEBUG)
+				if (SKIP_LOAD_SCREEN)
 					runner.notifyPressedNewGame();
 				else 
-					runner.startGame();
+					runner.displayStartWindow();
 			}
 		});
 	}
 
-	private void startGame() {
+	private void displayStartWindow() {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -61,30 +77,54 @@ public class Runner  {
 		updateStartPanel.stop();
 	}
 	public synchronized void notifyPressedNewGame() {
-		Presenter p = new Presenter();
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				exitStartWindow();
-				GameView gv = new GameView(title);
-				Board board = new Board(100000000, 0 ); 
-				p.setBoard(board);
-				p.setGameView(gv);
-				gv.setPresenter(p);
-				ActionListener updateGUI = new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-						p.updateGUI();	
-					}
-				};
-				new Timer(10, updateGUI).start();
-				gv.setVisible(true);	
-			}
-		});
+		if (!SwingUtilities.isEventDispatchThread())
+			setUpError("Should be on the the EDT");
+		exitStartWindow();
+		board = new Board(100000000, 0 ); 
+		p = new Presenter(board, title, saver);
+		displayPrimaryGameWindow();
+		new Thread(() -> startPresenterUpdate()).start();
+	}
+	private void displayPrimaryGameWindow() {	
+		if (!SwingUtilities.isEventDispatchThread()) {
+			setUpError("Should be on the the EDT");	
+		}
+		ActionListener updateGUI = new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					p.updateGUI();	
+				}
+			};
+			new Timer(10, updateGUI).start();
+			p.getGameView().setVisible(true);	
+
+	}
+	private void startPresenterUpdate() {
+		if (SwingUtilities.isEventDispatchThread())
+			setUpError("Board updates should not be on the EDT");
 		ScheduledExecutorService es = Executors.newSingleThreadScheduledExecutor();
-		es.scheduleAtFixedRate(() -> p.updateBoard(), 0, 10, TimeUnit.MILLISECONDS);
+		es.scheduleAtFixedRate(() -> {
+			try {
+			p.updateBoard();
+			} catch (Exception e) {
+				GuiUtils.displayError(e, startScreen);
+			}
+		}, 0, 10, TimeUnit.MILLISECONDS);
 	}
 	public synchronized void notifyPressedContinueGame() {
-		System.out.println("Continue game");
+		if (!SwingUtilities.isEventDispatchThread())
+			setUpError("Should be on the the EDT");
+		exitStartWindow();
+		try {
+			ObjectInputStream ois = saver.readSave();
+			p = (Presenter) ois.readObject();
+			displayPrimaryGameWindow();
+		} catch (ClassNotFoundException | IOException e) {
+			e.printStackTrace();
+		}
+		new Thread(() -> startPresenterUpdate()).start();
+	}
+	private void setUpError(String message) {
+		GuiUtils.displayError(new IllegalStateException(message), startScreen);
 	}
 
 }

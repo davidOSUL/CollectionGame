@@ -17,7 +17,7 @@ import javax.swing.JScrollPane;
 import gui.gameComponents.PictureButton;
 import gui.guiutils.GuiUtils;
 import gui.mvpFramework.GameView;
-import shopLoader.ShopItem;
+import loaders.shopLoader.ShopItem;
 
 public class ShopWindow {
 	private Map<PictureButton, ShopItem> items = new HashMap<PictureButton, ShopItem>();

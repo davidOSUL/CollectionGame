@@ -10,6 +10,7 @@ public final class GUIConstants {
 	 */
 	public static final int CLICK_DIST_THRESH = 20;
 	public static final boolean SHOW_CONFIRM_ON_CLOSE = true;
+	public static final boolean SKIP_LOAD_SCREEN = false;
 	private GUIConstants() {
 		// TODO Auto-generated constructor stub
 	}

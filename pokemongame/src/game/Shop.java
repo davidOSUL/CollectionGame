@@ -1,5 +1,7 @@
 package game;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -7,11 +9,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import shopLoader.ShopItem;
-import shopLoader.ShopItemLoader;
+import loaders.shopLoader.ShopItem;
+import loaders.shopLoader.ShopItemLoader;
 import thingFramework.Thing;
 
-//TODO
 public class Shop implements Serializable{
 	/**
 	 * 
@@ -30,13 +31,18 @@ public class Shop implements Serializable{
 	 */
 	public Shop() {
 		ShopItemLoader.sharedInstance().generateInitialShopItems().forEach(shopItem -> itemsInShop.put(shopItem.getThingName(), shopItem));
-		itemsInOrder = new TreeSet<ShopItem>(new Comparator<ShopItem>() {
-		    @Override
-		    public int compare(ShopItem s1, ShopItem s2) {
-		        return Integer.compare(s1.getDisplayRank(), s2.getDisplayRank());
-		    }
-		});
+		itemsInOrder = new TreeSet<ShopItem>(ItemComparator.INSTANCE);
 		itemsInOrder.addAll(itemsInShop.values());
+	}
+	/**
+	 *Upon DeSerilization, this function is called by the JVM. This will allow us to update the shop inventory with new items in the future, keeping the old items
+	 *and their quantitities/prices the same
+	 */
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+		//default serilization
+		ois.defaultReadObject();
+		//check for any updates to the shop!
+		ShopItemLoader.sharedInstance().generateInitialShopItems().forEach(shopItem -> itemsInShop.putIfAbsent(shopItem.getThingName(), shopItem));
 	}
 	/**
 	 * @return a queue sorted in order of the shop items display rank
@@ -59,10 +65,10 @@ public class Shop implements Serializable{
 		si.setQuantity(1);
 		itemsInShop.put(name, si);
 		itemsInOrder.add(si);
-		
+
 
 	}
-	
+
 	private void throwIfNotPresent(String name) {
 		if (!hasThingForPurchase(name))
 			throw new IllegalArgumentException(name + " is not currently in the shop");
@@ -108,6 +114,13 @@ public class Shop implements Serializable{
 	}
 	private void removeOne(String name) {
 		updateQuantity(name, itemsInShop.get(name).getQuantity()-1);
+	}
+	private enum ItemComparator implements Comparator<ShopItem> {
+		INSTANCE;
+		@Override
+		public int compare(ShopItem s1, ShopItem s2) {
+			return Integer.compare(s1.getDisplayRank(), s2.getDisplayRank());
+		}
 	}
 
 }

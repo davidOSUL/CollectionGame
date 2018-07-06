@@ -1,7 +1,8 @@
 package gui.guiutils;
 
-import java.awt.AlphaComposite;
+import java.awt.AlphaComposite; 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -13,8 +14,11 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import static gameutils.Constants.DEBUG;
 import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 
 /**
  * Set of Useful functions for GUI purposes.
@@ -62,6 +66,21 @@ public final class GuiUtils {
 	public static String getToolTipDollar() {
 		//return pokeCash;
 		return "$";
+	}
+	public static void displayError(Exception e, Component parent) {
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		String sStackTrace = sw.toString(); // stack trace as a string
+		displayError(sStackTrace, parent);
+	}
+	public static void displayError(String message, Component parent) {
+		Object[] options = {"OK"};
+		int n = JOptionPane.showOptionDialog(parent, message, "RUNTIME ERROR", 
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+		System.err.print(message);
+		System.exit(-1);
+
 	}
 	/**
 	 * Creates a NEW instance of a buffered image, copying over from an image

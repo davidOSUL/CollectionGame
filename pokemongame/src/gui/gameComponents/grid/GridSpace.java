@@ -7,6 +7,7 @@ import java.awt.Image;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -15,6 +16,7 @@ import javax.swing.BorderFactory;
 
 import gameutils.GameUtils;
 import gui.gameComponents.GameSpace;
+import gui.gameComponents.grid.Grid.GridData;
 import gui.gameComponents.grid.Grid.GridPoint;
 import gui.guiutils.GuiUtils;
 import gui.mouseAdapters.DoubleClickWithThreshold;
@@ -31,6 +33,7 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	private int numRows;
 	private GridPoint p_g;
 	private Grid grid;
+	private int num90Rotations = 0;
 	private final List<MouseListener> listeners = new ArrayList<MouseListener>();
 	/**
 	 * Creates a new GridSpace at a specified GridPoint and with specified dimensions.
@@ -45,6 +48,9 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 		this.numRows = numRows;
 		this.grid = grid;
 		p_g = new GridPoint(x_g, y_g);
+	}
+	public GridSpaceData getData() {
+		return new GridSpaceData(numColumns, numRows, p_g, num90Rotations, grid.getData());
 	}
 	/**
 	 * Creates a new GridSpace at a specified GridPoint and with specified dimensions.
@@ -71,7 +77,15 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 			setImage( g.getImage());
 		}
 	}
-
+	/**
+	 * Creates a new GridSpace at the specified location, copying size/image from the provided gameSpace (and snapping to this grid accordingly).
+	 * This will be "formatted" to the grid. Note that this does NOT add the Grid to the GridSpace
+	 * @param g the GameSpace reference
+	 * @param p_g the location of the GridSpace
+	 */
+	protected GridSpace(Grid grid, GameSpace g, GridPoint p_g) {
+		this(grid, g, p_g.x, p_g.y);
+	}
 	/**
 	 * Changes the grid that houses this GridSpace. Essentially "formats" the grid space so that it fits. 
 	 * Note that this does NOT add the Grid to the GridSpace
@@ -82,6 +96,12 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 		this.grid = grid;
 		this.p_g = p_g;
 		setLocation(p_g.x*grid.getSubX(), p_g.y*grid.getSubY());
+		updateDimension();
+	}
+	/**
+	 * Recalculates numColumns/numRows
+	 */
+	private void updateDimension() {
 		numColumns = getWidth() / grid.getSubX();
 		numRows = getHeight() / grid.getSubY();
 	}
@@ -212,8 +232,13 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	public Grid getGrid() {
 		return grid;
 	}
-
-
+	/**
+	 * Sets the image of this gridspace to one rotated 90 degrees. setImage will also update numColumns/numRows
+	 */
+	public void rotateClockwise90(){
+		num90Rotations = (num90Rotations + 1)%4;
+		setImage(GuiUtils.rotateImage90ClockwiseAndTrim(getImage()));
+	}
 	/**
 	 * Makes image "snap" to the size of this Grid
 	 * @see gui.gameComponents.GameSpace#setImage(java.awt.Image)
@@ -231,5 +256,25 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 		bGr.drawImage(curr, 0, 0, null);
 		bGr.dispose();
 		super.setImage(newImage);
+		updateDimension();
+	}
+	public static class GridSpaceData implements Serializable{
+		/**
+		 * 
+		 */
+		public static final long serialVersionUID = 1L;
+		public final int numColumns;
+		public final int numRows;
+		public final GridPoint p_g;
+		public final int num90Rotations;
+		public final GridData gridData;
+		public GridSpaceData(int numColumns, int numRows, GridPoint p_g, int num90Rotations, GridData gridData) {
+			this.numColumns = numColumns;
+			this.numRows = numRows;
+			this.p_g = p_g;
+			this.num90Rotations = num90Rotations;
+			this.gridData = gridData;
+		}
+		
 	}
 }

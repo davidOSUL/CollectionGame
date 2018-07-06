@@ -10,6 +10,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,6 +24,7 @@ import javax.swing.BorderFactory;
 
 import gameutils.GameUtils;
 import gui.gameComponents.GameSpace;
+import gui.gameComponents.grid.GridSpace.GridSpaceData;
 import gui.guiutils.GUIConstants;
 import gui.guiutils.GuiUtils;
 import gui.mouseAdapters.DoubleClickWithThreshold;
@@ -34,17 +36,22 @@ import gui.mvpFramework.GameView;
  * objects that live on this grid and have sizes such that they "snap" to the proportions of this grid 
  * @author David O'Sullivan
  */
-public class Grid extends GameSpace {
+public final class Grid extends GameSpace {
 /*
  * Note that the "_g" convention is appended to any object that is referring not to an absolute location but to a grid coordinate,
  * these objects are also named "GridPoint", an absolute Point is just "Point" (e.g. GridPoint p_g = (0,1) is the second box in the grid, whereas
  * Point p = (0,1) is the point at pixel x = 0, y = 1)
  */
+	
 	private static final long serialVersionUID = 1L;
 	private int subX;
 	private int subY;
 	private int numColumns;
 	private int numRows;
+	/**
+	 * Used for purposes of serialization. Easy way to identify the grid
+	 */
+	private final int gridID;
 	/**
 	 * The set of all spots on this grid that aren't occupied
 	 */
@@ -76,7 +83,7 @@ public class Grid extends GameSpace {
 	 * @param subY height of grid elements
 	 * @param gv the GameView that houses this Grid
 	 */
-	public Grid(int x, int y, Dimension dimension, int subX, int subY, GameView gv) {
+	public Grid(int x, int y, Dimension dimension, int subX, int subY, GameView gv, int gridID) {
 		super(x,y, dimension);
 		if (subX > getWidth() || subY > getHeight()) {
 			throw new IllegalArgumentException("Can't subdivide");
@@ -90,6 +97,7 @@ public class Grid extends GameSpace {
 			}
 		}
 		this.gv = gv;
+		this.gridID = gridID;
 	}
 	/**
 	 * Creates a new Grid with specified subDimensions, location, and width/height
@@ -98,9 +106,17 @@ public class Grid extends GameSpace {
 	 * @param subY height of grid elements
 	 *  @param gv the GameView that houses this Grid
 	 */
-	public Grid(Rectangle r, int subX, int subY, GameView gv) {
-		this(r.x, r.y, new Dimension((int)r.getWidth(), (int)r.getHeight()), subX, subY, gv);
+	public Grid(Rectangle r, int subX, int subY, GameView gv, int gridID) {
+		this(r.x, r.y, new Dimension((int)r.getWidth(), (int)r.getHeight()), subX, subY, gv, gridID);
 	}
+	
+	/**
+	 * @return the gridID associated with this grid upon creation
+	 */
+	public int getID(){
+		return gridID;
+	}
+	
 	/**
 	 * Sets the numCols/numRows for this grid based on the subdivisions
 	 * @param subX width of grid elements
@@ -250,8 +266,12 @@ public class Grid extends GameSpace {
 			throw new RuntimeException("GridSpace to add doesn't have proper grid");
 		SpaceIterator si = new SpaceIterator(grid, s.p_g, g.getNumColumns(), g.getNumRows());
 		for (Spot spot: si) {
-			openSpots.remove(spot.p_g);
+			boolean test = true;
+			test &= openSpots.remove(spot.p_g);
+			test &= spot.resident == null;
 			spot.resident = g;
+			if (!test)
+				GuiUtils.displayError(new RuntimeException("ATTEMPTED TO ADD TO OCCUPIED SPACE"), this);
 		}
 		add(g);
 		return g;
@@ -336,6 +356,9 @@ public class Grid extends GameSpace {
 		}
 		
 	}
+	public GridData getData() {
+		return new GridData(subX, subY, numColumns, numRows, gridID);
+	}
 	/**
 	 * Creates a new GridSpace to fit this grid formed from a GameSpace
 	 * @param g The GameSpace to created off of
@@ -343,6 +366,20 @@ public class Grid extends GameSpace {
 	 */
 	public GridSpace generateGridSpace(GameSpace g) {
 		return new GridSpace(this, g, 0,0);
+	}
+	/**
+	 * Takes in a new GameSpace (unrotated), and saved gridspace data and generates and adds as a new GridSpace (after rotation) to this grid, and then returns
+	 * that gridspace.
+	 * @param g the GameSpace to generate a grid space from
+	 * @param data the GridSpaceData to use to generate a GridSpace with
+	 * @return the generated gridspace
+	 */
+	public GridSpace generateRotateAndAddGridSpaceFromData(GameSpace g, GridSpaceData data) {
+		GridSpace gs = new GridSpace(this, g, data.p_g);
+		for (int i = 0; i < data.num90Rotations; i++)
+			gs.rotateClockwise90();
+		addAndSplit(grid.get(data.p_g), gs);
+		return gs;
 	}
 	public int getSubX() {
 		return subX;
@@ -359,7 +396,7 @@ public class Grid extends GameSpace {
 	 * @author DOSullivan
 	 *
 	 */
-	protected static class GridPoint extends Point {
+	protected static class GridPoint extends Point implements Serializable {
 		/**
 		 * 
 		 */
@@ -428,6 +465,39 @@ public class Grid extends GameSpace {
 	            }
 	        };
 	        return it;
+		}
+	}
+	public final static class GridData implements Serializable{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		public final int subX;
+		public final int subY;
+		public final int numColumns;
+		public final int numRows;
+		public final int gridID;
+		public GridData(int subX, int subY, int numColumns, int numRows, int gridID) {
+			this.subX = subX;
+			this.subY = subY;
+			this.numColumns = numColumns;
+			this.numRows = numRows;
+			this.gridID = gridID;
+		}
+		public int getSubX() {
+			return subX;
+		}
+		public int getSubY() {
+			return subY;
+		}
+		public int getNumColumns() {
+			return numColumns;
+		}
+		public int getNumRows() {
+			return numRows;
+		}
+		public int getGridID() {
+			return gridID;
 		}
 	}
 }

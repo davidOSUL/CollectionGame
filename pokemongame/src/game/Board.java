@@ -14,13 +14,16 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Consumer;
+
+import javax.swing.SwingUtilities;
 
 import effects.CustomPeriodEvent;
 import effects.Event;
+import effects.Eventful;
 import gameutils.GameUtils;
 import loaders.ThingLoader;
-import shopLoader.ShopItem;
-import thingFramework.Eventful;
+import loaders.shopLoader.ShopItem;
 import thingFramework.Item;
 import thingFramework.Pokemon;
 import thingFramework.Thing;
@@ -31,6 +34,13 @@ import thingFramework.Thing;
  *
  */
 public class Board implements Serializable {
+	
+	/*
+	 * Static variables:
+	 * 
+	 * 
+	 */
+	
 	private static final long serialVersionUID = 1L;
 	/**
 	 * The minimum amount of popularity a player can have
@@ -85,18 +95,6 @@ public class Board implements Serializable {
 	 */
 	private static final Map<String, Integer> pokeRarity = Thing.mapFromSetToAttributeValue(ThingLoader.sharedInstance().getPokemonSet(), "rarity");  
 	/**
-	 * The queue of found wild pokemon (pokemon generated from a lookForPokemon() call)
-	 */
-	private final Deque<Pokemon> foundPokemon = new LinkedList<Pokemon>();
-	/**
-	 * This is the currently Grabbed pokemon, it may be placed on the board and removed from foundPokemon or it may be put back
-	 */
-	private Pokemon grabbedPokemon = null;
-	/**
-	 * This is the current ShopItem that may be purchased if the purchase is confirmed or it may be refunded if the purchase is canceled
-	 */
-	private ShopItem grabbedShopItem = null;
-	/**
 	 * This is the value of the total chance rarities of every pokemon. In other words,
 	 * it is the denominator for determining the percent chance that a certain pokemon
 	 * will show up (that is the probability will be: getRelativeChanceRarity(pokemon.rarity)/RUNNING_TOTAL)
@@ -125,29 +123,7 @@ public class Board implements Serializable {
 		RUNNING_TOTAL = rt;
 	}
 	/**
-	 * Manages the gametime and session time of the current board. Note that newSession should be called to 
-	 * update this when a new session is started
-	 */
-	private SessionTimeManager stm = new SessionTimeManager();
-	private volatile int gold = 0;
-	private volatile int popularity = 0;
-	/**
-	 * Used to represent the state of the board. Contains all things on board.
-	 */
-	private Set<Thing> thingsOnBoard = new LinkedHashSet<Thing>();
-	private EventManager events; 
-	/**
-	 * The number of pokemon currently on the board
-	 */
-	private volatile int numPokemon = 0;
-	/**
-	 * The pokemon on the board or in the queue used so that duplicate pokemon are
-	 * signifigantly less likely to show up. Map from the name of the pokemon to the # present
-	 */
-	private volatile Map<String, Integer> uniquePokemonLookup = new HashMap<String, Integer>();
-	/**
 	 * The event that checks for pokemon on a certain period based on popularity
-	 * This is considered a "default" event and hence is mapped to a negative value of -1.
 	 * Since it is static, it will be recreated on serialization, meaning it will have a new 
 	 * time created, and the pokemon will not be spawning while it is offline.
 	 * The transient keyword, though unnecessary, is included to remind of this feature.
@@ -159,8 +135,59 @@ public class Board implements Serializable {
 	 * Blank item to store the checkForPokemon event
 	 */
 	private transient static final Item checkForPokemonThing = Item.generateBlankItemWithEvents(checkForPokemon);
+	
+	/*
+	 * Transient instance variables:
+	 * 
+	 * 
+	 */
+	
+	/**
+	 * Manages the gametime and session time of the current board. Note that newSession should be called to 
+	 * update this when a new session is started. This is made transient to enforce that policy (null pointer exceptions will be thrown upon deserilization 
+	 * if newSession is not called)
+	 */
+	private transient SessionTimeManager stm = new SessionTimeManager();
+	/**
+	 * This is the currently Grabbed pokemon, it may be placed on the board and removed from foundPokemon or it may be put back
+	 */
+	private transient Pokemon grabbedPokemon = null;
+	/**
+	 * This is the current ShopItem that may be purchased if the purchase is confirmed or it may be refunded if the purchase is canceled
+	 */
+	private transient ShopItem grabbedShopItem = null;
+	/*
+	 * Non-transient instance variables
+	 * 
+	 */
+	
+	/**
+	 * The queue of found wild pokemon (pokemon generated from a lookForPokemon() call)
+	 */
+	private final Deque<Pokemon> foundPokemon = new LinkedList<Pokemon>();
+	
+	private volatile int gold = 0;
+	private volatile int popularity = 0;
+	/**
+	 * Used to represent the state of the board. Contains all things on board.
+	 */
+	private final Set<Thing> thingsOnBoard = new LinkedHashSet<Thing>();
+	/**
+	 * The number of pokemon currently on the board
+	 */
+	private volatile int numPokemon = 0;
+	/**
+	 * The pokemon on the board or in the queue used so that duplicate pokemon are
+	 * signifigantly less likely to show up. Map from the name of the pokemon to the # present
+	 */
+	private volatile Map<String, Integer> uniquePokemonLookup = new HashMap<String, Integer>();
 	private final Shop shop;
+	private final EventManager events; 
+
 	//TODO: Put all possible things with their associated events in a manager of its own, should be able to grab events with quantity > 0 
+	
+	
+	
 	public Board() {
 		shop = new Shop();
 		events = new EventManager(this);
@@ -176,6 +203,8 @@ public class Board implements Serializable {
 	 * To be called on every game tick. Updates time and events
 	 */
 	public void update() {
+		if (SwingUtilities.isEventDispatchThread())
+			System.out.println("WHAT");
 		stm.updateGameTime();
 		executeEvents();
 
@@ -208,7 +237,7 @@ public class Board implements Serializable {
 		double C = 1.3; //steepness of drop
 		return RAPID_SPAWN ? 1.666e-5 : Math.max(MIN_POKEPERIOD, A-Math.pow(getPopularity()/B, C));
 	}
-
+	
 	/**
 	 * helper method for lookForPokemon, for purposes of regenning if a duplicate pokemon is generated and
 	 * testPercentChance(PERCENT_CHANCE_DUPLICATE_SPAWNS) is false
@@ -403,15 +432,19 @@ public class Board implements Serializable {
 		return stm.getTotalInGameTime();
 	}
 	/**
-	 * Start a new session using a board
+	 * Start a new session using a board. MUST be called at the start of a "continue game". Creates a NEW instance of the SessionTimeManager
 	 * @param totalGameTime the old totalGameTime
 	 */
 	public void newSession(long totalGameTime) {
 		this.stm = new SessionTimeManager(totalGameTime);
 
 	}
+	/**
+	 * Must be called at the end of a session to calculate total in game time
+	 */
 	public synchronized void endSession() {
 		stm.signifySessionEnd();
+		events.signifySessionEnd();
 	}
 	public synchronized int getGold() {
 		return gold;

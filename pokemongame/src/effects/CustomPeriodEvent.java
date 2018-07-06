@@ -4,6 +4,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import game.Board;
+import interfaces.SerializableConsumer;
+import interfaces.SerializableFunction;
 
 public class CustomPeriodEvent extends Event {
 
@@ -11,21 +13,23 @@ public class CustomPeriodEvent extends Event {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Function<Board, Double> generatePeriod = x -> {return -1.0;};
+	private SerializableFunction<Board, Double> generatePeriod = x -> {return -1.0;};
 	private volatile long numCurrentPeriodsElapsed = 0;
-	private volatile long timeOfLastChange = System.currentTimeMillis();
+	private volatile long timeOfLastChange;
 	private volatile double currentPeriodVal = -1;
 	private static final double MIN_PERIOD = .01;
-	public CustomPeriodEvent(Consumer<Board> onPeriod, Function<Board, Double> generatePeriod) {
+	public CustomPeriodEvent(SerializableConsumer<Board> onPeriod, SerializableFunction<Board, Double> generatePeriod) {
 		super(onPeriod, Integer.MAX_VALUE);
 		this.generatePeriod = generatePeriod;
 	}
-	public CustomPeriodEvent(Consumer<Board> onPlace, Consumer<Board> onPeriod, Function<Board, Double> generatePeriod) {
+	public CustomPeriodEvent(SerializableConsumer<Board> onPlace, SerializableConsumer<Board> onPeriod, SerializableFunction<Board, Double> generatePeriod) {
 		super(onPlace, onPeriod, Integer.MAX_VALUE);
 		this.generatePeriod = generatePeriod;
 	}
 	private synchronized void executeIfTime(Board b) {
 		double period = generatePeriod.apply(b);
+		if (period <0)
+			return;
 		period = Math.max(MIN_PERIOD, period);
 		if (currentPeriodVal != period) {
 			timeOfLastChange = keepTrackWhileOff() ? b.getTotalGameTime() : b.getSessionGameTime();
@@ -33,14 +37,14 @@ public class CustomPeriodEvent extends Event {
 			numCurrentPeriodsElapsed = 0;
 		}
 		if (!keepTrackWhileOff()) {
-			if (difAsMinutes(b.getSessionGameTime()-timeOfLastChange) / period >= (numCurrentPeriodsElapsed+1)) {
+			if (millisAsMinutes(b.getSessionGameTime()-timeOfLastChange) / period >= (numCurrentPeriodsElapsed+1)) {
 				getOnPeriod().accept(b);
 				numCurrentPeriodsElapsed++;
 				addToTotalPeriods();
 			}
 		}
 		else {
-			if (difAsMinutes(b.getTotalGameTime()-timeOfLastChange) / period >= (numCurrentPeriodsElapsed+1)) {
+			if (millisAsMinutes(b.getTotalGameTime()-timeOfLastChange) / period >= (numCurrentPeriodsElapsed+1)) {
 				getOnPeriod().accept(b);
 				numCurrentPeriodsElapsed++;
 				addToTotalPeriods();
@@ -58,5 +62,13 @@ public class CustomPeriodEvent extends Event {
 	}
 	public long numCurrentPeriodsElapsed() {
 		return numCurrentPeriodsElapsed;
+	}
+	@Override
+	public void endSession() {
+		super.endSession();
+		if (!keepTrackWhileOff()) {
+			timeOfLastChange = 0;
+			numCurrentPeriodsElapsed = 0;
+		}
 	}
 }

@@ -1,6 +1,7 @@
 package loaders;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -9,8 +10,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import effects.Event;
+import game.Board;
 import gameutils.GameUtils;
 
 /**
@@ -114,7 +117,7 @@ public class EventBuilder {
 	 * @return the created event
 	 */
 	public static Event generateRandomGoldEvent(int percentChance, int gold, double periodInMinutes) {
-		Event randomGold = new Event(board -> {
+		Event randomGold = new Event( board -> {
 			if (GameUtils.testPercentChance(percentChance))
 				board.addGold(gold);
 		}, periodInMinutes);

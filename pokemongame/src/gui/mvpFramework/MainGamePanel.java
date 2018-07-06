@@ -24,6 +24,7 @@ import gui.gameComponents.NotificationButton;
 import gui.gameComponents.PictureButton;
 import gui.gameComponents.grid.Grid;
 import gui.gameComponents.grid.GridSpace;
+import gui.gameComponents.grid.GridSpace.GridSpaceData;
 import gui.guiutils.GuiUtils;
 import gui.guiutils.KeyBindingManager;
 import gui.mouseAdapters.MouseClickWithThreshold;
@@ -114,10 +115,32 @@ public class MainGamePanel extends JPanel{
 	 */
 	private NotificationButton notifications;
 	
+	/**
+	 * Image for shop button
+	 */
 	private static final Image SHOP_BUTTON_LOGO = GuiUtils.getScaledImage(GuiUtils.readImage("/sprites/ui/pokemart.jpeg"), 50, 50);
+	/**
+	 * Location of the shop button
+	 */
 	private static final Point SHOP_BUTTON_LOCATION = new Point(749,44); 
 	
-	private PictureButton shopButton; //TODO;
+	/**
+	 * Button that user can press to open up the item shop
+	 */
+	private PictureButton shopButton;
+	/**
+	 * Button that user can press to save an item
+	 */
+	private PictureButton saveButton;
+	/**
+	 * Image for the save button
+	 */
+	private static final Image SAVE_BUTTON_LOGO = GuiUtils.getScaledImage(GuiUtils.readImage("/sprites/pokemon/1.png"), 50, 50);
+	/**
+	 * Location of the save button
+	 */
+	private static final Point SAVE_BUTTON_LOCATION = new Point(627,44); 
+	
 	/**
 	 * When KeyBindings should happen
 	 */
@@ -194,6 +217,9 @@ public class MainGamePanel extends JPanel{
 		shopButton = new PictureButton(SHOP_BUTTON_LOGO, SHOP_BUTTON_LOCATION, presenter -> presenter.shopClicked(), gv);
 		add(shopButton);
 		
+		saveButton = new PictureButton(SAVE_BUTTON_LOGO, SAVE_BUTTON_LOCATION, presenter -> presenter.saveGame(), gv);
+		add(saveButton);
+		
 		displayLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		displayLabel.setBounds(DISPLAY_LABEL_LOCATION);
 		displayLabel.setOpaque(true);
@@ -217,7 +243,7 @@ public class MainGamePanel extends JPanel{
 				Point oldOldPoint = oldPoint;
 				Image oldImageBeforeRotation = imageBeforeRotation;
 				GridSpace oldGridSpace = endGameSpaceAdd(); //end the current add attempt
-				rotateGridSpace90(oldGridSpace); //rotate the image
+				oldGridSpace.rotateClockwise90();
 				gridSpaceAdd(oldGridSpace, oldType); //restart the current add attempt with the new, rotated image
 				imageBeforeRotation = oldImageBeforeRotation;
 				oldPoint = oldOldPoint;
@@ -290,13 +316,6 @@ public class MainGamePanel extends JPanel{
 		
 		
 		
-	}
-	/**
-	 * Sets the image of the provided gridSpace to it's original image rotated 90 degrees
-	 * @param gridSpace the GridSpace to rotate
-	 */
-	private void rotateGridSpace90(GridSpace gridSpace) {
-		gridSpace.setImage(GuiUtils.rotateImage90ClockwiseAndTrim(gridSpace.getImage()));
 	}
 	/**
 	 * Ends the Add Attempt. Resets all of the Add Attempt variables to a clean slate as they were before the Add Attempt. This called whenever an add is canceled or succeeds. 
@@ -389,7 +408,7 @@ public class MainGamePanel extends JPanel{
 	 */
 	private void setUpGrids() {
 		for (int i = 0; i < NUM_GRIDS; i++) { //create the grids
-			Grid currGrid = new Grid(gridLocs[i], GRID_SPACE_DIM, GRID_SPACE_DIM, gv);
+			Grid currGrid = new Grid(gridLocs[i], GRID_SPACE_DIM, GRID_SPACE_DIM, gv, i);
 			currGrid.addMouseMotionListener(new MouseMotionAdapter() {
 				 @Override
 				 public void mouseMoved(MouseEvent e) { //set highlights when mouse is moved
@@ -450,7 +469,15 @@ public class MainGamePanel extends JPanel{
 	public void setInShop(boolean inShop) {
 		this.inShop = inShop;
 	}
-
+	/**
+	 * Adds the gamespace to the specified grid. This is all UI (aka, doesn't notify board!)
+	 * @param g the gamespace to add
+	 * @param data the GridSpaceData to use to generate the GridSpace
+	 * @return the newly generated grid space
+	 */
+	public GridSpace addSavedGridSpaceToGrid(GameSpace g, GridSpaceData data) {
+		return grids[data.gridData.gridID].generateRotateAndAddGridSpaceFromData(g, data);
+	}
 	
 
 	

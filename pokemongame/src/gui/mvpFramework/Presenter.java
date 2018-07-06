@@ -4,8 +4,15 @@ import static gameutils.Constants.PRINT_BOARD;
 import static gui.guiutils.GUIConstants.SHOW_CONFIRM_ON_CLOSE;
 
 import java.awt.Image;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Consumer;
 
 import javax.swing.JComponent;
@@ -19,10 +26,12 @@ import gui.displayComponents.InfoWindowBuilder;
 import gui.displayComponents.ShopWindow;
 import gui.gameComponents.GameSpace;
 import gui.gameComponents.grid.GridSpace;
+import gui.gameComponents.grid.GridSpace.GridSpaceData;
 import gui.guiutils.GuiUtils;
-import shopLoader.ShopItem;
+import loaders.shopLoader.ShopItem;
 import thingFramework.Pokemon;
 import thingFramework.Thing;
+import userIO.GameSaver;
 
 /**
  * The "Presenter" in the MVP model. Has a view (GameView) and a model (Board). 
@@ -31,70 +40,177 @@ import thingFramework.Thing;
  * @author DOSullivan
  *
  */
-public class Presenter {
-	/**
-	 * The "Model" of this presenter. Manages the game in memory
+public class Presenter implements Serializable {
+
+
+	/*
+	 * Static variables:
+	 * 
 	 */
-	private volatile Board board;
-	/**
-	 * The "View" of this presenter. Manages the GUI
-	 */
-	private GameView gameView;
+
+
 	/**
 	 * the Consumer that is triggered when the user clicks the notification button and decides to let the pokemon go
 	 */
-	private final static Consumer<Presenter> LET_POKE_GO = p -> p.board.confirmGrab();
+	private final static Consumer<Presenter> LET_POKE_GO = p -> p.board.confirmGrab();	/**
+	 * The background of the JPanel that pops up when the notification button is pressed
+	 */
+	private final static Image INFO_WINDOW_BACKGROUND = GuiUtils.readImage("/sprites/ui/pikabackground.jpg");
+
+
+	/*
+	 * Transient Instance variables:
+	 * 
+	 * 
+	 */
+
 	/**
 	 * When in an add Attempt the Thing that the user wants to add
 	 */
-	private Thing thingToAdd = null;
+	private transient Thing thingToAdd = null;
+	/**
+	 * When attempting to purchase an item this is ShopItem the user wants to purchase one thing from 
+	 */
+	private transient ShopItem itemToPurchase = null;
+	/**
+	 * When attempting to sell back an item, the SHopItem that the user wants to sell back
+	 */
+	private transient ShopItem itemToSellBack = null;
 	/**
 	 * When in a delete attempt, this is the GameSpace that the user wants to delete
 	 */
-	private GridSpace gridSpaceToDelete = null;
+	private transient GridSpace gridSpaceToDelete = null;
 	/**
-	 * Map between GridSpaces and the Things that they represent
+	 * The "View" of this presenter. Manages the GUI. This is made transient because want to restore the GUI manually. 
 	 */
-	private Map<GridSpace, Thing> allThings = new HashMap<GridSpace, Thing>();
+	private transient GameView gameView;
+	/**
+	 * The shopWindow that appears when the user clicks it. This is made transient because want to restore the GUI manually. 
+	 */
+	private transient ShopWindow shopWindow;
+	/**
+	 * When an JPanel is opened, this will be set to that JPanel
+	 */
+	private transient JComponent currentWindow = null;
+	
+	private transient String oldString;  //used for debugging only, represent board.toString(), print when that changes
+	private transient String newString; //used for debugging only,  represent board.toString(), print when that changes
+	/*
+	 * Non-transient Instance Variables:
+	 * 
+	 * 
+	 */
+
+	/**
+	 * Map of all things that are on board and were sold via the shop. This is made transient to manually set GUI
+	 */
+	private transient Map<GridSpace, ShopItem> soldThings; 
+	/**
+	 * Map between GridSpaces and the Things that they represent. This is made transient to manually set GUI
+	 */
+	private transient Map<GridSpace, Thing> allThings;
+	/**
+	 * The gameSaver to use to save the game
+	 */
+	private GameSaver gameSaver;
+	/**
+	 * The "Model" of this presenter. Manages the game in memory
+	 */
+	private Board board;
+	
 	/**
 	 * The current state of the game. By default this is GAMEPLAY
 	 */
 	private CurrentState state = CurrentState.GAMEPLAY;
-	/**
-	 * When an JPanel is opened, this will be set to that JPanel
-	 */
-	private JComponent currentWindow = null;
-	/**
-	 * The background of the JPanel that pops up when the notification button is pressed
-	 */
-	private final static Image INFO_WINDOW_BACKGROUND = GuiUtils.readImage("/sprites/ui/pikabackground.jpg");
-	/**
-	 * Map of all things that are on board and were sold via the shop
-	 */
-	private Map<GridSpace, ShopItem> soldThings = new HashMap<GridSpace, ShopItem>();
-	private ShopItem shopItemBeingMoved = null;
-	private String oldString; //TODO: Remove this or add debug feature
-	private String newString;
+
 	private volatile boolean toolTipsEnabled = true;
 	private volatile boolean popupMenusEnabled = true;
 	private volatile boolean saved = false;
-	/**
-	 * When attempting to purchase an item this is ShopItem the user wants to purchase one thing from 
-	 */
-	private ShopItem itemToPurchase = null;
-	private ShopItem itemToSellBack = null;
-	private ShopWindow shopWindow;
-	public Presenter() {
-	};
+	private final String title;
+
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+		Map<GridSpaceData, Thing> allThingsData = new LinkedHashMap<GridSpaceData, Thing>();
+		Map<Integer, ShopItem> soldThingsData = new LinkedHashMap<Integer, ShopItem>();
+		Iterator<Entry<GridSpace, Thing>> it = allThings.entrySet().iterator();
+		 	int i = 0;
+		    while (it.hasNext()) {
+		        Map.Entry<GridSpace, Thing> pair = it.next();
+		        GridSpace gs = pair.getKey();
+		        Thing t = pair.getValue();
+		        if (soldThings.containsKey(gs)) {
+					soldThingsData.put(i, soldThings.get(gs));
+				}
+				allThingsData.put(gs.getData(), t);
+				i++;
+		    }
+		oos.writeObject(allThingsData);
+		oos.writeObject(soldThingsData);
+		oos.writeObject(board.getTotalGameTime());
+	}
+
+	@SuppressWarnings("unchecked")
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+		ois.defaultReadObject(); //will read in board, title, allThings, soldThings
+		allThings = new HashMap<GridSpace, Thing>();
+		soldThings = new HashMap<GridSpace, ShopItem>();
+		Map<GridSpaceData, Thing> allThingsData = (Map<GridSpaceData, Thing>) ois.readObject();
+		Map<Integer, ShopItem> soldThingsData = (Map<Integer, ShopItem>) ois.readObject();
+		setGameView(title); //set up the game view as well as the shopwindow
+		Iterator<Entry<GridSpaceData, Thing>> it = allThingsData.entrySet().iterator();
+	 	int i = 0;
+	    while (it.hasNext()) {
+	        Map.Entry<GridSpaceData, Thing> pair = it.next();
+	        GridSpaceData data = pair.getKey();
+	        Thing thing = pair.getValue();
+	        it.remove(); 
+			GridSpace gridSpace = gameView.addNewGridSpaceFromSave(generateGameSpaceFromThing(thing), data);
+			allThings.put(gridSpace, thing);
+			if (soldThingsData.containsKey(i))
+				soldThings.put(gridSpace, soldThingsData.get(i));
+			gridSpace.updateListeners(soldThings.containsKey(gridSpace));
+			i++;
+	    }
+	    board.newSession((Long) ois.readObject());
+	}
+
+	public JFrame getGameView() {
+		return gameView;
+	}
 	/**
 	 * Creates a new Presenter with the provided Board and GameView
 	 * @param b the Board (or "model" in MVP)
-	 * @param gv the Board (or "view" in MVP)
+	 * @param gameViewTitle the Title of the gameview (or "view" in MVP)
+	 * @param gameSaver the gamesaver to use for saving
 	 */
-	public Presenter(Board b, GameView gv) {
-		this();
+	public Presenter(Board b, String gameViewTitle, GameSaver gameSaver) {
+		this.gameSaver = gameSaver;
+		allThings = new HashMap<GridSpace, Thing>();
+		soldThings = new HashMap<GridSpace, ShopItem>();
+		title = gameViewTitle;
 		setBoard(b);
-		setGameView(gv);
+		setGameView(gameViewTitle);
+	}
+	public void saveGame() {
+		if (state != CurrentState.GAMEPLAY)
+			return; //TODO: Display message
+		try {
+			if (!gameSaver.hasSave())
+				gameSaver.createSaveFile();
+			gameSaver.save(this);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Sets the board for this presenter
+	 * @param b the board to set
+	 */
+	public void setBoard(Board b) {
+		this.board = b;
+		oldString = b.toString();
 	}
 	/**
 	 * Checks if the GridSpace is present
@@ -171,21 +287,15 @@ public class Presenter {
 			}
 		}
 	}
+
 	/**
-	 * Sets the board of this Presenter
-	 * @param b the board to set 
-	 */
-	public void setBoard(Board b) {
-		this.board = b;
-		oldString = board.toString();
-	}
-	/**
-	 * Sets the GameView of this Presenter
+	 * Sets the GameView of this Presenter, initializes shopWindow
 	 * @param gv the GameView to set
 	 */
-	public void setGameView(GameView gv) {
-		this.gameView = gv;
-		shopWindow = new ShopWindow(gv);
+	public void setGameView(String title) {
+		this.gameView = new GameView(title);
+		gameView.setPresenter(this);
+		shopWindow = new ShopWindow(gameView);
 		shopWindow.updateItems(board.getItemsInShop());
 		if (SHOW_CONFIRM_ON_CLOSE) {
 			gameView.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -195,12 +305,13 @@ public class Presenter {
 				public void windowClosing(java.awt.event.WindowEvent windowEvent) {
 					if (JOptionPane.showOptionDialog(gameView, "Are you sure to quit without saving?", "", 
 							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]) == JOptionPane.YES_OPTION && !saved) {
+						board.endSession();
 						System.exit(0);
 					}
 				}
 			});
 		}
-		
+
 	}
 	/**
 	 * To be called whenever the notification button is clicked. Displays the PopUp JPanel with the next pokemon in the wild pokemon queue in the board
@@ -213,7 +324,7 @@ public class Presenter {
 		JPanel wildPokemonWindow = wildPokemonWindow(board.grabWildPokemon());
 		setCurrentWindow(wildPokemonWindow);									
 	}
-	
+
 
 	/**
 	 * Sets the current window to the passed in window, and removes the currentWindow if any
@@ -225,7 +336,7 @@ public class Presenter {
 		currentWindow = window;
 		gameView.displayComponentCentered(window);
 	}
-	
+
 	private void stopPopupMenus() {
 		popupMenusEnabled = false;
 		allThings.forEach((gs, t) -> gs.removeListeners());
@@ -244,7 +355,7 @@ public class Presenter {
 				stopToolTips();
 			if (popupMenusEnabled)
 				stopPopupMenus();
-			
+
 		}
 		if (state == CurrentState.GAMEPLAY && !toolTipsEnabled) {
 			if (!toolTipsEnabled)
@@ -267,7 +378,6 @@ public class Presenter {
 	private void finishAddAttempt() {
 		thingToAdd = null;
 		itemToPurchase = null;
-		shopItemBeingMoved = null;
 		setState(CurrentState.GAMEPLAY);
 	}
 	/**
@@ -298,8 +408,8 @@ public class Presenter {
 	private void addGridSpace(GridSpace gs, AddType type) {
 		if (thingToAdd == null)
 			return;
-			board.addThing(thingToAdd);
-			allThings.put(gs, thingToAdd);		
+		board.addThing(thingToAdd);
+		allThings.put(gs, thingToAdd);		
 	}
 
 	/**
@@ -321,19 +431,27 @@ public class Presenter {
 		finishAddAttempt();
 	}
 	/**
+	 * Creates a new game space with the name and image of the specified thing
+	 * @param t the Thing to create a gamespace with
+	 * @return the new GameSpace
+	 */
+	private GameSpace generateGameSpaceFromThing(Thing t) {
+		Image i = GuiUtils.readAndTrimImage(t.getImage());
+		if (t.getName().equals("Small Table"))
+			i = GuiUtils.getScaledImage(i, 40, 40);
+		GameSpace gs = new GameSpace(i, t.getName());
+		return gs;
+	}
+	/**
 	 * To be called when the user initializes an add Attempt with a Thing that doesn't yet have a created GridSpace
 	 * @param t The Thing that the user wants to add
 	 * @param type the context of the add\
 	 * @sets CurrentState.PLACING_SPACE
 	 */
 	public void attemptAddThing(Thing t, AddType type) {
-		Image i = GuiUtils.readAndTrimImage(t.getImage());
-		if (t.getName().equals("Small Table"))
-			i = GuiUtils.getScaledImage(i, 40, 40);
-		GameSpace gs = new GameSpace(i, t.getName());
 		setState(CurrentState.PLACING_SPACE);
 		thingToAdd = t;
-		gameView.attemptNewGridSpaceAdd(gs, type);
+		gameView.attemptNewGridSpaceAdd(generateGameSpaceFromThing(t), type);
 	}
 	/**
 	 * To be called when the user initalizes an add Attempt for a GridSpace that has already been created
@@ -412,7 +530,7 @@ public class Presenter {
 		if (state != CurrentState.GAMEPLAY)
 			return false;
 		setState(CurrentState.SELL_BACK_CONFIRM_WINDOW);
-	    itemToSellBack = soldThings.get(gs);
+		itemToSellBack = soldThings.get(gs);
 		JPanel sellBackWindow = attemptToSellBackWindow(itemToSellBack);
 		setCurrentWindow(sellBackWindow);
 		gridSpaceToDelete = gs;
@@ -435,12 +553,12 @@ public class Presenter {
 	private void finishSellBackAttempt() {
 		itemToSellBack = null;
 		finishDeleteAttempt();
-		
+
 	}
 	public int getGridSpaceSellBackValue(GridSpace gs) {
 		return board.getSellBackValue(soldThings.get(gs));
 	}
-	
+
 	/**
 	 * To be called when the User Clicks the notification button and then clicks cancel. Undos the board grab, and sets the state of the game back to GamePlay
 	 * @sets CurrentState.GAMEPLAY
@@ -459,9 +577,9 @@ public class Presenter {
 		setState(CurrentState.IN_SHOP);
 		setCurrentWindow(shopWindow.getShopWindow());
 		gameView.setInShop(true);
-		
+
 	}
-	
+
 	public void attemptPurchaseThing(ShopItem item) {
 		if (!board.canPurchase(item))
 			return;

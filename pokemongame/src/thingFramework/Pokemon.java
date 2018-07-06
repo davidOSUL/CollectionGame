@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import effects.Event;
+import effects.Eventful;
 import game.Board;
 import gameutils.GameUtils;
 import interfaces.Imagable;

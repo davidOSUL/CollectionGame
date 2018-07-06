@@ -1,9 +1,10 @@
 package effects; 
-import static gameutils.Constants.DEBUG;
+import static gameutils.Constants.DEBUG; 
 
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import interfaces.SerializableConsumer;
 
 import game.Board;
 public class Event implements Serializable {
@@ -11,9 +12,9 @@ public class Event implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Consumer<Board> onPlace = x -> {};
-	private Consumer<Board> onPeriod = x -> {};
-	private Consumer<Board> onRemove = x -> {};
+	private SerializableConsumer<Board> onPlace =  x -> {};
+	private SerializableConsumer<Board> onPeriod = x -> {};
+	private SerializableConsumer<Board> onRemove =  x -> {};
 	private double period = -1; //period in minutes
 	private long gameTimeCreated;
 	private long sessionTimeCreated;
@@ -25,21 +26,21 @@ public class Event implements Serializable {
 	private String name = "Event ";
 	public Event() {
 	}
-	public Event(Consumer<Board> onPlace) {
+	public Event(SerializableConsumer<Board> onPlace) {
 		this.onPlace = onPlace;
 	}
-	public Event(Consumer<Board> onPlace, Consumer<Board> onRemove) {
+	public Event(SerializableConsumer<Board> onPlace, SerializableConsumer<Board> onRemove) {
 		this(onPlace);
 		this.onRemove = onRemove;
 	}
-	public Event(Consumer<Board> onPeriod, int periodInMinutes) {
+	public Event(SerializableConsumer<Board> onPeriod, int periodInMinutes) {
 		this.onPeriod = onPeriod;
 		this.period = periodInMinutes;
 		isPeriodic = periodInMinutes > 0L;
 
 
 	}
-	public Event(Consumer<Board> onPeriod, double periodInMinutes) {
+	public Event(SerializableConsumer<Board> onPeriod, double periodInMinutes) {
 		this.onPeriod = onPeriod;
 		this.period = periodInMinutes;
 		isPeriodic = periodInMinutes > 0.0;
@@ -47,20 +48,20 @@ public class Event implements Serializable {
 			this.period = Math.max(periodInMinutes, MIN_PERIOD);
 
 	}
-	public Event(Consumer<Board> onPlace, Consumer<Board> onPeriod, int periodInMinutes) {
+	public Event(SerializableConsumer<Board> onPlace, SerializableConsumer<Board> onPeriod, int periodInMinutes) {
 		this(onPeriod, periodInMinutes);
 		this.onPlace = onPlace;
 	}
-	public Event(Consumer<Board> onPlace, Consumer<Board> onPeriod, Consumer<Board> onRemove, int periodInMinutes) {
+	public Event(SerializableConsumer<Board> onPlace, SerializableConsumer<Board> onPeriod, SerializableConsumer<Board> onRemove, int periodInMinutes) {
 		this(onPeriod, periodInMinutes);
 		this.onPlace = onPlace;
 		this.onRemove = onRemove;
 	}
-	public Event(Consumer<Board> onPlace, Consumer<Board> onPeriod, double periodInMinutes) {
+	public Event(SerializableConsumer<Board> onPlace, SerializableConsumer<Board> onPeriod, double periodInMinutes) {
 		this(onPeriod, periodInMinutes);
 		this.onPlace = onPlace;
 	}
-	public Event(Consumer<Board> onPlace, Consumer<Board> onPeriod, Consumer<Board> onRemove, double periodInMinutes) {
+	public Event(SerializableConsumer<Board> onPlace, SerializableConsumer<Board> onPeriod, SerializableConsumer<Board> onRemove, double periodInMinutes) {
 		this(onPeriod, periodInMinutes);
 		this.onPlace = onPlace;
 		this.onRemove = onRemove;
@@ -86,7 +87,7 @@ public class Event implements Serializable {
 	}
 	private synchronized void executeIfTime(Board b) {
 		if (!keepTrackWhileOff) {
-			if (hasPeriodicity() && difAsMinutes(b.getSessionGameTime()-sessionTimeCreated) / period >= (numPeriodsElapsed+1)) {
+			if (hasPeriodicity() && millisAsMinutes(b.getSessionGameTime()-sessionTimeCreated) / period >= (numPeriodsElapsed+1)) {
 				if (DEBUG)
 					System.out.println("perioddontkeeptrackwhile off from " + this);
 				onPeriod.accept(b);
@@ -94,8 +95,7 @@ public class Event implements Serializable {
 			}
 		}
 		else {
-			long currentTime = System.currentTimeMillis();
-			if (hasPeriodicity() && difAsMinutes(b.getTotalGameTime()-gameTimeCreated) / period >= (numPeriodsElapsed+1)) {
+			if (hasPeriodicity() && millisAsMinutes(b.getTotalGameTime()-gameTimeCreated) / period >= (numPeriodsElapsed+1)) {
 				if (DEBUG)
 					System.out.println("periodkeeptrackwhile off from " + this);
 				onPeriod.accept(b);
@@ -104,6 +104,11 @@ public class Event implements Serializable {
 
 		}
 	}
+	public void endSession() {
+		sessionTimeCreated = 0;
+		if (!keepTrackWhileOff()) 
+			numPeriodsElapsed = 0;
+	}
 	public boolean hasPeriodicity() {
 		return isPeriodic;
 	}
@@ -111,15 +116,15 @@ public class Event implements Serializable {
 		return numPeriodsElapsed;
 	}
 
-	protected double difAsMinutes(long x) {
+	protected double millisAsMinutes(long x) {
 		double y = x/1000.0;
 		y=y/60.0;
 		return y;
 	}
-	protected Consumer<Board> getOnPeriod() {
+	protected SerializableConsumer<Board> getOnPeriod() {
 		return onPeriod;
 	}
-	public Consumer<Board> getOnPlace() {
+	public SerializableConsumer<Board> getOnPlace() {
 		return onPlace;
 	}
 	protected synchronized void addToTotalPeriods() {

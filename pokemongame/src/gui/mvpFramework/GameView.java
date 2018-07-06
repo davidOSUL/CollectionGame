@@ -11,6 +11,7 @@ import javax.swing.JLayeredPane;
 
 import gui.gameComponents.GameSpace;
 import gui.gameComponents.grid.GridSpace;
+import gui.gameComponents.grid.GridSpace.GridSpaceData;
 import gui.guiutils.GuiUtils;
 import gui.mvpFramework.Presenter.AddType;
 
@@ -130,7 +131,15 @@ public class GameView extends JFrame {
 	public void setInShop(boolean inShop) {
 		mainGamePanel.setInShop(inShop);
 	}
-	
+	/**
+	 * Adds a GridSpace that was previously on the board and was saved away using the specified data. Note that this is only a UI change. (doesn't notify presenter)
+	 * @param gs the gamespace to add
+	 * @param data the data corresponding to the new GridSpace
+	 * @return the newly generated gridspace
+	 */
+	public GridSpace addNewGridSpaceFromSave(GameSpace gs, GridSpaceData data) {
+		return mainGamePanel.addSavedGridSpaceToGrid(gs, data);
+	}
 	
 
 	

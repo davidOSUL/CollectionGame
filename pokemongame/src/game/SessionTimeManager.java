@@ -6,7 +6,8 @@ import java.io.Serializable;
  * Manages the Game Time
  * @author David O'Sullivan
  */
-public class SessionTimeManager implements Serializable {
+//TODO: Fix this
+public class SessionTimeManager {
 	/**
 	 * 
 	 */
@@ -24,11 +25,11 @@ public class SessionTimeManager implements Serializable {
 	/**
 	 * Total time in current game session
 	 */
-	private transient long sessionGameTime = 0;
-	private transient long timeOnPause = 0;
-	private transient boolean paused = false;
-	private transient final long startOfSession = System.currentTimeMillis();
-	private transient long sessionPauseDeficit = 0;
+	private long sessionGameTime = 0;
+	private long timeOnPause = 0;
+	private boolean paused = false;
+	private final long startOfSession = System.currentTimeMillis();
+	private long sessionPauseDeficit = 0;
 	/**
 	 * Create a new Time Manager with 0 already elapsed time. Should be called at the beginning of a new game. 
 	 */

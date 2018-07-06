@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import effects.Event;
+import effects.Eventful;
 import game.Board;
 import game.BoardAttributeManager;
 import gameutils.GameUtils;

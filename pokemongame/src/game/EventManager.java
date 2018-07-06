@@ -2,15 +2,20 @@ package game;
 
 import static gameutils.Constants.DEBUG;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import effects.Event;
-import thingFramework.Eventful;
+import effects.Eventful;
 import thingFramework.Thing;
-public class EventManager {
+public class EventManager implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Set<Eventful> events = new HashSet<Eventful>();
 	private Queue<Runnable> removalEvents = new ConcurrentLinkedQueue<Runnable>();
 	private Board board;
@@ -34,8 +39,8 @@ public class EventManager {
 		{
 			if (!event.onPlaceExecuted()) {
 				if (DEBUG) {
-					System.out.println("running event: " + ((Thing)eventful).getName());
-					event.addToName("EVENT FROM: " + ((Thing)eventful).getName());
+					System.out.println("running event: " + eventful.getName());
+					event.addToName("EVENT FROM: " + eventful.getName());
 				}
 				event.executeOnPlace(board).run();
 			}
@@ -43,6 +48,10 @@ public class EventManager {
 		})); 
 		removalEvents.forEach((runnable) -> runnable.run());
 		removalEvents.clear();
+	}
+	public void signifySessionEnd() {
+		events.forEach(eventful -> eventful.getEvents().forEach( event -> event.endSession()));
+		
 	}
 
 	
