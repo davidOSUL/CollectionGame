@@ -130,11 +130,11 @@ public class MainGamePanel extends JPanel{
 	/**
 	 * Button that user can press to open up the item shop
 	 */
-	private PictureButton shopButton;
+	private PictureButton<Presenter> shopButton;
 	/**
 	 * Button that user can press to save an item
 	 */
-	private PictureButton saveButton;
+	private PictureButton<Presenter> saveButton;
 	/**
 	 * Image for the save button
 	 */
@@ -229,10 +229,10 @@ public class MainGamePanel extends JPanel{
 		notifications = new NotificationButton(NOTIFICATION_LOGO, NOTIFICATION_LOCATION, presenter -> {presenter.NotificationClicked();}, gv, true ).disableBorder();
 		add(notifications);
 		
-		shopButton = new PictureButton(SHOP_BUTTON_LOGO, SHOP_BUTTON_LOCATION, presenter -> presenter.shopClicked(), gv).disableBorder();
+		shopButton = new PictureButton<Presenter>(SHOP_BUTTON_LOGO, SHOP_BUTTON_LOCATION, presenter -> presenter.shopClicked(), gv.getPresenter()).disableBorder();
 		add(shopButton);
 		
-		saveButton = new PictureButton(SAVE_BUTTON_LOGO, SAVE_BUTTON_LOCATION, presenter -> presenter.saveGame(), gv);
+		saveButton = new PictureButton<Presenter>(SAVE_BUTTON_LOGO, SAVE_BUTTON_LOCATION, presenter -> presenter.saveGame(), gv.getPresenter());
 		add(saveButton);
 		
 		boardAttributesDisplay = new BackgroundWithText(ATTRIBUTES_BACKGROUND_IMAGE, new Point[] {POKECASH_ATTRIBUTE_LOCATION, POPULARITY_ATTRIBUTE_LOCATION});

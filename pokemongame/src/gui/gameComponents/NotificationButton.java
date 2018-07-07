@@ -20,14 +20,11 @@ import gui.mvpFramework.Presenter;
  * A button that keeps track of number of notifications, displays number of notifications, and can disappear when the number of notifications is <=0
  * @author David O'Sullivan
  */
-public class NotificationButton extends PictureButton {
+public class NotificationButton extends PictureButton<Presenter> {
 
 	private static final long serialVersionUID = 1L;
 	private int numNotifications;
 	private boolean hideOnEmpty;
-	private Consumer<Presenter> onClick = x -> {};
-	private GameView gv;
-	private static final int CLICK_DIST_THRESH = GUIConstants.CLICK_DIST_THRESH;
 	private static final Font DEFAULT_FONT = new Font("TimesRoman", Font.BOLD, 30);
 	/**
 	 * Creates a new Notification Button with the given image at location (0,0)
@@ -58,14 +55,9 @@ public class NotificationButton extends PictureButton {
 	 * @param hideOnEmpty true if button should be invisible and deactivated when numNotifications is <= 0
 	 */
 	public NotificationButton(Image img, Point location, Consumer<Presenter> onClick, GameView gv, boolean hideOnEmpty) {
-		this(img, location);
+		super(img, location, onClick, gv.getPresenter());
 		this.hideOnEmpty = hideOnEmpty;
-		this.onClick = onClick;
-		BiConsumer<Consumer<Presenter>, MouseEvent> input = (con, e) -> {
-			if (!hideOnEmpty || numNotifications > 0)
-				con.accept(gv.getPresenter());
-		};
-		this.addMouseListener(new MouseClickWithThreshold<Consumer<Presenter>>(CLICK_DIST_THRESH, input, onClick));
+		setNumNotifications(0);
 	
 	}
 	/**

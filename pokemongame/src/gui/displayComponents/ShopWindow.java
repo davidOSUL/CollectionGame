@@ -21,8 +21,7 @@ import javax.swing.JScrollPane;
 import gui.gameComponents.GameSpace;
 import gui.gameComponents.PictureButton;
 import gui.guiutils.GuiUtils;
-import gui.mvpFramework.GameView;
-import gui.mvpFramework.MainGamePanel;
+import gui.mvpFramework.*;
 import loaders.shopLoader.ShopItem;
 
 /**
@@ -99,7 +98,7 @@ public class ShopWindow {
 	public void updateItems(Set<ShopItem> shopItems) {
 		setUpPanel();
 		shopItems.forEach(shopItem -> {
-			PictureButton pb = new PictureButton(generateImage(shopItem), p -> p.attemptPurchaseThing(shopItem), gv).disableBorder();
+			PictureButton<Presenter> pb = new PictureButton<Presenter>(generateImage(shopItem), p -> p.attemptPurchaseThing(shopItem), gv.getPresenter()).disableBorder();
 			DescriptionManager.getInstance().setDescription(pb, shopItem.toString());
 			shopWindow.add(pb);
 			shopWindow.revalidate();

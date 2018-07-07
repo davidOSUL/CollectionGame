@@ -27,10 +27,10 @@ import gui.guiutils.GuiUtils;
  *
  */
 public class StartScreenBuilder {
-	private static final Dimension WINDOW_SIZE = new Dimension(500, 500);
+	private static final Dimension WINDOW_SIZE = new Dimension(460, 335);
 	private static final Border PANEL_BORDER = BorderFactory.createEmptyBorder(100, 50, 100, 50);
 	private final static Image START_SCREEN_BACKGROUND = GuiUtils.readImage("/sprites/ui/pikabackground.jpg");
-	private final static Image BUTTON_IMG = GuiUtils.readImage("/sprites/ui/blue_button03.png");
+	private final static String BUTTON_NAME= "button";
 	public static <T> JFrame getFrame(String title, boolean enabledContinue, Consumer<T> onNewGame, Consumer<T> onContinue, T actOn)  {
 		JFrame frame = new JFrame();
 		frame.setVisible(false);
@@ -45,19 +45,19 @@ public class StartScreenBuilder {
 		panel.setSize(WINDOW_SIZE);
 		panel.setLayout(new GridLayout(2, 1));
 		panel.setBorder(PANEL_BORDER);*/
-		JButton newGameButton = ButtonWithBackgroundBuilder.generateButton(BUTTON_IMG, "New Game");
-		newGameButton.addActionListener(new ActionListener() { 
+		PictureButton<T> newGameButton = ButtonWithBackgroundBuilder.generateButton(BUTTON_NAME, "New Game", onNewGame, actOn);
+		/*newGameButton.addActionListener(new ActionListener() { 
 			  public void actionPerformed(ActionEvent e) { 
 			    onNewGame.accept(actOn);
 			  } 
-		});
-		JButton continueGameButton = ButtonWithBackgroundBuilder.generateButton(BUTTON_IMG, "Continue Game");
+		});*/
+		PictureButton<T> continueGameButton = ButtonWithBackgroundBuilder.generateButton(BUTTON_NAME, "Continue Game", onContinue, actOn);
 		continueGameButton.setEnabled(enabledContinue);
-		continueGameButton.addActionListener(new ActionListener() { 
+		/*continueGameButton.addActionListener(new ActionListener() { 
 			  public void actionPerformed(ActionEvent e) { 
 			    onContinue.accept(actOn);
 			  } 
-		});
+		});*/
 		background.add(newGameButton);
 		background.add(continueGameButton);
 		background.revalidate();
