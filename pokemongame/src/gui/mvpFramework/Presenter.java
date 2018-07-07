@@ -38,7 +38,7 @@ import userIO.GameSaver;
  * The "Presenter" in the MVP model. Has a view (GameView) and a model (Board). 
  * Has responsibility of updating GUI, updating the board, and taking in all inputs/actions that may have an effect on both
  * the view and model and decides what to do. 
- * @author DOSullivan
+ * @author David O'Sullivan
  *
  */
 public class Presenter implements Serializable {
@@ -627,7 +627,8 @@ public class Presenter implements Serializable {
 		if (state != CurrentState.GAMEPLAY)
 			return;
 		setState(CurrentState.IN_SHOP);
-		setCurrentWindow(shopWindow.getShopWindow());
+		//shopWindow.getShopWindowAsFrame();
+		setCurrentWindow(shopWindow.getShopWindowAsComponent());
 		gameView.setInShop(true);
 
 	}
@@ -773,7 +774,7 @@ public class Presenter implements Serializable {
 	}
 	/**
 	 * The CurrentState of GamePlay
-	 * @author DOSullivan
+	 * @author David O'Sullivan
 	 *
 	 */
 	private enum CurrentState {
@@ -783,7 +784,7 @@ public class Presenter implements Serializable {
 	 * The context of the Add Attempt
 	 * POKE_FROM_QUEUE == notifcation butotn was pressed
 	 * PRIOR_ON_BOARD == moving around a thing that was already placed
-	 * @author DOSullivan
+	 * @author David O'Sullivan
 	 *
 	 */
 	public enum AddType{
@@ -795,7 +796,7 @@ public class Presenter implements Serializable {
 	}
 	/**
 	 * A mapping between a thing and a GridSpace
-	 * @author DOSullivan
+	 * @author David O'Sullivan
 	 *
 	 */
 	private static class AllThingsMapEntry{

@@ -7,6 +7,11 @@ import game.Board;
 import interfaces.SerializableConsumer;
 import interfaces.SerializableFunction;
 
+/**
+ * Event whose period changes
+ * @author David O'Sullivan
+ *
+ */
 public class CustomPeriodEvent extends Event {
 
 	/**

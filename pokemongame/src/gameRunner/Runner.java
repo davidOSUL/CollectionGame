@@ -26,10 +26,9 @@ import gui.mvpFramework.Presenter;
 import userIO.GameSaver;
 
 /**
- * Starts the game and keeps it running
+ * Starts the game with a screen where users can select new or continue game 
  * @author David O'Sullivan
  */
-//TODO: clear save upon hitting new game (confirm as well)
 public class Runner  {
 	private static final String title = "Pokemon Collection Game V. Alpha";
 	private final GameSaver saver;

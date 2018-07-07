@@ -13,6 +13,12 @@ import loaders.CSVReader;
 import loaders.ThingLoader;
 import thingFramework.Thing;
 
+/**
+ * Loads in all shop items into the shop. THis will also update the shop, adding/removing items if new ones
+ * are created (or removed)
+ * @author David O'Sullivan
+ *
+ */
 public class ShopItemLoader {
 	private static final String SHOP_ITEM_PATH = "/InputFiles/shopItems.csv";
 	private static final ShopItemLoader INSTANCE = new ShopItemLoader();

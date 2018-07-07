@@ -18,7 +18,7 @@ import gui.mvpFramework.Presenter;
 
 /**
  * A button that keeps track of number of notifications, displays number of notifications, and can disappear when the number of notifications is <=0
- * @author DOSullivan
+ * @author David O'Sullivan
  */
 public class NotificationButton extends PictureButton {
 

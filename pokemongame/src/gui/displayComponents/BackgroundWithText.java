@@ -1,20 +1,29 @@
 package gui.displayComponents;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Rectangle;
 
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import gui.gameComponents.GameSpace;
 import gui.guiutils.GuiUtils;
 
-public class BackgroundWithText extends JPanel{
+/**
+ * A gamespace with a background image and with text that can be updated 
+ * @author David O'Sullivan
+ *
+ */
+public class BackgroundWithText extends GameSpace{
 
 	
-	private static final Font DEFAULT_FONT = new Font("TimesRoman", Font.BOLD, 11);
+	private static final Font DEFAULT_FONT = new Font("TimesRoman", Font.BOLD, 20);
 	private static final long serialVersionUID = 1L;
 	private Image background;
 	private String[] texts;
@@ -37,6 +46,7 @@ public class BackgroundWithText extends JPanel{
 	 * @param font the font of the text
 	 */
 	public BackgroundWithText(Image background, Point[] points, Font font) {
+		super(background);
 		setLayout(null);
 		this.background = background;
 		this.texts = new String[points.length];
@@ -46,6 +56,7 @@ public class BackgroundWithText extends JPanel{
 		this.font = font;
 		if (font == null)
 			this.font = DEFAULT_FONT;
+		//setOpaque(false);
 		revalidate();
 		repaint();
 		setVisible(true);
@@ -58,6 +69,7 @@ public class BackgroundWithText extends JPanel{
 	 * @param points the location of the texts
 	 */
 	public BackgroundWithText(Image background, String[] texts, Point[] points, Font font) {
+		super(background);
 		if (texts.length != points.length)
 			throw new IllegalArgumentException("Texts and points must be the same length");
 		setLayout(null);
@@ -81,7 +93,9 @@ public class BackgroundWithText extends JPanel{
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		g.setFont(font);
+		g.setColor(Color.BLACK);
 		for (int i = 0; i < texts.length; i++) {
+			g.drawString(texts[i], points[i].x, points[i].y);
 			g.drawString(texts[i], points[i].x, points[i].y);
 		}
 		//g.drawImage(background, 0,0,this);

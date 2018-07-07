@@ -393,7 +393,7 @@ public final class Grid extends GameSpace {
 	/**
 	 *Very simple implementation of Point. Exactly the same but with a different name, used to help distinguish
 	 *between absolute points and grid points
-	 * @author DOSullivan
+	 * @author David O'Sullivan
 	 *
 	 */
 	protected static class GridPoint extends Point implements Serializable {

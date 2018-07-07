@@ -21,8 +21,8 @@ import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
 /**
- * Set of Useful functions for GUI purposes.
- * @author DOSullivan
+ * Set of Useful functions for GUI purposes (generally only used by frontend)
+ * @author David O'Sullivan
  */
 public final class GuiUtils {
 	private static String pokeCash = "<html><img src=\"" + GuiUtils.class.getResource("/sprites/ui/dollar.png") + "\">";

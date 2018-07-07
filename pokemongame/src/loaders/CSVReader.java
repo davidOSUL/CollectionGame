@@ -12,6 +12,11 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Used for reading in CSV files and returning the values within
+ * @author David O'Sullivan
+ *
+ */
 public final class CSVReader {
 
 	private CSVReader() {

@@ -14,7 +14,7 @@ import thingFramework.ExperienceGroup;
 
 /**
  * Used as a way to lookup pokemon XP
- * @author DOSullivan
+ * @author David O'Sullivan
  *
  */
 public final class RequiredXPLookup {

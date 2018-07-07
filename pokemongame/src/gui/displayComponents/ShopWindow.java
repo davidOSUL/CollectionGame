@@ -10,15 +10,26 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import gui.gameComponents.GameSpace;
 import gui.gameComponents.PictureButton;
 import gui.guiutils.GuiUtils;
 import gui.mvpFramework.GameView;
+import gui.mvpFramework.MainGamePanel;
 import loaders.shopLoader.ShopItem;
 
+/**
+ * The UI for the shop
+ * @author David O'Sullivan
+ *
+ */
 public class ShopWindow {
 	private Map<PictureButton, ShopItem> items = new HashMap<PictureButton, ShopItem>();
 	/**
@@ -60,12 +71,14 @@ public class ShopWindow {
 	/**
 	 * The layout for the shopWindow
 	 */
+	private static final Image BACKGROUND = GuiUtils.readImage("/sprites/ui/shop_background.png");
 	private static final GridLayout LAYOUT = new GridLayout(0, NUM_COLS, HGAP, VGAP);
 	private JPanel shopWindow;
 	private JScrollPane scrollableShopWindow;
 	private GameView gv;
 	private static final Font DEFAULT_FONT = new Font("TimesRoman", Font.BOLD, 11);
-	
+	private static final int FRAME_WIDTH = 500;
+	private static final int FRAME_HEIGHT = 500;
 	
 	/**
 	 * Creates a new ShopWindow with no items
@@ -85,7 +98,6 @@ public class ShopWindow {
 	}
 	public void updateItems(Set<ShopItem> shopItems) {
 		setUpPanel();
-		
 		shopItems.forEach(shopItem -> {
 			PictureButton pb = new PictureButton(generateImage(shopItem), p -> p.attemptPurchaseThing(shopItem), gv).disableBorder();
 			DescriptionManager.getInstance().setDescription(pb, shopItem.toString());
@@ -106,7 +118,7 @@ public class ShopWindow {
 		Image result = GuiUtils.overlayText(overlayWithQuantity, Integer.toString(item.getCost()), COST_LOC, DEFAULT_FONT);
 		return result;
 	}
-	public JComponent getShopWindow() {
+public JComponent getShopWindowAsComponent() {
 		
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.setSize(DEFAULT_SIZE);
@@ -115,6 +127,31 @@ public class ShopWindow {
 		panel.repaint();
 		
 		return panel;
+	}
+	public JFrame getShopWindowAsFrame() { 
+		
+		int WIDTH = FRAME_WIDTH;
+		int HEIGHT = FRAME_HEIGHT;
+		JFrame frame = new JFrame();
+		shopWindow.setSize(WIDTH,HEIGHT);
+		shopWindow.setFocusable(true);
+		shopWindow.setOpaque(false);
+		frame.setLayout(null);
+		frame.setResizable(false);
+		frame.setLocationByPlatform(true);
+		frame.setSize(WIDTH, HEIGHT);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		JLabel backgroundLabel = new JLabel(new ImageIcon(GuiUtils.getScaledImage(BACKGROUND, WIDTH, HEIGHT)));
+		backgroundLabel.setSize(WIDTH, HEIGHT);
+		//backgroundLabel.setOpaque(true);
+		frame.add(shopWindow);
+		frame.add(backgroundLabel);
+		
+		
+		frame.revalidate();
+		frame.repaint();
+		frame.setVisible(true);
+		return frame;
 	}
 
 }

@@ -5,6 +5,12 @@ import java.io.Serializable;
 import interfaces.Imagable;
 import loaders.ThingLoader;
 
+/**
+ * A singular item in the shop. This represents the "data" behind the item, that is the name, the quantity,
+ * the cost, etc.
+ * @author David O'Sullivan
+ *
+ */
 public class ShopItem implements Serializable, Imagable{
 	/**
 	 * 

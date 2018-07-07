@@ -7,6 +7,13 @@ import java.util.function.Consumer;
 import interfaces.SerializableConsumer;
 
 import game.Board;
+/**
+ * various things may events which affect the state of the board at different times. Events have an
+ * "onPlace", "onRemove" functions which happen when they are created/destroyed. Some events also have an
+ * "onPeriod" function which happens at a regular interval
+ * @author David O'Sullivan
+ *
+ */
 public class Event implements Serializable {
 	/**
 	 * 

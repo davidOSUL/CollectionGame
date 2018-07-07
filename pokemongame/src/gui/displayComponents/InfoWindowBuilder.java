@@ -26,7 +26,7 @@ import sas.swing.plaf.MultiLineLabelUI;
 /**
  * A Pop-Up Window that interfaces with a provided Presenter. All Features are added incrementally, only adding what is needed.
  * Must call Create() to finalize creation of InfoWindow
- * @author DOSullivan
+ * @author David O'Sullivan
  */
 public class InfoWindowBuilder {
 	/**

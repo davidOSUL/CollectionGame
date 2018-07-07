@@ -15,6 +15,11 @@ import loaders.shopLoader.ShopItem;
 import loaders.shopLoader.ShopItemLoader;
 import thingFramework.Thing;
 
+/**
+ * Contains the data for the shop. This includes quantity, cost, available items, etc.
+ * @author David O'Sullivan
+ *
+ */
 public class Shop implements Serializable{
 	/**
 	 * 

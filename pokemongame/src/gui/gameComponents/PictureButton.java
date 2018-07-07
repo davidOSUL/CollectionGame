@@ -16,6 +16,11 @@ import gui.mouseAdapters.MouseClickWithThreshold;
 import gui.mvpFramework.GameView;
 import gui.mvpFramework.Presenter;
 
+/**
+ * Essentially A gamespace with a mouselistener
+ * @author David O'Sullivan
+ *
+ */
 public class PictureButton extends GameSpace {
 
 	private static final long serialVersionUID = 1L;

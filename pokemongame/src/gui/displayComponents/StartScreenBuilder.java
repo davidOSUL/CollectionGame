@@ -21,6 +21,11 @@ import gui.gameComponents.GameSpace;
 import gui.gameComponents.PictureButton;
 import gui.guiutils.GuiUtils;
 
+/**
+ * Creates the initial start screen where user can select continue or new game
+ * @author David O'Sullivan
+ *
+ */
 public class StartScreenBuilder {
 	private static final Dimension WINDOW_SIZE = new Dimension(500, 500);
 	private static final Border PANEL_BORDER = BorderFactory.createEmptyBorder(100, 50, 100, 50);

@@ -20,12 +20,17 @@ import thingFramework.Item;
 import thingFramework.Pokemon;
 import thingFramework.Thing;
 
+/**
+ * All things from the resources folder are loaded in using this class
+ * @author David O'Sullivan
+ *
+ */
 public final class ThingLoader {
 	/**
 	 * Tell thing loader to generate random attributes for this thing
 	 */
 	private static final String GEN_CODE = "RANDOMATTRIBUTES";
-	private static final String POKE_SPRITE_LOC = "/sprites/pokemon/";
+	private static final String POKE_SPRITE_LOC = "/sprites/pokemon/battlesprites/";
 	private static final String ITEM_SPRITE_LOC = "/sprites/items/";
 	private final EventBuilder eb;
 	private  Set<Thing> thingSet = new HashSet<Thing>();

@@ -12,7 +12,7 @@ import interfaces.Procedure;
 
 /**
  * Manages key bindings by adding quicker method of adding Key Stroke actions
- * @author DOSullivan
+ * @author David O'Sullivan
  */
 public class KeyBindingManager {
 	private InputMap inputMap;
@@ -46,7 +46,7 @@ public class KeyBindingManager {
 	}
 	 /**
 	 * Every new key binding creates a KeyAction. This just causes the event to be invoked whenever that key is pressed
-	 * @author DOSullivan
+	 * @author David O'Sullivan
 	 */
 	private class KeyAction extends AbstractAction {
 	     /**

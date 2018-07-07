@@ -5,7 +5,7 @@ import java.util.function.BiConsumer;
 
 /**
  * Triggers on a double click within an allowable distance
- * @author DOSullivan
+ * @author David O'Sullivan
  *
  * @param <T>
  */

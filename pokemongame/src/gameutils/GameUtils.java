@@ -16,6 +16,11 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * General purpose utility functions (generally used by backend only)
+ * @author David O'Sullivan
+ *
+ */
 public final class GameUtils {
 	private GameUtils() {
 		

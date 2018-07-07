@@ -33,7 +33,8 @@ import gui.mouseAdapters.MouseClickWithThreshold;
 import gui.mvpFramework.Presenter.AddType;
 
 /**
- * @author DOSullivan
+ * where most of the front end component lie. This is within the GameView
+ * @author David O'Sullivan
  *
  */
 public class MainGamePanel extends JPanel{
@@ -197,11 +198,11 @@ public class MainGamePanel extends JPanel{
 	/**
 	 * the location of the pokecash attribute text
 	 */
-	private static final Point POKECASH_ATTRIBUTE_LOCATION = new Point(344, 479);
+	private static final Point POKECASH_ATTRIBUTE_LOCATION = new Point(70, 29);
 	/**
 	 * the location of the popularity attribute text
 	 */
-	private static final Point POPULARITY_ATTRIBUTE_LOCATION = new Point(634, 479);
+	private static final Point POPULARITY_ATTRIBUTE_LOCATION = new Point(358, 29);
 	private static final long serialVersionUID = 1L;
 	/**
 	 * set to true when the user is in the shop. used so that escape can close the shop window

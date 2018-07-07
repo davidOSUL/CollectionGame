@@ -9,6 +9,11 @@ import javax.swing.UIManager;
 import gui.guiutils.GuiUtils;
 import thingFramework.Thing;
 
+/**
+ * Manages Tooltips for all components
+ * @author David O'Sullivan
+ *
+ */
 public final class DescriptionManager {
 	private final static DescriptionManager INSTANCE = new DescriptionManager();
 	/**

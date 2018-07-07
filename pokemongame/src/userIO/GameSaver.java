@@ -11,7 +11,16 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+/**
+ * Used to save the game to the users local file system
+ * @author David O'Sullivan
+ *
+ */
 public class GameSaver implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private File saveFile;
 	private static final String DEFAULT_SAVE_PATH = System.getProperty("user.home") + "/CollectionGame/saves/saveinfo.txt";
 	public GameSaver() {

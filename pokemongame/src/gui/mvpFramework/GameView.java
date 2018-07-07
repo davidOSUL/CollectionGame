@@ -17,7 +17,7 @@ import gui.mvpFramework.Presenter.AddType;
 
 /**
  * The JFrame which houses the game
- * @author DOSullivan
+ * @author David O'Sullivan
  */
 public class GameView extends JFrame {
 	/**

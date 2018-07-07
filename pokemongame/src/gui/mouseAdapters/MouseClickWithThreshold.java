@@ -9,7 +9,7 @@ import javax.swing.SwingUtilities;
 
 /**
  * Will register on a mouse click when the mouse release is within an allowable distance of the mouse press
- * @author DOSullivan
+ * @author David O'Sullivan
  * 
  * @param <T> what type of object will be affected when the mouse is clicked
  */

@@ -18,7 +18,7 @@ import gameutils.GameUtils;
 
 /**
  * Generates Events by taking in a path to a file where Thing names are mapped to events that correspond to them
- * @author DOSullivan
+ * @author David O'Sullivan
  */
 public class EventBuilder {
 	
@@ -127,7 +127,7 @@ public class EventBuilder {
 	
 	/**
 	 * All TypicalEvents. Contains the lower index and the upper index of the parsed input line, where the inputs to the corresponding method that generates the event can be found
-	 * @author DOSullivan
+	 * @author David O'Sullivan
 	 *
 	 */
 	private enum TypicalEvents {

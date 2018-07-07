@@ -11,6 +11,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import effects.Event;
 import effects.Eventful;
 import thingFramework.Thing;
+/**
+ * Manages the events of all things on the board
+ * @author David O'Sullivan
+ *
+ */
 public class EventManager implements Serializable{
 	/**
 	 * 
