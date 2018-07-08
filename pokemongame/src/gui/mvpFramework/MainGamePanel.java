@@ -13,14 +13,11 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import java.util.function.BiConsumer;
 
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
-import gui.displayComponents.BackgroundWithText;
+import gui.gameComponents.BackgroundWithText;
 import gui.gameComponents.GameSpace;
 import gui.gameComponents.NotificationButton;
 import gui.gameComponents.PictureButton;
@@ -80,7 +77,7 @@ public class MainGamePanel extends JPanel{
 	/**
 	 * The GameView that houses this GamePanel
 	 */
-	private GameView gv;
+	private final GameView gv;
 	/**
 	 * When in the process of an add Attempt, this is the GridSpace that the user moves around with their mouse
 	 */
@@ -116,7 +113,7 @@ public class MainGamePanel extends JPanel{
 	/**
 	 * the new wild pokemon NotificationButton
 	 */
-	private NotificationButton notifications;
+	private final NotificationButton notifications;
 	
 	/**
 	 * Image for shop button
@@ -130,11 +127,11 @@ public class MainGamePanel extends JPanel{
 	/**
 	 * Button that user can press to open up the item shop
 	 */
-	private PictureButton<Presenter> shopButton;
+	private final PictureButton<GameView> shopButton;
 	/**
 	 * Button that user can press to save an item
 	 */
-	private PictureButton<Presenter> saveButton;
+	private final PictureButton<GameView> saveButton;
 	/**
 	 * Image for the save button
 	 */
@@ -151,11 +148,11 @@ public class MainGamePanel extends JPanel{
 	/**
 	 * The manager for all key stroke events in this panel
 	 */
-	private KeyBindingManager keyBindings = new KeyBindingManager(getInputMap(CONDITION), getActionMap());
+	private final KeyBindingManager keyBindings = new KeyBindingManager(getInputMap(CONDITION), getActionMap());
 	/**
 	 * Displays Current Board Attributes
 	 */
-	private BackgroundWithText boardAttributesDisplay;
+	private final BackgroundWithText boardAttributesDisplay;
 	/**
 	 * The location to display the Board attributesu
 	 */
@@ -163,28 +160,28 @@ public class MainGamePanel extends JPanel{
 	/**
 	 * Added to currentMoving so that clicks will trigger rotation
 	 */
-	private MouseListener onClick =  new MouseAdapter() { //allow rotation
+	private final MouseListener onClick =  new MouseAdapter() { //allow rotation
 		 @Override
-		 public void mouseClicked(MouseEvent e) {
+		 public void mouseClicked(final MouseEvent e) {
 			onMouseClicked(e);
 		 }
 	};
 	/**
 	 * Added to currentMoving so that moving the mouse into the gamespace moves it instead of keeping it still
 	 */
-	private MouseMotionListener onMove =  new MouseMotionAdapter() { 
+	private final MouseMotionListener onMove =  new MouseMotionAdapter() { 
 		 @Override
-		 public void mouseMoved(MouseEvent e) {
-			 Point location = currentMoving.getLocation();
+		 public void mouseMoved(final MouseEvent e) {
+			 final Point location = currentMoving.getLocation();
 			currentMoving.setLocation(location.x + e.getPoint().x, location.y+e.getPoint().y);
 		 }
 	};
 	static { //create the rectangles corresponding to the locations of all of the grids
 		ATTRIBUTE_LABEL_LOCATION.add(new Point(814, 511));
-		int[] xLocations = {30,273,331,800,80,240};
-		int[] yLocations = {333,490,142,445,170,229};
+		final int[] xLocations = {30,273,331,800,80,240};
+		final int[] yLocations = {333,490,142,445,170,229};
 		for (int i = 0; i < NUM_GRIDS; i++) {
-				Rectangle r = new Rectangle(new Point(xLocations[i*2], yLocations[i*2]));
+				final Rectangle r = new Rectangle(new Point(xLocations[i*2], yLocations[i*2]));
 				r.add(new Point(xLocations[1+(i*2)], yLocations[1+(i*2)]));
 				gridLocs[i] = r;
 				
@@ -214,7 +211,7 @@ public class MainGamePanel extends JPanel{
 	 */
 	//TODO: Pokemon get stuck moving around Grid when object is in the way
 	
-	public MainGamePanel(GameView gv) {
+	public MainGamePanel(final GameView gv) {
 		this.gv = gv;
 		
 		setSize(GameView.WIDTH,GameView.HEIGHT);
@@ -226,20 +223,17 @@ public class MainGamePanel extends JPanel{
 		addListeners();
 		setKeyBindings();
 		
-		notifications = new NotificationButton(NOTIFICATION_LOGO, NOTIFICATION_LOCATION, presenter -> {presenter.NotificationClicked();}, gv, true ).disableBorder();
+		notifications = new NotificationButton(NOTIFICATION_LOGO, NOTIFICATION_LOCATION, gameView -> gameView.getPresenter().NotificationClicked(), gv, true).disableBorder();
 		add(notifications);
 		
-		shopButton = new PictureButton<Presenter>(SHOP_BUTTON_LOGO, SHOP_BUTTON_LOCATION, presenter -> presenter.shopClicked(), gv.getPresenter()).disableBorder();
+		shopButton = new PictureButton<GameView>(SHOP_BUTTON_LOGO, SHOP_BUTTON_LOCATION, gameView -> gameView.getPresenter().shopClicked(), gv).disableBorder();
 		add(shopButton);
 		
-		saveButton = new PictureButton<Presenter>(SAVE_BUTTON_LOGO, SAVE_BUTTON_LOCATION, presenter -> presenter.saveGame(), gv.getPresenter());
+		saveButton = new PictureButton<GameView>(SAVE_BUTTON_LOGO, SAVE_BUTTON_LOCATION, gameView -> gameView.getPresenter().saveGame(), gv);
 		add(saveButton);
 		
 		boardAttributesDisplay = new BackgroundWithText(ATTRIBUTES_BACKGROUND_IMAGE, new Point[] {POKECASH_ATTRIBUTE_LOCATION, POPULARITY_ATTRIBUTE_LOCATION});
 		boardAttributesDisplay.setBounds(ATTRIBUTE_LABEL_LOCATION);
-		//displayLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		//displayLabel.setBounds(DISPLAY_LABEL_LOCATION);
-		//displayLabel.setOpaque(false);
 		add(boardAttributesDisplay);
 		
 		revalidate();
@@ -250,16 +244,16 @@ public class MainGamePanel extends JPanel{
 	 * If in the process of an add Attempt and the click was a right click, rotate the GridSpace
 	 * @param e the mouse event of the user's mouse click
 	 */
-	private void onMouseClicked(MouseEvent e) {
+	private void onMouseClicked(final MouseEvent e) {
 		if (DEBUG)
 		System.out.println(e.getPoint());
 		if (addingSomething) {
 			if (SwingUtilities.isRightMouseButton(e)) {
 				//save all old information that we will need
-				AddType oldType = typeOfAdd;
-				Point oldOldPoint = oldPoint;
-				Image oldImageBeforeRotation = imageBeforeRotation;
-				GridSpace oldGridSpace = endGameSpaceAdd(); //end the current add attempt
+				final AddType oldType = typeOfAdd;
+				final Point oldOldPoint = oldPoint;
+				final Image oldImageBeforeRotation = imageBeforeRotation;
+				final GridSpace oldGridSpace = endGameSpaceAdd(); //end the current add attempt
 				oldGridSpace.rotateClockwise90();
 				gridSpaceAdd(oldGridSpace, oldType); //restart the current add attempt with the new, rotated image
 				imageBeforeRotation = oldImageBeforeRotation;
@@ -278,18 +272,18 @@ public class MainGamePanel extends JPanel{
 	 * Sets the location of the currentMoving GridSpace in the context of this MainGamePanel given a MouseEvent in the context of activeGrid
 	 * @param e the mouse event provided by activeGrid
 	 */
-	private void setCurrentRelativeToActiveGrid(MouseEvent e) {
-		Point snapPoint = activeGrid.getAbsoluteSnapPoint(e.getPoint());
+	private void setCurrentRelativeToActiveGrid(final MouseEvent e) {
+		final Point snapPoint = activeGrid.getAbsoluteSnapPoint(e.getPoint());
 		currentMoving.setLocation(snapPoint.x+activeGrid.getX(), snapPoint.y+activeGrid.getY());
 	}
 	/**
 	 * Set the value of the notification button
 	 * @param num the number of notifications
 	 */
-	public void updateNotifications(int num) {
+	public void updateNotifications(final int num) {
 		notifications.setNumNotifications(num);
 	}
-	public GridSpace generateGridSpaceWithDefaultGrid(GameSpace gs) {
+	public GridSpace generateGridSpaceWithDefaultGrid(final GameSpace gs) {
 		return grids[DEFAULT_GRID].generateGridSpace(gs);
 	}
 	/**
@@ -297,7 +291,7 @@ public class MainGamePanel extends JPanel{
 	 * @param gs the GridSpace to attempt to add
 	 * @param type the type of add
 	 */
-	public void gridSpaceAdd(GridSpace gs, AddType type) {
+	public void gridSpaceAdd(final GridSpace gs, final AddType type) {
 		this.typeOfAdd = type;
 		if (typeOfAdd == AddType.PRIOR_ON_BOARD)  {
 			oldPoint = gs.getLocation();
@@ -308,7 +302,7 @@ public class MainGamePanel extends JPanel{
 		currentMoving = gs;
 		currentMoving.addMouseListener(onClick);
 		currentMoving.addMouseMotionListener(onMove);
-		Point p = MouseInfo.getPointerInfo().getLocation();
+		final Point p = MouseInfo.getPointerInfo().getLocation();
 		if (p != null) {
 			SwingUtilities.convertPointFromScreen(p, this);
 			currentMoving.setLocation(p);
@@ -343,7 +337,7 @@ public class MainGamePanel extends JPanel{
 			throw new RuntimeException("Not currently Adding GameSpace");
 		addingSomething = false;
 		remove(currentMoving);
-		GridSpace oldGS = currentMoving;
+		final GridSpace oldGS = currentMoving;
 		oldGS.removeMouseListener(onClick);
 		oldGS.removeMouseMotionListener(onMove);
 		currentMoving = null;
@@ -365,9 +359,9 @@ public class MainGamePanel extends JPanel{
 	 * @param byPassTime if set to true will ignore the requirement that there must be at least MIN_WAIT_TO_ADD milliseconds
 	 * between starting an add attempt and adding something
 	 */
-	private void gridClick(Grid currGrid, Point p, boolean byPassTime) {
+	private void gridClick(final Grid currGrid, final Point p, final boolean byPassTime) {
 		if (addingSomething && (byPassTime || System.currentTimeMillis()-timeAddedTime > MIN_WAIT_TO_ADD)) {
-			GridSpace result = currGrid.addGridSpaceSnapToGrid(currentMoving,p);
+			final GridSpace result = currGrid.addGridSpaceSnapToGrid(currentMoving,p);
 			if (result != null) { //if add is succesful (has room, etc.)
 				gv.getPresenter().notifyAdded(result, typeOfAdd);
 				currGrid.removeHighlight();
@@ -381,7 +375,7 @@ public class MainGamePanel extends JPanel{
 	 * @param currGrid the grid that was clicked
 	 * @param p the absolute point at which it was clicked (relative to currGrid)
 	 */
-	private void gridClick(Grid currGrid, Point p) {
+	private void gridClick(final Grid currGrid, final Point p) {
 		gridClick(currGrid, p, false);
 	}
 	/**
@@ -390,13 +384,13 @@ public class MainGamePanel extends JPanel{
 	 * @param currGrid the grid that will contain this MouseAdapter
 	 * @return the MouseAdapter
 	 */
-	private MouseClickWithThreshold<MainGamePanel> generateGridClickListener(Grid currGrid) {
-		BiConsumer<MainGamePanel, MouseEvent> input = (mgp, e) -> {
+	private MouseClickWithThreshold<MainGamePanel> generateGridClickListener(final Grid currGrid) {
+		final BiConsumer<MainGamePanel, MouseEvent> input = (mgp, e) -> {
 			mgp.onMouseClicked(e);
 			if (SwingUtilities.isLeftMouseButton(e))
 				mgp.gridClick(currGrid, e.getPoint());
 		};
-		MouseClickWithThreshold<MainGamePanel> mcwt = new MouseClickWithThreshold<MainGamePanel>(20, input, this, true); 
+		final MouseClickWithThreshold<MainGamePanel> mcwt = new MouseClickWithThreshold<MainGamePanel>(20, input, this, true); 
 		return mcwt;
 	}
 	/**
@@ -404,7 +398,7 @@ public class MainGamePanel extends JPanel{
 	 * @param gold The PokeCash value
 	 * @param popularity the current popularity
 	 */
-	public void updateDisplayedAttributes(int gold, int popularity) {
+	public void updateDisplayedAttributes(final int gold, final int popularity) {
 		boardAttributesDisplay.updateText(0, Integer.toString(gold));
 		boardAttributesDisplay.updateText(1, Integer.toString(popularity));
 	}
@@ -426,10 +420,10 @@ public class MainGamePanel extends JPanel{
 	 */
 	private void setUpGrids() {
 		for (int i = 0; i < NUM_GRIDS; i++) { //create the grids
-			Grid currGrid = new Grid(gridLocs[i], GRID_SPACE_DIM, GRID_SPACE_DIM, gv, i);
+			final Grid currGrid = new Grid(gridLocs[i], GRID_SPACE_DIM, GRID_SPACE_DIM, gv, i);
 			currGrid.addMouseMotionListener(new MouseMotionAdapter() {
 				 @Override
-				 public void mouseMoved(MouseEvent e) { //set highlights when mouse is moved
+				 public void mouseMoved(final MouseEvent e) { //set highlights when mouse is moved
 					if (addingSomething) {
 						if (!setHighlight) {
 							activeGrid = currGrid; //TODO: Fix this because setHighlight could be set even if currGrid doesn't if there isn't space
@@ -449,7 +443,7 @@ public class MainGamePanel extends JPanel{
 			currGrid.addMouseListener(generateGridClickListener(currGrid)); //listener for attempting to place
 			currGrid.addMouseListener(new MouseAdapter() {
 				@Override
-				public void mouseExited(MouseEvent e) { //remove highlight
+				public void mouseExited(final MouseEvent e) { //remove highlight
 					if (addingSomething) {
 						activeGrid = null;
 						currGrid.removeHighlight();
@@ -464,7 +458,7 @@ public class MainGamePanel extends JPanel{
 	private void addListeners() {
 		this.addMouseMotionListener(new MouseMotionAdapter() { //move currentMoving around screen
 			 @Override
-			 public void mouseMoved(MouseEvent e) {
+			 public void mouseMoved(final MouseEvent e) {
 				if (addingSomething) {
 					if (activeGrid != null) {
 						setCurrentRelativeToActiveGrid(e);
@@ -478,13 +472,13 @@ public class MainGamePanel extends JPanel{
 		if (DEBUG) {
 			this.addMouseListener(new MouseAdapter() {
 				@Override
-				public void mouseClicked(MouseEvent e) {
+				public void mouseClicked(final MouseEvent e) {
 					System.out.println(e.getPoint());
 				}
 			});
 		}
 	}
-	public void setInShop(boolean inShop) {
+	public void setInShop(final boolean inShop) {
 		this.inShop = inShop;
 	}
 	/**
@@ -493,7 +487,7 @@ public class MainGamePanel extends JPanel{
 	 * @param data the GridSpaceData to use to generate the GridSpace
 	 * @return the newly generated grid space
 	 */
-	public GridSpace addSavedGridSpaceToGrid(GameSpace g, GridSpaceData data) {
+	public GridSpace addSavedGridSpaceToGrid(final GameSpace g, final GridSpaceData data) {
 		return grids[data.gridData.gridID].generateRotateAndAddGridSpaceFromData(g, data);
 	}
 	

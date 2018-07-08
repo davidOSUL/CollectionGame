@@ -1,27 +1,27 @@
 package gui.displayComponents;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Point;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import gui.gameComponents.GameSpace;
 import gui.gameComponents.PictureButton;
 import gui.guiutils.GuiUtils;
-import gui.mvpFramework.*;
+import gui.mvpFramework.GameView;
+import gui.mvpFramework.Presenter;
 import loaders.shopLoader.ShopItem;
 
 /**
@@ -30,7 +30,7 @@ import loaders.shopLoader.ShopItem;
  *
  */
 public class ShopWindow {
-	private Map<PictureButton, ShopItem> items = new HashMap<PictureButton, ShopItem>();
+	private final Map<PictureButton, ShopItem> items = new HashMap<PictureButton, ShopItem>();
 	/**
 	 * How big the pictures of the things should be
 	 */
@@ -68,58 +68,85 @@ public class ShopWindow {
 	 */
 	private static final Dimension DEFAULT_SIZE = new Dimension(NUM_COLS*(ITEM_TEMPLATE.getWidth(null)+2*HGAP), 2*(ITEM_TEMPLATE.getHeight(null)+2*VGAP));
 	/**
-	 * The layout for the shopWindow
+	 * The layout for the shopWindow when using scrollable version
 	 */
-	private static final Image BACKGROUND = GuiUtils.readImage("/sprites/ui/shop_background.png");
-	private static final GridLayout LAYOUT = new GridLayout(0, NUM_COLS, HGAP, VGAP);
-	private JPanel shopWindow;
+	private static final GridLayout SCROLL_LAYOUT = new GridLayout(0, NUM_COLS, HGAP, VGAP);
+	private JPanel shopWindowForScrolling;
 	private JScrollPane scrollableShopWindow;
-	private GameView gv;
+	private JPanel cardLayoutShopWindow;
+	private final GameView gv;
 	private static final Font DEFAULT_FONT = new Font("TimesRoman", Font.BOLD, 11);
-	private static final int FRAME_WIDTH = 500;
-	private static final int FRAME_HEIGHT = 500;
-	
+	private static final int CARD_NUM_ROWS_THINGS = 4;
+	private static final int CARD_NUM_COLS_THINGS = 4;
+	private static final int ITEMS_PER_CARD = CARD_NUM_ROWS_THINGS * CARD_NUM_COLS_THINGS;
+	private static final int TOTAL_NUM_ROWS = 4;
+	private static final int TOTAL_NUM_COLS = 6;
+	private static final int INITIAL_COL_OFFSET = 1;
+	private static final int END_COL_OFFSET = 1;
+	private static final int INITIAL_ROW_OFFSET = 0;
+	private static final int END_ROW_OFFSET = 0;
+	private static final Image CARD_BACKGROUND = GuiUtils.readTrimAndScaleImage("/sprites/ui/sand_template.jpg", 80*TOTAL_NUM_COLS, 80*TOTAL_NUM_ROWS);
+
 	/**
 	 * Creates a new ShopWindow with no items
 	 * @param gv the gameView to interact with
 	 */
 
-	public ShopWindow(GameView gv) {
+	public ShopWindow(final GameView gv) {
 		setUpPanel();
-		scrollableShopWindow = new JScrollPane(shopWindow);
+		scrollableShopWindow = new JScrollPane(shopWindowForScrolling);
 		this.gv = gv;
 	}
 	private void setUpPanel() {
-		shopWindow = new JPanel();
-		shopWindow.setLayout(LAYOUT);
-		shopWindow.setVisible(true);
-		shopWindow.setOpaque(true);
+		shopWindowForScrolling = new JPanel();
+		shopWindowForScrolling.setLayout(SCROLL_LAYOUT);
+		shopWindowForScrolling.setVisible(true);
+		shopWindowForScrolling.setOpaque(true);
+		
+		cardLayoutShopWindow = new JPanel(new CardLayout());
+		cardLayoutShopWindow.setSize(CARD_BACKGROUND.getWidth(null), CARD_BACKGROUND.getHeight(null));
+		cardLayoutShopWindow.setVisible(true);
+		cardLayoutShopWindow.setOpaque(true);
 	}
-	public void updateItems(Set<ShopItem> shopItems) {
+	public void updateItems(final Set<ShopItem> shopItems) {
 		setUpPanel();
-		shopItems.forEach(shopItem -> {
-			PictureButton<Presenter> pb = new PictureButton<Presenter>(generateImage(shopItem), p -> p.attemptPurchaseThing(shopItem), gv.getPresenter()).disableBorder();
+		final Iterator<ShopItem> it = shopItems.iterator();
+		int i = 0; //number of iterations
+		int j = 0; //number of times a new card is made
+		PictureButton itemsOnACard[] = new PictureButton[ITEMS_PER_CARD];
+		while (it.hasNext()) {
+			if (i == ITEMS_PER_CARD) {
+				i = 0;
+				cardLayoutShopWindow.add(getWindow(itemsOnACard), Integer.toString(j));
+				j++;
+				itemsOnACard = new PictureButton[ITEMS_PER_CARD]; //clear array
+			}
+			final ShopItem shopItem = it.next();
+			final PictureButton<Presenter> pb = new PictureButton<Presenter>(generateImage(shopItem), p -> p.attemptPurchaseThing(shopItem), gv.getPresenter()).disableBorder();
 			DescriptionManager.getInstance().setDescription(pb, shopItem.toString());
-			shopWindow.add(pb);
-			shopWindow.revalidate();
-			shopWindow.repaint();
-		});
-		scrollableShopWindow = new JScrollPane(shopWindow);
+			itemsOnACard[i] = pb;
+			shopWindowForScrolling.add(pb);
+			shopWindowForScrolling.revalidate();
+			shopWindowForScrolling.repaint();
+			i++;
+		}
+		cardLayoutShopWindow.add(getWindow(itemsOnACard), Integer.toString(j));
+		scrollableShopWindow = new JScrollPane(shopWindowForScrolling);
 		scrollableShopWindow.revalidate();
 		scrollableShopWindow.repaint();
 		
 		
 	}
-	private static Image generateImage(ShopItem item) {
-		Image sprite = GuiUtils.readTrimAndScaleImage(item.getImage(), PICTURE_DIM, PICTURE_DIM);
-		Image overlay =GuiUtils.overlayImage(ITEM_TEMPLATE, sprite, SPRITE_IMAGE_LOC); 
-		Image overlayWithQuantity = GuiUtils.overlayText(overlay, item.getQuantity() + "x", QUANTITY_LOC, DEFAULT_FONT);
-		Image result = GuiUtils.overlayText(overlayWithQuantity, Integer.toString(item.getCost()), COST_LOC, DEFAULT_FONT);
+	private static Image generateImage(final ShopItem item) {
+		final Image sprite = GuiUtils.readTrimAndScaleImage(item.getImage(), PICTURE_DIM, PICTURE_DIM);
+		final Image overlay =GuiUtils.overlayImage(ITEM_TEMPLATE, sprite, SPRITE_IMAGE_LOC); 
+		final Image overlayWithQuantity = GuiUtils.overlayText(overlay, item.getQuantity() + "x", QUANTITY_LOC, DEFAULT_FONT);
+		final Image result = GuiUtils.overlayText(overlayWithQuantity, Integer.toString(item.getCost()), COST_LOC, DEFAULT_FONT);
 		return result;
 	}
-public JComponent getShopWindowAsComponent() {
+	public JComponent getShopWindowAsScrollable() {
 		
-		JPanel panel = new JPanel(new BorderLayout());
+		final JPanel panel = new JPanel(new BorderLayout());
 		panel.setSize(DEFAULT_SIZE);
 		panel.add(scrollableShopWindow, BorderLayout.CENTER);
 		panel.revalidate();
@@ -127,30 +154,49 @@ public JComponent getShopWindowAsComponent() {
 		
 		return panel;
 	}
-	public JFrame getShopWindowAsFrame() { 
+	public JComponent getShopWindowAsCardLayout() {
+		cardLayoutShopWindow.revalidate();
+		cardLayoutShopWindow.repaint();
+		return cardLayoutShopWindow;
+	
 		
-		int WIDTH = FRAME_WIDTH;
-		int HEIGHT = FRAME_HEIGHT;
-		JFrame frame = new JFrame();
-		shopWindow.setSize(WIDTH,HEIGHT);
-		shopWindow.setFocusable(true);
-		shopWindow.setOpaque(false);
-		frame.setLayout(null);
-		frame.setResizable(false);
-		frame.setLocationByPlatform(true);
-		frame.setSize(WIDTH, HEIGHT);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		JLabel backgroundLabel = new JLabel(new ImageIcon(GuiUtils.getScaledImage(BACKGROUND, WIDTH, HEIGHT)));
-		backgroundLabel.setSize(WIDTH, HEIGHT);
-		//backgroundLabel.setOpaque(true);
-		frame.add(shopWindow);
-		frame.add(backgroundLabel);
-		
-		
-		frame.revalidate();
-		frame.repaint();
-		frame.setVisible(true);
-		return frame;
 	}
+	private GameSpace getWindow(final PictureButton[] items) {
+		final GameSpace gs = new GameSpace(CARD_BACKGROUND);
+		final GridLayout layout = new GridLayout(TOTAL_NUM_ROWS, TOTAL_NUM_COLS);
+		gs.setLayout(layout);
+		gs.setOpaque(true);
+		gs.setVisible(true);
+		final JPanel[][] holder = getNewHolder(gs);
+		holder[0][0].add(new JButton("Exit"));
+		holder[TOTAL_NUM_ROWS-1][0].add(new JButton("Prev"));
+		holder[TOTAL_NUM_ROWS-1][TOTAL_NUM_COLS-1].add(new JButton("Next"));
+		addItems(holder, items);
+		gs.revalidate();
+		gs.repaint();
+		return gs;
+	}
+	private JPanel[][] getNewHolder(final GameSpace gs) {
+		final JPanel[][] holder = new JPanel[TOTAL_NUM_ROWS][TOTAL_NUM_COLS];
+		for (int i =0 ; i < TOTAL_NUM_ROWS; i++)
+			for (int j = 0; j < TOTAL_NUM_COLS; j++) {
+				holder[i][j] = new JPanel();
+				holder[i][j].setOpaque(false);
+				gs.add(holder[i][j]);
+
+			}
+		return holder;
+	}
+	private void addItems(final JPanel[][] holder, final PictureButton[] items) {
+		int k = 0;
+		for (int i =INITIAL_ROW_OFFSET; i < TOTAL_NUM_ROWS-END_ROW_OFFSET; i++) {
+			for (int j = INITIAL_COL_OFFSET; j < TOTAL_NUM_COLS-END_COL_OFFSET; j++) {
+				if (items[k] == null)
+					return;
+				holder[i][j].add(items[k++]);
+			}
+		}
+	}
+	
 
 }

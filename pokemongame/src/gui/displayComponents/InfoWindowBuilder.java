@@ -21,7 +21,6 @@ import gui.mouseAdapters.MouseClickWithThreshold;
 import gui.mvpFramework.Presenter;
 import interfaces.Imagable;
 import sas.swing.MultiLineLabel;
-import sas.swing.plaf.MultiLineLabelUI;
 
 /**
  * A Pop-Up Window that interfaces with a provided Presenter. All Features are added incrementally, only adding what is needed.
@@ -29,23 +28,17 @@ import sas.swing.plaf.MultiLineLabelUI;
  * @author David O'Sullivan
  */
 public class InfoWindowBuilder {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private Imagable imagable;
 	private String pictureCaption;
 	private String info;
-	private List<JButton> buttons = new ArrayList<JButton>();
+	private final List<JButton> buttons = new ArrayList<JButton>();
 	private static final int DEFAULT_WIDTH = 350;
 	private static final int DEFAULT_HEIGHT = 200;
 	private static final int CLICK_DIST_THRESH = 20;
-	private boolean isDone = false;
-	private boolean isEntered = false;
 	private Image backgroundImage = null;
 	private Presenter presenter;
 	private JLabel image;
-	private JPanel panel = new JPanel();
+	private final JPanel panel = new JPanel();
 	private boolean setScale = false;
 	private int scaleWidth = 0;
 	private int scaleHeight = 0;
@@ -60,7 +53,7 @@ public class InfoWindowBuilder {
 	 * @param width the width of the info window
 	 * @param height the height of the info window
 	 */
-	public InfoWindowBuilder(int width, int height) {
+	public InfoWindowBuilder(final int width, final int height) {
 		panel.setBounds(0,0, width, height);
 	}
 	/**
@@ -68,7 +61,7 @@ public class InfoWindowBuilder {
 	 * @param s the caption
 	 * @return the new InfoWindow
 	 */
-	public InfoWindowBuilder setCaption(String s) {
+	public InfoWindowBuilder setCaption(final String s) {
 		this.pictureCaption = s;
 		return this;
 	}
@@ -78,11 +71,11 @@ public class InfoWindowBuilder {
 	 * @param i the Imagable to get a picture from
 	 * @return the new info window
 	 */
-	public InfoWindowBuilder setImagable(Imagable i) {
+	public InfoWindowBuilder setImagable(final Imagable i) {
 		this.imagable = i;
 		return this;
 	}
-	public InfoWindowBuilder setScale(int width, int height) {
+	public InfoWindowBuilder setScale(final int width, final int height) {
 		setScale = true;
 		scaleWidth = width;
 		scaleHeight = height;
@@ -93,7 +86,7 @@ public class InfoWindowBuilder {
 	 * @param info the text to add
 	 * @return the new info window
 	 */
-	public InfoWindowBuilder setInfo(String info) {
+	public InfoWindowBuilder setInfo(final String info) {
 		this.info = info;
 		return this;
 	}
@@ -102,7 +95,7 @@ public class InfoWindowBuilder {
 	 * @param p the presenter
 	 * @return the New Info Window
 	 */
-	public InfoWindowBuilder setPresenter(Presenter p) {
+	public InfoWindowBuilder setPresenter(final Presenter p) {
 		this.presenter = p;
 		return this;
 	}
@@ -111,8 +104,8 @@ public class InfoWindowBuilder {
 	 * @param i the background image
 	 * @return the new Info Window
 	 */
-	public InfoWindowBuilder setBackgroundImage(Image i) {
-		this.backgroundImage = GuiUtils.changeOpacity(GuiUtils.getScaledImage(i, panel.getWidth(), panel.getHeight()), .5f);
+	public InfoWindowBuilder setBackgroundImage(final Image i) {
+		this.backgroundImage = GuiUtils.getScaledImage(i, panel.getWidth(), panel.getHeight());
 		return this;
 	}
 	/**
@@ -124,9 +117,9 @@ public class InfoWindowBuilder {
 	 * @param cleanUp have the button call the Presenters CleanUp() method when clicked
 	 * @return the new Info Window
 	 */
-	public InfoWindowBuilder addButton(String name, Consumer<Presenter> con, boolean setFinish, boolean setEntered, boolean cleanUp) {
-		JButton jb = new JButton(name);
-		BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
+	public InfoWindowBuilder addButton(final String name, final Consumer<Presenter> con, final boolean setFinish, final boolean setEntered, final boolean cleanUp) {
+		final JButton jb = new JButton(name);
+		final BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
 			if (cleanUp) {
 				cleanUp();
 				p.CleanUp();
@@ -153,18 +146,18 @@ public class InfoWindowBuilder {
 	 */
 	public JPanel createWindow() {
 
-		JLayeredPane result = new JLayeredPane();
+		final JLayeredPane result = new JLayeredPane();
 		result.setPreferredSize(new Dimension(panel.getWidth(), panel.getHeight()));
 
-		JPanel foreground = new JPanel();
+		final JPanel foreground = new JPanel();
 		foreground.setBounds(0, 0, panel.getWidth(), panel.getHeight());
 		foreground.setOpaque(false);
 		
 		foreground.setLayout(new BoxLayout(foreground, BoxLayout.Y_AXIS));
 		foreground.setPreferredSize(new Dimension(panel.getWidth(), panel.getHeight()));
 		
-		JPanel infoPan = new JPanel();
-		MultiLineLabel label = new MultiLineLabel(info);
+		final JPanel infoPan = new JPanel();
+		final MultiLineLabel label = new MultiLineLabel(info);
 		label.setPreferredSize(label.getMaximumSize());
 		label.setHorizontalTextAlignment(JLabel.CENTER);
 		label.setVerticalTextAlignment(JLabel.CENTER);
@@ -172,7 +165,7 @@ public class InfoWindowBuilder {
 		infoPan.add(label);
 		infoPan.setOpaque(false);
 		
-		JPanel itemPan = new JPanel();
+		final JPanel itemPan = new JPanel();
 		JLabel jl = new JLabel("");
 		if (imagable!=null) {
 			Image i = GuiUtils.readImage(imagable.getImage());
@@ -186,8 +179,8 @@ public class InfoWindowBuilder {
 		itemPan.add(jl);
 		itemPan.setOpaque(false);
 		
-		JPanel buttonPan = new JPanel();
-		for (JButton jb: buttons) {
+		final JPanel buttonPan = new JPanel();
+		for (final JButton jb: buttons) {
 			buttonPan.add(jb);
 		}
 		buttonPan.setOpaque(false);
@@ -200,7 +193,7 @@ public class InfoWindowBuilder {
 		foreground.revalidate();
 		foreground.repaint();
 		if (backgroundImage != null) {
-			JLabel backgroundLabel = new JLabel(new ImageIcon(backgroundImage));
+			final JLabel backgroundLabel = new JLabel(new ImageIcon(backgroundImage));
 			backgroundLabel.setBounds(0,0, panel.getWidth(), panel.getHeight());
 			result.add(backgroundLabel, JLayeredPane.DEFAULT_LAYER);
 		}
@@ -222,9 +215,9 @@ public class InfoWindowBuilder {
 	 * @param text the text on the button
 	 * @return the new info window
 	 */
-	public InfoWindowBuilder addCancelButton(String text) {
-		JButton jb = new JButton(text);
-		BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
+	public InfoWindowBuilder addCancelButton(final String text) {
+		final JButton jb = new JButton(text);
+		final BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
 			cleanUp();
 			p.CleanUp();
 			p.Canceled();	
@@ -240,9 +233,9 @@ public class InfoWindowBuilder {
 	 * @param text the text on the button
 	 * @return the new info window
 	 */
-	public InfoWindowBuilder addEnterButton(String text) {
-		JButton jb = new JButton(text);
-		BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
+	public InfoWindowBuilder addEnterButton(final String text) {
+		final JButton jb = new JButton(text);
+		final BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
 			cleanUp();
 			p.CleanUp(); 
 			p.Entered();
