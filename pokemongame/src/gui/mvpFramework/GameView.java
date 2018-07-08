@@ -24,7 +24,7 @@ public class GameView extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private MainGamePanel mainGamePanel;
+	private final MainGamePanel mainGamePanel;
 	protected static final int WIDTH = 843;
 	protected static final int HEIGHT = 549;
 	private static final Image background = GuiUtils.readImage("/sprites/ui/background.png");
@@ -33,7 +33,7 @@ public class GameView extends JFrame {
 	 * Creates a new GameView with the specified title
 	 * @param name the title of the GameView
 	 */
-	public GameView(String name) {
+	public GameView(final String name) {
 		super(name);
 		mainGamePanel = new MainGamePanel(this);
 		setLayout(null);
@@ -41,7 +41,7 @@ public class GameView extends JFrame {
 		setLocationByPlatform(true);
 		setSize(WIDTH, HEIGHT);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		JLabel backgroundLabel = new JLabel(new ImageIcon(GuiUtils.getScaledImage(background, WIDTH, HEIGHT)));
+		final JLabel backgroundLabel = new JLabel(new ImageIcon(GuiUtils.getScaledImage(background, WIDTH, HEIGHT)));
 		backgroundLabel.setSize(WIDTH, HEIGHT);
 		//backgroundLabel.setOpaque(true);
 		add(mainGamePanel);
@@ -56,7 +56,7 @@ public class GameView extends JFrame {
 	 * Sets the presenter that coordinates with this GameView
 	 * @param p the presenter to coordinate with
 	 */
-	public void setPresenter(Presenter p) {
+	public void setPresenter(final Presenter p) {
 		this.p = p;
 	}
 	/**
@@ -71,17 +71,19 @@ public class GameView extends JFrame {
 	 * @param height the height of the graphical entity
 	 *@return the upper left hand corner that centers the graphical entity
 	 */
-	private Point getCenterPoint(int width, int height) {
-		Point myCenter = new Point(width/2, height/2);
-		Point viewCenter = new Point(WIDTH/2, HEIGHT/2);
+	private Point getCenterPoint(final int width, final int height) {
+		final Point myCenter = new Point(width/2, height/2);
+		final Point viewCenter = new Point(WIDTH/2, HEIGHT/2);
 		return new Point(viewCenter.x-myCenter.x, viewCenter.y-myCenter.y);
 	}
-	
+	public void cancelGridSpaceAdd() {
+		mainGamePanel.cancelGridSpaceAdd();
+	}
 	/**
 	 * Adds to the POPUP_LAYER of this GameView's LayeredPane() the provided JComponent. Displays in the center of the JFrame.
 	 * @param jp the JComponent to center and display as a pop up
 	 */
-	public void displayComponentCentered(JComponent jp) {
+	public void displayComponentCentered(final JComponent jp) {
 		jp.setLocation(getCenterPoint(jp.getWidth(), jp.getHeight()));
 		getLayeredPane().add(jp, JLayeredPane.POPUP_LAYER);
 		updateDisplay();
@@ -90,7 +92,7 @@ public class GameView extends JFrame {
 	 * Removes the provided JComponent from the POPUP_LAYER
 	 * @param jp the JComponent to remove
 	 */
-	public void removeDisplay(JComponent jp) {
+	public void removeDisplay(final JComponent jp) {
 		getLayeredPane().remove(jp);
 		updateDisplay();		
 	}
@@ -100,7 +102,7 @@ public class GameView extends JFrame {
 	 * @param gs the GameSpace to add
 	 * @param type the context of the add (e.g. pokemon from queue, moving an existing GameSpace, etc.)
 	 */
-	public void attemptNewGridSpaceAdd(GameSpace gs, AddType type) {
+	public void attemptNewGridSpaceAdd(final GameSpace gs, final AddType type) {
 		mainGamePanel.gridSpaceAdd(mainGamePanel.generateGridSpaceWithDefaultGrid(gs), type);
 	}
 	/**
@@ -108,17 +110,17 @@ public class GameView extends JFrame {
 	 * @param gs the GameSpace to add
 	 * @param type the context of the add (e.g. pokemon from queue, moving an existing GameSpace, etc.)
 	 */
-	public void attemptExistingGridSpaceAdd(GridSpace gs, AddType type) {
+	public void attemptExistingGridSpaceAdd(final GridSpace gs, final AddType type) {
 		mainGamePanel.gridSpaceAdd(gs, type);
 	}
 	/**
 	 * Sets the value of the notification button
 	 * @param num the number to set the notification button to
 	 */
-	public  void setWildPokemonCount(int num) {
+	public  void setWildPokemonCount(final int num) {
 		mainGamePanel.updateNotifications(num);
 	}
-	public void setBoardAttributes(int gold, int popularity) {
+	public void setBoardAttributes(final int gold, final int popularity) {
 		mainGamePanel.updateDisplayedAttributes(gold, popularity);
 	}
 	/**
@@ -128,7 +130,14 @@ public class GameView extends JFrame {
 		revalidate();
 		repaint();
 	}
-	public void setInShop(boolean inShop) {
+	/**
+	 * Toggles enabledness of buttons on maingamepanel
+	 * @param enabled whether or not the buttons should be enabled
+	 */
+	public void setEnabledForButtons(final boolean enabled) {
+		mainGamePanel.setEnabledForButtons(enabled);
+	}
+	public void setInShop(final boolean inShop) {
 		mainGamePanel.setInShop(inShop);
 	}
 	/**
@@ -137,7 +146,7 @@ public class GameView extends JFrame {
 	 * @param data the data corresponding to the new GridSpace
 	 * @return the newly generated gridspace
 	 */
-	public GridSpace addNewGridSpaceFromSave(GameSpace gs, GridSpaceData data) {
+	public GridSpace addNewGridSpaceFromSave(final GameSpace gs, final GridSpaceData data) {
 		return mainGamePanel.addSavedGridSpaceToGrid(gs, data);
 	}
 	

@@ -24,6 +24,16 @@ public class StartScreenBuilder {
 	private static final Border PANEL_BORDER = BorderFactory.createEmptyBorder(100, 50, 100, 50);
 	private final static Image START_SCREEN_BACKGROUND = GuiUtils.changeOpacity(GuiUtils.readImage("/sprites/ui/pikabackground.jpg"), .5f);
 	private final static String BUTTON_NAME= "button";
+	/**
+	 * Creates a new Start screen frame with a "New Game" and "Continue Game" button
+	 * @param <T> the type that the consumer acts on
+	 * @param title the title of the frame
+	 * @param enabledContinue whether or not the "continue button" should be enabled
+	 * @param onNewGame what should happen when the "new game" button is pressed
+	 * @param onContinue what should happen when the "continue game" button is pressed
+	 * @param actOn what the two consumers act on
+	 * @return the created JFrame
+	 */
 	public static <T> JFrame getFrame(final String title, final boolean enabledContinue, final Consumer<T> onNewGame, final Consumer<T> onContinue, final T actOn)  {
 		final JFrame frame = new JFrame();
 		frame.setVisible(false);
@@ -38,9 +48,9 @@ public class StartScreenBuilder {
 		panel.setSize(WINDOW_SIZE);
 		panel.setLayout(new GridLayout(2, 1));
 		panel.setBorder(PANEL_BORDER);*/
-		final JButton newGameButton = ButtonWithBackgroundBuilder.generateJButton(BUTTON_NAME, "New Game");
+		final JButton newGameButton = ButtonBuilder.generateStretchIconJButton(BUTTON_NAME, "New Game");
 		newGameButton.addActionListener(e -> onNewGame.accept(actOn));
-		final JButton continueGameButton = ButtonWithBackgroundBuilder.generateJButton(BUTTON_NAME, "Continue Game");
+		final JButton continueGameButton = ButtonBuilder.generateStretchIconJButton(BUTTON_NAME, "Continue Game");
 		continueGameButton.setEnabled(enabledContinue);
 		continueGameButton.addActionListener(e -> onContinue.accept(actOn));
 		background.add(newGameButton);

@@ -22,7 +22,6 @@ public class BackgroundWithText extends GameSpace{
 	private String[] texts;
 	private Point[] points;
 	private TextPreset preset = TextPreset.NO_PRESET;
-	private Font font;
 	
 	/**
 	 * Creates a new BackgroundWithText with no texts, with the specified image, and at the specified location
@@ -108,7 +107,7 @@ public class BackgroundWithText extends GameSpace{
 			this.texts = texts;
 		}
 		this.points = points;
-		this.font = (font == null) ? DEFAULT_FONT : font;
+		setFont(font);
 		this.preset = preset;
 		revalidate();
 		repaint();
@@ -151,17 +150,18 @@ public class BackgroundWithText extends GameSpace{
 	}
 	@Override
 	public void setFont(final Font font) {
-		this.font = font;
+		final Font f = (font == null) ? DEFAULT_FONT : font;
+		super.setFont(f);
 	}
 	@Override
 	protected void paintComponent(final Graphics g) {
 		super.paintComponent(g);
-		g.setFont(font);
+		g.setFont(getFont());
 		g.setColor(Color.BLACK);
 		for (int i = 0; i < texts.length; i++) {
 			switch(preset) {
 			case CENTER_ALL_TEXT:
-				GuiUtils.drawCenteredString(g, texts[i], new Rectangle(0, 0, getWidth(), getHeight()), font, Color.BLACK);
+				GuiUtils.drawCenteredString(g, texts[i], new Rectangle(0, 0, getWidth(), getHeight()), getFont(), Color.BLACK);
 				break;
 			case NO_PRESET:
 				g.drawString(texts[i], points[i].x, points[i].y);

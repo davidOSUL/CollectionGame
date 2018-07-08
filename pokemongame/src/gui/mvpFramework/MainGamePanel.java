@@ -17,6 +17,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import gui.displayComponents.ButtonBuilder;
 import gui.gameComponents.BackgroundWithText;
 import gui.gameComponents.GameSpace;
 import gui.gameComponents.NotificationButton;
@@ -109,7 +110,7 @@ public class MainGamePanel extends JPanel{
 	/**
 	 * The Location of the new wild pokemon NotificationButton
 	 */
-	private static final Point NOTIFICATION_LOCATION = new Point(688, 44);
+	private static final Point NOTIFICATION_LOCATION = new Point(627,44);
 	/**
 	 * the new wild pokemon NotificationButton
 	 */
@@ -122,7 +123,7 @@ public class MainGamePanel extends JPanel{
 	/**
 	 * Location of the shop button
 	 */
-	private static final Point SHOP_BUTTON_LOCATION = new Point(749,44); 
+	private static final Point SHOP_BUTTON_LOCATION =  new Point(688, 44);
 	
 	/**
 	 * Button that user can press to open up the item shop
@@ -139,7 +140,7 @@ public class MainGamePanel extends JPanel{
 	/**
 	 * Location of the save button
 	 */
-	private static final Point SAVE_BUTTON_LOCATION = new Point(627,44); 
+	private static final Point SAVE_BUTTON_LOCATION = new Point(749,44);
 	
 	/**
 	 * When KeyBindings should happen
@@ -202,10 +203,6 @@ public class MainGamePanel extends JPanel{
 	private static final Point POPULARITY_ATTRIBUTE_LOCATION = new Point(358, 29);
 	private static final long serialVersionUID = 1L;
 	/**
-	 * set to true when the user is in the shop. used so that escape can close the shop window
-	 */
-	private boolean inShop = false;
-	/**
 	 * Creates a new MainGamePanel
 	 * @param gv the GameView that houses this panel
 	 */
@@ -226,10 +223,12 @@ public class MainGamePanel extends JPanel{
 		notifications = new NotificationButton(NOTIFICATION_LOGO, NOTIFICATION_LOCATION, gameView -> gameView.getPresenter().NotificationClicked(), gv, true).disableBorder();
 		add(notifications);
 		
-		shopButton = new PictureButton<GameView>(SHOP_BUTTON_LOGO, SHOP_BUTTON_LOCATION, gameView -> gameView.getPresenter().shopClicked(), gv).disableBorder();
+		shopButton = ButtonBuilder.generatePictureButton("shop_button", gameView -> gameView.getPresenter().shopClicked(), gv, 50, 50);//new PictureButton<GameView>(SHOP_BUTTON_LOGO, SHOP_BUTTON_LOCATION, gameView -> gameView.getPresenter().shopClicked(), gv).disableBorder();
+		shopButton.setLocation(SHOP_BUTTON_LOCATION);
 		add(shopButton);
 		
-		saveButton = new PictureButton<GameView>(SAVE_BUTTON_LOGO, SAVE_BUTTON_LOCATION, gameView -> gameView.getPresenter().saveGame(), gv);
+		saveButton = ButtonBuilder.generatePictureButton("save_button", gameView -> gameView.getPresenter().saveGame(), gv, 50 ,50);//new PictureButton<GameView>(SAVE_BUTTON_LOGO, SAVE_BUTTON_LOCATION, gameView -> gameView.getPresenter().saveGame(), gv);
+		saveButton.setLocation(SAVE_BUTTON_LOCATION);
 		add(saveButton);
 		
 		boardAttributesDisplay = new BackgroundWithText(ATTRIBUTES_BACKGROUND_IMAGE, new Point[] {POKECASH_ATTRIBUTE_LOCATION, POPULARITY_ATTRIBUTE_LOCATION});
@@ -313,7 +312,7 @@ public class MainGamePanel extends JPanel{
 	/**
 	 * Stop the current Add Attempt, and undo any changes 
 	 */
-	public void cancelGameSpaceAdd() {
+	public void cancelGridSpaceAdd() {
 		switch(typeOfAdd) {
 		case PRIOR_ON_BOARD:
 			currentMoving.setImage(imageBeforeRotation);
@@ -407,12 +406,16 @@ public class MainGamePanel extends JPanel{
 	 */
 	private void setKeyBindings() {
 	      keyBindings.addKeyBinding(KeyEvent.VK_ESCAPE, () -> {
-	    	  if (addingSomething) {
-					cancelGameSpaceAdd();
-				}
-	    	  if (inShop) {
-	    		  gv.getPresenter().closeShop();
-	    	  }
+	    	 gv.getPresenter().Canceled();
+	      });
+	      keyBindings.addKeyBinding(KeyEvent.VK_ENTER, () -> {
+	    	  gv.getPresenter().Entered();
+	      });
+	      keyBindings.addKeyBinding(KeyEvent.VK_RIGHT, () -> {
+	    	  //TODO: Implement
+	      });
+	      keyBindings.addKeyBinding(KeyEvent.VK_LEFT, () -> {
+	    	  //TODO: Implement
 	      });
 	   }
 	/**
@@ -479,7 +482,6 @@ public class MainGamePanel extends JPanel{
 		}
 	}
 	public void setInShop(final boolean inShop) {
-		this.inShop = inShop;
 	}
 	/**
 	 * Adds the gamespace to the specified grid. This is all UI (aka, doesn't notify board!)
@@ -490,6 +492,15 @@ public class MainGamePanel extends JPanel{
 	public GridSpace addSavedGridSpaceToGrid(final GameSpace g, final GridSpaceData data) {
 		return grids[data.gridData.gridID].generateRotateAndAddGridSpaceFromData(g, data);
 	}
+	/**
+	 * enables/Disables the shop/save/notification button
+	 */
+	public void setEnabledForButtons(final boolean enabled) {
+		shopButton.setEnabled(enabled);
+		notifications.setEnabled(enabled);
+		saveButton.setEnabled(enabled);
+	}
+
 	
 
 	

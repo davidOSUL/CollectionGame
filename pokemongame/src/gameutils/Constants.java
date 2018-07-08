@@ -16,7 +16,7 @@ public final class Constants {
 	/**
 	 * Change duplicate percentage to 100% and make pokemons spawn automatically and rapidly
 	 */
-	public final static boolean RAPID_SPAWN = true;
+	public final static boolean RAPID_SPAWN = false;
 	private Constants() {
 		// TODO Auto-generated constructor stub
 	}

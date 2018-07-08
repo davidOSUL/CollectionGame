@@ -28,7 +28,8 @@ public class PictureButton<T> extends BackgroundWithText {
 	private Image clickImg;
 	private Image hoverImg;
 	private Image lockedImg;
-	
+	private Image normalImg;
+
 	/**
 	 * Creates a new picture button a location 0,0 with no image
 	 */
@@ -50,6 +51,7 @@ public class PictureButton<T> extends BackgroundWithText {
 	public PictureButton(final Image img, final Point location) {
 		super(img, location);
 		setPreset(TextPreset.CENTER_ALL_TEXT);
+		this.normalImg = img;
 	}
 
 	/**
@@ -70,7 +72,7 @@ public class PictureButton<T> extends BackgroundWithText {
 	}
 	/**
 	 * Creates a new Picture Button with the given images. Places the button at the specified location. 
-	 * It will have the effect onClick on the presenter of the passed in GameView
+	 * It will have the effect onClick using the actOn as the input to the consumer
 	 * @param normalImg the normal button
 	 * @param clickImg the button when clicked
 	 * @param hoverImg the button when moused over
@@ -85,11 +87,20 @@ public class PictureButton<T> extends BackgroundWithText {
 		this.hoverImg = hoverImg;
 		this.lockedImg = lockedImg;
 		final BiConsumer<Consumer<T>, MouseEvent> input = (con, e) -> {
-			con.accept(actOn);
+			if (isEnabled())
+				con.accept(actOn);
+		};
+		final MouseClickWithThreshold<Consumer<T>> clickListener = new MouseClickWithThreshold<Consumer<T>>(CLICK_DIST_THRESH, input, onClick);
+		clickListener.doOnPress(() -> {
 			if (isEnabled() && clickImg != null)
 				setImage(this.clickImg);
-		};
-		this.addMouseListener(new MouseClickWithThreshold<Consumer<T>>(CLICK_DIST_THRESH, input, onClick));
+		});
+		clickListener.doOnRelease(() -> 
+		{
+			if (isEnabled())
+				setImage(this.normalImg);
+		});
+		this.addMouseListener(clickListener);
 		this.addMouseListener(new MouseAdapter(){
 			@Override
 			public void mouseEntered(final MouseEvent e) {
@@ -104,6 +115,11 @@ public class PictureButton<T> extends BackgroundWithText {
 		});
 
 	}
+	@Override 
+	public void addNotify() {
+		super.addNotify();
+		setImage(normalImg);
+	}
 	/**
 	 * Creates a new Picture Button with the given image. Places the button at (0,0) 
 	 * It will have the effect onClick on the presenter of the passed in GameView
@@ -115,9 +131,26 @@ public class PictureButton<T> extends BackgroundWithText {
 		this(img, new Point(0,0), onClick, actOn);
 
 	}
+	/**
+	 * Creates a new Picture Button with the given images. Places the button at the (0,0)
+	 * It will have the effect onClick using the actOn as the input to the consumer
+	 * @param normalImg the normal button
+	 * @param clickImg the button when clicked
+	 * @param hoverImg the button when moused over
+	 * @param lockedImg the button when disabled
+	 * @param location the location of the button
+	 * @param onClick the effect of clicking this button
+	 * @param actOn what the consumer acts on
+	 */
 	public PictureButton(final Image normalImg, final Image clickImg, final Image hoverImg, final Image lockedImg, final Consumer<T> onClick, final T actOn) {
 		this(normalImg, clickImg, hoverImg, lockedImg, new Point(0, 0), onClick, actOn);
 	}
+	/**
+	 * Creates a new picture button with the given image and with the given mouse listener
+	 * @param img the image for the button
+	 * @param location the location to place the button
+	 * @param ml the mouse listener
+	 */
 	public PictureButton(final Image img, final Point location, final MouseListener ml) {
 		this(img, location);
 		this.addMouseListener(ml);
@@ -140,8 +173,10 @@ public class PictureButton<T> extends BackgroundWithText {
 	@Override
 	public void setEnabled(final boolean enabled) {
 		super.setEnabled(enabled);
-		if (lockedImg != null)
+		if (!enabled && lockedImg != null)
 			setImage(lockedImg);
+		if (enabled)
+			setImage(normalImg);
 	}
 	/**
 	 * Set the text of this picture button

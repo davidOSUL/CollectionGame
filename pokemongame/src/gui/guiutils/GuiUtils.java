@@ -1,6 +1,6 @@
 package gui.guiutils;
 
-import java.awt.AlphaComposite; 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -8,6 +8,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -16,9 +17,13 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import static gameutils.Constants.DEBUG;
+
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.border.BevelBorder;
 
 /**
  * Set of Useful functions for GUI purposes (generally only used by frontend)
@@ -33,11 +38,11 @@ public final class GuiUtils {
 	 * @param rec2 the second rectangle
 	 * @return true if they overlap
 	 */
-	public boolean recsOverlap(Rectangle rec1, Rectangle rec2) {
-		Point l1 = new Point((int)rec1.getX(), (int)rec1.getY());
-		Point r1 = new Point((int)rec1.getMaxX(), (int)rec1.getMaxY());
-		Point l2 = new Point((int)rec2.getX(), (int)rec2.getY());
-		Point r2 = new Point((int)rec2.getMaxX(), (int)rec2.getMaxY());
+	public boolean recsOverlap(final Rectangle rec1, final Rectangle rec2) {
+		final Point l1 = new Point((int)rec1.getX(), (int)rec1.getY());
+		final Point r1 = new Point((int)rec1.getMaxX(), (int)rec1.getMaxY());
+		final Point l2 = new Point((int)rec2.getX(), (int)rec2.getY());
+		final Point r2 = new Point((int)rec2.getMaxX(), (int)rec2.getMaxY());
 
 		if (l1.x > r2.x || l2.x > r1.x)
 			return false;
@@ -48,17 +53,17 @@ public final class GuiUtils {
 
 		return true;
 	}
-	public static BufferedImage overlayText(Image image, String text, Point p, Font f) {
-		BufferedImage input = newBufferedImage(image);
-		Graphics2D g2d = input.createGraphics();
+	public static BufferedImage overlayText(final Image image, final String text, final Point p, final Font f) {
+		final BufferedImage input = newBufferedImage(image);
+		final Graphics2D g2d = input.createGraphics();
 		g2d.setFont(f);
 		g2d.setColor(Color.BLACK);
 		g2d.drawString(text, p.x, p.y);
 		return input;
 	}
-	public static BufferedImage overlayImage(Image image, Image overlay, Point p) {
-		BufferedImage input =  newBufferedImage(image);
-		Graphics2D g2d = input.createGraphics();
+	public static BufferedImage overlayImage(final Image image, final Image overlay, final Point p) {
+		final BufferedImage input =  newBufferedImage(image);
+		final Graphics2D g2d = input.createGraphics();
 		g2d.drawImage(overlay, p.x, p.y, null);
 		return input;
 
@@ -67,16 +72,16 @@ public final class GuiUtils {
 		//return pokeCash;
 		return "$";
 	}
-	public static void displayError(Exception e, Component parent) {
-		StringWriter sw = new StringWriter();
-		PrintWriter pw = new PrintWriter(sw);
+	public static void displayError(final Exception e, final Component parent) {
+		final StringWriter sw = new StringWriter();
+		final PrintWriter pw = new PrintWriter(sw);
 		e.printStackTrace(pw);
-		String sStackTrace = sw.toString(); // stack trace as a string
+		final String sStackTrace = sw.toString(); // stack trace as a string
 		displayError(sStackTrace, parent);
 	}
-	public static void displayError(String message, Component parent) {
-		Object[] options = {"OK"};
-		int n = JOptionPane.showOptionDialog(parent, message, "RUNTIME ERROR", 
+	public static void displayError(final String message, final Component parent) {
+		final Object[] options = {"OK"};
+		final int n = JOptionPane.showOptionDialog(parent, message, "RUNTIME ERROR", 
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
 		System.err.print(message);
 		System.exit(-1);
@@ -87,27 +92,30 @@ public final class GuiUtils {
 	 * @param image the image to copy from
 	 * @return the new buffered image
 	 */
-	public static BufferedImage newBufferedImage(Image image) {
-		BufferedImage bi = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g2 = bi.createGraphics();
+	public static BufferedImage newBufferedImage(final Image image) {
+		final BufferedImage bi = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+		final Graphics2D g2 = bi.createGraphics();
 		g2.drawImage(image, 0, 0, bi.getWidth(), bi.getHeight(), null);
 		return bi;
 	}
 	/**
-	 * Returns a new BufferedImage which is the passed in image with all of white space around it gotten rid of
+	 * Returns a new BufferedImage which is the passed in image with all of space of the given rgb values gotten rid of
 	 * @param image the buffered image to trim
 	 * @return the trimmed image
 	 */
-	public static BufferedImage trimImage(BufferedImage image) {
-		int width = image.getWidth();
-		int height = image.getHeight();
+	public static BufferedImage trimImage(final BufferedImage image, final int...rgbToTrim) {
+		final int width = image.getWidth();
+		final int height = image.getHeight();
 		int top = height;
 		int bottom = 0;
 		int left = width;
 		int right = 0;
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
-				if (image.getRGB(x, y) != 0){
+				boolean notContainsRGB = true;
+				for (final int rgb : rgbToTrim)
+					notContainsRGB &= image.getRGB(x, y) != rgb;
+				if (notContainsRGB){
 					top    = Math.min(top, y);
 					bottom = Math.max(bottom, y);
 					left   = Math.min(left, x);
@@ -117,6 +125,14 @@ public final class GuiUtils {
 		}
 		return image.getSubimage(left, top, right-left, bottom-top);
 	}
+	/**
+	 * Returns a new BufferedImage which is the passed in image with all of transparent space around it gotten rid of
+	 * @param image the buffered image to trim
+	 * @return the trimmed image
+	 */
+	public static BufferedImage trimImage(final BufferedImage image) {
+		return trimImage(image, 0);
+	}
 
 	/**
 	 * Returns a new BufferedImage which is the passed in Image converted into a BufferedImage
@@ -124,7 +140,7 @@ public final class GuiUtils {
 	 * @param img The Image to be converted
 	 * @return The converted BufferedImage
 	 */
-	public static BufferedImage toBufferedImage(Image img)
+	public static BufferedImage toBufferedImage(final Image img)
 	{
 		if (img instanceof BufferedImage)
 		{
@@ -132,10 +148,10 @@ public final class GuiUtils {
 		}
 
 		// Create a buffered image with transparency
-		BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+		final BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 
 		// Draw the image on to the buffered image
-		Graphics2D bGr = bimage.createGraphics();
+		final Graphics2D bGr = bimage.createGraphics();
 		bGr.drawImage(img, 0, 0, null);
 		bGr.dispose();
 
@@ -149,9 +165,9 @@ public final class GuiUtils {
 	 * @param h the new height
 	 * @return the new image
 	 */
-	public static BufferedImage getScaledImage(Image srcImg, int w, int h){
-		BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g2 = resizedImg.createGraphics();
+	public static BufferedImage getScaledImage(final Image srcImg, final int w, final int h){
+		final BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+		final Graphics2D g2 = resizedImg.createGraphics();
 
 		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		g2.drawImage(srcImg, 0, 0, w, h, null);
@@ -165,7 +181,7 @@ public final class GuiUtils {
 	 * @param d the dimension to scale to 
 	 * @return the new image
 	 */
-	public static BufferedImage getScaledImage(Image srcImage, Dimension d) {
+	public static BufferedImage getScaledImage(final Image srcImage, final Dimension d) {
 		return getScaledImage(srcImage, (int)d.getWidth(), (int)d.getHeight());
 	}
 	/**
@@ -174,9 +190,9 @@ public final class GuiUtils {
 	 * @param opacity the opacity given as a decimal (0 is transparent, 1 is the origianl image. E.g. .5 would be 50% transparent)
 	 * @return the new image
 	 */
-	public static BufferedImage changeOpacity(Image i, float opacity) {
-		BufferedImage bi = new BufferedImage(i.getWidth(null), i.getHeight(null), BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g2 = bi.createGraphics();
+	public static BufferedImage changeOpacity(final Image i, final float opacity) {
+		final BufferedImage bi = new BufferedImage(i.getWidth(null), i.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+		final Graphics2D g2 = bi.createGraphics();
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
 		g2.drawImage(i, 0, 0, bi.getWidth(), bi.getHeight(), null);
 		return bi;
@@ -187,15 +203,18 @@ public final class GuiUtils {
 	 * @param input the path to the image
 	 * @return the Image
 	 */
-	public static Image readImage(String input) {
+	public static Image readImage(final String input) {
 		try {
 			return ImageIO.read(GuiUtils.class.getResourceAsStream(input));
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
-	public static BufferedImage readTrimAndScaleImage(String input, int w, int h) {
+	public static BufferedImage readAndScaleImage(final String input, final int w, final int h) {
+		return getScaledImage(readImage(input),w,h);
+	}
+	public static BufferedImage readTrimAndScaleImage(final String input, final int w, final int h) {
 		return getScaledImage(readAndTrimImage(input),w ,h);
 	}
 	/**
@@ -203,7 +222,7 @@ public final class GuiUtils {
 	 * @param input the path to the image
 	 * @return the trimmed image
 	 */
-	public static BufferedImage readAndTrimImage(String input) {
+	public static BufferedImage readAndTrimImage(final String input) {
 		return trimImage(toBufferedImage(readImage(input)));
 	}
 	/**
@@ -212,7 +231,7 @@ public final class GuiUtils {
 	 * @param p2 the second point
 	 * @return the new point which is p1-p2
 	 */
-	public static Point subtractPoints(Point p1, Point p2) {
+	public static Point subtractPoints(final Point p1, final Point p2) {
 		return new Point(p1.x-p2.x, p1.y-p2.y);
 	}
 	/**
@@ -221,9 +240,9 @@ public final class GuiUtils {
 	 * @param color the background color
 	 * @return the new filled-in image
 	 */
-	public static BufferedImage FillIn(Image image, Color color) {
-		BufferedImage bi = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g2 = bi.createGraphics();
+	public static BufferedImage FillIn(final Image image, final Color color) {
+		final BufferedImage bi = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+		final Graphics2D g2 = bi.createGraphics();
 		g2.setPaint(color);
 		g2.fillRect(0, 0, bi.getWidth(), bi.getHeight());
 		g2.drawImage(image, 0, 0, bi.getWidth(), bi.getHeight(), null);
@@ -237,17 +256,17 @@ public final class GuiUtils {
 	 * @param rect The Rectangle to center the text in.
 	 * @param c The color of the font (will be set back to default color after)
 	 */
-	public static void drawCenteredString(Graphics g, String text, Rectangle rect, Font font, Color c) {
+	public static void drawCenteredString(final Graphics g, final String text, final Rectangle rect, final Font font, final Color c) {
 		// Get the FontMetrics
-		FontMetrics metrics = g.getFontMetrics(font);
+		final FontMetrics metrics = g.getFontMetrics(font);
 		// Determine the X coordinate for the text
-		int x = rect.x + (rect.width - metrics.stringWidth(text)) / 2;
+		final int x = rect.x + (rect.width - metrics.stringWidth(text)) / 2;
 		// Determine the Y coordinate for the text (note we add the ascent, as in java 2d 0 is top of the screen)
-		int y = rect.y + ((rect.height - metrics.getHeight()) / 2) + metrics.getAscent();
+		final int y = rect.y + ((rect.height - metrics.getHeight()) / 2) + metrics.getAscent();
 		// Set the font
 		g.setFont(font);
 		//Set the color
-		Color old = g.getColor();
+		final Color old = g.getColor();
 		g.setColor(c);
 		// Draw the String
 		g.drawString(text, x,y);
@@ -258,11 +277,11 @@ public final class GuiUtils {
 	 * @param curr the original image
 	 * @return the rotated image
 	 */
-	public static BufferedImage rotateImage90ClockwiseAndTrim(Image curr) {
-		BufferedImage img = toBufferedImage(curr);
-		int         width  = img.getWidth();
-		int         height = img.getHeight();
-		BufferedImage   newImage = new BufferedImage( height, width, img.getType() );
+	public static BufferedImage rotateImage90ClockwiseAndTrim(final Image curr) {
+		final BufferedImage img = toBufferedImage(curr);
+		final int         width  = img.getWidth();
+		final int         height = img.getHeight();
+		final BufferedImage   newImage = new BufferedImage( height, width, img.getType() );
 
 		for( int i=0 ; i < width ; i++ )
 			for( int j=0 ; j < height ; j++ )
@@ -275,11 +294,11 @@ public final class GuiUtils {
 	 * @param string the input string
 	 * @return the decapitalized string
 	 */
-	public static String decapitalize(String string) {
+	public static String decapitalize(final String string) {
 		if (string == null || string.length() == 0) {
 			return string;
 		}
-		char c[] = string.toCharArray();
+		final char c[] = string.toCharArray();
 		c[0] = Character.toLowerCase(c[0]);
 		return new String(c);
 	}
@@ -288,10 +307,10 @@ public final class GuiUtils {
 	 * @param description the original text
 	 * @return the new formatted text with "\n" replaced with "&lt;br&gt;"
 	 */
-	public static String createNewLines(String description) {
-		StringBuilder sb = new StringBuilder();
+	public static String createNewLines(final String description) {
+		final StringBuilder sb = new StringBuilder();
 		sb.append("<html>");
-		String[] lines = splitByLines(description);
+		final String[] lines = splitByLines(description);
 		for (int i = 0; i < lines.length-1; i++ ) {
 			sb.append(lines[i]);
 			sb.append("<br/>");
@@ -306,7 +325,17 @@ public final class GuiUtils {
 	 * @param description the text to split
 	 * @return the lines
 	 */
-	public static String[] splitByLines(String description) {
+	public static String[] splitByLines(final String description) {
 		return description.split("\n");
+	}
+	public static JComponent componentWithBorder(final JComponent component) {
+		final JComponent panel = new JPanel();
+		panel.setLayout(new GridBagLayout());//center it
+		panel.setSize(component.getWidth()+10, component.getHeight()+10);
+		panel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+		panel.add(component);
+		panel.revalidate();
+		panel.repaint();
+		return panel;
 	}
 }

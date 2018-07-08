@@ -12,10 +12,12 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
+import gui.gameComponents.GameSpace;
 import gui.guiutils.GuiUtils;
 import gui.mouseAdapters.MouseClickWithThreshold;
 import gui.mvpFramework.Presenter;
@@ -55,6 +57,7 @@ public class InfoWindowBuilder {
 	 */
 	public InfoWindowBuilder(final int width, final int height) {
 		panel.setBounds(0,0, width, height);
+		panel.setPreferredSize(new Dimension(width, height));
 	}
 	/**
 	 * Sets the caption (the text below the picture)
@@ -144,11 +147,11 @@ public class InfoWindowBuilder {
 	 * takes all the info that has been added so far and finalizes it
 	 * @return the created info window
 	 */
-	public JPanel createWindow() {
+	public JComponent createWindow() {
 
 		final JLayeredPane result = new JLayeredPane();
+		result.setLayout(null);
 		result.setPreferredSize(new Dimension(panel.getWidth(), panel.getHeight()));
-
 		final JPanel foreground = new JPanel();
 		foreground.setBounds(0, 0, panel.getWidth(), panel.getHeight());
 		foreground.setOpaque(false);
@@ -193,25 +196,26 @@ public class InfoWindowBuilder {
 		foreground.revalidate();
 		foreground.repaint();
 		if (backgroundImage != null) {
-			final JLabel backgroundLabel = new JLabel(new ImageIcon(backgroundImage));
-			backgroundLabel.setBounds(0,0, panel.getWidth(), panel.getHeight());
-			result.add(backgroundLabel, JLayeredPane.DEFAULT_LAYER);
+			final GameSpace background = new GameSpace(backgroundImage);
+			result.add(background, JLayeredPane.DEFAULT_LAYER);
 		}
 		
 		result.add(foreground, JLayeredPane.PALETTE_LAYER);
 		result.revalidate();
 		result.repaint();
 		result.setVisible(true);
+		result.setBounds(0, 0, panel.getWidth(), panel.getHeight());
+		panel.setLayout(null);
 		panel.add(result);
 		panel.repaint();
 		panel.revalidate();
 		panel.setVisible(true);
 
-		return panel;
+		return GuiUtils.componentWithBorder(panel);
 		
 	}
 	/**
-	 * Add a new button with the specified name that calls the presenters CleanUp() method and then calls its Canceled() method
+	 * Add a new button with the specified name that calls the presenters Canceled() method
 	 * @param text the text on the button
 	 * @return the new info window
 	 */
@@ -219,7 +223,6 @@ public class InfoWindowBuilder {
 		final JButton jb = new JButton(text);
 		final BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
 			cleanUp();
-			p.CleanUp();
 			p.Canceled();	
 			
 			
@@ -229,7 +232,7 @@ public class InfoWindowBuilder {
 		return this;
 	}
 	/**
-	 * Add a new button with the specified name that calls the presenters CleanUp() method and then calls its Entered() method
+	 * Add a new button with the specified name that calls the presenters Entered() method
 	 * @param text the text on the button
 	 * @return the new info window
 	 */
@@ -237,7 +240,6 @@ public class InfoWindowBuilder {
 		final JButton jb = new JButton(text);
 		final BiConsumer<Presenter, MouseEvent> input = (p, e) -> {
 			cleanUp();
-			p.CleanUp(); 
 			p.Entered();
 			
 			

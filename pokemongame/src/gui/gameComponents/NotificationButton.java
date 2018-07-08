@@ -46,7 +46,7 @@ public class NotificationButton extends PictureButton<GameView> {
 			setVisible(false);
 		}
 			
-		else if (!isEnabled() && numNotifications > 0) {
+		else if (!isVisible() && numNotifications > 0) {
 			setEnabled(true);
 			setVisible(true);
 		}

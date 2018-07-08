@@ -4,19 +4,19 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Point;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import gameutils.GameUtils;
 import gui.gameComponents.GameSpace;
 import gui.gameComponents.PictureButton;
 import gui.guiutils.GuiUtils;
@@ -29,8 +29,8 @@ import loaders.shopLoader.ShopItem;
  * @author David O'Sullivan
  *
  */
+//TODO: Make this two seperate classes, one with scroll, other with buttons
 public class ShopWindow {
-	private final Map<PictureButton, ShopItem> items = new HashMap<PictureButton, ShopItem>();
 	/**
 	 * How big the pictures of the things should be
 	 */
@@ -86,7 +86,6 @@ public class ShopWindow {
 	private static final int INITIAL_ROW_OFFSET = 0;
 	private static final int END_ROW_OFFSET = 0;
 	private static final Image CARD_BACKGROUND = GuiUtils.readTrimAndScaleImage("/sprites/ui/sand_template.jpg", 80*TOTAL_NUM_COLS, 80*TOTAL_NUM_ROWS);
-
 	/**
 	 * Creates a new ShopWindow with no items
 	 * @param gv the gameView to interact with
@@ -112,25 +111,18 @@ public class ShopWindow {
 		setUpPanel();
 		final Iterator<ShopItem> it = shopItems.iterator();
 		int i = 0; //number of iterations
-		int j = 0; //number of times a new card is made
-		PictureButton itemsOnACard[] = new PictureButton[ITEMS_PER_CARD];
+		final int j = 0; //number of times a new card is made
+		final PictureButton allItems[] = new PictureButton[shopItems.size()];
 		while (it.hasNext()) {
-			if (i == ITEMS_PER_CARD) {
-				i = 0;
-				cardLayoutShopWindow.add(getWindow(itemsOnACard), Integer.toString(j));
-				j++;
-				itemsOnACard = new PictureButton[ITEMS_PER_CARD]; //clear array
-			}
 			final ShopItem shopItem = it.next();
 			final PictureButton<Presenter> pb = new PictureButton<Presenter>(generateImage(shopItem), p -> p.attemptPurchaseThing(shopItem), gv.getPresenter()).disableBorder();
 			DescriptionManager.getInstance().setDescription(pb, shopItem.toString());
-			itemsOnACard[i] = pb;
+			allItems[i++] = pb;
 			shopWindowForScrolling.add(pb);
 			shopWindowForScrolling.revalidate();
 			shopWindowForScrolling.repaint();
-			i++;
 		}
-		cardLayoutShopWindow.add(getWindow(itemsOnACard), Integer.toString(j));
+		generateCardShopWindows(allItems);
 		scrollableShopWindow = new JScrollPane(shopWindowForScrolling);
 		scrollableShopWindow.revalidate();
 		scrollableShopWindow.repaint();
@@ -155,22 +147,38 @@ public class ShopWindow {
 		return panel;
 	}
 	public JComponent getShopWindowAsCardLayout() {
+		((CardLayout) cardLayoutShopWindow.getLayout()).show(cardLayoutShopWindow, Integer.toString(0));
 		cardLayoutShopWindow.revalidate();
 		cardLayoutShopWindow.repaint();
-		return cardLayoutShopWindow;
+		return GuiUtils.componentWithBorder(cardLayoutShopWindow);
 	
 		
 	}
-	private GameSpace getWindow(final PictureButton[] items) {
+	private void generateCardShopWindows(final PictureButton[] allItems) {
+		final int numWindows = GameUtils.roundToMultiple(allItems.length, ITEMS_PER_CARD)/ITEMS_PER_CARD;
+		for (int i = 0; i < numWindows; i++) {
+			final PictureButton[] itemsForWindow = Arrays.copyOfRange(allItems, i*ITEMS_PER_CARD, Math.min(allItems.length, (i+1)*ITEMS_PER_CARD));
+			cardLayoutShopWindow.add(getWindow(itemsForWindow, i != 0, i != numWindows-1, i), Integer.toString(i));
+		}
+	}
+	private GameSpace getWindow(final PictureButton[] items, final boolean addPrev, final boolean addNext, final int windowIndex) {
 		final GameSpace gs = new GameSpace(CARD_BACKGROUND);
 		final GridLayout layout = new GridLayout(TOTAL_NUM_ROWS, TOTAL_NUM_COLS);
 		gs.setLayout(layout);
 		gs.setOpaque(true);
 		gs.setVisible(true);
 		final JPanel[][] holder = getNewHolder(gs);
-		holder[0][0].add(new JButton("Exit"));
-		holder[TOTAL_NUM_ROWS-1][0].add(new JButton("Prev"));
-		holder[TOTAL_NUM_ROWS-1][TOTAL_NUM_COLS-1].add(new JButton("Next"));
+		holder[0][0].add(ButtonBuilder.generatePictureButton("cancel_button", p -> p.Canceled(), gv.getPresenter()));
+		if (addPrev) {
+			final PictureButton<CardLayout> prevButton = ButtonBuilder.generatePictureButton("prev_button",cl -> cl.show(cardLayoutShopWindow, Integer.toString(windowIndex-1)), (CardLayout) cardLayoutShopWindow.getLayout());
+			holder[TOTAL_NUM_ROWS-1][0].setLayout(new GridBagLayout());
+			holder[TOTAL_NUM_ROWS-1][0].add(prevButton);
+		}
+		if (addNext) {
+			final PictureButton<CardLayout> nextButton = ButtonBuilder.generatePictureButton("next_button", cl -> cl.show(cardLayoutShopWindow, Integer.toString(windowIndex+1)), (CardLayout) cardLayoutShopWindow.getLayout());
+			holder[TOTAL_NUM_ROWS-1][TOTAL_NUM_COLS-1].setLayout(new GridBagLayout());
+			holder[TOTAL_NUM_ROWS-1][TOTAL_NUM_COLS-1].add(nextButton);
+		}
 		addItems(holder, items);
 		gs.revalidate();
 		gs.repaint();
@@ -191,12 +199,12 @@ public class ShopWindow {
 		int k = 0;
 		for (int i =INITIAL_ROW_OFFSET; i < TOTAL_NUM_ROWS-END_ROW_OFFSET; i++) {
 			for (int j = INITIAL_COL_OFFSET; j < TOTAL_NUM_COLS-END_COL_OFFSET; j++) {
-				if (items[k] == null)
+				if (k == items.length || items[k] == null)
 					return;
 				holder[i][j].add(items[k++]);
 			}
 		}
 	}
-	
+
 
 }
