@@ -1,19 +1,12 @@
 package loaders;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import effects.Event;
-import game.Board;
 import gameutils.GameUtils;
 
 /**
@@ -25,11 +18,11 @@ public class EventBuilder {
 	/**
 	 * The Map between the name of the Thing and all the events associated with it
 	 */
-	private Map<String, List<Event>> mapEvents = new HashMap<String, List<Event>>();
+	private final Map<String, List<Event>> mapEvents = new HashMap<String, List<Event>>();
 	/**
 	 * The Map between the name of the Thing and the description associated with it because it has a generated event
 	 */
-	private Map<String, String> eventNameToDescription = new HashMap<String, String>();
+	private final Map<String, String> eventNameToDescription = new HashMap<String, String>();
 	/**
 	 * Creates a new EventBuilder and places all default items to corresponding events
 	 */
@@ -41,7 +34,7 @@ public class EventBuilder {
 	 * Creates a new EventBuilder, creates "default items" and creates events for items in .csv file located at path
 	 * @param path
 	 */
-	public EventBuilder(String path) {
+	public EventBuilder(final String path) {
 		this();
 		//Path p = FileSystems.getDefault().getPath(path);
 		loadEventsFromPath(path);
@@ -50,26 +43,32 @@ public class EventBuilder {
 	 * Loads all the events at the provided path
 	 * @param p the path of the eventMapList.csv file
 	 */
-	private void loadEventsFromPath(String path) {			
+	private void loadEventsFromPath(final String path) {			
 		try {
-			for (String[] vals: CSVReader.readCSV(path)) {
-				StringBuilder description = new StringBuilder();
+			for (final String[] vals: CSVReader.readCSV(path)) {
+				final StringBuilder description = new StringBuilder();
 				String newline = "";
-				String name=vals[0]; //e.g. smalltable
-				List<Event> events = new ArrayList<Event>();
+				final String name=vals[0]; //e.g. smalltable
+				final List<Event> events = new ArrayList<Event>();
 				for (int i = 1; i < vals.length; i++) {
 					description.append(newline);
-					String[] inputs = vals[i].split(":"); //e.g. randomgold:3:4:5, where 3,4,5 are the inputs to the generate function
-					String type = inputs[0]; //the type of event
-					TypicalEvents te = TypicalEvents.valueOf(type.toUpperCase().trim());
-					int lower = te.getLower();
-					int upper = te.getUpper();
+					final String[] inputs = vals[i].split(":"); //e.g. randomgold:3:4:5, where 3,4,5 are the inputs to the generate function
+					final String type = inputs[0]; //the type of event
+					final TypicalEvents te = TypicalEvents.valueOf(type.toUpperCase().trim());
+					final int lower = te.getLower();
+					final int upper = te.getUpper();
 					Event e = null;
 					switch (te) {
 					case RANDOMGOLD:
-						int[] integerInputs = GameUtils.parseAllInRangeToInt(inputs, lower, upper-1); //upper-1 because the last input will be a double that we have to parse seperately
+						final int[] integerInputs = GameUtils.parseAllInRangeToInt(inputs, lower, upper-1); //upper-1 because the last input will be a double that we have to parse seperately
 						e = generateRandomGoldEvent(integerInputs[0], integerInputs[1], Double.parseDouble(inputs[upper]));
 						description.append(te.getDescription(integerInputs[0], integerInputs[1], Double.parseDouble(inputs[upper])));
+						break;
+					case INCREASE_LEGENDARY_CHANCE:
+						e = generateLegendaryChanceIncreaseEvent(Integer.parseInt(inputs[0]));
+						description.append(te.getDescription(inputs[0]));
+						break;
+					default:
 						break;
 					}
 					if (e != null)
@@ -81,13 +80,13 @@ public class EventBuilder {
 				mapEvents.put(name, events); //place the created event
 				eventNameToDescription.put(name, description.toString());
 			}
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (Error e) {
+		} catch (final Error e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -98,7 +97,7 @@ public class EventBuilder {
 	 * @param name the name of the thing
 	 * @return the list of events for that thing, null if none
 	 */
-	public List<Event> getEvents(String name) {
+	public List<Event> getEvents(final String name) {
 		return mapEvents.get(name);
 	}
 	/**
@@ -106,7 +105,7 @@ public class EventBuilder {
 	 * @param thingName the Name of thing to get description for
 	 * @return the String describing those events. null if none
 	 */
-	public String getEventDescription(String thingName) {
+	public String getEventDescription(final String thingName) {
 		return eventNameToDescription.get(thingName);
 	}
 	/**
@@ -116,12 +115,21 @@ public class EventBuilder {
 	 * @param periodInMinutes the frequency of checking if gold is added
 	 * @return the created event
 	 */
-	public static Event generateRandomGoldEvent(int percentChance, int gold, double periodInMinutes) {
-		Event randomGold = new Event( board -> {
+	public static Event generateRandomGoldEvent(final int percentChance, final int gold, final double periodInMinutes) {
+		final Event randomGold = new Event( board -> {
 			if (GameUtils.testPercentChance(percentChance))
 				board.addGold(gold);
 		}, periodInMinutes);
 		return randomGold;
+	}
+	/**
+	 * Generates an event that increases the % chance of legendary pokemon spawning by increase (% 0-100)
+	 * @param increase the percentage to increase by (0-100)
+	 * @return the created event
+	 */
+	public static Event generateLegendaryChanceIncreaseEvent(final int increase) {
+		return new Event(board -> board.increaseLegendaryChance(increase), board -> board.decreaseLegendaryChance(increase));
+		
 	}
 	
 	
@@ -131,7 +139,8 @@ public class EventBuilder {
 	 *
 	 */
 	private enum TypicalEvents {
-		RANDOMGOLD(1, 3, "Has a %d%% Chance of Generating %d PokeCash Every %.2f Minutes"); //of the format randomgold:x:y:z, so x (the first) will be at 1 and y (the last) will be at 3
+		RANDOMGOLD(1, 3, "Has a %d%% Chance of Generating %d PokeCash Every %.2f Minutes"), //of the format randomgold:x:y:z, so x (the first) will be at 1 and y (the last) will be at 3
+		INCREASE_LEGENDARY_CHANCE(1,1, "Increases chance of legendary pokemon spawning by %d%%");
 		/**
 		 * The lower index of the set of parameters for the event's generator function
 		 */
@@ -141,7 +150,7 @@ public class EventBuilder {
 		 */
 		private final int upper;
 		private final String descriptionTemplate;
-		private TypicalEvents(int lower, int upper, String descriptionTemplate) {
+		private TypicalEvents(final int lower, final int upper, final String descriptionTemplate) {
 			this.lower = lower;
 			this.upper = upper;
 			this.descriptionTemplate = descriptionTemplate;
@@ -152,7 +161,7 @@ public class EventBuilder {
 		private int getUpper() {
 			return upper;
 		}
-		private String getDescription(Object ...args) {
+		private String getDescription(final Object ...args) {
 			return String.format(descriptionTemplate, args);
 		}
 	}

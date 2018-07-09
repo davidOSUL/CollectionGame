@@ -657,10 +657,7 @@ public class Presenter implements Serializable {
 				shopNeedsUpdate = false;
 				shopWindow.updateItems(board.getItemsInShop());
 			}
-			//shopWindow.getShopWindowAsFrame();
 			final JComponent cards = shopWindow.getShopWindowAsCardLayout();
-			// final CardLayout cl = (CardLayout)(cards.getLayout());
-			// cl.show(cards, "0");
 			setCurrentWindow(cards);
 			gameView.setInShop(true);
 		});

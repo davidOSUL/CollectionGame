@@ -5,17 +5,6 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-import loaders.CSVReader;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
-
 /**
  * General purpose utility functions (generally used by backend only)
  * @author David O'Sullivan
@@ -33,8 +22,8 @@ public final class GameUtils {
 	 * @param UpperIndex the last index of the array to the pase
 	 * @return the parsed int array corresponding to the values between LowerIndex and UpperINdex
 	 */
-	public static int[] parseAllInRangeToInt(String[] input, int LowerIndex, int UpperIndex) {
-		int[] output = new int[UpperIndex-LowerIndex+1];
+	public static int[] parseAllInRangeToInt(final String[] input, final int LowerIndex, final int UpperIndex) {
+		final int[] output = new int[UpperIndex-LowerIndex+1];
 		int j = 0;
 		for (int i = LowerIndex; i <= UpperIndex; i++) {
 			output[j++] = Integer.parseInt(input[i]);
@@ -45,9 +34,9 @@ public final class GameUtils {
 	 * @param percentChance the percent chance of an event occuring
 	 * @return whether or not that event occurs
 	 */
-	public static boolean testPercentChance(double percentChance) {
+	public static boolean testPercentChance(final double percentChance) {
 		
-				double randomNum = ThreadLocalRandom.current().nextDouble(0, 100); //num between [0, 100)
+				final double randomNum = ThreadLocalRandom.current().nextDouble(0, 100); //num between [0, 100)
 				if (randomNum >= (100-percentChance))
 					return true;
 			
@@ -69,7 +58,7 @@ public final class GameUtils {
 	 * @param MULT the multiple to round to
 	 * @return val rounded up to a multiple of MULT
 	 */
-	public static int roundToMultiple(int val, int MULT) {
+	public static int roundToMultiple(final int val, final int MULT) {
 		return val < MULT ? MULT : ((val + MULT-1) / MULT)*MULT;
 	}
 	/**
@@ -77,7 +66,7 @@ public final class GameUtils {
 	 * @param list the list to remove duplicates from
 	 * @return the new list
 	 */
-	public static <T> List<T> removeDuplicateElementsOfList(List<? extends T> list) {
+	public static <T> List<T> removeDuplicateElementsOfList(final List<? extends T> list) {
 		return list.stream().distinct().collect(Collectors.toList());
 	}
 	/**
@@ -86,20 +75,35 @@ public final class GameUtils {
 	 * @param list the list to remove items from.
 	 * @return Returns the list of items that was removed
 	 */
-	public static <T> List<T> removeOneInstanceOfEachElement(List<T> list) {
-		List<T> uniqueList = removeDuplicateElementsOfList(list);
-		for (T item : uniqueList) {
+	public static <T> List<T> removeOneInstanceOfEachElement(final List<T> list) {
+		final List<T> uniqueList = removeDuplicateElementsOfList(list);
+		for (final T item : uniqueList) {
 			list.remove(item);
 		}
 		return uniqueList;
 	}
-	public static <T> ArrayList<T> toArrayList(T[] elements) {
-		ArrayList<T> newList = new ArrayList<T>();
-		for (T t: elements) {
+	public static <T> ArrayList<T> toArrayList(final T[] elements) {
+		final ArrayList<T> newList = new ArrayList<T>();
+		for (final T t: elements) {
 			newList.add(t);
 		}
 		return newList;
 		
 	}
+	/**
+	 * Converts the given string to "Title Case" ("Each Word Is Capitalized Like This")
+	 * @param givenString the input
+	 * @return the Title cased string
+	 */
+	public static String toTitleCase(final String givenString) {
+	    final String[] arr = givenString.split(" ");
+	    final StringBuffer sb = new StringBuffer();
+
+	    for (final String element : arr) {
+	        sb.append(Character.toUpperCase(element.charAt(0)))
+	            .append(element.substring(1)).append(" ");
+	    }          
+	    return sb.toString().trim();
+	}  
 	
 }

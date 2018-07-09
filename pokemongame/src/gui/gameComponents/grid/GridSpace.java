@@ -42,12 +42,12 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	 * @param numCols the number of columns (in spots) starting at the provided coordinate
 	 * @param numRows the number of rows (in spots) starting at the provided coordinate
 	 */
-	private GridSpace(Grid grid, int x_g, int y_g, int numCols, int numRows) {
+	private GridSpace(final Grid grid, final int x_g, final int y_g, final int numCols, final int numRows) {
 		super(x_g*grid.getSubX(),y_g*grid.getSubY(),numCols*grid.getSubX(),numRows*grid.getSubY());
 		numColumns = numCols;
 		this.numRows = numRows;
-		this.grid = grid;
-		p_g = new GridPoint(x_g, y_g);
+		setGridAndGridPoint(grid, new GridPoint(x_g, y_g));
+		
 	}
 	public GridSpaceData getData() {
 		return new GridSpaceData(numColumns, numRows, p_g, num90Rotations, grid.getData());
@@ -58,7 +58,7 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	 * @param numCols the number of columns (in spots) starting at the provided coordinate
 	 * @param numRows the number of rows (in spots) starting at the provided coordinate
 	 */
-	private GridSpace(Grid grid, GridPoint p_g, int numCols, int numRows) {
+	private GridSpace(final Grid grid, final GridPoint p_g, final int numCols, final int numRows) {
 		this(grid, p_g.x, p_g.y, numCols, numRows);
 	}
 	/**
@@ -68,11 +68,10 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	 * @param x_g the x coordinate of the GridPoint 
 	 * @param y_g the ycoordinate of the GridPoint
 	 */
-	protected GridSpace(Grid grid, GameSpace g, int x_g, int y_g) {
+	protected GridSpace(final Grid grid, final GameSpace g, final int x_g, final int y_g) {
 		super(g, x_g*grid.getSubX(), y_g*grid.getSubY());
 		setName(g.getName());
-		p_g = new GridPoint(x_g, y_g);
-		setGrid(grid, p_g);
+		setGridAndGridPoint(grid, new GridPoint(x_g, y_g));
 		if (!g.isEmpty()) {
 			setImage( g.getImage());
 		}
@@ -83,7 +82,7 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	 * @param g the GameSpace reference
 	 * @param p_g the location of the GridSpace
 	 */
-	protected GridSpace(Grid grid, GameSpace g, GridPoint p_g) {
+	protected GridSpace(final Grid grid, final GameSpace g, final GridPoint p_g) {
 		this(grid, g, p_g.x, p_g.y);
 	}
 	/**
@@ -92,10 +91,9 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	 * @param grid the new grid
 	 * @param p_g the GridPoint within that grid
 	 */
-	protected void setGrid(Grid grid, GridPoint p_g) {
+	protected void setGridAndGridPoint(final Grid grid, final GridPoint p_g) {
 		this.grid = grid;
-		this.p_g = p_g;
-		setLocation(p_g.x*grid.getSubX(), p_g.y*grid.getSubY());
+		setGridPoint(p_g);
 		updateDimension();
 	}
 	/**
@@ -110,22 +108,15 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	 * @param g the GameSpace reference
 	 * @param p_g the GridPoint
 	 */
-	private GridSpace(GridSpace g, GridPoint p_g) {
+	private GridSpace(final GridSpace g, final GridPoint p_g) {
 		this(g.getGrid(), g, p_g.x, p_g.y);
 	}
 	/**
 	 * Creates a new GridSpace at location p_g = (0,0) copying size/image from the provided gameSpace (and snapping to this grid accordingly)
 	 * @param g
 	 */
-	private GridSpace(GridSpace g) {
+	private GridSpace(final GridSpace g) {
 		this(g.getGrid(), g,0,0);
-	}
-	/**
-	 * Sets the location of this Grid to the specified GridPoint
-	 * @param p_g the grid point to set the location to 
-	 */
-	protected void setGridLocation(GridPoint p_g) {
-		this.setLocation(p_g.x*grid.getSubX(), p_g.y*grid.getSubY());
 	}
 	/**
 	 * @return the area of this GridSpace
@@ -139,7 +130,7 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
 	@Override
-	public int compareTo(GridSpace g) {
+	public int compareTo(final GridSpace g) {
 		return g.getArea() == getArea() ? 0 : getArea() > g.getArea() ? 1 : -1;
 	}
 	/**
@@ -147,7 +138,7 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	 * @see gui.gameComponents.GameSpace#paintComponent(java.awt.Graphics)
 	 */
 	@Override
-	protected void paintComponent(Graphics g) {
+	protected void paintComponent(final Graphics g) {
 		super.paintComponent(g);
 		this.setBorder(BorderFactory.createLineBorder(Color.black));
 	}
@@ -156,14 +147,14 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	 * @param testp_g
 	 * @return true if the grid point resides within this GridSpace
 	 */
-	private boolean containsGridPoint(GridPoint testp_g) {
+	private boolean containsGridPoint(final GridPoint testp_g) {
 		return (testp_g.x >= p_g.x && testp_g.x < p_g.x+numColumns) && (testp_g.y >= p_g.y && testp_g.y < p_g.y+numRows);
 	}
 	/**
-	 * Assigns the location of this GridSpace to the provided GridPoint
+	 * Assigns the location of this GridSpace to the provided GridPoint (i.e. updates p_g and its location)
 	 * @param p_g the GridPoint to change the location to
 	 */
-	protected void setPoint(GridPoint p_g) {
+	protected void setGridPoint(final GridPoint p_g) {
 		this.p_g = p_g;
 		this.setLocation(p_g.x*grid.getSubX(), p_g.y*grid.getSubY());
 	}
@@ -177,24 +168,24 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 		return p_g;
 	}
 
-	private void addListeners(boolean hasSellBackOption) {
+	private void addListeners(final boolean hasSellBackOption) {
 		removeListeners();
-		BiConsumer<GameView, MouseEvent> onDoubleClick = (gv, e) -> {
+		final BiConsumer<GameView, MouseEvent> onDoubleClick = (gv, e) -> {
 			gv.getPresenter().attemptMoveGridSpace(this);
 		};
-		MouseListener dubClickListener = new DoubleClickWithThreshold<GameView>(Grid.CLICK_DIST_THRESH, onDoubleClick, grid.getGameView());
+		final MouseListener dubClickListener = new DoubleClickWithThreshold<GameView>(Grid.CLICK_DIST_THRESH, onDoubleClick, grid.getGameView());
 		this.addMouseListener(dubClickListener);
 		listeners.add(dubClickListener);
-		MouseListener options = getDefaultPopupListener(hasSellBackOption);
+		final MouseListener options = getDefaultPopupListener(hasSellBackOption);
 		listeners.add(options);
 		addMouseListener(options);
 	}
-	private MouseListener getDefaultPopupListener(boolean hasSellBackOption) {
-		SelectionWindowBuilder<GameView> swb = new SelectionWindowBuilder<GameView>(Grid.CLICK_DIST_THRESH, "Options");
-		BiConsumer<GameView, MouseEvent> onClickDelete = (gv, e) -> {			
+	private MouseListener getDefaultPopupListener(final boolean hasSellBackOption) {
+		final SelectionWindowBuilder<GameView> swb = new SelectionWindowBuilder<GameView>(Grid.CLICK_DIST_THRESH, "Options");
+		final BiConsumer<GameView, MouseEvent> onClickDelete = (gv, e) -> {			
 			gv.getPresenter().attemptDeleteGridSpace(this);
 		};
-		BiConsumer<GameView, MouseEvent> onClickSellBack = (gv, e) -> {			
+		final BiConsumer<GameView, MouseEvent> onClickSellBack = (gv, e) -> {			
 			gv.getPresenter().attemptSellBackGridSpace(this);
 		};
 		if (hasSellBackOption) {
@@ -217,7 +208,7 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	 * Updates the listeners
 	 * @param hasSellBackOption if set to true will add option to sell back to shop
 	 */
-	public void updateListeners(boolean hasSellBackOption) {
+	public void updateListeners(final boolean hasSellBackOption) {
 		addListeners(hasSellBackOption);
 	}
 	/**
@@ -244,15 +235,15 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	 * @see gui.gameComponents.GameSpace#setImage(java.awt.Image)
 	 */
 	@Override
-	public void setImage(Image curr) {
+	public void setImage(final Image curr) {
 		if (grid == null) {
 			super.setImage(curr);
 			return;
 		}
-		int newImageWidth = GameUtils.roundToMultiple(curr.getWidth(this), grid.getSubX());
-		int newImageHeight = GameUtils.roundToMultiple(curr.getHeight(this), grid.getSubY());
-		BufferedImage newImage = new BufferedImage(newImageWidth, newImageHeight, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D bGr = newImage.createGraphics();
+		final int newImageWidth = GameUtils.roundToMultiple(curr.getWidth(this), grid.getSubX());
+		final int newImageHeight = GameUtils.roundToMultiple(curr.getHeight(this), grid.getSubY());
+		final BufferedImage newImage = new BufferedImage(newImageWidth, newImageHeight, BufferedImage.TYPE_INT_ARGB);
+		final Graphics2D bGr = newImage.createGraphics();
 		bGr.drawImage(curr, 0, 0, null);
 		bGr.dispose();
 		super.setImage(newImage);
@@ -268,7 +259,7 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 		public final GridPoint p_g;
 		public final int num90Rotations;
 		public final GridData gridData;
-		public GridSpaceData(int numColumns, int numRows, GridPoint p_g, int num90Rotations, GridData gridData) {
+		public GridSpaceData(final int numColumns, final int numRows, final GridPoint p_g, final int num90Rotations, final GridData gridData) {
 			this.numColumns = numColumns;
 			this.numRows = numRows;
 			this.p_g = p_g;

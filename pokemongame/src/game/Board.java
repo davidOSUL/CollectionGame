@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
 
@@ -27,6 +28,7 @@ import loaders.shopLoader.ShopItem;
 import thingFramework.Item;
 import thingFramework.Pokemon;
 import thingFramework.Thing;
+import thingFramework.Thing.ThingType;
 /**
  * The "Model" in the MVP model. Manages the game state in memory.
  * <br> NOTE: newSession should be called at the beggining of a new session. </br>
@@ -91,28 +93,44 @@ public class Board implements Serializable {
 	 */
 	private static final TreeMap<Integer, List<String>> pokemonRaritiesInOrder = new TreeMap<Integer, List<String>>();
 	/**
-	 * Map from pokemon names to their RARITY (NOT CHANCE) value
+	 * Map from nonlegendary pokemon names to their RARITY (NOT CHANCE) value
 	 */
-	private static final Map<String, Integer> pokeRarity = Thing.mapFromSetToAttributeValue(ThingLoader.sharedInstance().getPokemonSet(), "rarity");  
+	private static final Map<String, Integer> pokeRarity;
+	private static final Set<String> legendaryPokemon = ThingLoader.sharedInstance().getThingsWithAttributeVal("legendary", true, ThingType.POKEMON);
+	private static final Set<String> nonLegendaryPokemon = ThingLoader.sharedInstance().getThingsWithAttributeVal("legendary", false, ThingType.POKEMON);
+	private final Set<String> unFoundLegendaries = new HashSet<String>(legendaryPokemon);
+	static {
+		pokeRarity =
+				ThingLoader.sharedInstance().<Integer>mapFromSetToAttributeValue("rarity", ThingType.POKEMON)
+					.entrySet().stream().filter(p -> nonLegendaryPokemon.contains(p.getKey()))
+					.collect(Collectors.toMap(p-> p.getKey(), p -> p.getValue()));
+	}
 	/**
 	 * This is the value of the total chance rarities of every pokemon. In other words,
 	 * it is the denominator for determining the percent chance that a certain pokemon
 	 * will show up (that is the probability will be: getRelativeChanceRarity(pokemon.rarity)/RUNNING_TOTAL)
 	 */
 	private static final long RUNNING_TOTAL;
+	/**
+	 * Maximum number of tries to generate a pokemon
+	 */
 	private static final int MAX_ATTEMPTS = 50;
-	private double sellBackPercent = .5;
+	/**
+	 * Amount of money times original cost to discount on sellback of an item
+	 */
+	private final double sellBackPercent = .5;
+	private double legendaryChance = 0;
 	static {
 		long rt = 0; //running total
 
-		for (Map.Entry<String, Integer> entry: pokeRarity.entrySet()) {
-			int rarity = entry.getValue();
-			String name = entry.getKey();
-			int percentChance = getRelativeChanceRarity(rarity);
+		for (final Map.Entry<String, Integer> entry: pokeRarity.entrySet()) {
+			final int rarity = entry.getValue();
+			final String name = entry.getKey();
+			final int percentChance = getRelativeChanceRarity(rarity);
 			rt += percentChance;
 			pokemonCumulativeChance.put(rt, name);
 			if (!pokemonRaritiesInOrder.containsKey(rarity)) {
-				List<String> list = new ArrayList<String>();
+				final List<String> list = new ArrayList<String>();
 				list.add(name);
 				pokemonRaritiesInOrder.put(rarity, list);
 			}
@@ -191,7 +209,7 @@ public class Board implements Serializable {
 		events = new EventManager(this);
 		events.addThing(checkForPokemonThing);
 	}
-	public Board(int gold, int popularity) {
+	public Board(final int gold, final int popularity) {
 		this();
 		this.setGold(gold);
 		this.setPopularity(popularity);
@@ -202,7 +220,7 @@ public class Board implements Serializable {
 	 */
 	public void update() {
 		if (SwingUtilities.isEventDispatchThread())
-			System.out.println("WHAT");
+			throw new IllegalStateException("Should not be on EDT");
 		stm.updateGameTime();
 		executeEvents();
 
@@ -230,9 +248,9 @@ public class Board implements Serializable {
 	 *  value of the form A-(pop/B)^C, minimum of MIN_POKEPERIOD
 	 */
 	private double getLookPokemonPeriod() {
-		double A=  4; //max value+1
-		double B = 60; //"length" of near-constant values
-		double C = 1.3; //steepness of drop
+		final double A=  4; //max value+1
+		final double B = 60; //"length" of near-constant values
+		final double C = 1.3; //steepness of drop
 		return RAPID_SPAWN ? 1.666e-5 : Math.max(MIN_POKEPERIOD, A-Math.pow(getPopularity()/B, C));
 	}
 	
@@ -241,7 +259,7 @@ public class Board implements Serializable {
 	 * testPercentChance(PERCENT_CHANCE_DUPLICATE_SPAWNS) is false
 	 * @param automaticSpawn if true will automatically generate a pokemon regardless of percent chance
 	 */
-	private void lookForPokemon(boolean automaticSpawn) {
+	private void lookForPokemon(final boolean automaticSpawn) {
 		//first check if a pokemon is even found
 		int attempts = 0;
 		if (!automaticSpawn && !testPercentChance(getPercentChancePokemonFound()))
@@ -251,24 +269,26 @@ public class Board implements Serializable {
 			attempts++;
 			name = findNextPokemon();
 			if (testPercentChance(getPercentChancePopularityModifies())) {
-				int modifier = getPopularityModifier();
+				final int modifier = getPopularityModifier();
 				if (modifier !=0) {
-					int rarity = pokeRarity.get(name);
+					final int rarity = pokeRarity.get(name);
 					//the set of all keys strictly greater than the rarity 
 					//note that iterator will still work if tailmap is empty
-					Set<Integer> headMap = pokemonRaritiesInOrder.tailMap(rarity, false).keySet();
+					final Set<Integer> headMap = pokemonRaritiesInOrder.tailMap(rarity, false).keySet();
 					int j = 1;
-					for (Integer rare: headMap) {
+					for (final Integer rare: headMap) {
 						if (j==modifier || j==headMap.size()) { //move up from original rarity by modifier ranks in rarity
-							List<String> pokemon = pokemonRaritiesInOrder.get(rare);
+							final List<String> pokemon = pokemonRaritiesInOrder.get(rare);
 							name = pokemon.get(ThreadLocalRandom.current().nextInt(pokemon.size()));
 							break;
 						}
 						j++;
 					}
 				}
-
-
+			}
+			if (!unFoundLegendaries.isEmpty() && testPercentChance(legendaryChance)) {
+				name = findLegendaryPokemon();
+				
 			}
 		} while(name != null && !isUniquePokemon(name) && !testPercentChance(PERCENT_CHANCE_DUPLICATE_SPAWNS) && attempts < MAX_ATTEMPTS);
 		if (name != null && (PERCENT_CHANCE_DUPLICATE_SPAWNS != 0 || isUniquePokemon(name))) {
@@ -280,18 +300,18 @@ public class Board implements Serializable {
 	 * @param Using thing loader creates a new instance of a pokemon with the given name.
 	 * Adds the provided pokemon to the foundPokemon queue and updates the set of pokemon names in addToUniquePokemonLookup
 	 */
-	private void addToFoundPokemon(String name) {
-		Pokemon p = ThingLoader.sharedInstance().generateNewPokemon(name);
+	private void addToFoundPokemon(final String name) {
+		final Pokemon p = ThingLoader.sharedInstance().generateNewPokemon(name);
 		foundPokemon.addLast(p);
 		addToUniquePokemonLookup(p);
 	}
-	private void addToUniquePokemonLookup(Pokemon p) {
+	private void addToUniquePokemonLookup(final Pokemon p) {
 		uniquePokemonLookup.merge(p.getName(), 1, (old, v) -> old+1);
 	}
-	private void removeFromUniquePokemonLookup(Pokemon p) {
+	private void removeFromUniquePokemonLookup(final Pokemon p) {
 		uniquePokemonLookup.compute(p.getName(), (k, v) -> (v-1 == 0) ? null : v-1);
 	}
-	private boolean isUniquePokemon(String name) {
+	private boolean isUniquePokemon(final String name) {
 		return !uniquePokemonLookup.containsKey(name);
 	}
 	/**
@@ -299,7 +319,7 @@ public class Board implements Serializable {
 	 * @return
 	 */
 	private String findNextPokemon() {
-		long randomNum = ThreadLocalRandom.current().nextLong(0, RUNNING_TOTAL);
+		final long randomNum = ThreadLocalRandom.current().nextLong(0, RUNNING_TOTAL);
 		//note that chance != rarity, they are inversely proportional
 		Entry<Long, String> entry = pokemonCumulativeChance.higherEntry(randomNum);
 		if (entry == null)
@@ -309,6 +329,26 @@ public class Board implements Serializable {
 		if (entry == null)
 			return null;
 		return entry.getValue();
+	}
+	/**
+	 * @return the found pokemon, remove it from the unFound list. Returns null if none were found
+	 */
+	private String findLegendaryPokemon() {
+		final int size = unFoundLegendaries.size();
+		if (size == 0)
+			return null;
+		final int item = ThreadLocalRandom.current().nextInt(size); 
+		int i = 0;
+		String toFind = null;
+		for(final String p : unFoundLegendaries)
+		{
+		    if (i == item)
+		        toFind = p;
+		    i++;
+		}
+		unFoundLegendaries.remove(toFind);
+	
+		return toFind;
 	}
 	/**
 	 * To be called by an event on calculated period. Will check if a pokemon is even found using 
@@ -355,41 +395,41 @@ public class Board implements Serializable {
 	 * range modified to [MIN_PERCENT_CHANCE, MAX_PERCENT_CHANCE]
 	 */
 	private double getPercentChancePokemonFound() {
-		double A = 5;
-		double B = 50;
-		double C = 100;
-		double D =3;
-		double E = 1;
+		final double A = 5;
+		final double B = 50;
+		final double C = 100;
+		final double D =3;
+		final double E = 1;
 		if (numPokemon <= 2)
 			return 100;
-		double answer = Math.max(MIN_PERCENT_CHANCE_POKEMON_FOUND, Math.min(MAX_PERCENT_CHANCE_POKEMON_FOUND, (getPopularity()*A)+(getGold()/B)+(C/(D*numPokemon+E))));
+		final double answer = Math.max(MIN_PERCENT_CHANCE_POKEMON_FOUND, Math.min(MAX_PERCENT_CHANCE_POKEMON_FOUND, (getPopularity()*A)+(getGold()/B)+(C/(D*numPokemon+E))));
 		return answer;
 	}
 	/**
 	 * @return Percent chance of a rarity out of 100 w.r.t to the other pokes
 	 */
-	private static int getRelativeChanceRarity(int rarity) {
+	private static int getRelativeChanceRarity(final int rarity) {
 		return 100-rarity;
 	}
 	/**
-	 * @param percentChance the percent chance of an event occuring
+	 * @param percentChance (0-100) the percent chance of an event occuring
 	 * @return whether or not that event occurs
 	 */
-	private static boolean testPercentChance(double percentChance) {
+	private static boolean testPercentChance(final double percentChance) {
 		return GameUtils.testPercentChance(percentChance);
 
 	}
 	/**
 	 * @param thing the thing to add
 	 */
-	public synchronized void addThing(Thing thing) {
+	public synchronized void addThing(final Thing thing) {
 		addElementToThingMap(thing);
 		thing.onPlace(this);
 	}
 	/**
 	 * @param thing The thing to add
 	 */
-	public synchronized void removeThing(Thing thing) {
+	public synchronized void removeThing(final Thing thing) {
 		if (thing==null) {
 			throw new RuntimeException("Attempted to Remove null");
 		}
@@ -420,6 +460,20 @@ public class Board implements Serializable {
 		return "TotalTimeSinceStart: " + getTotalTimeSinceStart() + "\n" + " SessionGameTime: " + getSessionGameTime() + "\n TotalInGameTime: " + getTotalInGameTime();
  	}
 	/**
+	 * Increase the % chance (0-100) of a legendary pokemon appearing
+	 * @param increase the percentage (0-100) to increase by
+	 */
+	public synchronized void increaseLegendaryChance(final int increase) {
+		legendaryChance = Math.min(100, Math.max(0, legendaryChance + increase));
+	}
+	/**
+	 * Decrease the % chance (0-100) of a legendary pokemon appearing
+	 * @param decrease the percentage (0-100) to decrease by
+	 */
+	public synchronized void decreaseLegendaryChance(final int decrease) {
+		increaseLegendaryChance(-decrease);
+	}
+	/**
 	 * @return total time both on and offline
 	 */
 	public synchronized long getTotalTimeSinceStart() {
@@ -441,32 +495,32 @@ public class Board implements Serializable {
 	public synchronized int getGold() {
 		return gold;
 	}
-	public synchronized void setGold(int gold) {
+	public synchronized void setGold(final int gold) {
 		this.gold = gold;
 	}
 	public synchronized int getPopularity() {
 		return popularity;
 	}
-	public synchronized void setPopularity(int popularity) {
+	public synchronized void setPopularity(final int popularity) {
 		this.popularity = popularity;
 	}
-	public synchronized void addGold(int gold) {
+	public synchronized void addGold(final int gold) {
 		setGold(Math.max(MINGOLD, getGold()+gold));
 	}
-	public synchronized void subtractGold(int gold) {
+	public synchronized void subtractGold(final int gold) {
 		addGold(-gold);
 	}
-	public synchronized void addPopularity(int popularity) {
+	public synchronized void addPopularity(final int popularity) {
 		setPopularity(Math.max(MINPOP, getPopularity()+popularity));
 	}
-	public synchronized void subtractPopularity(int popularity) {
+	public synchronized void subtractPopularity(final int popularity) {
 		addPopularity(-popularity);
 	}
-	public synchronized void notifyPokemonAdded(Pokemon p) {
+	public synchronized void notifyPokemonAdded(final Pokemon p) {
 		numPokemon++;
 		addToUniquePokemonLookup(p);
 	}
-	public synchronized void notifyPokemonRemoved(Pokemon p) {
+	public synchronized void notifyPokemonRemoved(final Pokemon p) {
 		numPokemon--;
 		removeFromUniquePokemonLookup(p);
 	}
@@ -474,7 +528,7 @@ public class Board implements Serializable {
 	 * Adds the element to the map from thing to # present, updating accordingly, and adding events if necessary. 
 	 * @param thing the Thing to ADd
 	 */
-	private void addElementToThingMap(Thing thing) {
+	private void addElementToThingMap(final Thing thing) {
 		if (DEBUG)
 			System.out.println("Adding: " + thing.toString() + "\n");
 		thingsOnBoard.add(thing);
@@ -485,7 +539,7 @@ public class Board implements Serializable {
 	 * Will also call all associated events onRemove, and will permanently remove those events if newVal == 0
 	 * @param thing the Thing to add
 	 */
-	private void removeElementFromThingMap(Thing thing) {
+	private void removeElementFromThingMap(final Thing thing) {
 		thingsOnBoard.remove(thing);
 		removeAssociatedEvents(thing);  //execute onRemove and permanently remove if this is the last instance
 	}
@@ -493,7 +547,7 @@ public class Board implements Serializable {
 	 * If the thing hasn't been added to the board yet, update the event set
 	 * @param eventful The eventful to get the events for
 	 */
-	private void addAssociatedEvents(Eventful eventful) {
+	private void addAssociatedEvents(final Eventful eventful) {
 		events.addThing(eventful);
 	}
 	/**
@@ -501,7 +555,7 @@ public class Board implements Serializable {
 	 * @param eventful the eventful to call the executeOnRemove events on, and remove future events from running
 	 * @param permanentlyRemove if true will also remove those events from the set
 	 */
-	private void removeAssociatedEvents(Eventful eventful) {
+	private void removeAssociatedEvents(final Eventful eventful) {
 		events.removeThing(eventful);
 	}
 	/**
@@ -515,7 +569,7 @@ public class Board implements Serializable {
 	 * @param name the name of the pokemon
 	 * @return the new pokemon
 	 */
-	public Pokemon getPokemon(String name) {
+	public Pokemon getPokemon(final String name) {
 		if (DEBUG)
 			return ThingLoader.sharedInstance().generateNewPokemon(name);
 		else
@@ -523,8 +577,8 @@ public class Board implements Serializable {
 	}
 	@Override
 	public String toString() {
-		StringBuilder s = new StringBuilder();
-		for (Thing entry : thingsOnBoard) {
+		final StringBuilder s = new StringBuilder();
+		for (final Thing entry : thingsOnBoard) {
 			s.append("\n" + entry.toString() + "\n");
 		}
 		return s.append("GOLD: " + getGold() + "\nPOP:" +getPopularity()).toString();
@@ -535,7 +589,7 @@ public class Board implements Serializable {
 	public Pokemon grabWildPokemon() {
 		if (grabbedPokemon != null)
 			throw new RuntimeException("Previous Grab Unconfirmed");
-		Pokemon grabbed = foundPokemon.poll();
+		final Pokemon grabbed = foundPokemon.poll();
 		grabbedPokemon = grabbed;
 		return grabbed;
 	}
@@ -557,7 +611,7 @@ public class Board implements Serializable {
 		if (grabbedPokemon == null) {
 			throw new RuntimeException("No Pokemon Grabbed");
 		}
-		Pokemon p = grabbedPokemon;
+		final Pokemon p = grabbedPokemon;
 		grabbedPokemon = null;
 		removeFromUniquePokemonLookup(p);
 		return p;
@@ -595,7 +649,7 @@ public class Board implements Serializable {
 	 * @param item the item in the shop to purchase
 	 * @return true if have enough money to purchase, false otherwise
 	 */
-	public boolean canPurchase(ShopItem item) {
+	public boolean canPurchase(final ShopItem item) {
 		return (item.getCost() <= getGold());
 	}
 	/**
@@ -603,7 +657,7 @@ public class Board implements Serializable {
 	 * @param item the ShopItem in the shop
 	 * @return a Thing (for display purposes) that corresponds to the item
 	 */
-	public Thing startPurchase(ShopItem item) {
+	public Thing startPurchase(final ShopItem item) {
 		if (canPurchase(item)) {
 			grabbedShopItem = item;
 			return shop.getThingCopy(item);
@@ -632,19 +686,19 @@ public class Board implements Serializable {
 	 * @param item the item to sell back
 	 *  @return false if the item is not able to be added back to the shop
 	 */
-	public boolean canAddBackToShopStock(ShopItem item) {
+	public boolean canAddBackToShopStock(final ShopItem item) {
 		return shop.isValidShopItem(item.getThingName());
 	}
 	/**
 	 * Sell back the specified item, adding it back to the shop and adding that much gold to the user
 	 * @param item the item to sell back
 	 */
-	public void sellBack(ShopItem item) {
+	public void sellBack(final ShopItem item) {
 		addGold(getSellBackValue(item));
 		if (canAddBackToShopStock(item))
 			shop.addToShopStock(item.getThingName());
 	}
-	public int getSellBackValue(ShopItem item) {
+	public int getSellBackValue(final ShopItem item) {
 		return Math.max(1 , (int)(item.getCost()*sellBackPercent));
 	}
 	

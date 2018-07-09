@@ -30,7 +30,7 @@ import javax.swing.border.BevelBorder;
  * @author David O'Sullivan
  */
 public final class GuiUtils {
-	private static String pokeCash = "<html><img src=\"" + GuiUtils.class.getResource("/sprites/ui/dollar.png") + "\">";
+	private static String pokeCash = "<html><FONT COLOR=RED>Red</FONT> and <FONT COLOR=BLUE>Blue</FONT> Text</html>";
 	private GuiUtils() {}
 	/**
 	 * Checks if two Rectangles overlap with each other

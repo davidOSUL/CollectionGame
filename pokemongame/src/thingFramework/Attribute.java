@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import gameutils.GameUtils;
+
 public class Attribute implements Serializable{
 	/**
 	 * 
@@ -30,7 +32,7 @@ public class Attribute implements Serializable{
 	/**
 	 * Electric, etc.
 	 */
-	private static final Attribute TYPES = new Attribute(4, "type", ParseType.ENUMSETPOKEMONTYPE, EnumSet.of(PokemonType.NORMAL), AttributeType.DISPLAYTYPE, AttributeType.CHARACTERISTIC);
+	private static final Attribute TYPES = new Attribute(4, "Types", "type", ParseType.ENUMSETPOKEMONTYPE, EnumSet.of(PokemonType.NORMAL), AttributeType.DISPLAYTYPE, AttributeType.CHARACTERISTIC);
 	/**
 	 * Current Happiness of a pokemon (/10)
 	 */
@@ -71,12 +73,13 @@ public class Attribute implements Serializable{
 	 */
 	private static final Attribute NEXT_EVOLUTIONS = new Attribute("next evolutions", ParseType.LISTSTRING, Arrays.asList("default"), AttributeType.POKEONLY, AttributeType.CHARACTERISTIC);
 	private static final Attribute LEVEL_OF_EVOLUTION = new Attribute("level of evolution", ParseType.INTEGER, new Integer(-1), AttributeType.POKEONLY, AttributeType.CHARACTERISTIC);
+	private static final Attribute IS_LEGENDARY = new Attribute(8, "legendary", "legendary", ParseType.BOOLEAN, Boolean.FALSE, AttributeType.POKEONLY, AttributeType.CHARACTERISTIC, AttributeType.DISPLAYTYPE);
 	private Object value = null;
 	static int currId = 0;
 	private static Map<String, Attribute> idMap;
-	private String name;
-	private String displayName;
-	private AttributeTypeSet atTypes;
+	private final String name;
+	private final String displayName;
+	private final AttributeTypeSet atTypes;
 	private final Object defaultValue;
 	/**
 	 * The value at which if the input value to generateAttribute has this value, the attribute class reccomends you ignore the value
@@ -84,9 +87,9 @@ public class Attribute implements Serializable{
 	 */
 	private Object objectToIgnoreValueAt = null;
 	private int orderOfDisplay = -1;
-	private int id;
+	private final int id;
 	private final ParseType parsetype;
-	private Attribute(Attribute at, String value) {
+	private Attribute(final Attribute at, final String value) {
 		if (!idMap.containsValue(at))
 			throw new Error("INVALID ATTRIBUTE: " + at);
 		this.name = at.name;
@@ -99,19 +102,19 @@ public class Attribute implements Serializable{
 		this.objectToIgnoreValueAt = at.objectToIgnoreValueAt;
 		parseAndSetValue(value);
 	}
-	private Attribute(int orderOfDisplay, String name, ParseType parsetype, Object defaultValue, AttributeType... types) {
+	private Attribute(final int orderOfDisplay, final String name, final ParseType parsetype, final Object defaultValue, final AttributeType... types) {
 		this(orderOfDisplay, name.substring(0, 1).toUpperCase()+name.substring(1), name, parsetype, defaultValue, types);
 	}
-	private Attribute(int orderOfDisplay, String displayName, String name, ParseType parsetype, Object defaultValue, AttributeType... types) {
+	private Attribute(final int orderOfDisplay, final String displayName, final String name, final ParseType parsetype, final Object defaultValue, final AttributeType... types) {
 		this(orderOfDisplay, displayName, name, currId++, parsetype, defaultValue, types);
 	}
-	private Attribute(String name, ParseType parsetype, Object defaultValue, AttributeType... types) {
+	private Attribute(final String name, final ParseType parsetype, final Object defaultValue, final AttributeType... types) {
 		this(name.substring(0, 1).toUpperCase()+name.substring(1), name, parsetype, defaultValue, types);
 	}
-	private Attribute(String displayName, String name, ParseType parsetype, Object defaultValue, AttributeType... types) {
+	private Attribute(final String displayName, final String name, final ParseType parsetype, final Object defaultValue, final AttributeType... types) {
 		this(-1, displayName, name, currId++, parsetype, defaultValue, types);
 	}
-	private Attribute(int orderOfDisplay, String displayName, String name, int id, ParseType parsetype, Object defaultValue, AttributeType ...types) {
+	private Attribute(final int orderOfDisplay, final String displayName, final String name, final int id, final ParseType parsetype, final Object defaultValue, final AttributeType ...types) {
 		this.orderOfDisplay = orderOfDisplay;
 		this.name = name;
 		this.id = id;
@@ -143,7 +146,7 @@ public class Attribute implements Serializable{
 	}
 	
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final Object o) {
 		if (o == null)
 			return false;
 		if (! (o instanceof Attribute))
@@ -156,10 +159,12 @@ public class Attribute implements Serializable{
 	}
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder(displayName);
+		final StringBuilder sb = new StringBuilder(displayName);
 		sb.append(": ");
 		if (parsetype.equals(ParseType.ENUMSETPOKEMONTYPE))
-			sb.append( getValue().toString().replace("[", ""));
+			sb.append( GameUtils.toTitleCase(getValue().toString().replace("[", "").replace("]", "").toLowerCase()));
+		else if (parsetype.equals(ParseType.BOOLEAN))
+			sb.append(getValue().toString().equalsIgnoreCase("true") ? "yes" : "no");
 		else
 			sb.append(getValue().toString());
 		if (this.containsType(AttributeType.OUTOFTEN))
@@ -167,13 +172,13 @@ public class Attribute implements Serializable{
 		return sb.toString();
 		
 	}
-	public static boolean isValidAttribute(String name) {
+	public static boolean isValidAttribute(final String name) {
 		return idMap.containsKey(name);
 	}
-	public static Attribute getAttribute(String name) {
+	public static Attribute getAttribute(final String name) {
 		return isValidAttribute(name) ? idMap.get(name) : null;
 	}
-	public boolean containsType(AttributeType at) {
+	public boolean containsType(final AttributeType at) {
 		return atTypes.containsAttributeType(at);
 	}
 	public boolean pokeOnly() {
@@ -208,8 +213,8 @@ public class Attribute implements Serializable{
 		}
 		return Object.class;
 	}
-	public static boolean allDontContainType(Set<Attribute> set, AttributeType at) {
-		for (Attribute a: set) {
+	public static boolean allDontContainType(final Set<Attribute> set, final AttributeType at) {
+		for (final Attribute a: set) {
 			if ((a.containsType(at)))
 				return false;
 		}
@@ -219,23 +224,23 @@ public class Attribute implements Serializable{
 	 * @param Set of attributes
 	 * @return true if all attributes are valid of a thing of Type POKEMON
 	 */
-	public static boolean validatePokemon(Set<Attribute> set) {
+	public static boolean validatePokemon(final Set<Attribute> set) {
 		return allDontContainType(set, AttributeType.ITEMONLY);
 	}
 	/**
 	 * @param set Set of Attributes
 	 * @return true if all the attributes are valid for an Thing of Type ITEM
 	 */
-	public static boolean validateItem(Set<Attribute> set) {
+	public static boolean validateItem(final Set<Attribute> set) {
 		return allDontContainType(set, AttributeType.POKEONLY);
 	}
 	public Object getValue() {
 		return value;
 	}
-	private void setIgnoreVal(Object o) {
+	private void setIgnoreVal(final Object o) {
 		this.objectToIgnoreValueAt = o;
 	}
-	private Attribute setIgnoreValAndReturn(Object o) {
+	private Attribute setIgnoreValAndReturn(final Object o) {
 		this.setIgnoreVal(o);
 		return this;
 	}
@@ -247,7 +252,7 @@ public class Attribute implements Serializable{
 			throw new Error("ATTRIBUTE SHOULD NOT BE DISPLAYED");
 		return orderOfDisplay;
 	}
-	public void parseAndSetValue(String value) {
+	public void parseAndSetValue(final String value) {
 		if (value.equals("") || value.equals(" "))
 			setValue(defaultValue);
 		else {
@@ -262,12 +267,13 @@ public class Attribute implements Serializable{
 				setValue(value);
 				break;
 			case ENUMSETPOKEMONTYPE:
-				String[] types = value.split(" ");
+				final String[] types = value.split(" ");
 				PokemonType firstType;
-				PokemonType[] poketypes = new PokemonType[types.length-1];
+				final PokemonType[] poketypes = new PokemonType[types.length-1];
 				firstType = PokemonType.valueOf(types[0].toUpperCase().trim());
 				for (int i = 1; i < types.length; i++) {
-					poketypes[i] = PokemonType.valueOf(types[i].toUpperCase().trim());
+					poketypes[i-1] = PokemonType.valueOf(types[i].toUpperCase().trim());
+					
 				}
 				setValue(EnumSet.of(firstType, poketypes));
 				break;
@@ -289,7 +295,7 @@ public class Attribute implements Serializable{
 			}
 		}
 	}
-	public void setValue(Object value) {
+	public void setValue(final Object value) {
 		if (!value.getClass().equals(getParseClass()))
 			throw new Error("Attribute " + getName() + "'s value must be a: " + getParseClass().getName());
 		if (parsetype.equals(ParseType.ENUMSETPOKEMONTYPE)) {
@@ -306,10 +312,10 @@ public class Attribute implements Serializable{
 	 * @param values valueForName1, valueForName2, ...
 	 * @return attribute1, attribute2,...
 	 */
-	public static Attribute[] generateAttributes(String[] names, String[] values) {
+	public static Attribute[] generateAttributes(final String[] names, final String[] values) {
 		if (names.length != values.length)
 			throw new Error("names and values must have same length");
-		Attribute[] attributes = new Attribute[names.length];
+		final Attribute[] attributes = new Attribute[names.length];
 		for (int i = 0; i < names.length; i++) {
 			attributes[i] = generateAttribute(names[i], values[i]);
 		}
@@ -318,12 +324,12 @@ public class Attribute implements Serializable{
 	public boolean shouldIgnore() {
 		return getValue().equals(getIgnoreVal());
 	}
-	public static  Attribute generateAttribute(String name, String value) {
+	public static  Attribute generateAttribute(final String name, final String value) {
 		if (idMap.get(name) == null)
 			throw new Error("INVALID ATTRIBUTE: " + name);
 		return new Attribute(idMap.get(name), value);
 	}
-	public static Attribute generateAttribute(String name) {
+	public static Attribute generateAttribute(final String name) {
 		return generateAttribute(name, "");
 	}
 	private enum ParseType {

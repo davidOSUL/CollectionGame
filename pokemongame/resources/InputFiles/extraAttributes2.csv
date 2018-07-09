@@ -1,0 +1,969 @@
+POKEMON,,
+Articuno,legendary,TRUE
+Zapdos,legendary,TRUE
+Moltres,legendary,TRUE
+Mewtwo,legendary,TRUE
+Mew,legendary,TRUE
+Raikou,legendary,TRUE
+Entei,legendary,TRUE
+Suicune,legendary,TRUE
+Lugia,legendary,TRUE
+Ho-Oh,legendary,TRUE
+Celebi,legendary,TRUE
+Regirock,legendary,TRUE
+Regice,legendary,TRUE
+Registeel,legendary,TRUE
+Latias,legendary,TRUE
+Latios,legendary,TRUE
+Kyogre,legendary,TRUE
+Groudon,legendary,TRUE
+Rayquaza,legendary,TRUE
+Jirachi,legendary,TRUE
+Deoxys,legendary,TRUE
+Uxie,legendary,TRUE
+Mesprit,legendary,TRUE
+Azelf,legendary,TRUE
+Dialga,legendary,TRUE
+Palkia,legendary,TRUE
+Heatran,legendary,TRUE
+Regigigas,legendary,TRUE
+Giratina,legendary,TRUE
+Cresselia,legendary,TRUE
+Phione,legendary,TRUE
+Manaphy,legendary,TRUE
+Darkrai,legendary,TRUE
+Shaymin,legendary,TRUE
+Arceus,legendary,TRUE
+Victini,legendary,TRUE
+Cobalion,legendary,TRUE
+Terrakion,legendary,TRUE
+Virizion,legendary,TRUE
+Tornadus,legendary,TRUE
+Thundurus,legendary,TRUE
+Reshiram,legendary,TRUE
+Zekrom,legendary,TRUE
+Landorus,legendary,TRUE
+Kyurem,legendary,TRUE
+Keldeo,legendary,TRUE
+Meloetta,legendary,TRUE
+Genesect,legendary,TRUE
+ALL OTHERS,legendary,FALSE
+POKEMON,,
+Bulbasaur,type,GRASS POISON
+Ivysaur,type,GRASS POISON
+Venusaur,type,GRASS POISON
+Venusaur Mega Venusaur,type,GRASS POISON
+Charmander,type,FIRE
+Charmeleon,type,FIRE
+Charizard,type,FIRE FLYING
+Charizard Mega Charizard X,type,FIRE DRAGON
+Charizard Mega Charizard Y,type,FIRE FLYING
+Squirtle,type,WATER
+Wartortle,type,WATER
+Blastoise,type,WATER
+Blastoise Mega Blastoise,type,WATER
+Caterpie,type,BUG
+Metapod,type,BUG
+Butterfree,type,BUG FLYING
+Weedle,type,BUG POISON
+Kakuna,type,BUG POISON
+Beedrill,type,BUG POISON
+Beedrill Mega Beedrill,type,BUG POISON
+Pidgey,type,NORMAL FLYING
+Pidgeotto,type,NORMAL FLYING
+Pidgeot,type,NORMAL FLYING
+Pidgeot Mega Pidgeot,type,NORMAL FLYING
+Rattata,type,NORMAL
+Rattata Alolan Rattata,type,DARK NORMAL
+Raticate,type,NORMAL
+Raticate Alolan Raticate,type,DARK NORMAL
+Spearow,type,NORMAL FLYING
+Fearow,type,NORMAL FLYING
+Ekans,type,POISON
+Arbok,type,POISON
+Pikachu,type,ELECTRIC
+Raichu,type,ELECTRIC
+Raichu Alolan Raichu,type,ELECTRIC PSYCHIC
+Sandshrew,type,GROUND
+Sandshrew Alolan Sandshrew,type,ICE STEEL
+Sandslash,type,GROUND
+Sandslash Alolan Sandslash,type,ICE STEEL
+Nidoran♀,type,POISON
+Nidorina,type,POISON
+Nidoqueen,type,POISON GROUND
+Nidoran♂,type,POISON
+Nidorino,type,POISON
+Nidoking,type,POISON GROUND
+Clefairy,type,FAIRY
+Clefable,type,FAIRY
+Vulpix,type,FIRE
+Vulpix Alolan Vulpix,type,ICE
+Ninetales,type,FIRE
+Ninetales Alolan Ninetales,type,ICE FAIRY
+Jigglypuff,type,NORMAL FAIRY
+Wigglytuff,type,NORMAL FAIRY
+Zubat,type,POISON FLYING
+Golbat,type,POISON FLYING
+Oddish,type,GRASS POISON
+Gloom,type,GRASS POISON
+Vileplume,type,GRASS POISON
+Paras,type,BUG GRASS
+Parasect,type,BUG GRASS
+Venonat,type,BUG POISON
+Venomoth,type,BUG POISON
+Diglett,type,GROUND
+Diglett Alolan Diglett,type,GROUND STEEL
+Dugtrio,type,GROUND
+Dugtrio Alolan Dugtrio,type,GROUND STEEL
+Meowth,type,NORMAL
+Meowth Alolan Meowth,type,DARK
+Persian,type,NORMAL
+Persian Alolan Persian,type,DARK
+Psyduck,type,WATER
+Golduck,type,WATER
+Mankey,type,FIGHTING
+Primeape,type,FIGHTING
+Growlithe,type,FIRE
+Arcanine,type,FIRE
+Poliwag,type,WATER
+Poliwhirl,type,WATER
+Poliwrath,type,WATER FIGHTING
+Abra,type,PSYCHIC
+Kadabra,type,PSYCHIC
+Alakazam,type,PSYCHIC
+Alakazam Mega Alakazam,type,PSYCHIC
+Machop,type,FIGHTING
+Machoke,type,FIGHTING
+Machamp,type,FIGHTING
+Bellsprout,type,GRASS POISON
+Weepinbell,type,GRASS POISON
+Victreebel,type,GRASS POISON
+Tentacool,type,WATER POISON
+Tentacruel,type,WATER POISON
+Geodude,type,ROCK GROUND
+Geodude Alolan Geodude,type,ROCK ELECTRIC
+Graveler,type,ROCK GROUND
+Graveler Alolan Graveler,type,ROCK ELECTRIC
+Golem,type,ROCK GROUND
+Golem Alolan Golem,type,ROCK ELECTRIC
+Ponyta,type,FIRE
+Rapidash,type,FIRE
+Slowpoke,type,WATER PSYCHIC
+Slowbro,type,WATER PSYCHIC
+Slowbro Mega Slowbro,type,WATER PSYCHIC
+Magnemite,type,ELECTRIC STEEL
+Magneton,type,ELECTRIC STEEL
+Farfetch'd,type,NORMAL FLYING
+Doduo,type,NORMAL FLYING
+Dodrio,type,NORMAL FLYING
+Seel,type,WATER
+Dewgong,type,WATER ICE
+Grimer,type,POISON
+Grimer Alolan Grimer,type,POISON DARK
+Muk,type,POISON
+Muk Alolan Muk,type,POISON DARK
+Shellder,type,WATER
+Cloyster,type,WATER ICE
+Gastly,type,GHOST POISON
+Haunter,type,GHOST POISON
+Gengar,type,GHOST POISON
+Gengar Mega Gengar,type,GHOST POISON
+Onix,type,ROCK GROUND
+Drowzee,type,PSYCHIC
+Hypno,type,PSYCHIC
+Krabby,type,WATER
+Kingler,type,WATER
+Voltorb,type,ELECTRIC
+Electrode,type,ELECTRIC
+Exeggcute,type,GRASS PSYCHIC
+Exeggutor,type,GRASS PSYCHIC
+Exeggutor Alolan Exeggutor,type,GRASS DRAGON
+Cubone,type,GROUND
+Marowak,type,GROUND
+Marowak Alolan Marowak,type,FIRE GHOST
+Hitmonlee,type,FIGHTING
+Hitmonchan,type,FIGHTING
+Lickitung,type,NORMAL
+Koffing,type,POISON
+Weezing,type,POISON
+Rhyhorn,type,GROUND ROCK
+Rhydon,type,GROUND ROCK
+Chansey,type,NORMAL
+Tangela,type,GRASS
+Kangaskhan,type,NORMAL
+Kangaskhan Mega Kangaskhan,type,NORMAL
+Horsea,type,WATER
+Seadra,type,WATER
+Goldeen,type,WATER
+Seaking,type,WATER
+Staryu,type,WATER
+Starmie,type,WATER PSYCHIC
+Mr. Mime,type,PSYCHIC FAIRY
+Scyther,type,BUG FLYING
+Jynx,type,ICE PSYCHIC
+Electabuzz,type,ELECTRIC
+Magmar,type,FIRE
+Pinsir,type,BUG
+Pinsir Mega Pinsir,type,BUG FLYING
+Tauros,type,NORMAL
+Magikarp,type,WATER
+Gyarados,type,WATER FLYING
+Gyarados Mega Gyarados,type,WATER DARK
+Lapras,type,WATER ICE
+Ditto,type,NORMAL
+Eevee,type,NORMAL
+Vaporeon,type,WATER
+Jolteon,type,ELECTRIC
+Flareon,type,FIRE
+Porygon,type,NORMAL
+Omanyte,type,ROCK WATER
+Omastar,type,ROCK WATER
+Kabuto,type,ROCK WATER
+Kabutops,type,ROCK WATER
+Aerodactyl,type,ROCK FLYING
+Aerodactyl Mega Aerodactyl,type,ROCK FLYING
+Snorlax,type,NORMAL
+Articuno,type,ICE FLYING
+Zapdos,type,ELECTRIC FLYING
+Moltres,type,FIRE FLYING
+Dratini,type,DRAGON
+Dragonair,type,DRAGON
+Dragonite,type,DRAGON FLYING
+Mewtwo,type,PSYCHIC
+Mewtwo Mega Mewtwo X,type,PSYCHIC FIGHTING
+Mewtwo Mega Mewtwo Y,type,PSYCHIC
+Mew,type,PSYCHIC
+Chikorita,type,GRASS
+Bayleef,type,GRASS
+Meganium,type,GRASS
+Cyndaquil,type,FIRE
+Quilava,type,FIRE
+Typhlosion,type,FIRE
+Totodile,type,WATER
+Croconaw,type,WATER
+Feraligatr,type,WATER
+Sentret,type,NORMAL
+Furret,type,NORMAL
+Hoothoot,type,NORMAL FLYING
+Noctowl,type,NORMAL FLYING
+Ledyba,type,BUG FLYING
+Ledian,type,BUG FLYING
+Spinarak,type,BUG POISON
+Ariados,type,BUG POISON
+Crobat,type,POISON FLYING
+Chinchou,type,WATER ELECTRIC
+Lanturn,type,WATER ELECTRIC
+Pichu,type,ELECTRIC
+Cleffa,type,FAIRY
+Igglybuff,type,NORMAL FAIRY
+Togepi,type,FAIRY
+Togetic,type,FAIRY FLYING
+Natu,type,PSYCHIC FLYING
+Xatu,type,PSYCHIC FLYING
+Mareep,type,ELECTRIC
+Flaaffy,type,ELECTRIC
+Ampharos,type,ELECTRIC
+Ampharos Mega Ampharos,type,ELECTRIC DRAGON
+Bellossom,type,GRASS
+Marill,type,WATER FAIRY
+Azumarill,type,WATER FAIRY
+Sudowoodo,type,ROCK
+Politoed,type,WATER
+Hoppip,type,GRASS FLYING
+Skiploom,type,GRASS FLYING
+Jumpluff,type,GRASS FLYING
+Aipom,type,NORMAL
+Sunkern,type,GRASS
+Sunflora,type,GRASS
+Yanma,type,BUG FLYING
+Wooper,type,WATER GROUND
+Quagsire,type,WATER GROUND
+Espeon,type,PSYCHIC
+Umbreon,type,DARK
+Murkrow,type,DARK FLYING
+Slowking,type,WATER PSYCHIC
+Misdreavus,type,GHOST
+Unown,type,PSYCHIC
+Wobbuffet,type,PSYCHIC
+Girafarig,type,NORMAL PSYCHIC
+Pineco,type,BUG
+Forretress,type,BUG STEEL
+Dunsparce,type,NORMAL
+Gligar,type,GROUND FLYING
+Steelix,type,STEEL GROUND
+Steelix Mega Steelix,type,STEEL GROUND
+Snubbull,type,FAIRY
+Granbull,type,FAIRY
+Qwilfish,type,WATER POISON
+Scizor,type,BUG STEEL
+Scizor Mega Scizor,type,BUG STEEL
+Shuckle,type,BUG ROCK
+Heracross,type,BUG FIGHTING
+Heracross Mega Heracross,type,BUG FIGHTING
+Sneasel,type,DARK ICE
+Teddiursa,type,NORMAL
+Ursaring,type,NORMAL
+Slugma,type,FIRE
+Magcargo,type,FIRE ROCK
+Swinub,type,ICE GROUND
+Piloswine,type,ICE GROUND
+Corsola,type,WATER ROCK
+Remoraid,type,WATER
+Octillery,type,WATER
+Delibird,type,ICE FLYING
+Mantine,type,WATER FLYING
+Skarmory,type,STEEL FLYING
+Houndour,type,DARK FIRE
+Houndoom,type,DARK FIRE
+Houndoom Mega Houndoom,type,DARK FIRE
+Kingdra,type,WATER DRAGON
+Phanpy,type,GROUND
+Donphan,type,GROUND
+Porygon2,type,NORMAL
+Stantler,type,NORMAL
+Smeargle,type,NORMAL
+Tyrogue,type,FIGHTING
+Hitmontop,type,FIGHTING
+Smoochum,type,ICE PSYCHIC
+Elekid,type,ELECTRIC
+Magby,type,FIRE
+Miltank,type,NORMAL
+Blissey,type,NORMAL
+Raikou,type,ELECTRIC
+Entei,type,FIRE
+Suicune,type,WATER
+Larvitar,type,ROCK GROUND
+Pupitar,type,ROCK GROUND
+Tyranitar,type,ROCK DARK
+Tyranitar Mega Tyranitar,type,ROCK DARK
+Lugia,type,PSYCHIC FLYING
+Ho-oh,type,FIRE FLYING
+Celebi,type,PSYCHIC GRASS
+Treecko,type,GRASS
+Grovyle,type,GRASS
+Sceptile,type,GRASS
+Sceptile Mega Sceptile,type,GRASS DRAGON
+Torchic,type,FIRE
+Combusken,type,FIRE FIGHTING
+Blaziken,type,FIRE FIGHTING
+Blaziken Mega Blaziken,type,FIRE FIGHTING
+Mudkip,type,WATER
+Marshtomp,type,WATER GROUND
+Swampert,type,WATER GROUND
+Swampert Mega Swampert,type,WATER GROUND
+Poochyena,type,DARK
+Mightyena,type,DARK
+Zigzagoon,type,NORMAL
+Linoone,type,NORMAL
+Wurmple,type,BUG
+Silcoon,type,BUG
+Beautifly,type,BUG FLYING
+Cascoon,type,BUG
+Dustox,type,BUG POISON
+Lotad,type,WATER GRASS
+Lombre,type,WATER GRASS
+Ludicolo,type,WATER GRASS
+Seedot,type,GRASS
+Nuzleaf,type,GRASS DARK
+Shiftry,type,GRASS DARK
+Taillow,type,NORMAL FLYING
+Swellow,type,NORMAL FLYING
+Wingull,type,WATER FLYING
+Pelipper,type,WATER FLYING
+Ralts,type,PSYCHIC FAIRY
+Kirlia,type,PSYCHIC FAIRY
+Gardevoir,type,PSYCHIC FAIRY
+Gardevoir Mega Gardevoir,type,PSYCHIC FAIRY
+Surskit,type,BUG WATER
+Masquerain,type,BUG FLYING
+Shroomish,type,GRASS
+Breloom,type,GRASS FIGHTING
+Slakoth,type,NORMAL
+Vigoroth,type,NORMAL
+Slaking,type,NORMAL
+Nincada,type,BUG GROUND
+Ninjask,type,BUG FLYING
+Shedinja,type,BUG GHOST
+Whismur,type,NORMAL
+Loudred,type,NORMAL
+Exploud,type,NORMAL
+Makuhita,type,FIGHTING
+Hariyama,type,FIGHTING
+Azurill,type,NORMAL FAIRY
+Nosepass,type,ROCK
+Skitty,type,NORMAL
+Delcatty,type,NORMAL
+Sableye,type,DARK GHOST
+Sableye Mega Sableye,type,DARK GHOST
+Mawile,type,STEEL FAIRY
+Mawile Mega Mawile,type,STEEL FAIRY
+Aron,type,STEEL ROCK
+Lairon,type,STEEL ROCK
+Aggron,type,STEEL ROCK
+Aggron Mega Aggron,type,STEEL
+Meditite,type,FIGHTING PSYCHIC
+Medicham,type,FIGHTING PSYCHIC
+Medicham Mega Medicham,type,FIGHTING PSYCHIC
+Electrike,type,ELECTRIC
+Manectric,type,ELECTRIC
+Manectric Mega Manectric,type,ELECTRIC
+Plusle,type,ELECTRIC
+Minun,type,ELECTRIC
+Volbeat,type,BUG
+Illumise,type,BUG
+Roselia,type,GRASS POISON
+Gulpin,type,POISON
+Swalot,type,POISON
+Carvanha,type,WATER DARK
+Sharpedo,type,WATER DARK
+Sharpedo Mega Sharpedo,type,WATER DARK
+Wailmer,type,WATER
+Wailord,type,WATER
+Numel,type,FIRE GROUND
+Camerupt,type,FIRE GROUND
+Camerupt Mega Camerupt,type,FIRE GROUND
+Torkoal,type,FIRE
+Spoink,type,PSYCHIC
+Grumpig,type,PSYCHIC
+Spinda,type,NORMAL
+Trapinch,type,GROUND
+Vibrava,type,GROUND DRAGON
+Flygon,type,GROUND DRAGON
+Cacnea,type,GRASS
+Cacturne,type,GRASS DARK
+Swablu,type,NORMAL FLYING
+Altaria,type,DRAGON FLYING
+Altaria Mega Altaria,type,DRAGON FAIRY
+Zangoose,type,NORMAL
+Seviper,type,POISON
+Lunatone,type,ROCK PSYCHIC
+Solrock,type,ROCK PSYCHIC
+Barboach,type,WATER GROUND
+Whiscash,type,WATER GROUND
+Corphish,type,WATER
+Crawdaunt,type,WATER DARK
+Baltoy,type,GROUND PSYCHIC
+Claydol,type,GROUND PSYCHIC
+Lileep,type,ROCK GRASS
+Cradily,type,ROCK GRASS
+Anorith,type,ROCK BUG
+Armaldo,type,ROCK BUG
+Feebas,type,WATER
+Milotic,type,WATER
+Castform,type,NORMAL
+Kecleon,type,NORMAL
+Shuppet,type,GHOST
+Banette,type,GHOST
+Banette Mega Banette,type,GHOST
+Duskull,type,GHOST
+Dusclops,type,GHOST
+Tropius,type,GRASS FLYING
+Chimecho,type,PSYCHIC
+Absol,type,DARK
+Absol Mega Absol,type,DARK
+Wynaut,type,PSYCHIC
+Snorunt,type,ICE
+Glalie,type,ICE
+Glalie Mega Glalie,type,ICE
+Spheal,type,ICE WATER
+Sealeo,type,ICE WATER
+Walrein,type,ICE WATER
+Clamperl,type,WATER
+Huntail,type,WATER
+Gorebyss,type,WATER
+Relicanth,type,WATER ROCK
+Luvdisc,type,WATER
+Bagon,type,DRAGON
+Shelgon,type,DRAGON
+Salamence,type,DRAGON FLYING
+Salamence Mega Salamence,type,DRAGON FLYING
+Beldum,type,STEEL PSYCHIC
+Metang,type,STEEL PSYCHIC
+Metagross,type,STEEL PSYCHIC
+Metagross Mega Metagross,type,STEEL PSYCHIC
+Regirock,type,ROCK
+Regice,type,ICE
+Registeel,type,STEEL
+Latias,type,DRAGON PSYCHIC
+Latias Mega Latias,type,DRAGON PSYCHIC
+Latios,type,DRAGON PSYCHIC
+Latios Mega Latios,type,DRAGON PSYCHIC
+Kyogre,type,WATER
+Kyogre Primal Kyogre,type,WATER
+Groudon,type,GROUND
+Groudon Primal Groudon,type,GROUND FIRE
+Rayquaza,type,DRAGON FLYING
+Rayquaza Mega Rayquaza,type,DRAGON FLYING
+Jirachi,type,STEEL PSYCHIC
+Deoxys Normal Forme,type,PSYCHIC
+Deoxys Attack Forme,type,PSYCHIC
+Deoxys Defense Forme,type,PSYCHIC
+Deoxys Speed Forme,type,PSYCHIC
+Turtwig,type,GRASS
+Grotle,type,GRASS
+Torterra,type,GRASS GROUND
+Chimchar,type,FIRE
+Monferno,type,FIRE FIGHTING
+Infernape,type,FIRE FIGHTING
+Piplup,type,WATER
+Prinplup,type,WATER
+Empoleon,type,WATER STEEL
+Starly,type,NORMAL FLYING
+Staravia,type,NORMAL FLYING
+Staraptor,type,NORMAL FLYING
+Bidoof,type,NORMAL
+Bibarel,type,NORMAL WATER
+Kricketot,type,BUG
+Kricketune,type,BUG
+Shinx,type,ELECTRIC
+Luxio,type,ELECTRIC
+Luxray,type,ELECTRIC
+Budew,type,GRASS POISON
+Roserade,type,GRASS POISON
+Cranidos,type,ROCK
+Rampardos,type,ROCK
+Shieldon,type,ROCK STEEL
+Bastiodon,type,ROCK STEEL
+Burmy,type,BUG
+Wormadam Plant Cloak,type,BUG GRASS
+Wormadam Sandy Cloak,type,BUG GROUND
+Wormadam Trash Cloak,type,BUG STEEL
+Mothim,type,BUG FLYING
+Combee,type,BUG FLYING
+Vespiquen,type,BUG FLYING
+Pachirisu,type,ELECTRIC
+Buizel,type,WATER
+Floatzel,type,WATER
+Cherubi,type,GRASS
+Cherrim,type,GRASS
+Shellos,type,WATER
+Gastrodon,type,WATER GROUND
+Ambipom,type,NORMAL
+Drifloon,type,GHOST FLYING
+Drifblim,type,GHOST FLYING
+Buneary,type,NORMAL
+Lopunny,type,NORMAL
+Lopunny Mega Lopunny,type,NORMAL FIGHTING
+Mismagius,type,GHOST
+Honchkrow,type,DARK FLYING
+Glameow,type,NORMAL
+Purugly,type,NORMAL
+Chingling,type,PSYCHIC
+Stunky,type,POISON DARK
+Skuntank,type,POISON DARK
+Bronzor,type,STEEL PSYCHIC
+Bronzong,type,STEEL PSYCHIC
+Bonsly,type,ROCK
+Mime Jr.,type,PSYCHIC FAIRY
+Happiny,type,NORMAL
+Chatot,type,NORMAL FLYING
+Spiritomb,type,GHOST DARK
+Gible,type,DRAGON GROUND
+Gabite,type,DRAGON GROUND
+Garchomp,type,DRAGON GROUND
+Garchomp Mega Garchomp,type,DRAGON GROUND
+Munchlax,type,NORMAL
+Riolu,type,FIGHTING
+Lucario,type,FIGHTING STEEL
+Lucario Mega Lucario,type,FIGHTING STEEL
+Hippopotas,type,GROUND
+Hippowdon,type,GROUND
+Skorupi,type,POISON BUG
+Drapion,type,POISON DARK
+Croagunk,type,POISON FIGHTING
+Toxicroak,type,POISON FIGHTING
+Carnivine,type,GRASS
+Finneon,type,WATER
+Lumineon,type,WATER
+Mantyke,type,WATER FLYING
+Snover,type,GRASS ICE
+Abomasnow,type,GRASS ICE
+Abomasnow Mega Abomasnow,type,GRASS ICE
+Weavile,type,DARK ICE
+Magnezone,type,ELECTRIC STEEL
+Lickilicky,type,NORMAL
+Rhyperior,type,GROUND ROCK
+Tangrowth,type,GRASS
+Electivire,type,ELECTRIC
+Magmortar,type,FIRE
+Togekiss,type,FAIRY FLYING
+Yanmega,type,BUG FLYING
+Leafeon,type,GRASS
+Glaceon,type,ICE
+Gliscor,type,GROUND FLYING
+Mamoswine,type,ICE GROUND
+Porygon-Z,type,NORMAL
+Gallade,type,PSYCHIC FIGHTING
+Gallade Mega Gallade,type,PSYCHIC FIGHTING
+Probopass,type,ROCK STEEL
+Dusknoir,type,GHOST
+Froslass,type,ICE GHOST
+Rotom,type,ELECTRIC GHOST
+Rotom Heat Rotom,type,ELECTRIC FIRE
+Rotom Wash Rotom,type,ELECTRIC WATER
+Rotom Frost Rotom,type,ELECTRIC ICE
+Rotom Fan Rotom,type,ELECTRIC FLYING
+Rotom Mow Rotom,type,ELECTRIC GRASS
+Uxie,type,PSYCHIC
+Mesprit,type,PSYCHIC
+Azelf,type,PSYCHIC
+Dialga,type,STEEL DRAGON
+Palkia,type,WATER DRAGON
+Heatran,type,FIRE STEEL
+Regigigas,type,NORMAL
+Giratina Altered Forme,type,GHOST DRAGON
+Giratina Origin Forme,type,GHOST DRAGON
+Cresselia,type,PSYCHIC
+Phione,type,WATER
+Manaphy,type,WATER
+Darkrai,type,DARK
+Shaymin Land Forme,type,GRASS
+Shaymin Sky Forme,type,GRASS FLYING
+Arceus,type,NORMAL
+Victini,type,PSYCHIC FIRE
+Snivy,type,GRASS
+Servine,type,GRASS
+Serperior,type,GRASS
+Tepig,type,FIRE
+Pignite,type,FIRE FIGHTING
+Emboar,type,FIRE FIGHTING
+Oshawott,type,WATER
+Dewott,type,WATER
+Samurott,type,WATER
+Patrat,type,NORMAL
+Watchog,type,NORMAL
+Lillipup,type,NORMAL
+Herdier,type,NORMAL
+Stoutland,type,NORMAL
+Purrloin,type,DARK
+Liepard,type,DARK
+Pansage,type,GRASS
+Simisage,type,GRASS
+Pansear,type,FIRE
+Simisear,type,FIRE
+Panpour,type,WATER
+Simipour,type,WATER
+Munna,type,PSYCHIC
+Musharna,type,PSYCHIC
+Pidove,type,NORMAL FLYING
+Tranquill,type,NORMAL FLYING
+Unfezant,type,NORMAL FLYING
+Blitzle,type,ELECTRIC
+Zebstrika,type,ELECTRIC
+Roggenrola,type,ROCK
+Boldore,type,ROCK
+Gigalith,type,ROCK
+Woobat,type,PSYCHIC FLYING
+Swoobat,type,PSYCHIC FLYING
+Drilbur,type,GROUND
+Excadrill,type,GROUND STEEL
+Audino,type,NORMAL
+Audino Mega Audino,type,NORMAL FAIRY
+Timburr,type,FIGHTING
+Gurdurr,type,FIGHTING
+Conkeldurr,type,FIGHTING
+Tympole,type,WATER
+Palpitoad,type,WATER GROUND
+Seismitoad,type,WATER GROUND
+Throh,type,FIGHTING
+Sawk,type,FIGHTING
+Sewaddle,type,BUG GRASS
+Swadloon,type,BUG GRASS
+Leavanny,type,BUG GRASS
+Venipede,type,BUG POISON
+Whirlipede,type,BUG POISON
+Scolipede,type,BUG POISON
+Cottonee,type,GRASS FAIRY
+Whimsicott,type,GRASS FAIRY
+Petilil,type,GRASS
+Lilligant,type,GRASS
+Basculin Red-Striped Form,type,WATER
+Basculin Blue-Striped Form,type,WATER
+Sandile,type,GROUND DARK
+Krokorok,type,GROUND DARK
+Krookodile,type,GROUND DARK
+Darumaka,type,FIRE
+Darmanitan Standard Mode,type,FIRE
+Darmanitan Zen Mode,type,FIRE PSYCHIC
+Maractus,type,GRASS
+Dwebble,type,BUG ROCK
+Crustle,type,BUG ROCK
+Scraggy,type,DARK FIGHTING
+Scrafty,type,DARK FIGHTING
+Sigilyph,type,PSYCHIC FLYING
+Yamask,type,GHOST
+Cofagrigus,type,GHOST
+Tirtouga,type,WATER ROCK
+Carracosta,type,WATER ROCK
+Archen,type,ROCK FLYING
+Archeops,type,ROCK FLYING
+Trubbish,type,POISON
+Garbodor,type,POISON
+Zorua,type,DARK
+Zoroark,type,DARK
+Minccino,type,NORMAL
+Cinccino,type,NORMAL
+Gothita,type,PSYCHIC
+Gothorita,type,PSYCHIC
+Gothitelle,type,PSYCHIC
+Solosis,type,PSYCHIC
+Duosion,type,PSYCHIC
+Reuniclus,type,PSYCHIC
+Ducklett,type,WATER FLYING
+Swanna,type,WATER FLYING
+Vanillite,type,ICE
+Vanillish,type,ICE
+Vanilluxe,type,ICE
+Deerling,type,NORMAL GRASS
+Sawsbuck,type,NORMAL GRASS
+Emolga,type,ELECTRIC FLYING
+Karrablast,type,BUG
+Escavalier,type,BUG STEEL
+Foongus,type,GRASS POISON
+Amoonguss,type,GRASS POISON
+Frillish,type,WATER GHOST
+Jellicent,type,WATER GHOST
+Alomomola,type,WATER
+Joltik,type,BUG ELECTRIC
+Galvantula,type,BUG ELECTRIC
+Ferroseed,type,GRASS STEEL
+Ferrothorn,type,GRASS STEEL
+Klink,type,STEEL
+Klang,type,STEEL
+Klinklang,type,STEEL
+Tynamo,type,ELECTRIC
+Eelektrik,type,ELECTRIC
+Eelektross,type,ELECTRIC
+Elgyem,type,PSYCHIC
+Beheeyem,type,PSYCHIC
+Litwick,type,GHOST FIRE
+Lampent,type,GHOST FIRE
+Chandelure,type,GHOST FIRE
+Axew,type,DRAGON
+Fraxure,type,DRAGON
+Haxorus,type,DRAGON
+Cubchoo,type,ICE
+Beartic,type,ICE
+Cryogonal,type,ICE
+Shelmet,type,BUG
+Accelgor,type,BUG
+Stunfisk,type,GROUND ELECTRIC
+Mienfoo,type,FIGHTING
+Mienshao,type,FIGHTING
+Druddigon,type,DRAGON
+Golett,type,GROUND GHOST
+Golurk,type,GROUND GHOST
+Pawniard,type,DARK STEEL
+Bisharp,type,DARK STEEL
+Bouffalant,type,NORMAL
+Rufflet,type,NORMAL FLYING
+Braviary,type,NORMAL FLYING
+Vullaby,type,DARK FLYING
+Mandibuzz,type,DARK FLYING
+Heatmor,type,FIRE
+Durant,type,BUG STEEL
+Deino,type,DARK DRAGON
+Zweilous,type,DARK DRAGON
+Hydreigon,type,DARK DRAGON
+Larvesta,type,BUG FIRE
+Volcarona,type,BUG FIRE
+Cobalion,type,STEEL FIGHTING
+Terrakion,type,ROCK FIGHTING
+Virizion,type,GRASS FIGHTING
+Tornadus Incarnate Forme,type,FLYING
+Tornadus Therian Forme,type,FLYING
+Thundurus Incarnate Forme,type,ELECTRIC FLYING
+Thundurus Therian Forme,type,ELECTRIC FLYING
+Reshiram,type,DRAGON FIRE
+Zekrom,type,DRAGON ELECTRIC
+Landorus Incarnate Forme,type,GROUND FLYING
+Landorus Therian Forme,type,GROUND FLYING
+Kyurem,type,DRAGON ICE
+Kyurem Black Kyurem,type,DRAGON ICE
+Kyurem White Kyurem,type,DRAGON ICE
+Keldeo Ordinary Forme,type,WATER FIGHTING
+Keldeo Resolute Forme,type,WATER FIGHTING
+Meloetta Aria Forme,type,NORMAL PSYCHIC
+Meloetta Pirouette Forme,type,NORMAL FIGHTING
+Genesect,type,BUG STEEL
+Chespin,type,GRASS
+Quilladin,type,GRASS
+Chesnaught,type,GRASS FIGHTING
+Fennekin,type,FIRE
+Braixen,type,FIRE
+Delphox,type,FIRE PSYCHIC
+Froakie,type,WATER
+Frogadier,type,WATER
+Greninja,type,WATER DARK
+Greninja Ash-Greninja,type,WATER DARK
+Bunnelby,type,NORMAL
+Diggersby,type,NORMAL GROUND
+Fletchling,type,NORMAL FLYING
+Fletchinder,type,FIRE FLYING
+Talonflame,type,FIRE FLYING
+Scatterbug,type,BUG
+Spewpa,type,BUG
+Vivillon,type,BUG FLYING
+Litleo,type,FIRE NORMAL
+Pyroar,type,FIRE NORMAL
+Flabébé,type,FAIRY
+Floette,type,FAIRY
+Florges,type,FAIRY
+Skiddo,type,GRASS
+Gogoat,type,GRASS
+Pancham,type,FIGHTING
+Pangoro,type,FIGHTING DARK
+Furfrou,type,NORMAL
+Espurr,type,PSYCHIC
+Meowstic Male,type,PSYCHIC
+Meowstic Female,type,PSYCHIC
+Honedge,type,STEEL GHOST
+Doublade,type,STEEL GHOST
+Aegislash Blade Forme,type,STEEL GHOST
+Aegislash Shield Forme,type,STEEL GHOST
+Spritzee,type,FAIRY
+Aromatisse,type,FAIRY
+Swirlix,type,FAIRY
+Slurpuff,type,FAIRY
+Inkay,type,DARK PSYCHIC
+Malamar,type,DARK PSYCHIC
+Binacle,type,ROCK WATER
+Barbaracle,type,ROCK WATER
+Skrelp,type,POISON WATER
+Dragalge,type,POISON DRAGON
+Clauncher,type,WATER
+Clawitzer,type,WATER
+Helioptile,type,ELECTRIC NORMAL
+Heliolisk,type,ELECTRIC NORMAL
+Tyrunt,type,ROCK DRAGON
+Tyrantrum,type,ROCK DRAGON
+Amaura,type,ROCK ICE
+Aurorus,type,ROCK ICE
+Sylveon,type,FAIRY
+Hawlucha,type,FIGHTING FLYING
+Dedenne,type,ELECTRIC FAIRY
+Carbink,type,ROCK FAIRY
+Goomy,type,DRAGON
+Sliggoo,type,DRAGON
+Goodra,type,DRAGON
+Klefki,type,STEEL FAIRY
+Phantump,type,GHOST GRASS
+Trevenant,type,GHOST GRASS
+Pumpkaboo Average Size,type,GHOST GRASS
+Pumpkaboo Small Size,type,GHOST GRASS
+Pumpkaboo Large Size,type,GHOST GRASS
+Pumpkaboo Super Size,type,GHOST GRASS
+Gourgeist Average Size,type,GHOST GRASS
+Gourgeist Small Size,type,GHOST GRASS
+Gourgeist Large Size,type,GHOST GRASS
+Gourgeist Super Size,type,GHOST GRASS
+Bergmite,type,ICE
+Avalugg,type,ICE
+Noibat,type,FLYING DRAGON
+Noivern,type,FLYING DRAGON
+Xerneas,type,FAIRY
+Yveltal,type,DARK FLYING
+Zygarde 50% Forme,type,DRAGON GROUND
+Zygarde 10% Forme,type,DRAGON GROUND
+Zygarde Complete Forme,type,DRAGON GROUND
+Diancie,type,ROCK FAIRY
+Diancie Mega Diancie,type,ROCK FAIRY
+Hoopa Hoopa Confined,type,PSYCHIC GHOST
+Hoopa Hoopa Unbound,type,PSYCHIC DARK
+Volcanion,type,FIRE WATER
+Rowlet,type,GRASS FLYING
+Dartrix,type,GRASS FLYING
+Decidueye,type,GRASS GHOST
+Litten,type,FIRE
+Torracat,type,FIRE
+Incineroar,type,FIRE DARK
+Popplio,type,WATER
+Brionne,type,WATER
+Primarina,type,WATER FAIRY
+Pikipek,type,NORMAL FLYING
+Trumbeak,type,NORMAL FLYING
+Toucannon,type,NORMAL FLYING
+Yungoos,type,NORMAL
+Gumshoos,type,NORMAL
+Grubbin,type,BUG
+Charjabug,type,BUG ELECTRIC
+Vikavolt,type,BUG ELECTRIC
+Crabrawler,type,FIGHTING
+Crabominable,type,FIGHTING ICE
+Oricorio Baile Style,type,FIRE FLYING
+Oricorio Pom-Pom Style,type,ELECTRIC FLYING
+Oricorio Pa'u Style,type,PSYCHIC FLYING
+Oricorio Sensu Style,type,GHOST FLYING
+Cutiefly,type,BUG FAIRY
+Ribombee,type,BUG FAIRY
+Rockruff,type,ROCK
+Lycanroc Midday Form,type,ROCK
+Lycanroc Midnight Form,type,ROCK
+Lycanroc Dusk Form,type,ROCK
+Wishiwashi Solo Form,type,WATER
+Wishiwashi School Form,type,WATER
+Mareanie,type,POISON WATER
+Toxapex,type,POISON WATER
+Mudbray,type,GROUND
+Mudsdale,type,GROUND
+Dewpider,type,WATER BUG
+Araquanid,type,WATER BUG
+Fomantis,type,GRASS
+Lurantis,type,GRASS
+Morelull,type,GRASS FAIRY
+Shiinotic,type,GRASS FAIRY
+Salandit,type,POISON FIRE
+Salazzle,type,POISON FIRE
+Stufful,type,NORMAL FIGHTING
+Bewear,type,NORMAL FIGHTING
+Bounsweet,type,GRASS
+Steenee,type,GRASS
+Tsareena,type,GRASS
+Comfey,type,FAIRY
+Oranguru,type,NORMAL PSYCHIC
+Passimian,type,FIGHTING
+Wimpod,type,BUG WATER
+Golisopod,type,BUG WATER
+Sandygast,type,GHOST GROUND
+Palossand,type,GHOST GROUND
+Pyukumuku,type,WATER
+Type: Null,type,NORMAL
+Silvally,type,NORMAL
+Minior Meteor Form,type,ROCK FLYING
+Minior Core Form,type,ROCK FLYING
+Komala,type,NORMAL
+Turtonator,type,FIRE DRAGON
+Togedemaru,type,ELECTRIC STEEL
+Mimikyu,type,GHOST FAIRY
+Bruxish,type,WATER PSYCHIC
+Drampa,type,NORMAL DRAGON
+Dhelmise,type,GHOST GRASS
+Jangmo-o,type,DRAGON
+Hakamo-o,type,DRAGON FIGHTING
+Kommo-o,type,DRAGON FIGHTING
+Tapu Koko,type,ELECTRIC FAIRY
+Tapu Lele,type,PSYCHIC FAIRY
+Tapu Bulu,type,GRASS FAIRY
+Tapu Fini,type,WATER FAIRY
+Cosmog,type,PSYCHIC
+Cosmoem,type,PSYCHIC
+Solgaleo,type,PSYCHIC STEEL
+Lunala,type,PSYCHIC GHOST
+Nihilego,type,ROCK POISON
+Buzzwole,type,BUG FIGHTING
+Pheromosa,type,BUG FIGHTING
+Xurkitree,type,ELECTRIC
+Celesteela,type,STEEL FLYING
+Kartana,type,GRASS STEEL
+Guzzlord,type,DARK DRAGON
+Necrozma,type,PSYCHIC
+Necrozma Dusk Mane Necrozma,type,PSYCHIC STEEL
+Necrozma Dawn Wings Necrozma,type,PSYCHIC GHOST
+Necrozma Ultra Necrozma,type,PSYCHIC DRAGON
+Magearna,type,STEEL FAIRY
+Marshadow,type,FIGHTING GHOST
+Poipole,type,POISON
+Naganadel,type,POISON DRAGON
+Stakataka,type,ROCK STEEL
+Blacephalon,type,FIRE GHOST
+Zeraora,type,ELECTRIC

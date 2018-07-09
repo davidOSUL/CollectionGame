@@ -4,31 +4,19 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BiConsumer;
 
-import javax.swing.BorderFactory;
-
-import gameutils.GameUtils;
 import gui.gameComponents.GameSpace;
 import gui.gameComponents.grid.GridSpace.GridSpaceData;
 import gui.guiutils.GUIConstants;
 import gui.guiutils.GuiUtils;
-import gui.mouseAdapters.DoubleClickWithThreshold;
-import gui.mouseAdapters.SelectionWindowBuilder;
 import gui.mvpFramework.GameView;
 
 /**
@@ -55,11 +43,11 @@ public final class Grid extends GameSpace {
 	/**
 	 * The set of all spots on this grid that aren't occupied
 	 */
-	private Set<GridPoint> openSpots = new HashSet<GridPoint>();
+	private final Set<GridPoint> openSpots = new HashSet<GridPoint>();
 	/**
 	 * The map betwen GridPoint and the spot that that GridPoint corresponds to 
 	 */
-	private Map<GridPoint, Spot> grid = new HashMap<GridPoint, Spot>();
+	private final Map<GridPoint, Spot> grid = new HashMap<GridPoint, Spot>();
 	/**
 	 * A Temporary GridSpace that highlights (turns yellow) when hovered over a viable spot to place
 	 */
@@ -71,7 +59,7 @@ public final class Grid extends GameSpace {
 	/**
 	 * The GameView that houses this object
 	 */
-	private GameView gv;
+	private final GameView gv;
 
 	protected static final int CLICK_DIST_THRESH = GUIConstants.CLICK_DIST_THRESH;
 	/**
@@ -83,7 +71,7 @@ public final class Grid extends GameSpace {
 	 * @param subY height of grid elements
 	 * @param gv the GameView that houses this Grid
 	 */
-	public Grid(int x, int y, Dimension dimension, int subX, int subY, GameView gv, int gridID) {
+	public Grid(final int x, final int y, final Dimension dimension, final int subX, final int subY, final GameView gv, final int gridID) {
 		super(x,y, dimension);
 		if (subX > getWidth() || subY > getHeight()) {
 			throw new IllegalArgumentException("Can't subdivide");
@@ -91,7 +79,7 @@ public final class Grid extends GameSpace {
 		setVals(subX, subY);
 		for (int i = 0; i < numColumns; i++) {
 			for (int j = 0; j < numRows; j++) {
-				GridPoint p = new GridPoint(i, j);
+				final GridPoint p = new GridPoint(i, j);
 				openSpots.add(p);
 				grid.put(p, new Spot(p));
 			}
@@ -106,7 +94,7 @@ public final class Grid extends GameSpace {
 	 * @param subY height of grid elements
 	 *  @param gv the GameView that houses this Grid
 	 */
-	public Grid(Rectangle r, int subX, int subY, GameView gv, int gridID) {
+	public Grid(final Rectangle r, final int subX, final int subY, final GameView gv, final int gridID) {
 		this(r.x, r.y, new Dimension((int)r.getWidth(), (int)r.getHeight()), subX, subY, gv, gridID);
 	}
 	
@@ -122,11 +110,11 @@ public final class Grid extends GameSpace {
 	 * @param subX width of grid elements
 	 * @param subY height of grid elements
 	 */
-	private void setVals(int subX, int subY) {
+	private void setVals(final int subX, final int subY) {
 		this.subX = subX;
 		this.subY = subY;
-		int xdiff = getWidth() % subX == 0 ? 0: subX;
-		int ydiff = getHeight() % subY == 0 ? 0 : subY;
+		final int xdiff = getWidth() % subX == 0 ? 0: subX;
+		final int ydiff = getHeight() % subY == 0 ? 0 : subY;
 		for (int x = 0; x < getWidth() - xdiff; x+= subX) {
 			numColumns++;
 		}
@@ -151,15 +139,15 @@ public final class Grid extends GameSpace {
 	 * Updates the location of  highlighted. If there is not room for the highlighted grid space, the highlight will be removed
 	 * @param p An absolute point (relative to this component, that is (0,0) is the upper left hand corner of this grid) representing the new location (note: this is not a GridPoint)
 	 */
-	public void updateHighlight(Point p) { 
+	public void updateHighlight(final Point p) { 
 		updateHighlightGP(getSnapPoint(p));
 	}
 	/**
 	 * Updates the location of highlighted. If there is not room for the highlighted grid space, the highlight will be removed
 	 * @param p_g The <b><i>Grid Point</i></b> to update the highlighted to
 	 */
-	private void updateHighlightGP(GridPoint p_g) {
-		highlighted.setPoint(p_g);
+	private void updateHighlightGP(final GridPoint p_g) {
+		highlighted.setGridPoint(p_g);
 		if (!hasRoom(highlighted)) {
 			remove(highlighted);
 			highlightVisible = false;
@@ -181,11 +169,11 @@ public final class Grid extends GameSpace {
 	
 	}
 	@Override
-	protected void paintComponent(Graphics g) {
+	protected void paintComponent(final Graphics g) {
 		super.paintComponent(g);
 		if (subX == 0 || subY == 0) 
 			return;
-		Graphics2D g2d = (Graphics2D) g;
+		final Graphics2D g2d = (Graphics2D) g;
 		g2d.setPaint(Color.gray);
 		for (int x = 0; x < numColumns; x++) {
 			for (int y = 0; y < numRows; y++) {
@@ -198,9 +186,9 @@ public final class Grid extends GameSpace {
 	 * @param p the absolute point (relative to this component)
 	 * @return The GridPoint that is closest to this absolute point
 	 */
-	private GridPoint getSnapPoint(Point p) {
-		int x_g = p.x / subX;
-		int y_g = p.y / subY;
+	private GridPoint getSnapPoint(final Point p) {
+		final int x_g = p.x / subX;
+		final int y_g = p.y / subY;
 		return new GridPoint(x_g, y_g);
 	}
 	/**
@@ -208,9 +196,9 @@ public final class Grid extends GameSpace {
 	 * @param p the Absolute Point (relative to this component)
 	 * @return The Absolute point (relative to this component) that is a "snap point" (a multiple of the subdivisions of this grid)
 	 */
-	public Point getAbsoluteSnapPoint(Point p) {
-		int x = (p.x / subX)*subX;
-		int y = (p.y / subY)*subY;
+	public Point getAbsoluteSnapPoint(final Point p) {
+		final int x = (p.x / subX)*subX;
+		final int y = (p.y / subY)*subY;
 		return new Point(x, y);
 	}
 	/**
@@ -220,7 +208,7 @@ public final class Grid extends GameSpace {
 	 * @return null if unable to add the component (e.g. no room in grid), the GridSpace that was added otherwise
 	 */
 	@AddToGrid
-	public GridSpace addGridSpaceSnapToGrid(GridSpace g, Point p) {
+	public GridSpace addGridSpaceSnapToGrid(final GridSpace g, final Point p) {
 		if (p.x > subX*numColumns || p.y > subY*numRows)
 			return null;
 		return addGridSpace(g, getSnapPoint(p));
@@ -233,10 +221,10 @@ public final class Grid extends GameSpace {
 	 * @return null if there was not room at that location for that GameSpace, the gridspace assigned to this grid otherwise
 	 */
 	@AddToGrid
-	public GridSpace addGridSpace(GridSpace gridSpace, GridPoint p_g) {
-		gridSpace.setGrid(this, p_g);
+	public GridSpace addGridSpace(final GridSpace gridSpace, final GridPoint p_g) {
 		if (!hasRoom(p_g, gridSpace.getNumColumns(), gridSpace.getNumRows()))
 			return null;	
+		gridSpace.setGridAndGridPoint(this, p_g);
 		return addAndSplit(grid.get(p_g), gridSpace);
 	}
 	/**
@@ -245,12 +233,11 @@ public final class Grid extends GameSpace {
 	 * @return null if there is no available spot in current grid, the gridspace assigned to grid otherwise
 	 */
 	@AddToGrid
-	public GridSpace addGridSpaceFirstFit(GridSpace gridSpace) {
-		gridSpace.setGrid(this, new GridPoint(0, 0));
-		Spot s = findFirstFit(gridSpace);
+	public GridSpace addGridSpaceFirstFit(final GridSpace gridSpace) {
+		final Spot s = findFirstFit(gridSpace);
 		if (s == null)
 			return null;
-		gridSpace.setGridLocation(s.p_g);
+		gridSpace.setGridAndGridPoint(this, s.p_g);
 		return addAndSplit(s, gridSpace);
 	}
 	/**
@@ -261,11 +248,11 @@ public final class Grid extends GameSpace {
 	 * @param g The gridspace to add
 	 * @return The GridSpace (assigned to this grid if it wasn't before)
 	 */
-	private GridSpace addAndSplit(Spot s, GridSpace g) {
+	private GridSpace addAndSplit(final Spot s, final GridSpace g) {
 		if (g.getGrid() != this)
 			throw new RuntimeException("GridSpace to add doesn't have proper grid");
-		SpaceIterator si = new SpaceIterator(grid, s.p_g, g.getNumColumns(), g.getNumRows());
-		for (Spot spot: si) {
+		final SpaceIterator si = new SpaceIterator(grid, s.p_g, g.getNumColumns(), g.getNumRows());
+		for (final Spot spot: si) {
 			boolean test = true;
 			test &= openSpots.remove(spot.p_g);
 			test &= spot.resident == null;
@@ -281,9 +268,9 @@ public final class Grid extends GameSpace {
 	 * @param g The GridSpace to be removed
 	 * @invariant g exists on this Grid
 	 */
-	public void removeGridSpace(GridSpace g) {
-		SpaceIterator si = new SpaceIterator(grid, g.getGridPoint(), g.getNumColumns(), g.getNumRows());
-		for (Spot spot: si) {
+	public void removeGridSpace(final GridSpace g) {
+		final SpaceIterator si = new SpaceIterator(grid, g.getGridPoint(), g.getNumColumns(), g.getNumRows());
+		for (final Spot spot: si) {
 			openSpots.add(spot.p_g);
 			if (spot.resident != g) {
 				throw new RuntimeException("Grid Removal Not Syncd");
@@ -298,10 +285,10 @@ public final class Grid extends GameSpace {
 	 * @param gridSpace The Gridspace to look for a spot for
 	 * @return The Spot of the upper left hand corner that will fit the gridspace, null if there is no room
 	 */
-	private Spot findFirstFit(GridSpace gridSpace) {
-		int targetX = gridSpace.getNumColumns();
-		int targetY = gridSpace.getNumRows();
-		for (GridPoint p : openSpots) {
+	private Spot findFirstFit(final GridSpace gridSpace) {
+		final int targetX = gridSpace.getNumColumns();
+		final int targetY = gridSpace.getNumRows();
+		for (final GridPoint p : openSpots) {
 			if (hasRoom(p, targetX, targetY))
 				return grid.get(p);
 		}
@@ -315,11 +302,11 @@ public final class Grid extends GameSpace {
 	 * @param numRows the number of rows starting at p_g
      * @return true if the numRowsxnumCols grid with upper left hand corner at p is all unoccupied and all points are within the bounds of the grid. 
 	 */
-	private boolean hasRoom(GridPoint p_g, int numCols, int numRows) {
-		SpaceIterator si = new SpaceIterator(grid, p_g, numCols, numRows);
+	private boolean hasRoom(final GridPoint p_g, final int numCols, final int numRows) {
+		final SpaceIterator si = new SpaceIterator(grid, p_g, numCols, numRows);
 		if (si.noSpace())
 			return false;
-		for (Spot s: si) {
+		for (final Spot s: si) {
 			if (s == null || s.isOccupied())
 				return false;
 		}
@@ -330,7 +317,7 @@ public final class Grid extends GameSpace {
 	 * @param gs The GridSpace to check
 	 * @return true if it can fit in the grid at its location
 	 */
-	private boolean hasRoom(GridSpace gs) {
+	private boolean hasRoom(final GridSpace gs) {
 		return hasRoom(gs.getGridPoint(), gs.getNumColumns(), gs.getNumRows());
 	}
 	/**
@@ -340,14 +327,14 @@ public final class Grid extends GameSpace {
 	private class Spot {
 		GridPoint p_g;
 		GridSpace resident = null;
-		public Spot(GridPoint p_g) {
+		public Spot(final GridPoint p_g) {
 			this.p_g = p_g;
 		}
 		public boolean isOccupied() {
 			return resident != null;
 		}
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(final Object o) {
 			return p_g.equals(((Spot)o).p_g);
 		}
 		@Override
@@ -364,7 +351,7 @@ public final class Grid extends GameSpace {
 	 * @param g The GameSpace to created off of
 	 * @return the generated GridSpace
 	 */
-	public GridSpace generateGridSpace(GameSpace g) {
+	public GridSpace generateGridSpace(final GameSpace g) {
 		return new GridSpace(this, g, 0,0);
 	}
 	/**
@@ -374,8 +361,8 @@ public final class Grid extends GameSpace {
 	 * @param data the GridSpaceData to use to generate a GridSpace with
 	 * @return the generated gridspace
 	 */
-	public GridSpace generateRotateAndAddGridSpaceFromData(GameSpace g, GridSpaceData data) {
-		GridSpace gs = new GridSpace(this, g, data.p_g);
+	public GridSpace generateRotateAndAddGridSpaceFromData(final GameSpace g, final GridSpaceData data) {
+		final GridSpace gs = new GridSpace(this, g, data.p_g);
 		for (int i = 0; i < data.num90Rotations; i++)
 			gs.rotateClockwise90();
 		addAndSplit(grid.get(data.p_g), gs);
@@ -402,18 +389,18 @@ public final class Grid extends GameSpace {
 		 */
 		private static final long serialVersionUID = 1L;
 
-		protected GridPoint(int x, int y) {super(x,y);}
+		protected GridPoint(final int x, final int y) {super(x,y);}
 	}
 	/**
 	 * Iterates through as much of grid as possible, ignoring any thing that goes over the edge
 	 * @author David O'Sullivan
 	 */
 	private static class SpaceIterator implements Iterable<Spot>{
-		private int numCols;
-		private int numRows;
-		private Map<GridPoint, Spot> grid;
-		private GridPoint start;
-		public SpaceIterator(Map<GridPoint, Spot> grid, GridPoint start, int numCols, int numRows) {
+		private final int numCols;
+		private final int numRows;
+		private final Map<GridPoint, Spot> grid;
+		private final GridPoint start;
+		public SpaceIterator(final Map<GridPoint, Spot> grid, final GridPoint start, final int numCols, final int numRows) {
 			this.numCols = numCols;
 			this.numRows = numRows;
 			this.grid = grid;
@@ -432,7 +419,7 @@ public final class Grid extends GameSpace {
 		 */
 		@Override
 		public Iterator<Spot> iterator() {
-			Iterator<Spot> it = new Iterator<Spot>() {
+			final Iterator<Spot> it = new Iterator<Spot>() {
 
 	            GridPoint currentLoc = new GridPoint(start.x, start.y);
 	            int lastCol = start.x + numCols - 1;
@@ -477,7 +464,7 @@ public final class Grid extends GameSpace {
 		public final int numColumns;
 		public final int numRows;
 		public final int gridID;
-		public GridData(int subX, int subY, int numColumns, int numRows, int gridID) {
+		public GridData(final int subX, final int subY, final int numColumns, final int numRows, final int gridID) {
 			this.subX = subX;
 			this.subY = subY;
 			this.numColumns = numColumns;
