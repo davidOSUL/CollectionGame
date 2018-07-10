@@ -8,14 +8,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import effects.Event;
 import gameutils.GameUtils;
 import thingFramework.Attribute;
 import thingFramework.AttributeNotFoundException;
-import thingFramework.AttributeType;
 import thingFramework.Item;
 import thingFramework.Pokemon;
 import thingFramework.Thing;
@@ -503,21 +501,25 @@ public final class ThingLoader {
 					if (!hasThing(name)) 
 						continue;
 					final String description = values[1].trim();
-					nameToDescription.put(name, description);
+					getThing(name).addAttribute(Attribute.generateAttribute("flavor description", description));
+					//nameToDescription.put(name, description);
 				}	
 				for (final Thing t: getThingSet()) {
-					final StringBuilder descriptionBuilder = new StringBuilder();
+					t.addAttribute(Attribute.generateAttribute("description"));
+					//final StringBuilder descriptionBuilder = new StringBuilder();
 					final String name = t.getName();
 					if (nameToDescription.containsKey(name)) {  
-						descriptionBuilder.append(nameToDescription.get(name));
+						//descriptionBuilder.append(nameToDescription.get(name));
 					}
 					if (hasPokemon(name)) {
-						descriptionBuilder.append("\n" + generateStatDescriptions(getPokemon(name)));
+						//descriptionBuilder.append("\n" + generateStatDescriptions(getPokemon(name)));
 					}
 					if (eb.getEventDescription(name) != null) {
-						descriptionBuilder.append("\n" + eb.getEventDescription(name));
+						getThing(name).addAttribute(Attribute.generateAttribute("event description", eb.getEventDescription(name)));
+						//descriptionBuilder.append("\n" + eb.getEventDescription(name));
 					}
-					getThing(name).addAttribute(Attribute.generateAttribute("description", descriptionBuilder.toString()));
+					getThing(name).updateDescription();
+					//getThing(name).addAttribute(Attribute.generateAttribute("description", descriptionBuilder.toString()));
 				}
 			
 			} catch (final IOException e) {
@@ -526,7 +528,7 @@ public final class ThingLoader {
 			}
 
 		}
-		private String generateStatDescriptions(final Pokemon p) {
+		/*private String generateStatDescriptions(final Pokemon p) {
 			final StringBuilder description = new StringBuilder();
 			final TreeMap<Integer, String> orderedDisplays = new TreeMap<Integer, String>();
 			for (final Attribute at: p.getAttributesOfType(AttributeType.DISPLAYTYPE)) {
@@ -555,7 +557,7 @@ public final class ThingLoader {
 				
 			return description.toString();
 			
-		}
+		}*/
 	}
 	private final class GenerateAttributes {
 		private void generate(final Set<String> pokemon) {

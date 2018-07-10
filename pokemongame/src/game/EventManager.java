@@ -10,7 +10,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import effects.Event;
 import effects.Eventful;
-import thingFramework.Thing;
 /**
  * Manages the events of all things on the board
  * @author David O'Sullivan
@@ -21,27 +20,28 @@ public class EventManager implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Set<Eventful> events = new HashSet<Eventful>();
-	private Queue<Runnable> removalEvents = new ConcurrentLinkedQueue<Runnable>();
-	private Board board;
-	public EventManager(Board board) {
+	private final Set<Eventful> events = new HashSet<Eventful>();
+	private final Queue<Runnable> removalEvents = new ConcurrentLinkedQueue<Runnable>();
+	private final Board board;
+	public EventManager(final Board board) {
 		this.board = board;
 	}
-	public synchronized void addThing(Eventful thing) {
+	public synchronized void addThing(final Eventful thing) {
 		if (events.contains(thing))
 			throw new RuntimeException("EventManager already contains thing: " + thing);
 		events.add(thing);
 	}
-	public synchronized void removeThing(Eventful thing) {
+	public synchronized void removeThing(final Eventful thing) {
 		if (!events.contains(thing))
 			throw new RuntimeException("Attempted to Remove Events From Thing that Doesn't exist!");
-		for (Event e: thing.getEvents())
+		for (final Event e: thing.getEvents())
 			removalEvents.add(e.executeOnRemove(board));
 		events.remove(thing);
 	}
 	public synchronized void runEvents() {
 		events.forEach(eventful -> eventful.getEvents().forEach((event) ->
 		{
+			
 			if (!event.onPlaceExecuted()) {
 				if (DEBUG) {
 					System.out.println("running event: " + eventful.getName());
@@ -50,6 +50,12 @@ public class EventManager implements Serializable{
 				event.executeOnPlace(board).run();
 			}
 			event.executePeriod(board).run();
+			if (event.wasRemoved()) { // if the event was removed by the Thing itself
+				event.executeOnRemove(board); 
+			}
+			if (event.shouldBeReset()) {
+				event.executeOnReset(board).run();
+			}
 		})); 
 		removalEvents.forEach((runnable) -> runnable.run());
 		removalEvents.clear();

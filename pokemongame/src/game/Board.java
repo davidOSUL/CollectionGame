@@ -25,7 +25,6 @@ import effects.Eventful;
 import gameutils.GameUtils;
 import loaders.ThingLoader;
 import loaders.shopLoader.ShopItem;
-import modifiers.GlobalModifierManager;
 import modifiers.Modifier;
 import thingFramework.Item;
 import thingFramework.Pokemon;
@@ -186,6 +185,14 @@ public class Board implements Serializable {
 	 */
 	private final Set<Thing> thingsOnBoard = new LinkedHashSet<Thing>();
 	/**
+	 * Set of all pokemon on board. This is a subset of thingsOnBoard
+	 */
+	private final Set<Pokemon> pokemonOnBoard = new HashSet<Pokemon>();
+	/**
+	 * Set of all items on board. This is a subset of thingsOnBoard
+	 */
+	private final Set<Item> itemsOnBoard = new HashSet<Item>();
+	/**
 	 * The number of pokemon currently on the board
 	 */
 	private volatile int numPokemon = 0;
@@ -202,13 +209,11 @@ public class Board implements Serializable {
 	 */
 	private final SessionTimeManager stm;
 	//TODO: Put all possible things with their associated events in a manager of its own, should be able to grab events with quantity > 0 
-	private final GlobalModifierManager<Pokemon> pokemonModifiersManager;
-	
-	
+	private final GlobalModifierManager modifierManager;
 	public Board() {
 		shop = new Shop();
 		stm = new SessionTimeManager();
-		pokemonModifiersManager = new GlobalModifierManager<Pokemon>();
+		modifierManager = new GlobalModifierManager(this);
 		events = new EventManager(this);
 		events.addThing(checkForPokemonThing);
 	}
@@ -226,8 +231,7 @@ public class Board implements Serializable {
 			throw new IllegalStateException("Should not be on EDT");
 		stm.updateGameTime();
 		executeEvents();
-
-
+		modifierManager.update();
 	}
 	/**
 	 * Executes all the events in the events Set, goes through each of its entries and executes the list of events that the 
@@ -427,6 +431,7 @@ public class Board implements Serializable {
 	 */
 	public synchronized void addThing(final Thing thing) {
 		addElementToThingMap(thing);
+		modifierManager.getThingModifiers().forEach(mod -> thing.addThingModifierIfShould(mod));
 		thing.onPlace(this);
 	}
 	/**
@@ -437,6 +442,7 @@ public class Board implements Serializable {
 			throw new RuntimeException("Attempted to Remove null");
 		}
 		removeElementFromThingMap(thing);
+		modifierManager.getThingModifiers().forEach(mod -> thing.removeThingModifierIfPresent(mod));
 		thing.onRemove(this);
 
 	}
@@ -522,10 +528,23 @@ public class Board implements Serializable {
 	public synchronized void notifyPokemonAdded(final Pokemon p) {
 		numPokemon++;
 		addToUniquePokemonLookup(p);
+		pokemonOnBoard.add(p);
+		modifierManager.getPokemonModifiers().forEach(mod -> p.addModifierIfShould(mod));
+		
 	}
 	public synchronized void notifyPokemonRemoved(final Pokemon p) {
 		numPokemon--;
 		removeFromUniquePokemonLookup(p);
+		pokemonOnBoard.remove(p);
+		modifierManager.getPokemonModifiers().forEach(mod -> p.removeModifierIfPresent(mod));
+	}
+	public synchronized void notifyItemAdded(final Item i) {
+		itemsOnBoard.add(i);
+		modifierManager.getItemModifiers().forEach(mod -> i.addModifierIfShould(mod));
+	}
+	public synchronized void notifyItemRemoved(final Item i) {
+		itemsOnBoard.remove(i);
+		modifierManager.getItemModifiers().forEach(mod -> i.removeModifierIfPresent(mod));
 	}
 	/**
 	 * Adds the element to the map from thing to # present, updating accordingly, and adding events if necessary. 
@@ -545,13 +564,7 @@ public class Board implements Serializable {
 	private void removeElementFromThingMap(final Thing thing) {
 		thingsOnBoard.remove(thing);
 		removeAssociatedEvents(thing);  //execute onRemove and permanently remove if this is the last instance
-		final Modifier<Pokemon> m = new Modifier<Pokemon>(null, null, null);
-		addGlobalThingModifier(m);
 	}
-	public void addGlobalThingModifier(final Modifier<Pokemon> modifier) {
-		pokemonModifiersManager.addModifier(, modifier);
-	}
-
 	/**
 	 * If the thing hasn't been added to the board yet, update the event set
 	 * @param eventful The eventful to get the events for
@@ -709,6 +722,62 @@ public class Board implements Serializable {
 	}
 	public int getSellBackValue(final ShopItem item) {
 		return Math.max(1 , (int)(item.getCost()*sellBackPercent));
+	}
+	
+	
+	/**
+	 * Applies the given Pokemon modifier to the entire board. All currently present pokemon, as well as those added
+	 * in the future will be affected as long as the modifier remains. 
+	 * @param mod the Pokemon modifier to add
+	 */
+	public void addGlobalPokemonModifier(final Modifier<Pokemon> mod) {
+		pokemonOnBoard.forEach(p -> p.addModifierIfShould(mod));
+		modifierManager.addGlobalPokemonModifier(mod);
+	}
+	/**
+	 * Applies the given Item modifier to the entire board. All currently present Items, as well as those added
+	 * in the future will be affected as long as the modifier remains. 
+	 * @param mod the Item modifier to add
+	 */
+	public void addGlobalItemModifier(final Modifier<Item> mod) {
+		itemsOnBoard.forEach(i -> i.addModifierIfShould(mod));
+		modifierManager.addGlobalItemModifier(mod);
+	}
+	/**
+	 * Applies the given modifier to every Thing. All currently present Things, as well as those added
+	 * in the future will be affected as long as the modifier remains. 
+	 * @param mod the Thing modifier to add
+	 */
+	public void addGlobalThingModifier(final Modifier<Thing> mod) {
+		thingsOnBoard.forEach(t -> t.addThingModifierIfShould(mod));
+		modifierManager.addGlobalThingModifier(mod);
+	}
+	/**
+	 * Removes the given Pokemon modifier from the board. All Pokemon currently affected by the modifier will have the modifier removed
+	 *@param mod the Pokemon Modifier to remove
+	 */
+	public void removeGlobalPokemonModifier(final Modifier<Pokemon> mod) {
+		pokemonOnBoard.forEach(p -> p.removeModifierIfPresent(mod));
+		modifierManager.removeGlobalPokemonModifier(mod);
+		
+	}
+	/**
+	 * Removes the given Item modifier from the board. All Items currently affected by the modifier will have the modifier removed
+	 *@mod the Item Modifier to remove
+	 */
+	public void removeGlobalItemModifier(final Modifier<Item> mod) {
+		itemsOnBoard.forEach(i -> i.removeModifierIfPresent(mod));
+		modifierManager.removeGlobalItemModifier(mod);
+		
+	}
+	/**
+	 * Removes the given Thing modifier from the board. All Things currently affected by the modifier will have the modifier removed
+	 *@mod the Thing Modifier to remove
+	 */
+	public void removeGlobalThingModifier(final Modifier<Thing> mod) {
+		thingsOnBoard.forEach(t -> t.removeThingModifierIfPresent(mod));
+		modifierManager.removeGlobalThingModifier(mod);
+		
 	}
 	
 	

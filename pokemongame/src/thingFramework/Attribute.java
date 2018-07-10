@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import gameutils.GameUtils;
@@ -18,29 +17,29 @@ public class Attribute implements Serializable{
 	/**
 	 * Increase in Gold Per Hour
 	 */
-	private static final Attribute GPH = new Attribute(1, "PokeCash/hour", "gph", ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD).setIgnoreValAndReturn(new Integer(0)); 
+	private static final Attribute GPH = new Attribute(2, "PokeCash/hour", "gph", ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD).setIgnoreValAndReturn(new Integer(0)); 
 	/**
 	 *Increase in Popularity 
 	 */
-	private static final Attribute POPULARITY_BOOST = new Attribute(3, "Popularity", "popularity boost",ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.POPMOD).setIgnoreValAndReturn(new Integer(0)); ;
+	private static final Attribute POPULARITY_BOOST = new Attribute(4, "Popularity", "popularity boost",ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.POPMOD).setIgnoreValAndReturn(new Integer(0)); ;
 	
 	/**
 	 * Increase in Gold Per Minute
 	 */
-	private static final Attribute GPM = new Attribute(2, "PokeCash/minute", "gpm",ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD).setIgnoreValAndReturn(new Integer(0)); ;
+	private static final Attribute GPM = new Attribute(3, "PokeCash/minute", "gpm",ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD).setIgnoreValAndReturn(new Integer(0)); ;
 	
 	/**
 	 * Electric, etc.
 	 */
-	private static final Attribute TYPES = new Attribute(4, "Types", "type", ParseType.ENUMSETPOKEMONTYPE, EnumSet.of(PokemonType.NORMAL), AttributeType.DISPLAYTYPE, AttributeType.CHARACTERISTIC);
+	private static final Attribute TYPES = new Attribute(5, "Types", "type", ParseType.ENUMSETPOKEMONTYPE, EnumSet.of(PokemonType.NORMAL), AttributeType.DISPLAYTYPE, AttributeType.CHARACTERISTIC);
 	/**
 	 * Current Happiness of a pokemon (/10)
 	 */
-	private static final Attribute HAPPINESS = new Attribute(5, "happiness", ParseType.INTEGER, new Integer(0),AttributeType.CHANGINGVAL, AttributeType.DISPLAYTYPE, AttributeType.POKEONLY, AttributeType.OUTOFTEN);
+	private static final Attribute HAPPINESS = new Attribute(6, "happiness", ParseType.INTEGER, new Integer(0),AttributeType.CHANGINGVAL, AttributeType.DISPLAYTYPE, AttributeType.POKEONLY, AttributeType.OUTOFTEN);
 	/**
 	 * Current Level of a pokemon
 	 */
-	private static final Attribute LEVEL = new Attribute(6, "level", ParseType.INTEGER, new Integer(1),AttributeType.CHANGINGVAL, AttributeType.DISPLAYTYPE, AttributeType.POKEONLY);
+	private static final Attribute LEVEL = new Attribute(7, "level", ParseType.INTEGER, new Integer(1),AttributeType.CHANGINGVAL, AttributeType.DISPLAYTYPE, AttributeType.POKEONLY);
 	/**
 	 * The rarity of a pokemon, on scale of 1-99, derived from catchrate. 
 	 * higher is more rare
@@ -50,11 +49,19 @@ public class Attribute implements Serializable{
 	 * The rarity of a pokemon, on scale of 1-10, derived from catchrate. 
 	 * higher is more rare. This version of rarity is used for display purposes only
 	 */
-	private static final Attribute RARITY_OUT_OF_10 = new Attribute(7, "Rarity", "rarity10", ParseType.INTEGER, new Integer(1), AttributeType.CHARACTERISTIC, AttributeType.DISPLAYTYPE, AttributeType.POKEONLY, AttributeType.OUTOFTEN);
+	private static final Attribute RARITY_OUT_OF_10 = new Attribute(8, "Rarity", "rarity10", ParseType.INTEGER, new Integer(1), AttributeType.CHARACTERISTIC, AttributeType.DISPLAYTYPE, AttributeType.POKEONLY, AttributeType.OUTOFTEN);
 	/**
 	 * The catch rate of a pokemon on a scale from 3-255
 	 */
 	private static final Attribute CATCH_RATE = new Attribute("catch rate", ParseType.INTEGER, new Integer(3), AttributeType.CHARACTERISTIC, AttributeType.POKEONLY);
+	/**
+	 * Nothing to do with actual attributes, just a general overview of this Thing
+	 */
+	private static final Attribute FLAVOR_DESCRIPTION = new Attribute(1, "Info", "flavor description",  ParseType.STRING, new String(""), AttributeType.DISPLAYTYPE);
+	/**
+	 * A verbal description of the events asssociated with this thing
+	 */
+	private static final Attribute EVENT_DESCRIPTION = new Attribute(9, "", "event description", ParseType.STRING, new String(""), AttributeType.DISPLAYTYPE);
 	/**
 	 * The description of an item. Note it doesn't have an orderdisplayvalue because the description is just a combination of all those elements that do
 	 * (and some other text potentially)
@@ -145,7 +152,7 @@ public class Attribute implements Serializable{
 		return name;
 	}
 	
-	@Override
+	/*@Override
 	public boolean equals(final Object o) {
 		if (o == null)
 			return false;
@@ -156,11 +163,12 @@ public class Attribute implements Serializable{
 	@Override
 	public int hashCode() {
 		return Objects.hash(getName(), getValue());
-	}
+	}*/
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder(displayName);
-		sb.append(": ");
+		if (!displayName.isEmpty())
+			sb.append(": ");
 		if (parsetype.equals(ParseType.ENUMSETPOKEMONTYPE))
 			sb.append( GameUtils.toTitleCase(getValue().toString().replace("[", "").replace("]", "").toLowerCase()));
 		else if (parsetype.equals(ParseType.BOOLEAN))

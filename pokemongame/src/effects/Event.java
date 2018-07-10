@@ -1,12 +1,11 @@
 package effects; 
-import static gameutils.Constants.DEBUG; 
+import static gameutils.Constants.DEBUG;
 
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
-import interfaces.SerializableConsumer;
 
 import game.Board;
+import interfaces.SerializableConsumer;
 /**
  * various things may events which affect the state of the board at different times. Events have an
  * "onPlace", "onRemove" functions which happen when they are created/destroyed. Some events also have an
@@ -28,26 +27,29 @@ public class Event implements Serializable {
 	private volatile long numPeriodsElapsed = 0;
 	private boolean isPeriodic = false;
 	private volatile AtomicBoolean onPlaceExecuted =new AtomicBoolean(false);
-	private boolean keepTrackWhileOff = false;
+	private final boolean keepTrackWhileOff = false;
 	private final static double MIN_PERIOD = .01;
 	private String name = "Event ";
+	private boolean shouldBeRemoved = false;
+	private boolean shouldBeReset = false;
+	private SerializableConsumer<Board> newOnRemove = null;
 	public Event() {
 	}
-	public Event(SerializableConsumer<Board> onPlace) {
+	public Event(final SerializableConsumer<Board> onPlace) {
 		this.onPlace = onPlace;
 	}
-	public Event(SerializableConsumer<Board> onPlace, SerializableConsumer<Board> onRemove) {
+	public Event(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onRemove) {
 		this(onPlace);
 		this.onRemove = onRemove;
 	}
-	public Event(SerializableConsumer<Board> onPeriod, int periodInMinutes) {
+	public Event(final SerializableConsumer<Board> onPeriod, final int periodInMinutes) {
 		this.onPeriod = onPeriod;
 		this.period = periodInMinutes;
 		isPeriodic = periodInMinutes > 0L;
 
 
 	}
-	public Event(SerializableConsumer<Board> onPeriod, double periodInMinutes) {
+	public Event(final SerializableConsumer<Board> onPeriod, final double periodInMinutes) {
 		this.onPeriod = onPeriod;
 		this.period = periodInMinutes;
 		isPeriodic = periodInMinutes > 0.0;
@@ -55,25 +57,25 @@ public class Event implements Serializable {
 			this.period = Math.max(periodInMinutes, MIN_PERIOD);
 
 	}
-	public Event(SerializableConsumer<Board> onPlace, SerializableConsumer<Board> onPeriod, int periodInMinutes) {
+	public Event(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final int periodInMinutes) {
 		this(onPeriod, periodInMinutes);
 		this.onPlace = onPlace;
 	}
-	public Event(SerializableConsumer<Board> onPlace, SerializableConsumer<Board> onPeriod, SerializableConsumer<Board> onRemove, int periodInMinutes) {
-		this(onPeriod, periodInMinutes);
-		this.onPlace = onPlace;
-		this.onRemove = onRemove;
-	}
-	public Event(SerializableConsumer<Board> onPlace, SerializableConsumer<Board> onPeriod, double periodInMinutes) {
-		this(onPeriod, periodInMinutes);
-		this.onPlace = onPlace;
-	}
-	public Event(SerializableConsumer<Board> onPlace, SerializableConsumer<Board> onPeriod, SerializableConsumer<Board> onRemove, double periodInMinutes) {
+	public Event(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final SerializableConsumer<Board> onRemove, final int periodInMinutes) {
 		this(onPeriod, periodInMinutes);
 		this.onPlace = onPlace;
 		this.onRemove = onRemove;
 	}
-	private synchronized void runOnPlace(Board b) {
+	public Event(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final double periodInMinutes) {
+		this(onPeriod, periodInMinutes);
+		this.onPlace = onPlace;
+	}
+	public Event(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final SerializableConsumer<Board> onRemove, final double periodInMinutes) {
+		this(onPeriod, periodInMinutes);
+		this.onPlace = onPlace;
+		this.onRemove = onRemove;
+	}
+	private synchronized void runOnPlace(final Board b) {
 		if (!onPlaceExecuted()) {
 			timeCreated = b.getTotalTimeSinceStart();
 			inGameTimeCreated = b.getTotalInGameTime();
@@ -83,7 +85,7 @@ public class Event implements Serializable {
 		if (DEBUG)
 			System.out.println("runOnPlace from " + this);
 	}
-	private synchronized void runRemove(Board b) {
+	private synchronized void runRemove(final Board b) {
 		onPlaceExecuted.set(false);
 		onRemove.accept(b);
 		if (DEBUG)
@@ -92,7 +94,7 @@ public class Event implements Serializable {
 	public synchronized boolean onPlaceExecuted() {
 		return onPlaceExecuted.get();
 	}
-	private synchronized void executeIfTime(Board b) {
+	private synchronized void executeIfTime(final Board b) {
 		if (!keepTrackWhileOff) {
 			if (hasPeriodicity() && millisAsMinutes(b.getTotalInGameTime()-inGameTimeCreated) / period >= (numPeriodsElapsed+1)) {
 				if (DEBUG)
@@ -111,6 +113,19 @@ public class Event implements Serializable {
 
 		}
 	}
+	public void setOnPlace(final SerializableConsumer<Board> onPlace) {
+		this.onPlace = onPlace;
+	}
+	public boolean shouldBeReset() {
+		return shouldBeReset;
+	}
+	public Runnable executeOnReset(final Board b) {
+		return () -> {shouldBeReset = false; runRemove(b); onRemove = newOnRemove; newOnRemove = null;};
+	}
+	public void markForReset(final SerializableConsumer<Board> newOnRemove) {
+		shouldBeReset = true;
+		this.newOnRemove = newOnRemove;
+	}
 	public boolean hasPeriodicity() {
 		return isPeriodic;
 	}
@@ -118,10 +133,21 @@ public class Event implements Serializable {
 		return numPeriodsElapsed;
 	}
 
-	protected double millisAsMinutes(long x) {
+	protected double millisAsMinutes(final long x) {
 		double y = x/1000.0;
 		y=y/60.0;
 		return y;
+	}
+	
+	public synchronized void setOnPeriod(final SerializableConsumer<Board> onPeriod) {
+		this.onPeriod = onPeriod;
+	}
+	public synchronized void setPeriod(final double period) {
+		this.period = period;
+	}
+	public synchronized void setOnPeriod(final SerializableConsumer<Board> onPeriod, final double newPeriod) {
+		setOnPeriod(onPeriod);
+		setPeriod(newPeriod);
 	}
 	protected SerializableConsumer<Board> getOnPeriod() {
 		return onPeriod;
@@ -132,41 +158,35 @@ public class Event implements Serializable {
 	protected synchronized void addToTotalPeriods() {
 		numPeriodsElapsed++;
 	}
-	public Runnable executePeriod(Board b) {
-		return new Runnable() {
-			public void run() {
-				executeIfTime(b);
-			}
-		};
+	public Runnable executePeriod(final Board b) {
+		return () -> executeIfTime(b);
 	}
 	public boolean keepTrackWhileOff() {
 		return keepTrackWhileOff;
 	}
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
+	}
+	public synchronized void markWasRemoved() {
+		shouldBeRemoved = true;
+	}
+	public synchronized boolean wasRemoved() {
+		return shouldBeRemoved;
 	}
 	@Override
 	public String toString() {
 		return name;
 	}
-	public void addToName(String name) {
-		StringBuilder sb = new StringBuilder(this.name);
+	public void addToName(final String name) {
+		final StringBuilder sb = new StringBuilder(this.name);
 		sb.append(name);
 		this.name = sb.toString();
 	}
-	public Runnable executeOnPlace(Board b) {
-		return new Runnable() {
-			public void run() {
-				runOnPlace(b);
-			}
-		};
+	public Runnable executeOnPlace(final Board b) {
+		return () -> runOnPlace(b);
 	}
-	public Runnable executeOnRemove(Board b) {
-		return new Runnable() {
-			public void run() {
-				runRemove(b);
-			}
-		};
+	public Runnable executeOnRemove(final Board b) {
+		return () -> runRemove(b);
 	}
 
 

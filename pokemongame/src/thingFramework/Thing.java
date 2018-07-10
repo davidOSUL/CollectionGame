@@ -3,12 +3,15 @@ package thingFramework;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.function.BiFunction;
 
 import effects.Event;
 import effects.Eventful;
@@ -16,6 +19,7 @@ import game.Board;
 import game.BoardAttributeManager;
 import gameutils.GameUtils;
 import interfaces.Imagable;
+import modifiers.Modifier;
 
 public abstract class Thing implements Serializable, Eventful, Imagable{
 	/**
@@ -25,11 +29,12 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	private final String name;
 	private final String image;
 	private final static AttributeType BOARDTYPE = AttributeType.STATMOD;
-	private final Set<Attribute> boardAttributes;
+	private final Map<Attribute, Event> boardAttributes;
 	private final EnumSet<ThingType> types;
 	private final Set<Attribute> attributes; 
 	private final Map<String, Attribute> attributeNameMap;
 	private final List<Event> eventList= new ArrayList<Event>();
+	private final Set<Modifier<Thing>> thingModifiers = new HashSet<Modifier<Thing>>();
 	protected Thing() {
 		types = setThingType();
 		attributes = null;
@@ -48,11 +53,12 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 			throw new Error("INVALID ATTRIBUTE FOR: " + name);
 		types = setThingType();
 		this.attributes = attributes;
-		boardAttributes = getBoardAttributes();
 		this.name = name ;
 		this.image = image;
 		attributeNameMap = generateAttributeNameMap(attributes);
-		eventList.addAll(BoardAttributeManager.getEvents(getBoardAttributes()));
+		boardAttributes = BoardAttributeManager.getEvents(getAttributesThatContainType(BOARDTYPE));
+		eventList.addAll(boardAttributes.values());
+		updateDescription();
 	}
 	public Thing(final String name, final String image, final Set<Attribute> attributes, final Event...events ) {
 		this(name, image, attributes, GameUtils.toArrayList(events));
@@ -67,6 +73,38 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 		return eventList;
 	}
 	public abstract Thing makeCopy();
+	protected static <T> boolean  addModifierIfShould(final Modifier<T> mod, final Collection<Modifier<T>> toAdd, final T t) {
+		final boolean performed = mod.performModificationIfShould(t);
+		if (performed) {
+			toAdd.add(mod);
+		}
+		return performed;
+	}
+	protected static <T>  boolean removeModifierIfPresent(final Modifier<T> mod, final Collection<Modifier<T>> toRemove, final T t) {
+		if (!toRemove.contains(mod))
+			return false;
+		mod.performReverseModification(t);
+		toRemove.remove(mod);
+		return true;
+	}
+	/**
+	 * Adds the modifier to this thing if it is able to succesfully perform the modification on this thing
+	 * (that is mod.shouldModify(this) == true)
+	 * @param mod the mod to add
+	 * @return whether or not the modifier was succesfully added
+	 */
+	public boolean addThingModifierIfShould(final Modifier<Thing> mod) {
+		return Thing.addModifierIfShould(mod, thingModifiers, this);
+	}
+	/**
+	 * Removes the modifier from this thing if it is present. If it is present performs mod.performReverseModification(this)
+	 * (that is mod.shouldModify(this) == true)
+	 * @param mod the mod to remove
+	 * @return whether or not the modifier was succesfully removed
+	 */
+	public boolean removeThingModifierIfPresent(final Modifier<Thing> mod) {
+		return Thing.removeModifierIfPresent(mod, thingModifiers, this);
+	}
 	public String getDiscardText() {
 		return "Discard " + getName();
 	}
@@ -83,7 +121,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 		}
 		return attributeNameMap;
 	}
-	
+
 	private final Set<Attribute> getAttributesThatContainType(final AttributeType at) {
 		if (attributes == null)
 			return new HashSet<Attribute>();
@@ -93,12 +131,6 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 				validAttributes.add(attribute);
 		}
 		return validAttributes;
-	}
-	public final Set<Attribute> getBoardAttributes() {
-		if (boardAttributes == null) {
-			return getAttributesThatContainType(BOARDTYPE);
-		}
-		return boardAttributes;
 	}
 	private final boolean vallidateAttribute(final Attribute at) {
 		return vallidateAttributes(new HashSet<Attribute>(Arrays.asList(at)));
@@ -110,7 +142,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	public final EnumSet<ThingType> getThingTypes() {
 		return types;
 	}
-	public final Object getAttributeVal(final String name) throws AttributeNotFoundException {
+	public final Object getAttributeVal(final String name) {
 		if (containsAttribute(name))
 			return attributeNameMap.get(name).getValue();
 		else
@@ -128,20 +160,43 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 			throw new Error("INVALID ATTRIBUTE FOR: " + name);
 		if (attributes.contains(at) || attributeNameMap.keySet().contains(at.getName()))
 			throw new Error("ATTRIBUTE " + at.getName() + " ALREADY EXISTS FOR: " + name);
-		else {
-			if (!at.shouldIgnore()) {
+		else if (!at.shouldIgnore()){
 			attributes.add(at);
 			attributeNameMap.put(at.getName(), at);
-			if (at.containsType(BOARDTYPE))
-				boardAttributes.add(at);
+			if (at.containsType(BOARDTYPE)) {
+				final Event e=  BoardAttributeManager.getEvent(at);
+				boardAttributes.put(at, e);
+				eventList.add(e);
 			}
 		}
+		updateDescription();
+	}
+	public final void removeAttribute(final String name) {
+		attributes.remove(attributeNameMap.get(name));
+		final Attribute at = attributeNameMap.remove(name);
+		final Event e = boardAttributes.get(at);
+		if (e != null) {
+			e.markWasRemoved();
+			final boolean assertPresent = eventList.remove(e); 
+			if (!assertPresent)
+				throw new IllegalStateException("Event list out of sync with board attributes");
+			boardAttributes.remove(at); 
+		}
+		updateDescription();
+
 	}
 	public final void setAttributeVal(final String name, final Object value) {
-		if (containsAttribute(name))
-			attributeNameMap.get(name).setValue(value);
+		if (containsAttribute(name)) {
+			final Attribute at = attributeNameMap.get(name);
+			at.setValue(value);
+			if (boardAttributes.containsKey(at)) {
+				BoardAttributeManager.modifyBoardEvent(at.getName(), boardAttributes.get(at), value);
+			}
+		}
 		else
 			throw new AttributeNotFoundException("ATTRIBUTE NOT FOUND");
+		
+		updateDescription();
 	}
 	public final List<Attribute> getAttributesOfType(final AttributeType at) {
 		final List<Attribute> returnAttributes = new ArrayList<Attribute>();
@@ -151,6 +206,32 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 		}
 		return returnAttributes;
 	}
+	/**
+	 * Adds the provided value to the given attribute, and sets the attribute to that value if non-existant
+	 * @param name the name of the attribute
+	 * @param value the value to add/set to
+	 * @param removeIfZero if set to true will remove this attribute if the value is zero
+	 */
+	public final void addToIntegerAttribute(final String name, final int value, final boolean removeIfZero) {
+		mergeAttribute(name, value, (o, v) -> o + v);
+		if ((Integer)getAttributeVal(name) == 0)
+			removeAttribute(name);
+	}
+	/**
+	 * if the given attribute is present, apply the remapping function func(oldVal, value). otherwise create a new attribute set to
+	 * value
+	 * @param <T>
+	 * @param name the name of the attribute
+	 * @param value New Value
+	 * @param func the remapping function
+	 */
+	public final <T> void mergeAttribute(final String name, final T value, final BiFunction<? super T,? super T,? extends T> func) {
+		if (containsAttribute(name))
+			setAttributeVal(name, func.apply(((T) getAttributeVal(name)), value));
+		else
+			addAttribute(Attribute.generateAttribute(name, value.toString()));
+	}
+
 	@Override
 	public final String getName() {
 		return name;
@@ -163,9 +244,47 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	public String toString() {
 		if (name == null)
 			return "BLANK ITEM";
-		return name + (containsAttribute("description") ? ": " + getAttributeVal("description").toString() : "");
+		if (!containsAttribute("description") || getAttributeVal("description").toString().isEmpty())
+			System.out.println("HI");
+		return name + (containsAttribute("description") ? ":\n" + getAttributeVal("description").toString() : "");
 	}
-	 @Override
+	/**
+	 * Update the description attribute of this thing to account for any changes that may have happened
+	 */
+	public void updateDescription() {
+		if (!containsAttribute("description"))
+			return;
+		final String description = generateDescription();
+		attributeNameMap.get("description").setValue(description);
+	}
+	private String generateDescription() {
+		final StringBuilder description = new StringBuilder();
+		final TreeMap<Integer, String> orderedDisplays = new TreeMap<Integer, String>();
+		for (final Attribute at: getAttributesOfType(AttributeType.DISPLAYTYPE)) {
+
+			orderedDisplays.put(at.getDisplayOrderVal(), at.toString());
+		}
+		boolean firstTime = true;
+		int j = 0;
+		for (final Integer i : orderedDisplays.keySet()) {
+			j++;
+			if (firstTime) {
+				if (j != orderedDisplays.keySet().size())
+					description.append(orderedDisplays.get(i) + "\n");
+				else
+					description.append(orderedDisplays.get(i));
+				firstTime = false;
+			} else {
+				if (j != orderedDisplays.keySet().size())
+					description.append(orderedDisplays.get(i).toString() + "\n");
+				else
+					description.append(orderedDisplays.get(i).toString());
+			}
+
+		}
+		return description.toString();
+	}
+	@Override
 	public String getImage() {
 		return image;
 	}
