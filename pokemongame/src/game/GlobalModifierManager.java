@@ -47,18 +47,24 @@ public class GlobalModifierManager implements Serializable{
 		thingModifiers.remove(mod);
 	}
 	public void update() {
+		final List<Modifier<Pokemon>> pokeToRemove = new ArrayList<Modifier<Pokemon>>();
 		pokemonModifiers.forEach((mod) -> {
-			if (mod.isDone())
-				b.removeGlobalPokemonModifier(mod);
+			if (mod.isDone(b.getTotalInGameTime()))
+				pokeToRemove.add(mod);
 		});
+		final List<Modifier<Item>> itemsToRemove = new ArrayList<Modifier<Item>>();
 		itemModifiers.forEach((mod) -> {
-			if (mod.isDone())
-				b.removeGlobalItemModifier(mod);
+			if (mod.isDone(b.getTotalInGameTime()))
+				itemsToRemove.add(mod);
 		});
+		final List<Modifier<Thing>> thingsToRemove = new ArrayList<Modifier<Thing>>();
 		thingModifiers.forEach((mod) -> {
-			if (mod.isDone())
-				b.removeGlobalThingModifier(mod);
+			if (mod.isDone(b.getTotalInGameTime()))
+				thingsToRemove.add(mod);
 		});
+		pokeToRemove.forEach(mod -> b.removeGlobalPokemonModifier(mod));
+		itemsToRemove.forEach(mod -> b.removeGlobalItemModifier(mod));
+		thingsToRemove.forEach(mod -> b.removeGlobalThingModifier(mod));
 	}
 	
 }

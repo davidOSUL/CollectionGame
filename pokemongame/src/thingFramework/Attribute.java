@@ -79,8 +79,18 @@ public class Attribute implements Serializable{
 	 * the next evolution for this pokemon
 	 */
 	private static final Attribute NEXT_EVOLUTIONS = new Attribute("next evolutions", ParseType.LISTSTRING, Arrays.asList("default"), AttributeType.POKEONLY, AttributeType.CHARACTERISTIC);
+	/**
+	 * the level this pokemon evolves at
+	 */
 	private static final Attribute LEVEL_OF_EVOLUTION = new Attribute("level of evolution", ParseType.INTEGER, new Integer(-1), AttributeType.POKEONLY, AttributeType.CHARACTERISTIC);
+	/**
+	 * Whether or not this pokemon is legendary
+	 */
 	private static final Attribute IS_LEGENDARY = new Attribute(8, "legendary", "legendary", ParseType.BOOLEAN, Boolean.FALSE, AttributeType.POKEONLY, AttributeType.CHARACTERISTIC, AttributeType.DISPLAYTYPE);
+	/**
+	 * If this thing only exists for a certain amount of time, how much time it exists for
+	 */
+	private static final Attribute TIME_LEFT = new Attribute(9, "Time left", "time left", ParseType.STRING, AttributeType.DISPLAYTYPE);
 	private Object value = null;
 	static int currId = 0;
 	private static Map<String, Attribute> idMap;

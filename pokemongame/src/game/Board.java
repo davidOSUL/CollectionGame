@@ -724,7 +724,9 @@ public class Board implements Serializable {
 		return Math.max(1 , (int)(item.getCost()*sellBackPercent));
 	}
 	
-	
+	private void setUpModifier(final Modifier<?> mod) {
+		mod.startCount(this.getTotalInGameTime());
+	}
 	/**
 	 * Applies the given Pokemon modifier to the entire board. All currently present pokemon, as well as those added
 	 * in the future will be affected as long as the modifier remains. 
@@ -733,6 +735,8 @@ public class Board implements Serializable {
 	public void addGlobalPokemonModifier(final Modifier<Pokemon> mod) {
 		pokemonOnBoard.forEach(p -> p.addModifierIfShould(mod));
 		modifierManager.addGlobalPokemonModifier(mod);
+		setUpModifier(mod);
+
 	}
 	/**
 	 * Applies the given Item modifier to the entire board. All currently present Items, as well as those added
@@ -742,6 +746,8 @@ public class Board implements Serializable {
 	public void addGlobalItemModifier(final Modifier<Item> mod) {
 		itemsOnBoard.forEach(i -> i.addModifierIfShould(mod));
 		modifierManager.addGlobalItemModifier(mod);
+		setUpModifier(mod);
+
 	}
 	/**
 	 * Applies the given modifier to every Thing. All currently present Things, as well as those added
@@ -751,6 +757,7 @@ public class Board implements Serializable {
 	public void addGlobalThingModifier(final Modifier<Thing> mod) {
 		thingsOnBoard.forEach(t -> t.addThingModifierIfShould(mod));
 		modifierManager.addGlobalThingModifier(mod);
+		setUpModifier(mod);
 	}
 	/**
 	 * Removes the given Pokemon modifier from the board. All Pokemon currently affected by the modifier will have the modifier removed

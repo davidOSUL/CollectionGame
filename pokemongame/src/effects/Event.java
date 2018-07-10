@@ -113,18 +113,54 @@ public class Event implements Serializable {
 
 		}
 	}
+	/**
+	 * set the onPlace consumer of this event
+	 * @param onPlace the consumer to set to onPlace
+	 */
 	public void setOnPlace(final SerializableConsumer<Board> onPlace) {
 		this.onPlace = onPlace;
 	}
+	/**
+	 * @return true if this event was marked for rest
+	 */
 	public boolean shouldBeReset() {
 		return shouldBeReset;
 	}
+	/**
+	 * Execute the rest of this event. this entails calling onRemove, onPlace, and then setting
+	 * onRemove to the newOnRemove that was passed in from markForRest.
+	 * @param b the Board to act upon
+	 * @return the Runnable to run
+	 */
 	public Runnable executeOnReset(final Board b) {
-		return () -> {shouldBeReset = false; runRemove(b); onRemove = newOnRemove; newOnRemove = null;};
+		return () -> {
+			if (shouldBeReset) {
+				shouldBeReset = false; 
+				onRemove.accept(b);
+				onPlace.accept(b);
+				onRemove = newOnRemove; 
+				newOnRemove = null;
+			}
+		};
 	}
+	/**
+	 * The purpose of "resetting" an event is to perform actions similar to what would have happened if the 
+	 * event was removed and then placed back down again. 
+	 * If the on place Consumer of this event has already happened, then mark this event for reset, and 
+	 * change the onRemove function to the "newOnRemove" function upon "executeOnReset" being called.
+	 * If the on place Consumer has NOT happened, then don't mark this event for reset, just simply change the onRemove 
+	 * function to the new onRemove function.
+	 * @param newOnRemove the new on Remove
+	 */
 	public void markForReset(final SerializableConsumer<Board> newOnRemove) {
-		shouldBeReset = true;
-		this.newOnRemove = newOnRemove;
+		if (onPlaceExecuted())
+		{
+			shouldBeReset = true;
+			this.newOnRemove = newOnRemove;
+		}
+		else {
+			this.onRemove = newOnRemove;
+		}
 	}
 	public boolean hasPeriodicity() {
 		return isPeriodic;
@@ -138,7 +174,7 @@ public class Event implements Serializable {
 		y=y/60.0;
 		return y;
 	}
-	
+
 	public synchronized void setOnPeriod(final SerializableConsumer<Board> onPeriod) {
 		this.onPeriod = onPeriod;
 	}

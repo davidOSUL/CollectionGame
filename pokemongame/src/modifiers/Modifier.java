@@ -26,6 +26,9 @@ public class Modifier<T> implements Serializable {
 	public Modifier (final SerializableConsumer<T> modification,  final SerializableConsumer<T> reverseModification) {
 		this(-1, x -> true, modification, reverseModification);
 	}
+	public Modifier (final long lifeInMillis, final SerializableConsumer<T> modification,  final SerializableConsumer<T> reverseModification) {
+		this(lifeInMillis, x -> true, modification, reverseModification);
+	}
 	public Modifier (final SerializablePredicate<T> shouldModify, final SerializableConsumer<T> modification,  final SerializableConsumer<T> reverseModification) {
 		this(-1, shouldModify, modification, reverseModification);
 	}
@@ -35,11 +38,13 @@ public class Modifier<T> implements Serializable {
 		this.modification = modification;
 		this.reverseModification = reverseModification;
 	}
+	public void startCount(final long startTime) {
+		timeStart = startTime;
+	}
 	public boolean shouldModify(final T t) {
 		return shouldModify.test(t);
 	}
 	public boolean performModificationIfShould(final T t) {
-		timeStart = System.currentTimeMillis();
 		if (shouldModify.test(t)) {
 			modification.accept(t);
 			return true;
@@ -47,8 +52,8 @@ public class Modifier<T> implements Serializable {
 		return false;
 	}
 	
-	public boolean isDone() {
-		return lifeInMillis != -1 && (System.currentTimeMillis() - timeStart) >= lifeInMillis;
+	public boolean isDone(final long currentTime) {
+		return lifeInMillis != -1 && (currentTime - timeStart) >= lifeInMillis;
 	}
 	public void performReverseModification(final T actOn) {
 		reverseModification.accept(actOn);

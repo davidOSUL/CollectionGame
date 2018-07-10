@@ -1,4 +1,4 @@
-package loaders;
+package loaders.eventbuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,6 +8,7 @@ import java.util.Map;
 
 import effects.Event;
 import gameutils.GameUtils;
+import loaders.CSVReader;
 
 /**
  * Generates Events by taking in a path to a file where Thing names are mapped to events that correspond to them
@@ -53,28 +54,12 @@ public class EventBuilder {
 				for (int i = 1; i < vals.length; i++) {
 					description.append(newline);
 					final String[] inputs = vals[i].split(":"); //e.g. randomgold:3:4:5, where 3,4,5 are the inputs to the generate function
-					final String type = inputs[0]; //the type of event
-					final TypicalEvents te = TypicalEvents.valueOf(type.toUpperCase().trim());
-					final int lower = te.getLower();
-					final int upper = te.getUpper();
-					Event e = null;
-					switch (te) {
-					case RANDOMGOLD:
-						final int[] integerInputs = GameUtils.parseAllInRangeToInt(inputs, lower, upper-1); //upper-1 because the last input will be a double that we have to parse seperately
-						e = generateRandomGoldEvent(integerInputs[0], integerInputs[1], Double.parseDouble(inputs[upper]));
-						description.append(te.getDescription(integerInputs[0], integerInputs[1], Double.parseDouble(inputs[upper])));
-						break;
-					case INCREASE_LEGENDARY_CHANCE:
-						e = generateLegendaryChanceIncreaseEvent(Integer.parseInt(inputs[0]));
-						description.append(te.getDescription(inputs[0]));
-						break;
-					default:
-						break;
-					}
-					if (e != null)
-						events.add(e);
+					final TypicalEvent typical = TypicalEvent.generateEvent(inputs);
+					if (typical.getEvent() != null)
+						events.add(typical.getEvent());
 					else
 						throw new Error("ISSUE ADDING EVENT TO EVENTFULITEM: " + name);
+					description.append(typical.getDescription());
 					newline = "\n";
 				}
 				mapEvents.put(name, events); //place the created event

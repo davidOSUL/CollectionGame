@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import effects.Event;
 import gameutils.GameUtils;
+import loaders.eventbuilder.EventBuilder;
 import thingFramework.Attribute;
 import thingFramework.AttributeNotFoundException;
 import thingFramework.Item;
