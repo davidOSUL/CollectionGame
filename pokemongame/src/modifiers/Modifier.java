@@ -21,18 +21,36 @@ public class Modifier<T> implements Serializable {
 	private final long lifeInMillis;
 	private final SerializablePredicate<T> shouldModify;
 	private final SerializableConsumer<T> modification;
+	private final SerializableConsumer<T> reverseModification;
 	private long timeStart = System.currentTimeMillis();
-	public Modifier(final long lifeInMillis, final SerializablePredicate<T> shouldModify, final SerializableConsumer<T> modification) {
+	public Modifier (final SerializablePredicate<T> shouldModify, final SerializableConsumer<T> modification,  final SerializableConsumer<T> reverseModification) {
+		this(-1, shouldModify, modification, reverseModification);
+	}
+	public Modifier (final long lifeInMillis, final SerializablePredicate<T> shouldModify, final SerializableConsumer<T> modification, final SerializableConsumer<T> reverseModification) {
 		this.lifeInMillis = lifeInMillis;
 		this.shouldModify = shouldModify;
 		this.modification = modification;
+		this.reverseModification = reverseModification;
 	}
-	public void performModification(final T actOn) {
+	public boolean performModificationIfShould(final T t) {
 		timeStart = System.currentTimeMillis();
-		modification.accept(actOn);
+		if (shouldModify.test(t)) {
+			modification.accept(t);
+			return true;
+		}
+		return false;
 	}
 	
 	public boolean isDone() {
-		return (System.currentTimeMillis() - timeStart) >= lifeInMillis && lifeInMillis != -1;
+		return lifeInMillis != -1 && (System.currentTimeMillis() - timeStart) >= lifeInMillis;
 	}
+	public boolean performReverseModificationIfShould(final T actOn) {
+		timeStart = System.currentTimeMillis();
+		if (shouldModify.test(actOn)) {
+			reverseModification.accept(actOn);
+			return true;
+		}
+		return false;
+	}
+	
 }

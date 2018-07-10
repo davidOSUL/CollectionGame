@@ -25,6 +25,8 @@ import effects.Eventful;
 import gameutils.GameUtils;
 import loaders.ThingLoader;
 import loaders.shopLoader.ShopItem;
+import modifiers.GlobalModifierManager;
+import modifiers.Modifier;
 import thingFramework.Item;
 import thingFramework.Pokemon;
 import thingFramework.Thing;
@@ -200,12 +202,13 @@ public class Board implements Serializable {
 	 */
 	private final SessionTimeManager stm;
 	//TODO: Put all possible things with their associated events in a manager of its own, should be able to grab events with quantity > 0 
-	
+	private final GlobalModifierManager<Pokemon> pokemonModifiersManager;
 	
 	
 	public Board() {
 		shop = new Shop();
 		stm = new SessionTimeManager();
+		pokemonModifiersManager = new GlobalModifierManager<Pokemon>();
 		events = new EventManager(this);
 		events.addThing(checkForPokemonThing);
 	}
@@ -542,7 +545,13 @@ public class Board implements Serializable {
 	private void removeElementFromThingMap(final Thing thing) {
 		thingsOnBoard.remove(thing);
 		removeAssociatedEvents(thing);  //execute onRemove and permanently remove if this is the last instance
+		final Modifier<Pokemon> m = new Modifier<Pokemon>(null, null, null);
+		addGlobalThingModifier(m);
 	}
+	public void addGlobalThingModifier(final Modifier<Pokemon> modifier) {
+		pokemonModifiersManager.addModifier(, modifier);
+	}
+
 	/**
 	 * If the thing hasn't been added to the board yet, update the event set
 	 * @param eventful The eventful to get the events for
