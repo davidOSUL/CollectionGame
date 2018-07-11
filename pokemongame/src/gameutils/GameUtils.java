@@ -105,5 +105,25 @@ public final class GameUtils {
 	    }          
 	    return sb.toString().trim();
 	}  
+	/**
+	 * Converts the given milliseconds to a display time (e.g. 3:54)
+	 * @param milliseconds the milliseconds 
+	 * @return the milliseconds as a displayed string
+	 */
+	public static String millisecondsToTime(final long milliseconds) {
+	    if (milliseconds < 0)
+	    	return "0:00";
+		final long minutes = (milliseconds / 1000) / 60;
+	    final long seconds = (milliseconds / 1000) % 60;
+	    final String secondsStr = Long.toString(seconds);
+	    String secs;
+	    if (secondsStr.length() >= 2) {
+	        secs = secondsStr.substring(0, 2);
+	    } else {
+	        secs = "0" + secondsStr;
+	    }
+
+	    return minutes + ":" + secs;
+	}
 	
 }

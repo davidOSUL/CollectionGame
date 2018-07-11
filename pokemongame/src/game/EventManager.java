@@ -3,7 +3,11 @@ package game;
 import static gameutils.Constants.DEBUG;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -22,6 +26,7 @@ public class EventManager implements Serializable{
 	private static final long serialVersionUID = 1L;
 	private final Set<Eventful> events = new HashSet<Eventful>();
 	private final Queue<Runnable> removalEvents = new ConcurrentLinkedQueue<Runnable>();
+	private final Map<Eventful, List<Event>> markedForRemovalEvents = new HashMap<Eventful, List<Event>>();
 	private final Board board;
 	public EventManager(final Board board) {
 		this.board = board;
@@ -41,7 +46,6 @@ public class EventManager implements Serializable{
 	public synchronized void runEvents() {
 		events.forEach(eventful -> eventful.getEvents().forEach((event) ->
 		{
-			
 			if (!event.onPlaceExecuted()) {
 				if (DEBUG) {
 					System.out.println("running event: " + eventful.getName());
@@ -50,8 +54,12 @@ public class EventManager implements Serializable{
 				event.executeOnPlace(board).run();
 			}
 			event.executePeriod(board).run();
-			if (event.wasRemoved()) { // if the event was removed by the Thing itself
-				event.executeOnRemove(board); 
+			event.executeOnTick(board).run();
+			if (event.wasMarkedForRemoval()) { // if the event was removed by the Thing itself
+				final List<Event> removalList = new ArrayList<Event>();
+				removalList.add(event);
+				markedForRemovalEvents.merge(eventful, removalList, (o, v) -> {o.addAll(v); return o;});
+				removalEvents.add(event.executeOnRemove(board));
 			}
 			if (event.shouldBeReset()) {
 				event.executeOnReset(board).run();
@@ -59,6 +67,8 @@ public class EventManager implements Serializable{
 		})); 
 		removalEvents.forEach((runnable) -> runnable.run());
 		removalEvents.clear();
+		markedForRemovalEvents.forEach((eventful, list) -> eventful.confirmEventRemovals(list));
+		markedForRemovalEvents.clear();
 	}
 
 	

@@ -26,7 +26,6 @@ import effects.Eventful;
 import gameutils.GameUtils;
 import loaders.ThingLoader;
 import loaders.shopLoader.ShopItem;
-import modifiers.HeldModifier;
 import modifiers.Modifier;
 import thingFramework.Item;
 import thingFramework.Pokemon;
@@ -732,7 +731,7 @@ public class Board implements Serializable {
 	}
 	/**
 	 * Applies the given Pokemon modifier to the entire board. All currently present pokemon, as well as those added
-	 * in the future will be affected as long as the modifier remains. 
+	 * in the future will be affected as long as the modifier remains. Also starts mod.startCount(...).
 	 * @param mod the Pokemon modifier to add
 	 */
 	public void addGlobalPokemonModifier(final Modifier<Pokemon> mod) {
@@ -743,7 +742,7 @@ public class Board implements Serializable {
 	}
 	/**
 	 * Applies the given Item modifier to the entire board. All currently present Items, as well as those added
-	 * in the future will be affected as long as the modifier remains. 
+	 * in the future will be affected as long as the modifier remains. Also starts mod.startCount(...).
 	 * @param mod the Item modifier to add
 	 */
 	public void addGlobalItemModifier(final Modifier<Item> mod) {
@@ -754,7 +753,7 @@ public class Board implements Serializable {
 	}
 	/**
 	 * Applies the given modifier to every Thing. All currently present Things, as well as those added
-	 * in the future will be affected as long as the modifier remains. 
+	 * in the future will be affected as long as the modifier remains. Also starts mod.startCount(...).
 	 * @param mod the Thing modifier to add
 	 */
 	public void addGlobalThingModifier(final Modifier<Thing> mod) {
@@ -766,7 +765,7 @@ public class Board implements Serializable {
 	 * Removes the given Pokemon modifier from the board. All Pokemon currently affected by the modifier will have the modifier removed
 	 *@param mod the Pokemon Modifier to remove
 	 */
-	public void removeGlobalPokemonModifier(final Modifier<Pokemon> mod) {
+	public synchronized void removeGlobalPokemonModifier(final Modifier<Pokemon> mod) {
 		pokemonOnBoard.forEach(p -> p.removeModifierIfPresent(mod));
 		modifierManager.removeGlobalPokemonModifier(mod);
 		
@@ -775,7 +774,7 @@ public class Board implements Serializable {
 	 * Removes the given Item modifier from the board. All Items currently affected by the modifier will have the modifier removed
 	 *@mod the Item Modifier to remove
 	 */
-	public void removeGlobalItemModifier(final Modifier<Item> mod) {
+	public synchronized void removeGlobalItemModifier(final Modifier<Item> mod) {
 		itemsOnBoard.forEach(i -> i.removeModifierIfPresent(mod));
 		modifierManager.removeGlobalItemModifier(mod);
 		
@@ -784,31 +783,16 @@ public class Board implements Serializable {
 	 * Removes the given Thing modifier from the board. All Things currently affected by the modifier will have the modifier removed
 	 *@mod the Thing Modifier to remove
 	 */
-	public void removeGlobalThingModifier(final Modifier<Thing> mod) {
+	public synchronized void removeGlobalThingModifier(final Modifier<Thing> mod) {
 		thingsOnBoard.forEach(t -> t.removeThingModifierIfPresent(mod));
 		modifierManager.removeGlobalThingModifier(mod);
 		
 	}
 	/**
-	 * Signifies that the Thing that holds the given HeldModifier should display a countdown saying how much 
-	 * time that Thing has left
-	 * @param mod the held modifier
-	 */
-	public void displayCountdownFor(final HeldModifier<?> mod) {
-		modifierManager.addToDisplayCountdownList(mod);
-	}
-	/**
-	 * Signifies that the Thing that holds the given HeldModifier should be removed after it is done
-	 * @param mod
-	 */
-	public void removeWhenDoneFor(final HeldModifier<?> mod) {
-		modifierManager.addToRemoveWhenDoneList(mod);
-	}
-	/**
 	 * Add the provided thing to queue of things that the board wants to remove
 	 * @param t
 	 */
-	synchronized void addToRemoveRequest(final Thing t) {
+	public synchronized void addToRemoveRequest(final Thing t) {
 		removeRequests.add(t);
 	}
 	/**

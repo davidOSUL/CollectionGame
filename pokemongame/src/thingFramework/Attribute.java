@@ -90,7 +90,7 @@ public class Attribute implements Serializable{
 	/**
 	 * If this thing only exists for a certain amount of time, how much time it exists for
 	 */
-	private static final Attribute TIME_LEFT = new Attribute(9, "Time left", "time left", ParseType.STRING, new String(""), AttributeType.DISPLAYTYPE);
+	private static final Attribute TIME_LEFT = new Attribute(9, "Time left", "time left", ParseType.STRING, new String("Infinite"), AttributeType.DISPLAYTYPE);
 	private Object value = null;
 	static int currId = 0;
 	private static Map<String, Attribute> idMap;

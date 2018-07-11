@@ -1,18 +1,29 @@
 package loaders.eventbuilder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import effects.Event;
+import effects.GlobalPokemonModifierEvent;
+import effects.HeldEvent;
 import gameutils.GameUtils;
 import interfaces.SerializableConsumer;
 import interfaces.SerializablePredicate;
-import modifiers.HeldModifier;
+import modifiers.Modifier;
+import thingFramework.Attribute;
 import thingFramework.Pokemon;
+import thingFramework.Thing;
 
+/**
+ * Class used to construct typical events
+ * @author David O'Sullivan
+ *
+ */
 public final class TypicalEvent {
 	private Event e;
+	private HeldEvent<Thing> he;
 	private String description;
 	private TypicalEvent() {}
-	String getDescription() { return description;}
-	Event getEvent() {return e;}
 	static TypicalEvent generateEvent(final String[] inputs) {
 		final String type = inputs[0]; //the type of event
 		final EventType eventType = EventType.valueOf(type.toUpperCase().trim());
@@ -25,18 +36,54 @@ public final class TypicalEvent {
 			te.e = generateRandomGoldEvent(integerInputs[0], integerInputs[1], Double.parseDouble(inputs[upper]));
 			te.description = eventType.getDescription(integerInputs[0], integerInputs[1], Double.parseDouble(inputs[upper]));
 			break;
-		case INCREASE_LEGENDARY_CHANCE:
+		case LEGCHANCEINCR:
 			te.e = generateLegendaryChanceIncreaseEvent(Integer.parseInt(inputs[lower]));
 			te.description = eventType.getDescription(inputs[lower]);
 			break;
 		case ADD_TO_INTATTRIBUTE_FOR_ALL_POKEMON:
+			String attributeToAdd = inputs[lower];
+			int amountToAdd =  Integer.parseInt(inputs[lower+1]);
+			long timeToExist = Long.parseLong(inputs[lower+2]);
+			String displayAttribute = Attribute.generateAttribute(attributeToAdd, Integer.toString(amountToAdd)).toString();
+			te.he = generateIntegerAddToAllPokemonEvent(attributeToAdd, amountToAdd, timeToExist, Boolean.parseBoolean(inputs[lower+3]), Boolean.parseBoolean(inputs[lower+4]));
+			te.description = eventType.getDescription(getTimeDisplayDescription(timeToExist), getPositive(amountToAdd), displayAttribute);
 			break;
 		case ADD_TO_INTATTTRIBUTE_FOR_ALL_OF_POKEMON_CATEGORY:
+			amountToAdd =  Integer.parseInt(inputs[lower+3]);
+			timeToExist = Long.parseLong(inputs[lower+4]);
+			String verbalDescription = inputs[upper];
+			attributeToAdd = inputs[lower+2];
+			displayAttribute = Attribute.generateAttribute(attributeToAdd, Integer.toString(amountToAdd)).toString();
+			te.he = generateIntegerAddToAllOfPokemonCategoryEvent(inputs[lower], inputs[lower+1], attributeToAdd, amountToAdd, timeToExist, Boolean.parseBoolean(inputs[lower+5]), Boolean.parseBoolean(inputs[lower+6]));
+			te.description = eventType.getDescription(getTimeDisplayDescription(timeToExist), verbalDescription, getPositive(amountToAdd), displayAttribute);
 			break;
-		default:
+		case MULTIPLY_TO_INTATTRIBUTE_FOR_ALL_POKEMON:
+			String attributeToMultiply = inputs[lower];
+			int amountToMultiply =  Integer.parseInt(inputs[lower+1]);
+			timeToExist = Long.parseLong(inputs[lower+2]);
+			displayAttribute = Attribute.generateAttribute(attributeToMultiply, Integer.toString(amountToMultiply)).toString();
+			te.he = generateIntegerMultiplyToAllPokemonEvent(attributeToMultiply, amountToMultiply, timeToExist, Boolean.parseBoolean(inputs[lower+3]), Boolean.parseBoolean(inputs[lower+4]));
+			te.description = eventType.getDescription(getTimeDisplayDescription(timeToExist), displayAttribute);
+			break;
+		case MULTIPLY_TO_INTATTRIBUTE_FOR_ALL_OF_POKEMON_CATEGORY:
+			amountToMultiply =  Integer.parseInt(inputs[lower+3]);
+			timeToExist = Long.parseLong(inputs[lower+4]);
+			verbalDescription = inputs[upper];
+			attributeToMultiply = inputs[lower+2];
+			displayAttribute = Attribute.generateAttribute(attributeToMultiply, Integer.toString(amountToMultiply)).toString();
+			te.he = generateIntegerMultiplyToAllPokemonOfCategoryEvent(inputs[lower], inputs[lower+1], attributeToMultiply, amountToMultiply, timeToExist, Boolean.parseBoolean(inputs[lower+5]), Boolean.parseBoolean(inputs[lower+6]));
+			te.description = eventType.getDescription(getTimeDisplayDescription(timeToExist), verbalDescription, displayAttribute);
 			break;
 		}
 		return te;
+	}
+	private static String getTimeDisplayDescription(final long timeToExist) {
+		final String timeDisplay = timeToExist > 0 ? "For the next " + GameUtils.millisecondsToTime(timeToExist) +
+				(timeToExist < 60000 ? " seconds ": " minutes ") + " all" : "All";
+		return timeDisplay;
+	}
+	private static String getPositive(final int amount) {
+		return amount >= 0 ? "+" : "";
 	}
 	/**
 	 * Generates an event that every periodInMinute minutes will with a percentChance chance add the specified amount of gold to the board
@@ -61,41 +108,119 @@ public final class TypicalEvent {
 		return new Event(board -> board.increaseLegendaryChance(increase), board -> board.decreaseLegendaryChance(increase));
 		
 	}
-	private static Event generateIntegerAddToAllOfPokemonCategoryEvent(final String categoryAttributeName, final String categoryAttributeValue, final String attributeToAdd, final int amountToAdd, final long lifetimeInMillis, final boolean removeWhenDone, final boolean displayCountdown) {
+	/**
+	 * Generates a held event that adds to a given attribute that is an integer the provided amount for all pokemon
+	 * with the provided categoryAttributeValue of the attribute with the name categoryAttribute name.
+	 * Can also specify lifetimeInMillis (-1 for never goes away), whether or not the countdown should be displayed,
+	 * whether or not it should be removed when done.
+	 * @param categoryAttributeName
+	 * @param categoryAttributeValue
+	 * @param attributeToAdd
+	 * @param amountToAdd
+	 * @param lifetimeInMillis
+	 * @param removeWhenDone
+	 * @param displayCountdown
+	 * @return the created held event
+	 */
+	private static HeldEvent<Thing> generateIntegerAddToAllOfPokemonCategoryEvent(final String categoryAttributeName, final String categoryAttributeValue, final String attributeToAdd, final int amountToAdd, final long lifetimeInMillis, final boolean removeWhenDone, final boolean displayCountdown) {
 		final SerializablePredicate<Pokemon> shouldModify = p -> {
 			return p.containsAttribute(categoryAttributeName) &&
 			p.getAttribute(categoryAttributeName).valEqualsParse(categoryAttributeValue);
 		};
+		final List<SerializableConsumer<Pokemon>> mods = getAddToIntModifiers(attributeToAdd, amountToAdd);
+		final Modifier<Pokemon> m = new Modifier<Pokemon>(lifetimeInMillis, shouldModify, mods.get(0), mods.get(1));
+		return new GlobalPokemonModifierEvent<Thing>(m, removeWhenDone, displayCountdown);
+	}
+	
+	/**
+	 * Generates a held event that adds to a given attribute that is an integer the provided amount for all pokemon.
+	 * Can also specify lifetimeInMillis (-1 for never goes away), whether or not the countdown should be displayed,
+	 * whether or not it should be removed when done.
+	 * @param attributeToAdd
+	 * @param amountToAdd
+	 * @param lifetimeInMillis
+	 * @param removeWhenDone
+	 * @param displayCountdown
+	 * @return
+	 */
+	private static HeldEvent<Thing> generateIntegerAddToAllPokemonEvent(final String attributeToAdd, final int amountToAdd, final long lifetimeInMillis, final boolean removeWhenDone, final boolean displayCountdown) {
+		final List<SerializableConsumer<Pokemon>> mods = getAddToIntModifiers(attributeToAdd, amountToAdd);
+		final Modifier<Pokemon> m = new Modifier<Pokemon>(lifetimeInMillis, mods.get(0), mods.get(1));
+		return new GlobalPokemonModifierEvent<Thing>(m, removeWhenDone, displayCountdown);
+	}
+	private static List<SerializableConsumer<Pokemon>> getAddToIntModifiers(final String attributeToAdd, final int amountToAdd) {
 		final SerializableConsumer<Pokemon> modification = p -> {
 			p.addToIntegerAttribute(attributeToAdd, amountToAdd, true);
 		};
 		final SerializableConsumer<Pokemon> reverseModification =  p -> {
 			p.addToIntegerAttribute(attributeToAdd, -amountToAdd, true);
 		};
-		final HeldModifier<Pokemon> m = new HeldModifier<Pokemon>(lifetimeInMillis, shouldModify, modification, reverseModification);
-		Event e = null;
-		e = new Event(board -> {
-			board.addGlobalPokemonModifier(m);
-			m.setCreator(this.getAssociatedThing());
-			if (removeWhenDone)
-				board.removeWhenDoneFor(m);
-			if (displayCountdown)
-				board.displayCountdownFor(m);
-		}, board -> {
-			board.removeGlobalPokemonModifier(m);
-		});
+		final List<SerializableConsumer<Pokemon>> list = new ArrayList<SerializableConsumer<Pokemon>>();
+		list.add(modification);
+		list.add(reverseModification);
+		return list;
+	}
+	
+	/**
+	 * Generates a held event that multiples the provided attribute by the provided value for the length of time given (-1 for infinte)
+	 * @param attributeToMultiply
+	 * @param amountToMultiply
+	 * @param lifetimeInMillis
+	 * @param removeWhenDone
+	 * @param displayCountdown
+	 * @return
+	 */
+	private static HeldEvent<Thing> generateIntegerMultiplyToAllPokemonEvent(final String attributeToMultiply, final int amountToMultiply, final long lifetimeInMillis, final boolean removeWhenDone, final boolean displayCountdown) {
+		final List<SerializableConsumer<Pokemon>> mods = getMultiplyToIntModifiers(attributeToMultiply, amountToMultiply);
+		final Modifier<Pokemon> m = new Modifier<Pokemon>(lifetimeInMillis, mods.get(0), mods.get(1));
+		return new GlobalPokemonModifierEvent<Thing>(m, removeWhenDone, displayCountdown);
+	}
+	/**
+	 *  Generates a held event that multiples the provided attribute by the provided value for the length of time given (-1 for infinte)
+	 *  for all pokemon that have the attribute categoryAttributeName and for that attribute have the value categoryAttributeValue
+	 * @param categoryAttributeName
+	 * @param categoryAttributeValue
+	 * @param attributeToMultiply
+	 * @param amountToMultiply
+	 * @param lifetimeInMillis
+	 * @param removeWhenDone
+	 * @param displayCountdown
+	 * @return
+	 */
+	private static HeldEvent<Thing> generateIntegerMultiplyToAllPokemonOfCategoryEvent(final String categoryAttributeName, final String categoryAttributeValue, final String attributeToMultiply, final int amountToMultiply, final long lifetimeInMillis, final boolean removeWhenDone, final boolean displayCountdown) {
+		final SerializablePredicate<Pokemon> shouldModify = p -> {
+			return p.containsAttribute(categoryAttributeName) &&
+			p.getAttribute(categoryAttributeName).valEqualsParse(categoryAttributeValue);
+		};
+		final List<SerializableConsumer<Pokemon>> mods = getMultiplyToIntModifiers(attributeToMultiply, amountToMultiply);
+		final Modifier<Pokemon> m = new Modifier<Pokemon>(lifetimeInMillis, shouldModify, mods.get(0), mods.get(1));
+		return new GlobalPokemonModifierEvent<Thing>(m, removeWhenDone, displayCountdown);
+	}
+	private static List<SerializableConsumer<Pokemon>> getMultiplyToIntModifiers(final String attributeToAdd, final int amountToMult) {
+		final SerializableConsumer<Pokemon> modification = p -> {
+			p.multiplyIntegerAttribute(attributeToAdd, amountToMult, true);
+		};
+		final SerializableConsumer<Pokemon> reverseModification =  p -> {
+			p.divideIntegerAttribute(attributeToAdd, amountToMult, false);
+		};
+		final List<SerializableConsumer<Pokemon>> list = new ArrayList<SerializableConsumer<Pokemon>>();
+		list.add(modification);
+		list.add(reverseModification);
+		return list;
 	}
 	/**
 	 * All TypicalEvents. Contains the lower index and the upper index of the parsed input line, where the inputs to the corresponding method that generates the event can be found
 	 * @author David O'Sullivan
 	 *
 	 */
+	//TODO: PUT THESE IN THEIR OWN CLASS
 	enum EventType {
 		RANDOMGOLD(1, 3, "Has a %d%% Chance of Generating %d PokeCash Every %.2f Minutes"), //of the format randomgold:x:y:z, so x (the first) will be at 1 and y (the last) will be at 3
-		INCREASE_LEGENDARY_CHANCE(1,1, "Increases chance of legendary pokemon spawning by %d%%"),
-		ADD_TO_INTATTTRIBUTE_FOR_ALL_OF_POKEMON_CATEGORY(1, 7, "All %s get %c%d %s"), //e.g. all water types get +1 $/min
-		ADD_TO_INTATTRIBUTE_FOR_ALL_POKEMON(1, 5, "All pokemon get %c%d %s");
-		
+		LEGCHANCEINCR(1,1, "Increases chance of legendary pokemon spawning by %d%%"),
+		ADD_TO_INTATTTRIBUTE_FOR_ALL_OF_POKEMON_CATEGORY(1, 8, "%s %s get %s%s"), //e.g. For the next 10 minutes, all water types get +1 $/min
+		ADD_TO_INTATTRIBUTE_FOR_ALL_POKEMON(1, 5, "%s pokemon get %s%d"),
+		MULTIPLY_TO_INTATTRIBUTE_FOR_ALL_OF_POKEMON_CATEGORY(1, 8, "%s %s get *%s"),
+		MULTIPLY_TO_INTATTRIBUTE_FOR_ALL_POKEMON(1, 5, "%s pokemon get *%s");
 		/**
 		 * The lower index of the set of parameters for the event's generator function
 		 */
@@ -120,4 +245,8 @@ public final class TypicalEvent {
 			return String.format(descriptionTemplate, args);
 		}
 	}
+	String getDescription() { return description;}
+	Event getRegularEvent() {return e;}
+	HeldEvent<Thing> getHeldEvent(){return he;}
+	public boolean isHeldEvent() { return this.he != null;}
 }

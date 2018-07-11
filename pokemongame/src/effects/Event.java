@@ -6,7 +6,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import game.Board;
 import interfaces.SerializableConsumer;
-import thingFramework.Thing;
 /**
  * various things may events which affect the state of the board at different times. Events have an
  * "onPlace", "onRemove" functions which happen when they are created/destroyed. Some events also have an
@@ -22,6 +21,7 @@ public class Event implements Serializable {
 	private SerializableConsumer<Board> onPlace =  x -> {};
 	private SerializableConsumer<Board> onPeriod = x -> {};
 	private SerializableConsumer<Board> onRemove =  x -> {};
+	private SerializableConsumer<Board> onTick = x -> {};
 	private double period = -1; //period in minutes
 	private long timeCreated;
 	private long inGameTimeCreated;
@@ -34,7 +34,6 @@ public class Event implements Serializable {
 	private boolean shouldBeRemoved = false;
 	private boolean shouldBeReset = false;
 	private SerializableConsumer<Board> newOnRemove = null;
-	private Thing holder = null;
 	public Event() {
 	}
 	public Event(final SerializableConsumer<Board> onPlace) {
@@ -79,12 +78,7 @@ public class Event implements Serializable {
 	}
 	public Event(final Event e) {
 		this(e.onPlace, e.onPeriod, e.onRemove, e.period);
-	}
-	public void setAssociatedThing(final Thing holder) {
-		this.holder = holder;
-	}
-	public Thing getAssociatedThing() {
-		return holder;
+		setOnTick(e.onTick);
 	}
 	private synchronized void runOnPlace(final Board b) {
 		if (!onPlaceExecuted()) {
@@ -101,6 +95,9 @@ public class Event implements Serializable {
 		onRemove.accept(b);
 		if (DEBUG)
 			System.out.println("runOnRemove from " + this);
+	}
+	private synchronized void runOnTick(final Board b) {
+		onTick.accept(b);
 	}
 	public synchronized boolean onPlaceExecuted() {
 		return onPlaceExecuted.get();
@@ -137,23 +134,7 @@ public class Event implements Serializable {
 	public boolean shouldBeReset() {
 		return shouldBeReset;
 	}
-	/**
-	 * Execute the rest of this event. this entails calling onRemove, onPlace, and then setting
-	 * onRemove to the newOnRemove that was passed in from markForRest.
-	 * @param b the Board to act upon
-	 * @return the Runnable to run
-	 */
-	public Runnable executeOnReset(final Board b) {
-		return () -> {
-			if (shouldBeReset) {
-				shouldBeReset = false; 
-				onRemove.accept(b);
-				onPlace.accept(b);
-				onRemove = newOnRemove; 
-				newOnRemove = null;
-			}
-		};
-	}
+	
 	/**
 	 * The purpose of "resetting" an event is to perform actions similar to what would have happened if the 
 	 * event was removed and then placed back down again. 
@@ -214,10 +195,10 @@ public class Event implements Serializable {
 	public void setName(final String name) {
 		this.name = name;
 	}
-	public synchronized void markWasRemoved() {
+	public synchronized void markForRemoval() {
 		shouldBeRemoved = true;
 	}
-	public synchronized boolean wasRemoved() {
+	public synchronized boolean wasMarkedForRemoval() {
 		return shouldBeRemoved;
 	}
 	@Override
@@ -235,6 +216,31 @@ public class Event implements Serializable {
 	public Runnable executeOnRemove(final Board b) {
 		return () -> runRemove(b);
 	}
-
+	public Runnable executeOnTick(final Board b) {
+		return () -> runOnTick(b);
+	}
+	protected void setOnRemove(final SerializableConsumer<Board> onRemove) {
+		this.onRemove = onRemove;
+	}
+	protected void setOnTick(final SerializableConsumer<Board> onTick) {
+		this.onTick = onTick;
+	}
+	/**
+	 * Execute the reset of this event. this entails calling onRemove, onPlace, and then setting
+	 * onRemove to the newOnRemove that was passed in from markForRest. Additionally, will unmark it as needing reset
+	 * @param b the Board to act upon
+	 * @return the Runnable to run
+	 */
+	public Runnable executeOnReset(final Board b) {
+		return () -> {
+			if (shouldBeReset) {
+				shouldBeReset = false; 
+				onRemove.accept(b);
+				onPlace.accept(b);
+				onRemove = newOnRemove; 
+				newOnRemove = null;
+			}
+		};
+	}
 
 }

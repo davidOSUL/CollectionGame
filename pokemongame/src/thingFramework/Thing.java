@@ -176,14 +176,22 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 		final Attribute at = attributeNameMap.remove(name);
 		final Event e = boardAttributes.get(at);
 		if (e != null) {
-			e.markWasRemoved();
-			final boolean assertPresent = removeFromEventList(e);
-			if (!assertPresent)
-				throw new IllegalStateException("Event list out of sync with board attributes");
+			e.markForRemoval();
 			boardAttributes.remove(at); 
 		}
 		updateDescription();
 
+	}
+	@Override
+	public void confirmEventRemovals(final Collection<Event> events) {
+		events.forEach(e -> {
+			if (!e.wasMarkedForRemoval())
+				throw new IllegalStateException("Event " + e + " should not have been confirmed for removal");
+			final boolean removed = eventList.remove(e);
+			if (!removed)
+				throw new IllegalStateException("Event " + e + " removal was confirmed, but was not present in eventlist");
+			
+		});
 	}
 	public Attribute getAttribute(final String name) {
 		return attributeNameMap.get(name);
@@ -217,7 +225,37 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	 */
 	public final void addToIntegerAttribute(final String name, final int value, final boolean removeIfZero) {
 		mergeAttribute(name, value, (o, v) -> o + v);
-		if ((Integer)getAttributeVal(name) == 0)
+		if (removeIfZero && (Integer)getAttributeVal(name) == 0)
+			removeAttribute(name);
+	}
+	/**
+	 * If the attribute currently exists, multiplies the provided value by the given attribute.
+	 * @param name the name of the attribute
+	 * @param multiplicationVal the amount to multiply by
+	 * @param removeIfZero remove the attribute if value is zero
+	 */
+	public final void multiplyIntegerAttribute(final String name, final int multiplicationVal, final boolean removeIfZero) {
+		boolean modified = false;
+		if (containsAttribute(name)) {
+			getAttribute(name).setValue(((Integer) getAttributeVal(name))*multiplicationVal);
+			modified = true;
+		}
+		if (modified && removeIfZero && (Integer)getAttributeVal(name) == 0)
+			removeAttribute(name);
+	}
+	/**
+	 * If the attribute currently exists, performs integer division to the effect of: newAttributeVal = (currentAttributeVal)/(divideVal)
+	 * @param name the name of the attribute
+	 * @param multiplicationVal the amount to multiply by
+	 * @param removeIfZero remove the attribute if value is zero
+	 */
+	public final void divideIntegerAttribute(final String name, final int divideVal, final boolean removeIfZero) {
+		boolean modified = false;
+		if (containsAttribute(name)) {
+			getAttribute(name).setValue(((Integer) getAttributeVal(name))/divideVal);
+			modified = true;
+		}
+		if (modified && removeIfZero && (Integer)getAttributeVal(name) == 0)
 			removeAttribute(name);
 	}
 	/**
@@ -247,8 +285,6 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	public String toString() {
 		if (name == null)
 			return "BLANK ITEM";
-		if (!containsAttribute("description") || getAttributeVal("description").toString().isEmpty())
-			System.out.println("HI");
 		return name + (containsAttribute("description") ? ":\n" + getAttributeVal("description").toString() : "");
 	}
 	/**
@@ -299,18 +335,11 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 			return;
 		events.forEach(e -> {
 			eventList.add(e);
-			e.setAssociatedThing(this);
 		});
 	}
-	private void addToEventList(final Event e) {
+	public void addToEventList(final Event e) {
 		addToEventList(Arrays.asList(e));
 	}
-	private void removeFromEventList(final Collection<Event> events) {
-		eventList.removeAll(events);
-		events.forEach(e -> e.setAssociatedThing(null));
-	}
-	private boolean removeFromEventList(final Event e) {
-		e.setAssociatedThing(null);
-		return eventList.remove(e);
-	}
+
+	
 }

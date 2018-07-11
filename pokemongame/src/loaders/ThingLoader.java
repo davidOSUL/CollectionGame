@@ -276,7 +276,11 @@ public final class ThingLoader {
 	 */
 	public Thing generateNewThing(final String name) {
 		final Thing t = thingMap.get(name).makeCopy();
-		t.addToEventList(eb.getNewEvents(name));
+		t.addToEventList(eb.getNewRegularEvents(name));
+		eb.getNewHeldEvents(name).forEach(he -> {
+			he.setCreator(t);
+			t.addToEventList(he);
+		});
 		return t;
 	}
 	/**
@@ -286,7 +290,11 @@ public final class ThingLoader {
 	 */
 	public Pokemon generateNewPokemon(final String name) {
 		final Pokemon p = new Pokemon(pokemonMap.get(name));
-		p.addToEventList(eb.getNewEvents(name));
+		p.addToEventList(eb.getNewRegularEvents(name));
+		eb.getNewHeldEvents(name).forEach(he -> {
+			he.setCreator(p);
+			p.addToEventList(he);
+		});
 		return p;
 	}
 	/**
@@ -296,7 +304,11 @@ public final class ThingLoader {
 	 */
 	public Item generateNewItem(final String name) {
 		final Item i = new Item(itemMap.get(name));
-		i.addToEventList(eb.getNewEvents(name));
+		i.addToEventList(eb.getNewRegularEvents(name));
+		eb.getNewHeldEvents(name).forEach(he -> {
+			he.setCreator(i);
+			i.addToEventList(he);
+		});
 		return i;
 	}
 	

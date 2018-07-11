@@ -1,6 +1,6 @@
 package effects;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -9,6 +9,7 @@ import java.util.List;
  *
  */
 public interface Eventful {
+ public void confirmEventRemovals(Collection<Event> events);
  public List<Event> getEvents();
  public default String getName() {
 	 return "";

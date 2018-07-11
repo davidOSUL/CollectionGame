@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import effects.Event;
+import effects.HeldEvent;
 import gameutils.GameUtils;
 import loaders.CSVReader;
+import thingFramework.Thing;
 
 /**
  * Generates Events by taking in a path to a file where Thing names are mapped to events that correspond to them
@@ -17,9 +19,10 @@ import loaders.CSVReader;
 public class EventBuilder {
 
 	/**
-	 * The Map between the name of the Thing and all the events associated with it
+	 * The Map between the name of the Thing and all the non-held events associated with it
 	 */
 	private final Map<String, List<Event>> mapEvents = new HashMap<String, List<Event>>();
+	private final Map<String, List<HeldEvent<Thing>>> mapHeldEvents = new HashMap<String, List<HeldEvent<Thing>>>();
 	/**
 	 * The Map between the name of the Thing and the description associated with it because it has a generated event
 	 */
@@ -50,19 +53,30 @@ public class EventBuilder {
 				final StringBuilder description = new StringBuilder();
 				String newline = "";
 				final String name=vals[0]; //e.g. smalltable
-				final List<Event> events = new ArrayList<Event>();
+				final List<Event> regEvents = new ArrayList<Event>();
+				final List<HeldEvent<Thing>> heldEvents = new ArrayList<HeldEvent<Thing>>();
 				for (int i = 1; i < vals.length; i++) {
 					description.append(newline);
 					final String[] inputs = vals[i].split(":"); //e.g. randomgold:3:4:5, where 3,4,5 are the inputs to the generate function
 					final TypicalEvent typical = TypicalEvent.generateEvent(inputs);
-					if (typical.getEvent() != null)
-						events.add(typical.getEvent());
-					else
-						throw new Error("ISSUE ADDING EVENT TO EVENTFULITEM: " + name);
+					if (typical.isHeldEvent()) {
+						if (typical.getHeldEvent() != null)
+							heldEvents.add(typical.getHeldEvent());
+						else
+							throw new Error("ISSUE ADDING EVENT TO: " + name);
+					}
+					else {
+						if (typical.getRegularEvent() != null)
+							regEvents.add(typical.getRegularEvent());
+						else
+							throw new Error("ISSUE ADDING EVENT TO: " + name);
+					}
+					
 					description.append(typical.getDescription());
 					newline = "\n";
 				}
-				mapEvents.put(name, events); //place the created event
+				mapEvents.put(name, regEvents); //place the created event
+				mapHeldEvents.put(name, heldEvents);
 				eventNameToDescription.put(name, description.toString());
 			}
 		} catch (final NumberFormatException e) {
@@ -78,11 +92,27 @@ public class EventBuilder {
 
 	}
 	/**
-	 * Get all new events built for the thing with the given name. Returns null if none are present
+	 * Get all held events built for the thing with the given name. Returns null if none are present
 	 * @param name the name of the thing
 	 * @return the list of events for that thing, null if none
 	 */
-	public List<Event> getNewEvents(final String name) {
+	public List<HeldEvent<Thing>> getNewHeldEvents(final String name) {
+		final List<HeldEvent<Thing>> newEvents = new ArrayList<HeldEvent<Thing>>();
+		final List<HeldEvent<Thing>> templateEvents = mapHeldEvents.get(name);
+		if (templateEvents != null) {
+			templateEvents.forEach( e -> {
+				if (e != null) 
+					newEvents.add(e.makeCopy());
+			});
+		}
+		return newEvents;
+	}
+	/**
+	 * Get all non-held events built for the thing with the given name. Returns null if none are present
+	 * @param name the name of the thing
+	 * @return the list of events for that thing, null if none
+	 */
+	public List<Event> getNewRegularEvents(final String name) {
 		final List<Event> newEvents = new ArrayList<Event>();
 		final List<Event> templateEvents = mapEvents.get(name);
 		if (templateEvents != null) {

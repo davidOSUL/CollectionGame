@@ -2,6 +2,7 @@ package modifiers;
 
 import java.io.Serializable;
 
+import gameutils.GameUtils;
 import interfaces.SerializableConsumer;
 import interfaces.SerializablePredicate;
 
@@ -38,6 +39,9 @@ public class Modifier<T> implements Serializable {
 		this.modification = modification;
 		this.reverseModification = reverseModification;
 	}
+	public Modifier(final Modifier m) {
+		this(m.lifeInMillis, m.shouldModify, m.modification, m.reverseModification);
+	}
 	public void startCount(final long startTime) {
 		timeStart = startTime;
 	}
@@ -53,30 +57,19 @@ public class Modifier<T> implements Serializable {
 	}
 	
 	public boolean isDone(final long currentTime) {
-		return lifeInMillis != -1 && (currentTime - timeStart) >= lifeInMillis;
+		return lifeInMillis > 0  && (currentTime - timeStart) >= lifeInMillis;
 	}
 	public void performReverseModification(final T actOn) {
 		reverseModification.accept(actOn);
 	}
 	public String timeLeft(final long currentTime)  {
-		return millisecondsToTime(lifeInMillis - (currentTime - timeStart));
+		return GameUtils.millisecondsToTime(lifeInMillis - (currentTime - timeStart));
 	}
-	private String millisecondsToTime(final long milliseconds) {
-	    if (milliseconds < 0)
-	    	return "0:00";
-		final long minutes = (milliseconds / 1000) / 60;
-	    final long seconds = (milliseconds / 1000) % 60;
-	    final String secondsStr = Long.toString(seconds);
-	    String secs;
-	    if (secondsStr.length() >= 2) {
-	        secs = secondsStr.substring(0, 2);
-	    } else {
-	        secs = "0" + secondsStr;
-	    }
+	public boolean hasTimeLimit() {
+		return lifeInMillis > 0;
+	}
 
-	    return minutes + ":" + secs;
-	}
 	
-	
+
 	
 }
