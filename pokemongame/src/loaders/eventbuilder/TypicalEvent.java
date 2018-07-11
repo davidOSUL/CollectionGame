@@ -2,6 +2,10 @@ package loaders.eventbuilder;
 
 import effects.Event;
 import gameutils.GameUtils;
+import interfaces.SerializableConsumer;
+import interfaces.SerializablePredicate;
+import modifiers.HeldModifier;
+import thingFramework.Pokemon;
 
 public final class TypicalEvent {
 	private Event e;
@@ -22,8 +26,12 @@ public final class TypicalEvent {
 			te.description = eventType.getDescription(integerInputs[0], integerInputs[1], Double.parseDouble(inputs[upper]));
 			break;
 		case INCREASE_LEGENDARY_CHANCE:
-			te.e = generateLegendaryChanceIncreaseEvent(Integer.parseInt(inputs[0]));
-			te.description = eventType.getDescription(inputs[0]);
+			te.e = generateLegendaryChanceIncreaseEvent(Integer.parseInt(inputs[lower]));
+			te.description = eventType.getDescription(inputs[lower]);
+			break;
+		case ADD_TO_INTATTRIBUTE_FOR_ALL_POKEMON:
+			break;
+		case ADD_TO_INTATTTRIBUTE_FOR_ALL_OF_POKEMON_CATEGORY:
 			break;
 		default:
 			break;
@@ -53,7 +61,30 @@ public final class TypicalEvent {
 		return new Event(board -> board.increaseLegendaryChance(increase), board -> board.decreaseLegendaryChance(increase));
 		
 	}
-
+	private static Event generateIntegerAddToAllOfPokemonCategoryEvent(final String categoryAttributeName, final String categoryAttributeValue, final String attributeToAdd, final int amountToAdd, final long lifetimeInMillis, final boolean removeWhenDone, final boolean displayCountdown) {
+		final SerializablePredicate<Pokemon> shouldModify = p -> {
+			return p.containsAttribute(categoryAttributeName) &&
+			p.getAttribute(categoryAttributeName).valEqualsParse(categoryAttributeValue);
+		};
+		final SerializableConsumer<Pokemon> modification = p -> {
+			p.addToIntegerAttribute(attributeToAdd, amountToAdd, true);
+		};
+		final SerializableConsumer<Pokemon> reverseModification =  p -> {
+			p.addToIntegerAttribute(attributeToAdd, -amountToAdd, true);
+		};
+		final HeldModifier<Pokemon> m = new HeldModifier<Pokemon>(lifetimeInMillis, shouldModify, modification, reverseModification);
+		Event e = null;
+		e = new Event(board -> {
+			board.addGlobalPokemonModifier(m);
+			m.setCreator(this.getAssociatedThing());
+			if (removeWhenDone)
+				board.removeWhenDoneFor(m);
+			if (displayCountdown)
+				board.displayCountdownFor(m);
+		}, board -> {
+			board.removeGlobalPokemonModifier(m);
+		});
+	}
 	/**
 	 * All TypicalEvents. Contains the lower index and the upper index of the parsed input line, where the inputs to the corresponding method that generates the event can be found
 	 * @author David O'Sullivan
@@ -61,7 +92,9 @@ public final class TypicalEvent {
 	 */
 	enum EventType {
 		RANDOMGOLD(1, 3, "Has a %d%% Chance of Generating %d PokeCash Every %.2f Minutes"), //of the format randomgold:x:y:z, so x (the first) will be at 1 and y (the last) will be at 3
-		INCREASE_LEGENDARY_CHANCE(1,1, "Increases chance of legendary pokemon spawning by %d%%");
+		INCREASE_LEGENDARY_CHANCE(1,1, "Increases chance of legendary pokemon spawning by %d%%"),
+		ADD_TO_INTATTTRIBUTE_FOR_ALL_OF_POKEMON_CATEGORY(1, 7, "All %s get %c%d %s"), //e.g. all water types get +1 $/min
+		ADD_TO_INTATTRIBUTE_FOR_ALL_POKEMON(1, 5, "All pokemon get %c%d %s");
 		
 		/**
 		 * The lower index of the set of parameters for the event's generator function

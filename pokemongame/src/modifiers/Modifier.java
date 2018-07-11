@@ -58,5 +58,25 @@ public class Modifier<T> implements Serializable {
 	public void performReverseModification(final T actOn) {
 		reverseModification.accept(actOn);
 	}
+	public String timeLeft(final long currentTime)  {
+		return millisecondsToTime(lifeInMillis - (currentTime - timeStart));
+	}
+	private String millisecondsToTime(final long milliseconds) {
+	    if (milliseconds < 0)
+	    	return "0:00";
+		final long minutes = (milliseconds / 1000) / 60;
+	    final long seconds = (milliseconds / 1000) % 60;
+	    final String secondsStr = Long.toString(seconds);
+	    String secs;
+	    if (secondsStr.length() >= 2) {
+	        secs = secondsStr.substring(0, 2);
+	    } else {
+	        secs = "0" + secondsStr;
+	    }
+
+	    return minutes + ":" + secs;
+	}
+	
+	
 	
 }

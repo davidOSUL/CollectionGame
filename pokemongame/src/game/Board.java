@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -25,6 +26,7 @@ import effects.Eventful;
 import gameutils.GameUtils;
 import loaders.ThingLoader;
 import loaders.shopLoader.ShopItem;
+import modifiers.HeldModifier;
 import modifiers.Modifier;
 import thingFramework.Item;
 import thingFramework.Pokemon;
@@ -202,18 +204,19 @@ public class Board implements Serializable {
 	 */
 	private volatile Map<String, Integer> uniquePokemonLookup = new HashMap<String, Integer>();
 	private final Shop shop;
-	private final EventManager events; 
+	private final EventManager events;
 	/**
 	 * Manages the gametime and session time of the current board. Note that newSession should be called to 
 	 * update this when a new session is started.
 	 */
 	private final SessionTimeManager stm;
 	//TODO: Put all possible things with their associated events in a manager of its own, should be able to grab events with quantity > 0 
-	private final GlobalModifierManager modifierManager;
+	private final ModifierManager modifierManager;
+	private final Queue<Thing> removeRequests = new LinkedList<Thing>();
 	public Board() {
 		shop = new Shop();
 		stm = new SessionTimeManager();
-		modifierManager = new GlobalModifierManager(this);
+		modifierManager = new ModifierManager(this);
 		events = new EventManager(this);
 		events.addThing(checkForPokemonThing);
 	}
@@ -786,7 +789,41 @@ public class Board implements Serializable {
 		modifierManager.removeGlobalThingModifier(mod);
 		
 	}
-	
+	/**
+	 * Signifies that the Thing that holds the given HeldModifier should display a countdown saying how much 
+	 * time that Thing has left
+	 * @param mod the held modifier
+	 */
+	public void displayCountdownFor(final HeldModifier<?> mod) {
+		modifierManager.addToDisplayCountdownList(mod);
+	}
+	/**
+	 * Signifies that the Thing that holds the given HeldModifier should be removed after it is done
+	 * @param mod
+	 */
+	public void removeWhenDoneFor(final HeldModifier<?> mod) {
+		modifierManager.addToRemoveWhenDoneList(mod);
+	}
+	/**
+	 * Add the provided thing to queue of things that the board wants to remove
+	 * @param t
+	 */
+	synchronized void addToRemoveRequest(final Thing t) {
+		removeRequests.add(t);
+	}
+	/**
+	 * The board is requesting to remove something
+	 * @return true if the board has at least one thing to remove
+	 */
+	public synchronized boolean hasRemoveRequest() {
+		return !removeRequests.isEmpty();
+	}
+	/**
+	 * @return the next thing the board is requesting to remove (null if none)
+	 */
+	public synchronized Thing getNextRemoveRequest() {
+		return removeRequests.poll();
+	}
 	
 
 

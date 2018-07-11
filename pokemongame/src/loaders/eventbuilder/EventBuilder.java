@@ -15,7 +15,7 @@ import loaders.CSVReader;
  * @author David O'Sullivan
  */
 public class EventBuilder {
-	
+
 	/**
 	 * The Map between the name of the Thing and all the events associated with it
 	 */
@@ -75,15 +75,23 @@ public class EventBuilder {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 	/**
-	 * Get all events built for the thing with the given name. Returns null if none are present
+	 * Get all new events built for the thing with the given name. Returns null if none are present
 	 * @param name the name of the thing
 	 * @return the list of events for that thing, null if none
 	 */
-	public List<Event> getEvents(final String name) {
-		return mapEvents.get(name);
+	public List<Event> getNewEvents(final String name) {
+		final List<Event> newEvents = new ArrayList<Event>();
+		final List<Event> templateEvents = mapEvents.get(name);
+		if (templateEvents != null) {
+			templateEvents.forEach( e -> {
+				if (e != null) 
+					newEvents.add(new Event(e));
+			});
+		}
+		return newEvents;
 	}
 	/**
 	 * Get the verbal description of all events built for the specified thing
@@ -114,10 +122,10 @@ public class EventBuilder {
 	 */
 	public static Event generateLegendaryChanceIncreaseEvent(final int increase) {
 		return new Event(board -> board.increaseLegendaryChance(increase), board -> board.decreaseLegendaryChance(increase));
-		
+
 	}
-	
-	
+
+
 	/**
 	 * All TypicalEvents. Contains the lower index and the upper index of the parsed input line, where the inputs to the corresponding method that generates the event can be found
 	 * @author David O'Sullivan
@@ -126,7 +134,7 @@ public class EventBuilder {
 	private enum TypicalEvents {
 		RANDOMGOLD(1, 3, "Has a %d%% Chance of Generating %d PokeCash Every %.2f Minutes"), //of the format randomgold:x:y:z, so x (the first) will be at 1 and y (the last) will be at 3
 		INCREASE_LEGENDARY_CHANCE(1,1, "Increases chance of legendary pokemon spawning by %d%%");
-		
+
 		/**
 		 * The lower index of the set of parameters for the event's generator function
 		 */

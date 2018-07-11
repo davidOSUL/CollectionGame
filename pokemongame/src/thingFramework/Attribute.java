@@ -90,7 +90,7 @@ public class Attribute implements Serializable{
 	/**
 	 * If this thing only exists for a certain amount of time, how much time it exists for
 	 */
-	private static final Attribute TIME_LEFT = new Attribute(9, "Time left", "time left", ParseType.STRING, AttributeType.DISPLAYTYPE);
+	private static final Attribute TIME_LEFT = new Attribute(9, "Time left", "time left", ParseType.STRING, new String(""), AttributeType.DISPLAYTYPE);
 	private Object value = null;
 	static int currId = 0;
 	private static Map<String, Attribute> idMap;
@@ -270,19 +270,20 @@ public class Attribute implements Serializable{
 			throw new Error("ATTRIBUTE SHOULD NOT BE DISPLAYED");
 		return orderOfDisplay;
 	}
-	public void parseAndSetValue(final String value) {
+	public Object parseValue(final String value) {
+		Object newVal = null;
 		if (value.equals("") || value.equals(" "))
-			setValue(defaultValue);
+			newVal = defaultValue;
 		else {
 			switch (parsetype) {
 			case INTEGER:
-				setValue(Integer.parseInt(value));
+				newVal = Integer.parseInt(value);
 				break;
 			case DOUBLE:
-				setValue(Double.parseDouble(value));
+				newVal = Double.parseDouble(value);
 				break;
 			case STRING:
-				setValue(value);
+				newVal = value;
 				break;
 			case ENUMSETPOKEMONTYPE:
 				final String[] types = value.split(" ");
@@ -293,26 +294,31 @@ public class Attribute implements Serializable{
 					poketypes[i-1] = PokemonType.valueOf(types[i].toUpperCase().trim());
 					
 				}
-				setValue(EnumSet.of(firstType, poketypes));
+				newVal = EnumSet.of(firstType, poketypes);
 				break;
 			case EXPERIENCEGROUP:
-				setValue(ExperienceGroup.valueOf(value.toUpperCase().replaceAll("\\s", "")));
+				newVal = ExperienceGroup.valueOf(value.toUpperCase().replaceAll("\\s", ""));
 				break;
 			case BOOLEAN:
-				setValue(Boolean.parseBoolean(value));
+				newVal = Boolean.parseBoolean(value);
 				break;
 			case LISTSTRING:
 				if (value.startsWith("["))
-				setValue(Arrays.asList(value.substring(1, value.length()-1).split("\\s*,\\s*")));
+				newVal = Arrays.asList(value.substring(1, value.length()-1).split("\\s*,\\s*"));
 				else
-				setValue(Arrays.asList(value));
+				newVal = Arrays.asList(value);
 				break;
 			case POKEMON:
 				throw new Error("POKEMON SHOULD NOT BE PARSED");
 				
 			}
 		}
+		return newVal;
 	}
+	public void parseAndSetValue(final String value) {
+		setValue(parseValue(value));
+	}
+
 	public void setValue(final Object value) {
 		if (!value.getClass().equals(getParseClass()))
 			throw new Error("Attribute " + getName() + "'s value must be a: " + getParseClass().getName());
@@ -349,6 +355,10 @@ public class Attribute implements Serializable{
 	}
 	public static Attribute generateAttribute(final String name) {
 		return generateAttribute(name, "");
+	}
+	public boolean valEqualsParse(final String input) {
+		final Object value = parseValue(input);
+		return getValue().equals(value);
 	}
 	private enum ParseType {
 		INTEGER, DOUBLE, STRING, ENUMSETPOKEMONTYPE, EXPERIENCEGROUP, BOOLEAN, POKEMON, LISTSTRING

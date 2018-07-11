@@ -46,7 +46,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	protected Thing(final Event...events) {
 		this();
 		if (events != null)
-			eventList.addAll(GameUtils.toArrayList(events));
+			addToEventList(Arrays.asList(events));
 	}
 	public Thing(final String name, final String image, final Set<Attribute> attributes) {
 		if (!vallidateAttributes(attributes))
@@ -57,7 +57,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 		this.image = image;
 		attributeNameMap = generateAttributeNameMap(attributes);
 		boardAttributes = BoardAttributeManager.getEvents(getAttributesThatContainType(BOARDTYPE));
-		eventList.addAll(boardAttributes.values());
+		addToEventList(boardAttributes.values());
 		updateDescription();
 	}
 	public Thing(final String name, final String image, final Set<Attribute> attributes, final Event...events ) {
@@ -66,7 +66,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	public Thing(final String name, final String image, final Set<Attribute> attributes, final List<Event> events) {
 		this(name, image, attributes);
 		if (events != null)
-			eventList.addAll(events);
+			addToEventList(events);
 	}
 	@Override
 	public List<Event> getEvents() {
@@ -166,7 +166,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 			if (at.containsType(BOARDTYPE)) {
 				final Event e=  BoardAttributeManager.getEvent(at);
 				boardAttributes.put(at, e);
-				eventList.add(e);
+				addToEventList(e);
 			}
 		}
 		updateDescription();
@@ -177,13 +177,16 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 		final Event e = boardAttributes.get(at);
 		if (e != null) {
 			e.markWasRemoved();
-			final boolean assertPresent = eventList.remove(e); 
+			final boolean assertPresent = removeFromEventList(e);
 			if (!assertPresent)
 				throw new IllegalStateException("Event list out of sync with board attributes");
 			boardAttributes.remove(at); 
 		}
 		updateDescription();
 
+	}
+	public Attribute getAttribute(final String name) {
+		return attributeNameMap.get(name);
 	}
 	public final void setAttributeVal(final String name, final Object value) {
 		if (containsAttribute(name)) {
@@ -290,5 +293,24 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	}
 	public enum ThingType {
 		POKEMON, ITEM;
+	}
+	public void addToEventList(final Collection<Event> events) {
+		if (events == null)
+			return;
+		events.forEach(e -> {
+			eventList.add(e);
+			e.setAssociatedThing(this);
+		});
+	}
+	private void addToEventList(final Event e) {
+		addToEventList(Arrays.asList(e));
+	}
+	private void removeFromEventList(final Collection<Event> events) {
+		eventList.removeAll(events);
+		events.forEach(e -> e.setAssociatedThing(null));
+	}
+	private boolean removeFromEventList(final Event e) {
+		e.setAssociatedThing(null);
+		return eventList.remove(e);
 	}
 }

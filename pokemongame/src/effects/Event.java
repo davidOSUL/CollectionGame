@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import game.Board;
 import interfaces.SerializableConsumer;
+import thingFramework.Thing;
 /**
  * various things may events which affect the state of the board at different times. Events have an
  * "onPlace", "onRemove" functions which happen when they are created/destroyed. Some events also have an
@@ -33,6 +34,7 @@ public class Event implements Serializable {
 	private boolean shouldBeRemoved = false;
 	private boolean shouldBeReset = false;
 	private SerializableConsumer<Board> newOnRemove = null;
+	private Thing holder = null;
 	public Event() {
 	}
 	public Event(final SerializableConsumer<Board> onPlace) {
@@ -74,6 +76,15 @@ public class Event implements Serializable {
 		this(onPeriod, periodInMinutes);
 		this.onPlace = onPlace;
 		this.onRemove = onRemove;
+	}
+	public Event(final Event e) {
+		this(e.onPlace, e.onPeriod, e.onRemove, e.period);
+	}
+	public void setAssociatedThing(final Thing holder) {
+		this.holder = holder;
+	}
+	public Thing getAssociatedThing() {
+		return holder;
 	}
 	private synchronized void runOnPlace(final Board b) {
 		if (!onPlaceExecuted()) {

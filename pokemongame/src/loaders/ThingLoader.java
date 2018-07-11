@@ -5,12 +5,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import effects.Event;
 import gameutils.GameUtils;
 import loaders.eventbuilder.EventBuilder;
 import thingFramework.Attribute;
@@ -205,9 +203,8 @@ public final class ThingLoader {
 	private void loadPokemon(final String[] values) {
 		final String name = values[1];
 		final String texture = POKE_SPRITE_LOC + values[2];
-		final List<Event> listOfEvents = eb.getEvents(name);
 		final Set<Attribute> attributes = loadAttributes(values, 3, name);
-		final Pokemon pm = new Pokemon(name, texture, attributes, listOfEvents);
+		final Pokemon pm = new Pokemon(name, texture, attributes);
 		thingMap.put(name, pm);
 		pokemonMap.put(name, pm);
 		
@@ -215,9 +212,8 @@ public final class ThingLoader {
 	private void loadItem(final String[] values) {
 			final String name = values[1];
 			final String texture = ITEM_SPRITE_LOC + values[2];
-			final List<Event> listOfEvents = eb.getEvents(name);
 			final Set<Attribute> attributes = loadAttributes(values, 3, name);
-			final Item i = new Item(name, texture, attributes, listOfEvents);
+			final Item i = new Item(name, texture, attributes);
 			thingMap.put(name, i);
 			itemMap.put(name, i);
 	}
@@ -279,7 +275,9 @@ public final class ThingLoader {
 	 * @return The new thing. Throws NullPointerException if not present
 	 */
 	public Thing generateNewThing(final String name) {
-		return thingMap.get(name).makeCopy();
+		final Thing t = thingMap.get(name).makeCopy();
+		t.addToEventList(eb.getNewEvents(name));
+		return t;
 	}
 	/**
 	 * Creates a new instance of the Pokemon with the given name with all the characterstics that were loaded in on the game start
@@ -287,7 +285,9 @@ public final class ThingLoader {
 	 * @return The new thing. Throws NullPointerException if not present
 	 */
 	public Pokemon generateNewPokemon(final String name) {
-		return new Pokemon(pokemonMap.get(name));
+		final Pokemon p = new Pokemon(pokemonMap.get(name));
+		p.addToEventList(eb.getNewEvents(name));
+		return p;
 	}
 	/**
 	 * Creates a new instance of the item with the given name with all the characterstics that were loaded in on the game start
@@ -295,7 +295,9 @@ public final class ThingLoader {
 	 * @return The new thing. Throws NullPointerException if not present
 	 */
 	public Item generateNewItem(final String name) {
-		return new Item(itemMap.get(name));
+		final Item i = new Item(itemMap.get(name));
+		i.addToEventList(eb.getNewEvents(name));
+		return i;
 	}
 	
 	/**
