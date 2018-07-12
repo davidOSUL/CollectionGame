@@ -72,7 +72,7 @@ public final class GuiUtils {
 		//return pokeCash;
 		return "$";
 	}
-	public static void displayError(final Exception e, final Component parent) {
+	public static void displayError(final Throwable e, final Component parent) {
 		final StringWriter sw = new StringWriter();
 		final PrintWriter pw = new PrintWriter(sw);
 		e.printStackTrace(pw);

@@ -21,6 +21,14 @@ import thingFramework.Thing;
 public class ShopItemLoader {
 	private static final String SHOP_ITEM_PATH = "/InputFiles/shopItems - 1.csv";
 	private static final ShopItemLoader INSTANCE = new ShopItemLoader();
+	private static final int NAME = 0;
+	private static final int QUANTITY = 1;
+	private static final int COST = 2;
+	private static final int RANK = 3;
+	private static final int DEFAULT = 4;
+	private static final int REMOVE_ON_DELETE = 5;
+	private static final int MAX_ALLOWED = 6;
+	private static final int SELL_BACK_VAL = 7;
 	/**
 	 * The set of all possible items for the shop to have
 	 */
@@ -71,23 +79,24 @@ public class ShopItemLoader {
 	 */
 	private void load(final String path) {
 		try {
+			
 			for (final String[] values : CSVReader.readCSV(path, true)) {
 				final int[] quantityCostAndRank;
 				if (!values[1].equalsIgnoreCase("infinite"))
-					quantityCostAndRank = GameUtils.parseAllInRangeToInt(values, 1, 3);
+					quantityCostAndRank = GameUtils.parseAllInRangeToInt(values, QUANTITY, RANK); //get range from quantity->cost->rank
 				else {
-					final int[] costAndRank = GameUtils.parseAllInRangeToInt(values, 2, 3);
+					final int[] costAndRank = GameUtils.parseAllInRangeToInt(values, COST, RANK);
 					quantityCostAndRank = new int[]{ShopItem.INFINITY, costAndRank[0], costAndRank[1]};
 				}
-				if (!ThingLoader.sharedInstance().hasThing(values[0])) 
-					throw new RuntimeException("attempted to parse ShopItem with Thing Name: " + values[0] + " which does not have a corresponding thing");
-				final boolean removeWhenDeleted = values[4].equalsIgnoreCase("yes");
-				final int maxAllowed;
-				maxAllowed = values[6].equalsIgnoreCase("no limit") ? ShopItem.INFINITY :Integer.parseInt(values[6]);
-				final ShopItem item = new ShopItem(values[0], quantityCostAndRank, removeWhenDeleted, maxAllowed);
-				shopItemMap.put(values[0], item);
+				if (!ThingLoader.sharedInstance().hasThing(values[NAME])) 
+					throw new RuntimeException("attempted to parse ShopItem with Thing Name: " + values[NAME] + " which does not have a corresponding thing");
+				final boolean removeWhenDeleted = values[REMOVE_ON_DELETE].equalsIgnoreCase("yes");
+				final int maxAllowed= values[MAX_ALLOWED].equalsIgnoreCase("no limit") ? ShopItem.INFINITY :Integer.parseInt(values[MAX_ALLOWED]);
+				final int sellBackVal = values[SELL_BACK_VAL].equalsIgnoreCase("default") ? ShopItem.DEFAULT : Integer.parseInt(values[SELL_BACK_VAL]);
+				final ShopItem item = new ShopItem(values[NAME], quantityCostAndRank, removeWhenDeleted, maxAllowed, sellBackVal);
+				shopItemMap.put(values[NAME], item);
 				shopItems.add(item);
-				if (values[4].equalsIgnoreCase("yes"))
+				if (values[DEFAULT].equalsIgnoreCase("yes"))
 					initialShopItems.add(item);
 			}
 		} catch (final IOException e) {

@@ -6,6 +6,7 @@ import java.util.List;
 import effects.Event;
 import effects.GlobalPokemonModifierEvent;
 import effects.HeldEvent;
+import effects.OnPeriodEventWithDisplay;
 import gameutils.GameUtils;
 import interfaces.SerializableConsumer;
 import interfaces.SerializablePredicate;
@@ -33,12 +34,12 @@ public final class TypicalEvent {
 		switch (eventType) {
 		case RANDOMGOLD:
 			final int[] integerInputs = GameUtils.parseAllInRangeToInt(inputs, lower, upper-1); //upper-1 because the last input will be a double that we have to parse seperately
-			te.e = generateRandomGoldEvent(integerInputs[0], integerInputs[1], Double.parseDouble(inputs[upper]));
+			te.he = generateRandomGoldEvent(integerInputs[0], integerInputs[1], Double.parseDouble(inputs[upper]));
 			te.description = eventType.getDescription(integerInputs[0], integerInputs[1], Double.parseDouble(inputs[upper]));
 			break;
 		case LEGCHANCEINCR:
 			final int amount = Integer.parseInt(inputs[lower]);
-			te.e = generateLegendaryChanceIncreaseEvent(amount);
+			te.e= generateLegendaryChanceIncreaseEvent(amount);
 			te.description = eventType.getDescription(amount);
 			break;
 		case ALLPOKEADD:
@@ -104,11 +105,11 @@ public final class TypicalEvent {
 	 * @param periodInMinutes the frequency of checking if gold is added
 	 * @return the created event
 	 */
-	private static Event generateRandomGoldEvent(final int percentChance, final int gold, final double periodInMinutes) {
-		final Event randomGold = new Event( board -> {
+	private static HeldEvent<Thing> generateRandomGoldEvent(final int percentChance, final int gold, final double periodInMinutes) {
+		final HeldEvent<Thing> randomGold = new OnPeriodEventWithDisplay<Thing>( board -> {
 			if (GameUtils.testPercentChance(percentChance))
 				board.addGold(gold);
-		}, periodInMinutes);
+		}, periodInMinutes, "event description");
 		return randomGold;
 	}
 	/**

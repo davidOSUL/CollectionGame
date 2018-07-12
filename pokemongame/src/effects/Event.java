@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import game.Board;
+import gameutils.GameUtils;
 import interfaces.SerializableConsumer;
 /**
  * various things may events which affect the state of the board at different times. Events have an
@@ -76,6 +77,10 @@ public class Event implements Serializable {
 		this.onPlace = onPlace;
 		this.onRemove = onRemove;
 	}
+	public Event(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final SerializableConsumer<Board> onRemove, final SerializableConsumer<Board> onTick, final double periodInMinutes) {
+		this(onPlace, onPeriod, onRemove, periodInMinutes);
+		this.onTick = onTick;
+	}
 	public Event(final Event e) {
 		this(e.onPlace, e.onPeriod, e.onRemove, e.period);
 		setOnTick(e.onTick);
@@ -104,7 +109,8 @@ public class Event implements Serializable {
 	}
 	private synchronized void executeIfTime(final Board b) {
 		if (!keepTrackWhileOff) {
-			if (hasPeriodicity() && millisAsMinutes(b.getTotalInGameTime()-inGameTimeCreated) / period >= (numPeriodsElapsed+1)) {
+			if (hasPeriodicity() && (long) (millisAsMinutes(b.getTotalInGameTime()-inGameTimeCreated) / period) > numPeriodsElapsed) {
+				System.out.println(millisAsMinutes(b.getTotalInGameTime()- inGameTimeCreated));
 				if (DEBUG)
 					System.out.println("perioddontkeeptrackwhile off from " + this);
 				onPeriod.accept(b);
@@ -112,7 +118,7 @@ public class Event implements Serializable {
 			}
 		}
 		else {
-			if (hasPeriodicity() && millisAsMinutes(b.getTotalTimeSinceStart()-timeCreated) / period >= (numPeriodsElapsed+1)) {
+			if (hasPeriodicity() && (long) (millisAsMinutes(b.getTotalTimeSinceStart()-timeCreated) / period) > numPeriodsElapsed) {
 				if (DEBUG)
 					System.out.println("periodkeeptrackwhile off from " + this);
 				onPeriod.accept(b);
@@ -170,6 +176,9 @@ public class Event implements Serializable {
 	public synchronized void setOnPeriod(final SerializableConsumer<Board> onPeriod) {
 		this.onPeriod = onPeriod;
 	}
+	public synchronized double getPeriod() {
+		return this.period;
+	}
 	public synchronized void setPeriod(final double period) {
 		this.period = period;
 	}
@@ -222,7 +231,7 @@ public class Event implements Serializable {
 	protected void setOnRemove(final SerializableConsumer<Board> onRemove) {
 		this.onRemove = onRemove;
 	}
-	protected void setOnTick(final SerializableConsumer<Board> onTick) {
+	public void setOnTick(final SerializableConsumer<Board> onTick) {
 		this.onTick = onTick;
 	}
 	/**
@@ -241,6 +250,28 @@ public class Event implements Serializable {
 				newOnRemove = null;
 			}
 		};
+	}
+	/**
+	 * Converts Minutes to milliseconds
+	 * @param d the amount of minutes
+	 * @return that minutes as milliseconds
+	 */
+	private long minutesToMillis(final double d) {
+		return (long) (d*60000);
+	}
+	/**
+	 * Returns a string representing the amount of time until the next period occurs
+	 * @param b the board to get the time from
+	 * @return the String representation (of the format : MM:SS)
+	 */
+	public String getTimeToNextPeriod(final Board b) {
+		if (period < 0)
+			return GameUtils.infinitySymbol();
+		final String val;
+		final long timeAliveAsMillis = keepTrackWhileOff ? b.getTotalTimeSinceStart() - timeCreated : b.getTotalInGameTime() - inGameTimeCreated;
+		final long periodAsMillis = minutesToMillis(period);
+		return GameUtils.millisecondsToTime(periodAsMillis - (timeAliveAsMillis % periodAsMillis));
+		
 	}
 
 }

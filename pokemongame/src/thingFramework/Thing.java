@@ -21,6 +21,11 @@ import gameutils.GameUtils;
 import interfaces.Imagable;
 import modifiers.Modifier;
 
+/**
+ * a general thing, the backend of objects in the game
+ * @author David O'Sullivan
+ *
+ */
 public abstract class Thing implements Serializable, Eventful, Imagable{
 	/**
 	 * 
@@ -56,7 +61,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 		this.name = name ;
 		this.image = image;
 		attributeNameMap = generateAttributeNameMap(attributes);
-		boardAttributes = BoardAttributeManager.getEvents(getAttributesThatContainType(BOARDTYPE));
+		boardAttributes = BoardAttributeManager.getEvents(getAttributesThatContainType(BOARDTYPE), this);
 		addToEventList(boardAttributes.values());
 		updateDescription();
 	}
@@ -67,6 +72,13 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 		this(name, image, attributes);
 		if (events != null)
 			addToEventList(events);
+	}
+	protected static Set<Attribute> makeAttributeCopy(final Set<Attribute> attributes) {
+		final Set<Attribute> newAttributes = new HashSet<Attribute>();
+		for (final Attribute at : attributes) {
+			newAttributes.add(Attribute.generateAttribute(at));
+		}
+		return newAttributes;
 	}
 	@Override
 	public List<Event> getEvents() {
@@ -98,13 +110,13 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	}
 	/**
 	 * Removes the modifier from this thing if it is present. If it is present performs mod.performReverseModification(this)
-	 * (that is mod.shouldModify(this) == true)
 	 * @param mod the mod to remove
 	 * @return whether or not the modifier was succesfully removed
 	 */
 	public boolean removeThingModifierIfPresent(final Modifier<Thing> mod) {
 		return Thing.removeModifierIfPresent(mod, thingModifiers, this);
 	}
+	
 	public String getDiscardText() {
 		return "Discard " + getName();
 	}
@@ -164,7 +176,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 			attributes.add(at);
 			attributeNameMap.put(at.getName(), at);
 			if (at.containsType(BOARDTYPE)) {
-				final Event e=  BoardAttributeManager.getEvent(at);
+				final Event e=  BoardAttributeManager.getEvent(at, this);
 				boardAttributes.put(at, e);
 				addToEventList(e);
 			}

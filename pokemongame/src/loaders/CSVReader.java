@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -28,7 +26,7 @@ public final class CSVReader {
 	 * @return the List of inputs read
 	 * @throws IOException if file can't be found
 	 */
-	public static List<String[]> readCSV(String path) throws IOException {
+	public static List<String[]> readCSV(final String path) throws IOException {
 		return readCSV(path, null);
 	}
 	/**
@@ -38,7 +36,7 @@ public final class CSVReader {
 	 * @return the List of inputs read
 	 * @throws IOException if file can't be found
 	 */
-	public static List<String[]> readCSV(String path, boolean ignoreFirstLine) throws IOException {
+	public static List<String[]> readCSV(final String path, final boolean ignoreFirstLine) throws IOException {
 		return readCSV(path, null, ",", 0, ignoreFirstLine);
 	}
 	/**
@@ -48,7 +46,7 @@ public final class CSVReader {
 	 * @return the List of inputs read
 	 * @throws IOException if file can't be found
 	 */
-	public static List<String[]> readCSV(String path, int splitLimit) throws IOException {
+	public static List<String[]> readCSV(final String path, final int splitLimit) throws IOException {
 		return readCSV(path, null, ",", splitLimit);	
 	}
 	/**
@@ -59,7 +57,7 @@ public final class CSVReader {
 	 * @return the List of inputs read
 	 * @throws IOException if file can't be found
 	 */
-	public static List<String[]> readCSV(String path, Function<String, String> modifyLineBy) throws IOException {
+	public static List<String[]> readCSV(final String path, final Function<String, String> modifyLineBy) throws IOException {
 		return readCSV(path, modifyLineBy, ",");
 	}
 	/**
@@ -71,7 +69,7 @@ public final class CSVReader {
 	 * @return the List of inputs read
 	 * @throws IOException if file can't be found
 	 */
-	public static List<String[]> readCSV(String path, Function<String, String> modifyLineBy, String splitBy) throws IOException {
+	public static List<String[]> readCSV(final String path, final Function<String, String> modifyLineBy, final String splitBy) throws IOException {
 		return readCSV(path, modifyLineBy, splitBy, 0);
 	}
 	/**
@@ -85,7 +83,7 @@ public final class CSVReader {
 	 * @return the List of inputs read
 	 * @throws IOException if file can't be found
 	 */
-	public static List<String[]> readCSV(String path, Function<String, String> modifyLineBy, String splitBy, int splitLimit) throws IOException{
+	public static List<String[]> readCSV(final String path, final Function<String, String> modifyLineBy, final String splitBy, final int splitLimit) throws IOException{
 		return readCSV(path, modifyLineBy, splitBy, splitLimit, false);
 	}
 	/**
@@ -100,7 +98,7 @@ public final class CSVReader {
 	 * @return the List of inputs read
 	 * @throws IOException if file can't be found
 	 */
-	public static List<String[]> readCSV(String path, Function<String, String> modifyLineBy, String splitBy, int splitLimit, boolean ignoreFirstLine) throws IOException{
+	public static List<String[]> readCSV(final String path, Function<String, String> modifyLineBy, final String splitBy, final int splitLimit, final boolean ignoreFirstLine) throws IOException{
 		if (modifyLineBy == null)
 			modifyLineBy = x -> {return x;};
 			List<String> doc;
@@ -109,12 +107,17 @@ public final class CSVReader {
 				      new BufferedReader(new InputStreamReader(resource,
 				          StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
 				}
-		List<String> lines = doc;
-		List<String[]> valueList = new ArrayList<String[]>();
-		int start = ignoreFirstLine ? 1 : 0;
+		final List<String> lines = doc;
+		final List<String[]> valueList = new ArrayList<String[]>();
+		final int j=0;
+		final int start = ignoreFirstLine ? 1 : 0;
 		for (int i = start; i < lines.size(); i++) {
-			String line = modifyLineBy.apply(lines.get(i));
+			final String line = modifyLineBy.apply(lines.get(i));
 			valueList.add(line.split(splitBy, splitLimit));
+			/*for (int k =0; k < valueList.get(j).length; k++) {
+				valueList.get(j)[k] = valueList.get(j)[k].replaceAll("\\p{Cntrl}", "");
+			}
+			j++;*/
 		}
 		return valueList;
 	}

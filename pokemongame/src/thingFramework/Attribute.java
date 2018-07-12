@@ -15,19 +15,21 @@ public class Attribute implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 	/**
+	 * Nothing to do with actual attributes, just a general overview of this Thing
+	 */
+	private static final Attribute FLAVOR_DESCRIPTION = new Attribute(1, "Info", "flavor description",  ParseType.STRING, new String(""), AttributeType.DISPLAYTYPE);
+	/**
 	 * Increase in Gold Per Hour
 	 */
 	private static final Attribute GPH = new Attribute(2, "PokeCash/hour", "gph", ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD).setIgnoreValAndReturn(new Integer(0)); 
 	/**
-	 *Increase in Popularity 
-	 */
-	private static final Attribute POPULARITY_BOOST = new Attribute(4, "Popularity", "popularity boost",ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.POPMOD).setIgnoreValAndReturn(new Integer(0)); ;
-	
-	/**
 	 * Increase in Gold Per Minute
 	 */
 	private static final Attribute GPM = new Attribute(3, "PokeCash/minute", "gpm",ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD).setIgnoreValAndReturn(new Integer(0)); ;
-	
+	/**
+	 *Increase in Popularity 
+	 */
+	private static final Attribute POPULARITY_BOOST = new Attribute(4, "Popularity", "popularity boost",ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.POPMOD).setIgnoreValAndReturn(new Integer(0)); ;
 	/**
 	 * Electric, etc.
 	 */
@@ -41,27 +43,35 @@ public class Attribute implements Serializable{
 	 */
 	private static final Attribute LEVEL = new Attribute(7, "level", ParseType.INTEGER, new Integer(1),AttributeType.CHANGINGVAL, AttributeType.DISPLAYTYPE, AttributeType.POKEONLY);
 	/**
-	 * The rarity of a pokemon, on scale of 1-99, derived from catchrate. 
-	 * higher is more rare
-	 */
-	private static final Attribute RARITY = new Attribute("rarity", ParseType.INTEGER, new Integer(1),AttributeType.CHARACTERISTIC, AttributeType.POKEONLY);
-	/**
 	 * The rarity of a pokemon, on scale of 1-10, derived from catchrate. 
 	 * higher is more rare. This version of rarity is used for display purposes only
 	 */
 	private static final Attribute RARITY_OUT_OF_10 = new Attribute(8, "Rarity", "rarity10", ParseType.INTEGER, new Integer(1), AttributeType.CHARACTERISTIC, AttributeType.DISPLAYTYPE, AttributeType.POKEONLY, AttributeType.OUTOFTEN);
 	/**
+	 * Whether or not this pokemon is legendary
+	 */
+	private static final Attribute IS_LEGENDARY = new Attribute(9, "legendary", "legendary", ParseType.BOOLEAN, Boolean.FALSE, AttributeType.POKEONLY, AttributeType.CHARACTERISTIC, AttributeType.DISPLAYTYPE);
+	/**
+	 * A verbal description of the events asssociated with this thing
+	 */
+	private static final Attribute EVENT_DESCRIPTION = new Attribute(10, "", "event description", ParseType.STRING, new String(""), AttributeType.DISPLAYTYPE);
+	/**
+	 * Any other extra description to put after every other displaytype
+	 */
+	private static final Attribute ADDITIONAL_DESCRIPTION = new Attribute(Integer.MAX_VALUE, "", "additional description", ParseType.STRING, new String(""), AttributeType.DISPLAYTYPE);
+	/**
+	 * If this thing only exists for a certain amount of time, how much time it exists for
+	 */
+	private static final Attribute TIME_LEFT = new Attribute(11, "Time left", "time left", ParseType.STRING, new String("Infinite"), AttributeType.DISPLAYTYPE);
+	/**
 	 * The catch rate of a pokemon on a scale from 3-255
 	 */
 	private static final Attribute CATCH_RATE = new Attribute("catch rate", ParseType.INTEGER, new Integer(3), AttributeType.CHARACTERISTIC, AttributeType.POKEONLY);
 	/**
-	 * Nothing to do with actual attributes, just a general overview of this Thing
+	 * The rarity of a pokemon, on scale of 1-99, derived from catchrate. 
+	 * higher is more rare
 	 */
-	private static final Attribute FLAVOR_DESCRIPTION = new Attribute(1, "Info", "flavor description",  ParseType.STRING, new String(""), AttributeType.DISPLAYTYPE);
-	/**
-	 * A verbal description of the events asssociated with this thing
-	 */
-	private static final Attribute EVENT_DESCRIPTION = new Attribute(9, "", "event description", ParseType.STRING, new String(""), AttributeType.DISPLAYTYPE);
+	private static final Attribute RARITY = new Attribute("rarity", ParseType.INTEGER, new Integer(1),AttributeType.CHARACTERISTIC, AttributeType.POKEONLY);
 	/**
 	 * The description of an item. Note it doesn't have an orderdisplayvalue because the description is just a combination of all those elements that do
 	 * (and some other text potentially)
@@ -84,13 +94,10 @@ public class Attribute implements Serializable{
 	 */
 	private static final Attribute LEVEL_OF_EVOLUTION = new Attribute("level of evolution", ParseType.INTEGER, new Integer(-1), AttributeType.POKEONLY, AttributeType.CHARACTERISTIC);
 	/**
-	 * Whether or not this pokemon is legendary
+	 * Whether or not this thing can be removed from the board
 	 */
-	private static final Attribute IS_LEGENDARY = new Attribute(8, "legendary", "legendary", ParseType.BOOLEAN, Boolean.FALSE, AttributeType.POKEONLY, AttributeType.CHARACTERISTIC, AttributeType.DISPLAYTYPE);
-	/**
-	 * If this thing only exists for a certain amount of time, how much time it exists for
-	 */
-	private static final Attribute TIME_LEFT = new Attribute(10, "Time left", "time left", ParseType.STRING, new String("Infinite"), AttributeType.DISPLAYTYPE);
+	private static final Attribute REMOVABLE = new Attribute("removable", ParseType.BOOLEAN, new Boolean(true));
+
 	private Object value = null;
 	static int currId = 0;
 	private static Map<String, Attribute> idMap;
@@ -106,7 +113,11 @@ public class Attribute implements Serializable{
 	private int orderOfDisplay = -1;
 	private final int id;
 	private final ParseType parsetype;
-	private Attribute(final Attribute at, final String value) {
+	/**
+	 * An extra string that can be added on at the end of this toString's method
+	 */
+	private String extraDescription = "";
+	private Attribute(final Attribute at) {
 		if (!idMap.containsValue(at))
 			throw new Error("INVALID ATTRIBUTE: " + at);
 		this.name = at.name;
@@ -117,6 +128,9 @@ public class Attribute implements Serializable{
 		this.parsetype = at.parsetype;
 		this.defaultValue = at.defaultValue;
 		this.objectToIgnoreValueAt = at.objectToIgnoreValueAt;
+	}
+	private Attribute(final Attribute at, final String value) {
+		this(at);
 		parseAndSetValue(value);
 	}
 	private Attribute(final int orderOfDisplay, final String name, final ParseType parsetype, final Object defaultValue, final AttributeType... types) {
@@ -187,8 +201,17 @@ public class Attribute implements Serializable{
 			sb.append(getValue().toString());
 		if (this.containsType(AttributeType.OUTOFTEN))
 			sb.append("/10");
+		sb.append(extraDescription);
 		return sb.toString();
 		
+	}
+	/**
+	 * Sets the extra description for this attribute, which is a string that is always added after the
+	 * default toString
+	 * @param extraDescription
+	 */
+	public void setExtraDescription(final String extraDescription) {
+		this.extraDescription = extraDescription;
 	}
 	/**
 	 * @return this attribute with the value displayed followed by the name
@@ -369,6 +392,14 @@ public class Attribute implements Serializable{
 		if (idMap.get(name) == null)
 			throw new Error("INVALID ATTRIBUTE: " + name);
 		return new Attribute(idMap.get(name), value);
+	}
+	public static Attribute generateAttributeWithValue(final String name, final Object value) {
+		final Attribute at = new Attribute(idMap.get(name));
+		at.setValue(value);
+		return at;
+	}
+	public static Attribute generateAttribute(final Attribute at) {
+		return generateAttributeWithValue(at.getName(), at.getValue());
 	}
 	public static Attribute generateAttribute(final String name) {
 		return generateAttribute(name, "");

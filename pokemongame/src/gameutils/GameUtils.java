@@ -1,5 +1,6 @@
 package gameutils;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -149,6 +150,21 @@ public final class GameUtils {
 	    	return secs + " seconds";
 	    return minutes + " minutes and " + secs + " seconds";
 	    			
+	}
+	public static String infinitySymbol() {
+		String infinitySymbol;
+
+		try {
+
+		    infinitySymbol = new String(String.valueOf(Character.toString('\u221E')).getBytes("UTF-8"), "UTF-8");
+
+		} catch (final UnsupportedEncodingException ex) {
+
+		    infinitySymbol = "inf";
+		    //ex.printStackTrace(); //print the unsupported encoding exception.
+
+		} 
+		return infinitySymbol;
 	}
 	
 }

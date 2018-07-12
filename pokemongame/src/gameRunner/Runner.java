@@ -99,9 +99,14 @@ public class Runner  {
 			setUpError("Should be on the the EDT");	
 		}
 		final ActionListener updateGUI = evt -> p.updateGUI();
-			new Timer(10, updateGUI).start();
-			p.getGameView().setVisible(true);	
+		new Timer(10, updateGUI).start();
+		p.getGameView().setVisible(true);
+		setupGlobalExceptionHandling(p);
 
+
+	}
+	private static void setupGlobalExceptionHandling(final Presenter p) {
+		Thread.setDefaultUncaughtExceptionHandler((t, e) -> GuiUtils.displayError(e, p.getGameView()));
 	}
 	private void startPresenterUpdate() {
 		if (SwingUtilities.isEventDispatchThread())
@@ -109,7 +114,7 @@ public class Runner  {
 		final ScheduledExecutorService es = Executors.newSingleThreadScheduledExecutor();
 		es.scheduleAtFixedRate(() -> {
 			try {
-			p.updateBoard();
+				p.updateBoard();
 			} catch (final Exception e) {
 				GuiUtils.displayError(e, startScreen);
 			}

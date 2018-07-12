@@ -3,7 +3,6 @@ import static gameutils.Constants.DEBUG;
 import static gameutils.Constants.PRINT_BOARD;
 import static gui.guiutils.GUIConstants.SHOW_CONFIRM_ON_CLOSE;
 
-import java.awt.Dimension;
 import java.awt.Image;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -22,7 +21,6 @@ import java.util.function.Consumer;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -190,7 +188,7 @@ public class Presenter implements Serializable {
 			allThings.put(gridSpace, thing);
 			if (soldThingsData.containsKey(i))
 				soldThings.put(gridSpace, soldThingsData.get(i));
-			gridSpace.updateListeners(soldThings.containsKey(gridSpace));
+			updateListener(gridSpace);
 			i++;
 		}
 		board.onStartUp();
@@ -217,7 +215,7 @@ public class Presenter implements Serializable {
 			System.out.println(board.getTimeStats());
 
 	}
-	
+
 	/**
 	 * Get the GameView associated with this Presenter
 	 * @return the GameView that this presenter has
@@ -289,7 +287,7 @@ public class Presenter implements Serializable {
 	public boolean containsGridSpace(final GridSpace gs) {
 		return allThings.containsKey(gs);
 	}
-	
+
 	/**
 	 * Removes the GridSpace from the GUI and removes the thing that it corresponds to from the board. Also removes it
 	 * from allThings.
@@ -427,14 +425,24 @@ public class Presenter implements Serializable {
 	}
 	private void resumePopupMenus() {
 		popupMenusEnabled = true;
-		allThings.forEach((gs, t) -> gs.updateListeners(soldThings.containsKey(gs)));
+		allThings.forEach((gs, t) -> updateListener(gs));
+	}
+	private void updateListener(final GridSpace gs) {
+		gs.updateListeners(soldThings.containsKey(gs), !isNotRemovable(gs));
+	}
+	private boolean isNotRemovable(final GridSpace gs) {
+		return allThings.get(gs).containsAttribute("removable") && (!(Boolean)allThings.get(gs).getAttributeVal("removable"));
 	}
 	/**
 	 * Sets the state and updates the tool tip manager accordingly
 	 * @param state The new state of the game
 	 */
 	private void setState(final CurrentState state) {
+		DescriptionManager.getInstance().setEnabled(false); //"flashes" the tooltips to prevent them from getting stuck when the state changes
+		DescriptionManager.getInstance().setEnabled(true);
 		if (state != CurrentState.GAMEPLAY) {
+			if (state == CurrentState.ADVANCED_STATS_WINDOW || state == CurrentState.PLACING_SPACE)
+				DescriptionManager.getInstance().setEnabled(false);
 			if (toolTipsEnabled)
 				stopToolTips();
 			if (popupMenusEnabled)
@@ -443,6 +451,7 @@ public class Presenter implements Serializable {
 
 		}
 		if (state == CurrentState.GAMEPLAY) {
+			DescriptionManager.getInstance().setEnabled(true);
 			if (!toolTipsEnabled)
 				resumeToolTips();
 			if (!popupMenusEnabled)
@@ -490,7 +499,7 @@ public class Presenter implements Serializable {
 		}
 		if (type.isNewThing)
 			addGridSpace(gs, type);
-		gs.updateListeners(soldThings.containsKey(gs));
+		updateListener(gs);
 		finishAddAttempt();
 	}
 	/**
@@ -596,9 +605,11 @@ public class Presenter implements Serializable {
 		 * Note how this method is different from confirmSellBack in that it conditionally sends items back to the board,
 		 * and doesn't refund money if it does
 		 */
-		final ShopItem item = soldThings.remove(gs);
-		if (item.shouldSendBackToShopWhenRemoved())
-			board.sendItemBackToShop(item);
+		if (soldThings.containsKey(gs)) {
+			final ShopItem item = soldThings.remove(gs);
+			if (item.shouldSendBackToShopWhenRemoved())
+				board.sendItemBackToShop(item);
+		}
 		this.removeGridSpace(gs, true);
 		gs.removeFromGrid();
 		updateShop();
@@ -729,7 +740,7 @@ public class Presenter implements Serializable {
 				count++;
 		}
 		return count;
-			
+
 	}
 	/**
 	 * To be called when the currentWindow's enter button is pressed
@@ -879,30 +890,14 @@ public class Presenter implements Serializable {
 				.createWindow();
 	}
 	private JComponent advancedStatsWindow() {
-	//TODO: finish this
 		final JPanel panel = new JPanel();
 		final JTextArea area = new JTextArea(board.getAdvancedStats());
-		
+
 		area.setEditable(false);
-		area.setBounds(0, 0, area.getPreferredSize().width, area.getPreferredSize().height);
 		panel.setSize(area.getPreferredSize().width+20, area.getPreferredSize().height+20);
-		final JLayeredPane result = new JLayeredPane();
-		result.setLayout(null);
-		result.setPreferredSize(new Dimension(panel.getWidth(), panel.getHeight()));
-		result.add(area, JLayeredPane.PALETTE_LAYER);
-		result.add(new GameSpace(GuiUtils.getScaledImage(INFO_WINDOW_BACKGROUND, panel.getWidth(), panel.getHeight())), JLayeredPane.DEFAULT_LAYER);
-		
-		result.revalidate();
-		result.repaint();
-		result.setVisible(true);
-		result.setBounds(0, 0, panel.getWidth(), panel.getHeight());
-		panel.add(result);
-		panel.setVisible(true);
-		panel.setOpaque(true);
-		panel.revalidate();
-		panel.repaint();
-		return GuiUtils.componentWithBorder(panel);
-		
+		panel.add(area);
+		return panel;
+
 	}
 	/**
 	 * The CurrentState of GamePlay
@@ -939,7 +934,7 @@ public class Presenter implements Serializable {
 			thing = t;
 		}
 	}
-	
+
 	public void notifyRightClickedGridSpace() {
 		DescriptionManager.getInstance().setEnabled(false);
 	}

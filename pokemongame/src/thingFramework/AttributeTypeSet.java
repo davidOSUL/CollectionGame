@@ -15,10 +15,13 @@ public class AttributeTypeSet implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	private EnumSet<AttributeType> typeMap;
-	public AttributeTypeSet(AttributeType...attributeTypes) {
-		typeMap = EnumSet.copyOf(Arrays.asList(attributeTypes));
+	public AttributeTypeSet(final AttributeType...attributeTypes) {
+		if (attributeTypes.length == 0)
+			typeMap = EnumSet.noneOf(AttributeType.class);
+		else
+			typeMap = EnumSet.copyOf(Arrays.asList(attributeTypes));
 	}
-	public boolean containsAttributeType(AttributeType at) {
+	public boolean containsAttributeType(final AttributeType at) {
 		return typeMap.contains(at);
 	}
 	

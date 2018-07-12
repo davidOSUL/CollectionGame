@@ -5,51 +5,14 @@ import interfaces.SerializableConsumer;
 
 public abstract class HeldEvent<C> extends Event {
 	private C creator;
-	public HeldEvent() {
-		// TODO Auto-generated constructor stub
-	}
-
-	public HeldEvent(final SerializableConsumer<Board> onPlace) {
-		super(onPlace);
-		// TODO Auto-generated constructor stub
-	}
-
-	public HeldEvent(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onRemove) {
-		super(onPlace, onRemove);
-		// TODO Auto-generated constructor stub
-	}
-
-	public HeldEvent(final SerializableConsumer<Board> onPeriod, final int periodInMinutes) {
-		super(onPeriod, periodInMinutes);
-		// TODO Auto-generated constructor stub
-	}
-
-	public HeldEvent(final SerializableConsumer<Board> onPeriod, final double periodInMinutes) {
-		super(onPeriod, periodInMinutes);
-		// TODO Auto-generated constructor stub
-	}
-
-	public HeldEvent(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final int periodInMinutes) {
-		super(onPlace, onPeriod, periodInMinutes);
-		// TODO Auto-generated constructor stub
-	}
-
-	public HeldEvent(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod,
-			final SerializableConsumer<Board> onRemove, final int periodInMinutes) {
-		super(onPlace, onPeriod, onRemove, periodInMinutes);
-		// TODO Auto-generated constructor stub
-	}
-
-	public HeldEvent(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod,
+	public HeldEvent() {}
+	/**
+	 * @param onPeriod what should happen on a given period
+	 * @param periodInMinutes the length of that period
+	 */
+	public HeldEvent(final SerializableConsumer<Board> onPeriod,
 			final double periodInMinutes) {
-		super(onPlace, onPeriod, periodInMinutes);
-		// TODO Auto-generated constructor stub
-	}
-
-	public HeldEvent(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod,
-			final SerializableConsumer<Board> onRemove, final double periodInMinutes) {
-		super(onPlace, onPeriod, onRemove, periodInMinutes);
-		// TODO Auto-generated constructor stub
+		super(onPeriod, periodInMinutes);
 	}
 	public abstract HeldEvent<C> makeCopy();
 	public C getCreator() {
@@ -61,6 +24,9 @@ public abstract class HeldEvent<C> extends Event {
 		if (onPlaceExecuted())
 			throw new IllegalStateException("Attempted to change creator after placing!");
 		this.creator = creator;
+	}
+	protected boolean hasCreator() {
+		return creator != null;
 	}
 
 }

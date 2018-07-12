@@ -5,6 +5,7 @@ package interfaces;
  * @author David O'Sullivan
  *
  */
+@FunctionalInterface
 public interface Procedure {
 public void invoke();
 }

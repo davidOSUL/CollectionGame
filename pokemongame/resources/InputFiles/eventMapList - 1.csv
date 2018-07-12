@@ -9,8 +9,8 @@ Fountain of Bugs,pokeofcategoryadd:type:BUG:gpm:1:-1:false:false:Bug type pokemo
 Dragon Scepter,pokeofcategoryadd:type:DRAGON:gpm:1:-1:false:false:Dragon type Pokemon,
 Lawn Trimmings,pokeofcategoryadd:type:GRASS:gpm:1:-1:false:false:Grass type Pokemon,
 A *Magical* Rock,pokeofcategoryadd:type:ROCK:gpm:1:-1:false:false:Rock type Pokemon,
-Small Table,randomgold:30:5:.5,
-Large Table,randomgold:50:1:1,
+Small Table,randomgold:30:5:5,
+Large Table,randomgold:100:1:1,
 Poker Table,randomgold:1:1000:60,
 Bronze Timer,allpokemult:gpm:2:600000:true:true,allpokemult:gph:2:600000:true:true
 Silver Timer,allpokemult:gpm:3:1.8e6:true:true,allpokemult:gph:3:1.8e6:true:true

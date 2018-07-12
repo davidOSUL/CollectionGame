@@ -8,6 +8,7 @@ import java.util.function.Predicate;
  *
  * @param <T>
  */
+@FunctionalInterface
 public interface  SerializablePredicate<T> extends Predicate<T>, Serializable {
 
 }

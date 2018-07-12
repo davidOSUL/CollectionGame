@@ -2,6 +2,7 @@ package loaders.shopLoader;
 
 import java.io.Serializable;
 
+import gameutils.GameUtils;
 import interfaces.Imagable;
 import loaders.ThingLoader;
 
@@ -22,7 +23,9 @@ public class ShopItem implements Serializable, Imagable{
 	private int displayRank;
 	private String image;
 	private String description;
+	private final int sellBackValue;
 	public static final int INFINITY = -1;
+	public static final int DEFAULT = -1;
 	/**
 	 * if the user removes this item (doesn't sell it back), should it be sent back to the shop
 	 */
@@ -39,8 +42,9 @@ public class ShopItem implements Serializable, Imagable{
 	 * @param displayRank the order that the ShopItem should be displayed relative to other shopItems (1 first, 2 second, etc.)
 	 * @param sendBackToShopWhenRemoved if set to true, signifies that this shop item should be sent back when it is removed by the user (even if not sold back)
 	 * @param maxAllowed the maximum amount of these items allowed on the board at a time
+	 ** @param sellBackValue the amount to refund upon selling back
 	 */
-	protected ShopItem(final String thingName, final int initialQuantity, final int cost, final int displayRank, final boolean sendBackToShopWhenRemoved, final int maxAllowed) {
+	protected ShopItem(final String thingName, final int initialQuantity, final int cost, final int displayRank, final boolean sendBackToShopWhenRemoved, final int maxAllowed, final int sellBackValue) {
 		this.setThingName(thingName);
 		this.setQuantity(initialQuantity);
 		this.setCost(cost);
@@ -49,6 +53,7 @@ public class ShopItem implements Serializable, Imagable{
 		setDescription();
 		this.sendBackToShopWhenRemoved = sendBackToShopWhenRemoved;
 		this.maxAllowed = maxAllowed;
+		this.sellBackValue = sellBackValue;
 	}
 	/**
 	 * Construct a new ShopItem using an array of ints for the last three values. Equivalent to <code>ShopItem(thingName, quantityCostAndRank[0], quantityCostAndRank[1], quantityCostAndRank[2])</code>
@@ -57,16 +62,17 @@ public class ShopItem implements Serializable, Imagable{
 	 * @param quantityCostAndRank an array where the first value is quantity, the second is cost, and the third is displayRank
 	 * @param sendBackToShopWhenRemoved if set to true, signifies that this shop item should be sent back when it is removed by the user (even if not sold back)
 	 * @param maxAllowed the maximum amount of these items allowed on the board at a time
+	 * @param sellBackValue the amount to refund upon selling back
 	 */
-	protected ShopItem(final String thingName, final int[] quantityCostAndRank, final boolean sendBackToShopWhenRemoved, final int maxAllowed) {
-		this(thingName, quantityCostAndRank[0], quantityCostAndRank[1], quantityCostAndRank[2], sendBackToShopWhenRemoved, maxAllowed);
+	protected ShopItem(final String thingName, final int[] quantityCostAndRank, final boolean sendBackToShopWhenRemoved, final int maxAllowed, final int sellBackValue) {
+		this(thingName, quantityCostAndRank[0], quantityCostAndRank[1], quantityCostAndRank[2], sendBackToShopWhenRemoved, maxAllowed, sellBackValue);
 	}
 	/**
 	 * Construct a new ShopItem using all the values of the passed in shopItem. Should only be called by ShopItemLoader
 	 * @param shopItem the shop item to call
 	 */
 	protected ShopItem(final ShopItem shopItem) {
-		this(shopItem.getThingName(), shopItem.getQuantity(), shopItem.getCost(), shopItem.getDisplayRank(), shopItem.shouldSendBackToShopWhenRemoved(), shopItem.getMaxAllowed());
+		this(shopItem.getThingName(), shopItem.getQuantity(), shopItem.getCost(), shopItem.getDisplayRank(), shopItem.shouldSendBackToShopWhenRemoved(), shopItem.getMaxAllowed(), shopItem.getSellBackValue());
 	}
 	/**
 	 * @return the thingName
@@ -99,7 +105,7 @@ public class ShopItem implements Serializable, Imagable{
 		return quantity;
 	}
 	public String getDisplayQuantity() {
-		return quantity == INFINITY ? "∞" : Integer.toString(quantity);
+		return quantity == INFINITY ? GameUtils.infinitySymbol() : Integer.toString(quantity);
 	}
 	/**
 	 * @param sets the quantity of this shopitem. If the shop items current quantity == INFINITY, then no change occurs
@@ -133,8 +139,11 @@ public class ShopItem implements Serializable, Imagable{
 	private void setImage() {
 		this.image = ThingLoader.sharedInstance().getThingImage(thingName);
 	}
+	/**
+	 * Increases the quantity of this shop item by one (if it is infinite, will stay at infinite)
+	 */
 	public void increaseQuantity() {
-		quantity++;
+		setQuantity(quantity+1);
 	}
 	/**
 	 * @return name/description of the associated thing
@@ -172,6 +181,12 @@ public class ShopItem implements Serializable, Imagable{
 	}
 	private int getMaxAllowed() {
 		return maxAllowed;
+	}
+	/**
+	 * @return DEFAULT if default sell back value (determined by board), it's sell back value otherwise
+	 */
+	public int getSellBackValue() {
+		return sellBackValue;
 	}
 	
 

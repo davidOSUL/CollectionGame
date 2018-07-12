@@ -32,7 +32,7 @@ public class Pokemon extends Thing implements Serializable, Eventful, Imagable {
 		super(name, image, attributes);
 	}
 	public Pokemon(final Pokemon p) {
-		this(p.getName(), p.getImage(), p.getAttributes(), p.getEvents());
+		this(p.getName(), p.getImage(), Thing.makeAttributeCopy(p.getAttributes()), p.getEvents());
 	}
 
 	@Override
@@ -70,6 +70,7 @@ public class Pokemon extends Thing implements Serializable, Eventful, Imagable {
 	public boolean addModifierIfShould(final Modifier<Pokemon> mod) {
 		return Thing.addModifierIfShould(mod, pokemonModifiers, this);
 	}
+	
 	public boolean removeModifierIfPresent(final Modifier<Pokemon> mod) {
 		return Thing.removeModifierIfPresent(mod, pokemonModifiers, this);
 	}

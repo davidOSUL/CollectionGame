@@ -735,7 +735,10 @@ public class Board implements Serializable {
 	 * @return how much it would be sold back for
 	 */
 	public int getSellBackValue(final ShopItem item) {
-		return Math.max(1 , (int)(item.getCost()*sellBackPercent));
+		if (item.getSellBackValue() == item.DEFAULT)
+			return Math.max(1 , (int)(item.getCost()*sellBackPercent));
+		else
+			return item.getSellBackValue();
 	}
 	
 	private void setUpModifier(final Modifier<?> mod) {
@@ -822,7 +825,7 @@ public class Board implements Serializable {
 		return removeRequests.poll();
 	}
 	public String getAdvancedStats() {
-		final StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder("Advanced Stats:\n");
 		final DecimalFormat dfDouble = new DecimalFormat("0.00"); 
 		sb.append("Legendary Percent Chance: " + dfDouble.format(legendaryChance) + "%");
 		sb.append("\n");

@@ -58,7 +58,8 @@ public final class ThingLoader {
 	/**
 	 * Location of csv containing extra attributes for things. Format as specified in thingloader
 	 */
-	private static final String[] EXTRA_ATTRIBUTE_LOCATIONS = {"/InputFiles/extraAttributes1.csv", "/InputFiles/extraAttributes2.csv"};
+	private static final String[] EXTRA_ATTRIBUTE_LOCATIONS = {"/InputFiles/extraAttributes - 1.csv", "/InputFiles/extraAttributes - 2.csv",
+			"/InputFiles/extraAttributes - 3.csv"};
 	private static final String PATH_TO_DESCRIPTIONS = "/InputFiles/descriptionList.csv";
 	private static final ThingLoader INSTANCE = new ThingLoader(THING_LIST_LOCATIONS, PATH_TO_DESCRIPTIONS, EVENT_MAP_LOCATION, EVOLUTIONS_LOCATION, LEVELS_OF_EVOLUTION_LOCATION, EXTRA_ATTRIBUTE_LOCATIONS);
 	private ThingLoader(final String[] pathToThings) {
@@ -108,7 +109,7 @@ public final class ThingLoader {
 				final Set<String> visitedNames = new HashSet<String>();
 				for (final String[] values : CSVReader.readCSV(pathToExtraAttributes)) {
 					final String potentialInput = values[0].toUpperCase().trim();
-					if (potentialInput.equals("POKEMON")) {
+					if (potentialInput.equalsIgnoreCase("POKEMON")) {
 						civ = ThingType.POKEMON;
 						visitedNames.clear();
 					}

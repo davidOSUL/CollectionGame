@@ -168,7 +168,7 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 		return p_g;
 	}
 
-	private void addListeners(final boolean hasSellBackOption) {
+	private void addListeners(final boolean hasSellBackOption, final boolean canRemove) {
 		removeListeners();
 		final BiConsumer<GameView, MouseEvent> onDoubleClick = (gv, e) -> {
 			gv.getPresenter().attemptMoveGridSpace(this);
@@ -178,12 +178,12 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 		addMouseListener(dubClickListener);
 		listeners.add(dubClickListener);
 		
-		final MouseListener options = getDefaultPopupListener(hasSellBackOption);
+		final MouseListener options = getDefaultPopupListener(hasSellBackOption, canRemove);
 		addMouseListener(options);
 		listeners.add(options);
 		
 	}
-	private MouseListener getDefaultPopupListener(final boolean hasSellBackOption) {
+	private MouseListener getDefaultPopupListener(final boolean hasSellBackOption, final boolean canRemove) {
 		final SelectionWindowBuilder<GameView> swb = new SelectionWindowBuilder<GameView>(Grid.CLICK_DIST_THRESH, "Options");
 		final BiConsumer<GameView, MouseEvent> onClickDelete = (gv, e) -> {			
 			gv.getPresenter().attemptDeleteGridSpace(this);
@@ -196,7 +196,10 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 					GuiUtils.getToolTipDollar(),
 					onClickSellBack, grid.getGameView());
 		}
-		return swb.addOption(grid.getGameView().getPresenter().getDiscardText(this), onClickDelete, grid.getGameView())
+		if (canRemove) {
+			swb.addOption(grid.getGameView().getPresenter().getDiscardText(this), onClickDelete, grid.getGameView());
+		}
+		return swb
 				.addOption("Move " + getName() + " To Bank")
 				.addDoOnMenuVisible(() -> grid.getGameView().getPresenter().notifyRightClickedGridSpace())
 				.addDoOnMenuClose(() -> grid.getGameView().getPresenter().notifyDoneWithRightClick())
@@ -214,8 +217,8 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	 * Updates the listeners
 	 * @param hasSellBackOption if set to true will add option to sell back to shop
 	 */
-	public void updateListeners(final boolean hasSellBackOption) {
-		addListeners(hasSellBackOption);
+	public void updateListeners(final boolean hasSellBackOption, final boolean canRemove) {
+		addListeners(hasSellBackOption, canRemove);
 	}
 	/**
 	 * Removes all mouse listeners

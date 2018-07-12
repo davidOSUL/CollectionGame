@@ -9,4 +9,5 @@ import java.util.function.Consumer;
  *
  * @param <T>
  */
+@FunctionalInterface
 public interface SerializableConsumer<T> extends Consumer<T>, Serializable {}

@@ -35,7 +35,7 @@ public class Item extends Thing implements Serializable, Eventful, Imagable{
 		super(name, image, attributes, events);
 	}
 	public Item(final Item i) {
-		this(i.getName(), i.getImage(), i.getAttributes(), i.getEvents());
+		this(i.getName(), i.getImage(), Thing.makeAttributeCopy(i.getAttributes()), i.getEvents());
 	}
 	@Override
 	protected
@@ -69,9 +69,11 @@ public class Item extends Thing implements Serializable, Eventful, Imagable{
 	public Thing makeCopy() {
 		return new Item(this);
 	}
+	
 	public boolean addModifierIfShould(final Modifier<Item> mod) {
 		return Thing.addModifierIfShould(mod, itemModifiers, this);
 	}
+	
 	public boolean removeModifierIfPresent(final Modifier<Item> mod) {
 		return Thing.removeModifierIfPresent(mod, itemModifiers, this);
 	}
