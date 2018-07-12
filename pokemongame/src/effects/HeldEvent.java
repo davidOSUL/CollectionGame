@@ -14,6 +14,9 @@ public abstract class HeldEvent<C> extends Event {
 			final double periodInMinutes) {
 		super(onPeriod, periodInMinutes);
 	}
+	public HeldEvent(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onRemove) {
+		super(onPlace, onRemove);
+	}
 	public abstract HeldEvent<C> makeCopy();
 	public C getCreator() {
 		if (this.creator == null)

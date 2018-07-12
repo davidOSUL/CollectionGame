@@ -122,7 +122,14 @@ public class Board implements Serializable {
 	 * Amount of money times original cost to discount on sellback of an item
 	 */
 	private final double sellBackPercent = .5;
+	/**
+	 * % chance that a legendary pokemon spawns
+	 */
 	private double legendaryChance = 0;
+	/**
+	 * Amount to decrease the calculated look for pokemon period by (in minutes)
+	 */
+	private double periodDecreaseMod = 0;
 	static {
 		long rt = 0; //running total
 
@@ -261,7 +268,7 @@ public class Board implements Serializable {
 		final double A=  4; //max value+1
 		final double B = 60; //"length" of near-constant values
 		final double C = 1.3; //steepness of drop
-		return RAPID_SPAWN ? 1.666e-5 : Math.max(MIN_POKEPERIOD, A-Math.pow(getPopularity()/B, C));
+		return RAPID_SPAWN ? 1.666e-5 : Math.max(0, (Math.max(MIN_POKEPERIOD, A-Math.pow(getPopularity()/B, C))-periodDecreaseMod));
 	}
 	
 	/**
@@ -808,7 +815,6 @@ public class Board implements Serializable {
 	 * @param t
 	 */
 	public synchronized void addToRemoveRequest(final Thing t) {
-		System.out.println("HELLO");
 		removeRequests.add(t);
 	}
 	/**
@@ -834,6 +840,25 @@ public class Board implements Serializable {
 		sb.append("Chance that on New Pokemon Period, a Pokemon is Found: " + dfDouble.format(this.getPercentChancePokemonFound()) + "%");
 		return sb.toString();
 	}
-
+	/**
+	 * Adds to the total amount that whatever the calculated pokemon period is, it is decreased by that amount.
+	 * In other words. if the period is currently 1 minute, calling amountToDecrease(1000) will make it 59 seconds, 
+	 * whereas calling amountToDecrease(-1000) will make it 61 seconds. 
+	 * @param amountToDecrease in milliseconds
+	 */
+	public void addToPeriodDecrease(long amountToDecreaseMillis) {
+		periodDecreaseMod += GameUtils.millisAsMinutes(amountToDecreaseMillis);
+	}
+	/**
+	 * Removes all pokemon currently on the board
+	 * @return the number of pokemon removed this way
+	 */
+	public int removeAllPokemon() {
+		int i = pokemonOnBoard.size();
+		for (Pokemon p : pokemonOnBoard) {
+			addToRemoveRequest(p);
+		}
+		return i;
+	}
 
 }

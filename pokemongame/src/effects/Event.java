@@ -109,8 +109,7 @@ public class Event implements Serializable {
 	}
 	private synchronized void executeIfTime(final Board b) {
 		if (!keepTrackWhileOff) {
-			if (hasPeriodicity() && (long) (millisAsMinutes(b.getTotalInGameTime()-inGameTimeCreated) / period) > numPeriodsElapsed) {
-				System.out.println(millisAsMinutes(b.getTotalInGameTime()- inGameTimeCreated));
+			if (hasPeriodicity() && (long) (GameUtils.millisAsMinutes(b.getTotalInGameTime()-inGameTimeCreated) / period) > numPeriodsElapsed) {
 				if (DEBUG)
 					System.out.println("perioddontkeeptrackwhile off from " + this);
 				onPeriod.accept(b);
@@ -118,7 +117,7 @@ public class Event implements Serializable {
 			}
 		}
 		else {
-			if (hasPeriodicity() && (long) (millisAsMinutes(b.getTotalTimeSinceStart()-timeCreated) / period) > numPeriodsElapsed) {
+			if (hasPeriodicity() && (long) (GameUtils.millisAsMinutes(b.getTotalTimeSinceStart()-timeCreated) / period) > numPeriodsElapsed) {
 				if (DEBUG)
 					System.out.println("periodkeeptrackwhile off from " + this);
 				onPeriod.accept(b);
@@ -167,16 +166,12 @@ public class Event implements Serializable {
 		return numPeriodsElapsed;
 	}
 
-	protected double millisAsMinutes(final long x) {
-		double y = x/1000.0;
-		y=y/60.0;
-		return y;
-	}
+	
 
 	public synchronized void setOnPeriod(final SerializableConsumer<Board> onPeriod) {
 		this.onPeriod = onPeriod;
 	}
-	public synchronized double getPeriod() {
+	public synchronized double getPeriodInMinutes() {
 		return this.period;
 	}
 	public synchronized void setPeriod(final double period) {
@@ -234,6 +229,9 @@ public class Event implements Serializable {
 	public void setOnTick(final SerializableConsumer<Board> onTick) {
 		this.onTick = onTick;
 	}
+	protected SerializableConsumer<Board> getOnRemove() {
+		return onRemove;
+	}
 	/**
 	 * Execute the reset of this event. this entails calling onRemove, onPlace, and then setting
 	 * onRemove to the newOnRemove that was passed in from markForRest. Additionally, will unmark it as needing reset
@@ -251,14 +249,7 @@ public class Event implements Serializable {
 			}
 		};
 	}
-	/**
-	 * Converts Minutes to milliseconds
-	 * @param d the amount of minutes
-	 * @return that minutes as milliseconds
-	 */
-	private long minutesToMillis(final double d) {
-		return (long) (d*60000);
-	}
+	
 	/**
 	 * Returns a string representing the amount of time until the next period occurs
 	 * @param b the board to get the time from
@@ -269,7 +260,7 @@ public class Event implements Serializable {
 			return GameUtils.infinitySymbol();
 		final String val;
 		final long timeAliveAsMillis = keepTrackWhileOff ? b.getTotalTimeSinceStart() - timeCreated : b.getTotalInGameTime() - inGameTimeCreated;
-		final long periodAsMillis = minutesToMillis(period);
+		final long periodAsMillis = GameUtils.minutesToMillis(period);
 		return GameUtils.millisecondsToTime(periodAsMillis - (timeAliveAsMillis % periodAsMillis));
 		
 	}

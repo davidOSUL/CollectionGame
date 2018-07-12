@@ -33,7 +33,19 @@ public enum AttributeType {
 	 * and hence the description attribute itself does not have one, as it is just made up of these guys.
 	 */
 	DISPLAYTYPE,
-	OUTOFTEN
+	OUTOFTEN,
+	/**
+	 * An attribute that should have a "+" sign in front of it when positive
+	 */
+	PLUS_FOR_POSITIVE,
+	/**
+	 * Only for number attributes, signifies that should have different colors based on it's value.
+	 */
+	COLOR_BASED_ON_SIGN,
+	/**
+	 * if the attribute should be displayed with italics
+	 */
+	ITALICS;
 	
 	
 }

@@ -1,18 +1,27 @@
-ITEM,Pebble of Legends,0.png
-ITEM,Stone of Legends,0.png
-ITEM,Rock of Legends,0.png
-ITEM,Boulder of Legends,0.png
-ITEM,Mountain of Legends,0.png
-ITEM,Tectonic Plate of Legends,0.png
-ITEM,Fountain of Water,0.png
-ITEM,Fountain of Bugs,0.png
-ITEM,Dragon Scepter,0.png
-ITEM,Lawn Trimmings,0.png
-ITEM,A Rock,0.png
-ITEM,A *Magical* Rock,0.png
-ITEM,Small Table,0.png
-ITEM,Large Table,0.png
-ITEM,Poker Table,0.png
-ITEM,Bronze Timer,0.png
-ITEM,Silver Timer,0.png
-ITEM,Gold Timer,0.png
+ITEM,Pebble of Legends,pebble of legends.png,,
+ITEM,Stone of Legends,stone of legends.png,,
+ITEM,Rock of Legends,rock of legends.png,,
+ITEM,Boulder of Legends,boulder of legends.png,,
+ITEM,Mountain of Legends,mountain of legends.png,,
+ITEM,Tectonic Plate of Legends,tectonic plate of legends.png,,
+ITEM,Fountain of Water,fountain of water.png,,
+ITEM,Fountain of Bugs,fountain of bugs.png,,
+ITEM,Dragon Scepter,dragon scepter.png,,
+ITEM,Lawn Trimmings,lawn trimmings.png,,
+ITEM,A Rock,A Rock.png,,
+ITEM,A *Magical* Rock,A _Magical_ Rock.png,,
+ITEM,Small Table,small table.png,,
+ITEM,Large Table,large table.png,,
+ITEM,Poker Table,poker table.png,,
+ITEM,Smelly Sandwich,smelly sandwich.png,gpm:1,popularity boost:-10
+ITEM,Pretty Decent Sandwich,Pretty Decent Sandwich.png,gph:-5,popularity boost:5
+ITEM,Decadent Sandwich,Decadent Sandwich.png,gpm:-10,popularity boost:100
+ITEM,Bronze Timer,bronze_timer.png,,
+ITEM,Silver Timer,silver_timer.png,,
+ITEM,Gold Timer,gold_timer.png,,
+ITEM,A Small Loan of 1|000 Dollars,A Small Loan of 1000 Dollars.png,gpm:1,gph:-100
+ITEM,A Big Loan of 1|000|000 Dollars,A Big Loan of 1000000 Dollars.png,gpm:1000,gph:-100000
+ITEM,Explosives,Explosives.png,,
+ITEM,Sand Clock,Sand Clock.png,,
+ITEM,Time Bender,Time Bender.png,,
+ITEM,Master of Time and Space,Master of Time and Space.png,,

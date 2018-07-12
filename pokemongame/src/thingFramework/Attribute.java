@@ -17,19 +17,19 @@ public class Attribute implements Serializable{
 	/**
 	 * Nothing to do with actual attributes, just a general overview of this Thing
 	 */
-	private static final Attribute FLAVOR_DESCRIPTION = new Attribute(1, "Info", "flavor description",  ParseType.STRING, new String(""), AttributeType.DISPLAYTYPE);
+	private static final Attribute FLAVOR_DESCRIPTION = new Attribute(1, "Info", "flavor description",  ParseType.STRING, new String(""), AttributeType.DISPLAYTYPE, AttributeType.ITALICS);
 	/**
 	 * Increase in Gold Per Hour
 	 */
-	private static final Attribute GPH = new Attribute(2, "PokeCash/hour", "gph", ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD).setIgnoreValAndReturn(new Integer(0)); 
+	private static final Attribute GPH = new Attribute(2, "PokeCash/hour", "gph", ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD, AttributeType.COLOR_BASED_ON_SIGN, AttributeType.PLUS_FOR_POSITIVE).setIgnoreValAndReturn(new Integer(0)); 
 	/**
 	 * Increase in Gold Per Minute
 	 */
-	private static final Attribute GPM = new Attribute(3, "PokeCash/minute", "gpm",ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD).setIgnoreValAndReturn(new Integer(0)); ;
+	private static final Attribute GPM = new Attribute(3, "PokeCash/minute", "gpm",ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD, AttributeType.COLOR_BASED_ON_SIGN, AttributeType.PLUS_FOR_POSITIVE).setIgnoreValAndReturn(new Integer(0)); ;
 	/**
 	 *Increase in Popularity 
 	 */
-	private static final Attribute POPULARITY_BOOST = new Attribute(4, "Popularity", "popularity boost",ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.POPMOD).setIgnoreValAndReturn(new Integer(0)); ;
+	private static final Attribute POPULARITY_BOOST = new Attribute(4, "Popularity", "popularity boost",ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.POPMOD, AttributeType.COLOR_BASED_ON_SIGN, AttributeType.PLUS_FOR_POSITIVE).setIgnoreValAndReturn(new Integer(0)); ;
 	/**
 	 * Electric, etc.
 	 */
@@ -190,20 +190,48 @@ public class Attribute implements Serializable{
 	}*/
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder(displayName);
+		final StringBuilder sb = new StringBuilder("<span>" +displayName);
 		if (!displayName.isEmpty())
 			sb.append(": ");
 		if (parsetype.equals(ParseType.ENUMSETPOKEMONTYPE))
 			sb.append( GameUtils.toTitleCase(getValue().toString().replace("[", "").replace("]", "").toLowerCase()));
 		else if (parsetype.equals(ParseType.BOOLEAN))
 			sb.append(getValue().toString().equalsIgnoreCase("true") ? "yes" : "no");
-		else
+		else {
+			if (containsType(AttributeType.ITALICS))
+				sb.append("<i>");
+			if (containsType(AttributeType.COLOR_BASED_ON_SIGN)) {
+				if (isPositive())
+					sb.append("<font color=\"green\">");
+				else
+					sb.append("<font color=\"red\">");
+			}
+			if (containsType(AttributeType.PLUS_FOR_POSITIVE) && isPositive()) {
+				sb.append('+');
+			}
+			
 			sb.append(getValue().toString());
+		}	
 		if (this.containsType(AttributeType.OUTOFTEN))
 			sb.append("/10");
+		if (containsType(AttributeType.COLOR_BASED_ON_SIGN))
+			sb.append("</font>");
+		if (containsType(AttributeType.ITALICS))
+			sb.append("</i>");
 		sb.append(extraDescription);
+		sb.append("</span>");
 		return sb.toString();
 		
+	}
+	private boolean isPositive() {
+		switch(parsetype) {
+		case INTEGER:
+			return (((Integer) value) > 0);
+		case DOUBLE:
+			return (((Double) value) > 0);
+		default:
+			return false;
+		}
 	}
 	/**
 	 * Sets the extra description for this attribute, which is a string that is always added after the
@@ -217,6 +245,7 @@ public class Attribute implements Serializable{
 	 * @return this attribute with the value displayed followed by the name
 	 */
 	public String toReverseString() {
+		//TODO: Change this to call toString()
 		final StringBuilder sb = new StringBuilder();
 		if (parsetype.equals(ParseType.ENUMSETPOKEMONTYPE))
 			sb.append( GameUtils.toTitleCase(getValue().toString().replace("[", "").replace("]", "").toLowerCase()));
@@ -390,7 +419,7 @@ public class Attribute implements Serializable{
 	}
 	public static  Attribute generateAttribute(final String name, final String value) {
 		if (idMap.get(name) == null)
-			throw new Error("INVALID ATTRIBUTE: " + name);
+			throw new IllegalArgumentException("INVALID ATTRIBUTE: " + name);
 		return new Attribute(idMap.get(name), value);
 	}
 	public static Attribute generateAttributeWithValue(final String name, final Object value) {
@@ -406,6 +435,9 @@ public class Attribute implements Serializable{
 	}
 	public boolean valEqualsParse(final String input) {
 		final Object value = parseValue(input);
+		if (parsetype == ParseType.ENUMSETPOKEMONTYPE) {
+			return ((EnumSet<PokemonType>) getValue()).containsAll((EnumSet<PokemonType>) value);
+		}
 		return getValue().equals(value);
 	}
 	private enum ParseType {

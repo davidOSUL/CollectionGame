@@ -2,6 +2,7 @@ package gameutils;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -91,6 +92,11 @@ public final class GameUtils {
 		return newList;
 		
 	}
+	public static <T> ArrayList<T> toArrayList(final T element) {
+		final ArrayList<T> newList = new ArrayList<T>();
+		newList.add(element);
+		return newList;
+	}
 	/**
 	 * Converts the given string to "Title Case" ("Each Word Is Capitalized Like This")
 	 * @param givenString the input
@@ -165,6 +171,24 @@ public final class GameUtils {
 
 		} 
 		return infinitySymbol;
+	}
+	/**
+	 * Converts Minutes to milliseconds
+	 * @param d the amount of minutes
+	 * @return that minutes as milliseconds
+	 */
+	public static long minutesToMillis(final double d) {
+		return (long) (d*60000);
+	}
+	/**
+	 * Takes a given amount of milliseconds and gives the amount milliseconds
+	 * @param x the milliseconds
+	 * @return the minutes
+	 */
+	public static double millisAsMinutes(final long x) {
+		double y = x/1000.0;
+		y=y/60.0;
+		return y;
 	}
 	
 }

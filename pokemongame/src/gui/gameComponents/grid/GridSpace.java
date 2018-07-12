@@ -192,8 +192,8 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 			gv.getPresenter().attemptSellBackGridSpace(this);
 		};
 		if (hasSellBackOption) {
-			swb.addOption("Sell " + getName() + " back for " + grid.getGameView().getPresenter().getGridSpaceSellBackValue(this) + 
-					GuiUtils.getToolTipDollar(),
+			String sellBackString = grid.getGameView().getPresenter().getSellBackString(this);
+			swb.addOption(sellBackString,
 					onClickSellBack, grid.getGameView());
 		}
 		if (canRemove) {

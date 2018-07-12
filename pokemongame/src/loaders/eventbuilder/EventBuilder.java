@@ -2,13 +2,16 @@ package loaders.eventbuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import effects.ActOnHolderEvent;
 import effects.Event;
 import effects.HeldEvent;
 import gameutils.GameUtils;
+import gui.guiutils.GuiUtils;
 import loaders.CSVReader;
 import thingFramework.Thing;
 
@@ -31,7 +34,21 @@ public class EventBuilder {
 	 * Creates a new EventBuilder and places all default items to corresponding events
 	 */
 	public EventBuilder() {
-		//TODO: Put "Special Items" (items that are one-ofs and can't be described by generator functions) here
+	//Put "Special Items" (items that are one-ofs and can't be described by generator functions) here
+		HeldEvent<Thing> explosivesEvent = new ActOnHolderEvent<Thing>(
+				board -> {
+					int i = board.removeAllPokemon(); //remove all pokemon
+					board.addGold(i*100); //add 100 for all pokemon removed
+				}, 
+				x->{}, 
+				(t, e, b) -> {},
+				(t, e, b) -> {
+					b.addToRemoveRequest(t); //request to remove this object
+				});
+		mapHeldEvents.put("Explosives", GameUtils.toArrayList((explosivesEvent)));
+		eventNameToDescription.put("Explosives", "Permanently Removes all Pokemon on the board.\n"
+				+ "For each pokemon removed this way you get 100" + GuiUtils.getToolTipDollar());
+		
 		//mapEvents.put("Small Table", new ArrayList<Event>(Arrays.asList(generateRandomGoldEvent(30, 20, 5))));
 	}
 	/**
@@ -71,7 +88,7 @@ public class EventBuilder {
 						else
 							throw new Error("ISSUE ADDING EVENT TO: " + name);
 					}
-					
+
 					description.append(typical.getDescription());
 					newline = "\n";
 				}

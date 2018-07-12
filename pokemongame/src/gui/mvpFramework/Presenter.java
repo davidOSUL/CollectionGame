@@ -643,7 +643,7 @@ public class Presenter implements Serializable {
 			return false;
 		setState(CurrentState.SELL_BACK_CONFIRM_WINDOW);
 		itemToSellBack = soldThings.get(gs);
-		setCurrentWindow(attemptToSellBackWindow(itemToSellBack));
+		setCurrentWindow(attemptToSellBackWindow(gs, itemToSellBack));
 		gridSpaceToDelete = gs;
 		return true;
 
@@ -855,7 +855,7 @@ public class Presenter implements Serializable {
 	private JComponent attemptToDeleteWindow(final Thing t) {
 		return new InfoWindowBuilder()
 				.setPresenter(this)
-				.setInfo("Are you sure you want to " + GuiUtils.decapitalize(t.getDiscardText()) + "?")
+				.setInfo("Are you sure you want to \n" + GuiUtils.decapitalize(t.getDiscardText()) + "?")
 				.setImagable(t)
 				.setScale(96, 96)
 				.addEnterButton("Yes")
@@ -867,7 +867,7 @@ public class Presenter implements Serializable {
 	private JComponent confirmPurchaseWindow(final ShopItem item) {
 		return new InfoWindowBuilder()
 				.setPresenter(this)
-				.setInfo("Are you sure you want to purchase " + item.getThingName() + "\nfor " + item.getCost() + GuiUtils.getToolTipDollar() + "?")
+				.setInfo("Are you sure you want to purchase \n" + item.getThingName() + "\nfor " + item.getCost() + GuiUtils.getToolTipDollar() + "?")
 				.setImagable(item)
 				.setScale(96, 96)
 				.addEnterButton("Yes")
@@ -875,8 +875,8 @@ public class Presenter implements Serializable {
 				.setBackgroundImage(INFO_WINDOW_BACKGROUND)
 				.createWindow();
 	}
-	private JComponent attemptToSellBackWindow(final ShopItem item) {
-		final StringBuilder info = new StringBuilder("Are you sure you want to Sell Back " + item.getThingName() + " for " + board.getSellBackValue(item) + GuiUtils.getToolTipDollar() +"? \n");
+	private JComponent attemptToSellBackWindow(final GridSpace gs, final ShopItem item) {
+		final StringBuilder info = new StringBuilder("Are you sure you want to " + getSellBackString(gs) + "?");
 		if (!board.canAddBackToShopStock(item))
 			info.append("WARNING: this item is no longer available for sale in the shop. \n It will not be added back to the shop stock after selling");
 		return new InfoWindowBuilder()
@@ -945,6 +945,22 @@ public class Presenter implements Serializable {
 	public boolean shouldGreyOut(final ShopItem item) {
 		return (!item.allowedToPlaceAnother(numOfItemOnBoard(item)) || !board.canPurchase(item));
 	}
-
+	/**
+	 * 
+	 * @param gs the gridspace of interest
+	 * @return the string that should be displayed to sell this gridspace back
+	 */
+	public String getSellBackString(GridSpace gs) {
+		int sellBackValue = getGridSpaceSellBackValue(gs);
+		final String sellBackString;
+		if (sellBackValue >= 0) {
+			sellBackString = "Sell " + gs.getName() + "\nback for " + GuiUtils.getToolTipDollar() + sellBackValue
+					;
+		}
+		else {
+			sellBackString = "Pay " + GuiUtils.getToolTipDollar() + Math.abs(sellBackValue) +  " to return\n" + gs.getName() + " to the shop";
+		}
+		return sellBackString;
+	}
 
 }

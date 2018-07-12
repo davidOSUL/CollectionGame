@@ -109,15 +109,15 @@ public final class CSVReader {
 				}
 		final List<String> lines = doc;
 		final List<String[]> valueList = new ArrayList<String[]>();
-		final int j=0;
+		int j=0;
 		final int start = ignoreFirstLine ? 1 : 0;
 		for (int i = start; i < lines.size(); i++) {
 			final String line = modifyLineBy.apply(lines.get(i));
 			valueList.add(line.split(splitBy, splitLimit));
-			/*for (int k =0; k < valueList.get(j).length; k++) {
-				valueList.get(j)[k] = valueList.get(j)[k].replaceAll("\\p{Cntrl}", "");
+			for (int k =0; k < valueList.get(j).length; k++) {
+				valueList.get(j)[k] = valueList.get(j)[k].replace('|', ',').replace('^', '\n');
 			}
-			j++;*/
+			j++;
 		}
 		return valueList;
 	}

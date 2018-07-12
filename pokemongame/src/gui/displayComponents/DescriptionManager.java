@@ -1,6 +1,7 @@
 package gui.displayComponents;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -30,6 +31,7 @@ public final class DescriptionManager {
 		ToolTipManager.sharedInstance().setInitialDelay(50);
 		 ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
 		UIManager.put("ToolTip.background", Color.WHITE);
+		UIManager.put("ToolTip.font", new Font("TimesRoman", Font.PLAIN, 16));
 	}
 	public void setEnabled(final boolean enabled) {
 		ToolTipManager.sharedInstance().setEnabled(enabled);
@@ -43,7 +45,7 @@ public final class DescriptionManager {
 		if (comp == null)
 			throw new NullPointerException("Cant add description to null component");
 		final String formattedText = GuiUtils.createNewLines(description);
-		comp.setToolTipText(formattedText);
+		 comp.setToolTipText(formattedText);
 		 final Point locationOnScreen = MouseInfo.getPointerInfo().getLocation();
          final Point locationOnComponent = new Point(locationOnScreen);
          SwingUtilities.convertPointFromScreen(locationOnComponent, comp);

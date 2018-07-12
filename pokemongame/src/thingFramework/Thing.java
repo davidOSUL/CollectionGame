@@ -301,7 +301,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	public String toString() {
 		if (name == null)
 			return "BLANK ITEM";
-		return name + (containsAttribute("description") ? ":\n" + getAttributeVal("description").toString() : "");
+		return "<u>" + name + "</u>" + (containsAttribute("description") ? ":\n" + getAttributeVal("description").toString() : "");
 	}
 	/**
 	 * Update the description attribute of this thing to account for any changes that may have happened

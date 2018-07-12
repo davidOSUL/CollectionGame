@@ -1,2 +1,9 @@
 ITEM,,,,
-Small Table,removable,FALSE,additional description,CANNOT BE REMOVED
+A Small Loan of 1|000 Dollars,removable,FALSE,additional description,CANNOT BE REMOVED.^Must pay $1|000 to get rid of.^Max one at a time.
+A Big Loan of 1|000|000 Dollars,removable,FALSE,additional description,CANNOT BE REMOVED.^Must pay $1|000|000 to get rid of.^Max one at a time
+Bronze Timer,additional description,Max one at a time,,
+Silver Timer,additional description,Max one at a time,,
+Gold Timer,additional description,Max one at a time,,
+Sand Clock,additional description,Max one at a time,,
+Time Bender,additional description,Max one at a time,,
+Master of Time and Space,additional description,Max one at a time,,

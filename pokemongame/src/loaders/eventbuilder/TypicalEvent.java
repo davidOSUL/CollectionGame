@@ -32,6 +32,11 @@ public final class TypicalEvent {
 		final int upper = eventType.getUpper();
 		final TypicalEvent te = new TypicalEvent();
 		switch (eventType) {
+		case DECRSPAWNPERIOD:
+			final long millis = parseLong(inputs[lower]);
+			te.e = generateDecreaseSpawnRateEvent(millis);
+			te.description = eventType.getDescription(GameUtils.millisecondsToWrittenOutTime(millis));
+			break;
 		case RANDOMGOLD:
 			final int[] integerInputs = GameUtils.parseAllInRangeToInt(inputs, lower, upper-1); //upper-1 because the last input will be a double that we have to parse seperately
 			te.he = generateRandomGoldEvent(integerInputs[0], integerInputs[1], Double.parseDouble(inputs[upper]));
@@ -78,6 +83,9 @@ public final class TypicalEvent {
 			break;
 		}
 		return te;
+	}
+	private static Event generateDecreaseSpawnRateEvent(long millis) {
+		return new Event(board -> board.addToPeriodDecrease(millis), board -> board.addToPeriodDecrease(-millis));
 	}
 	private static long parseLong(final String myLong) {
 		return Double.valueOf(myLong).longValue();
@@ -233,8 +241,8 @@ public final class TypicalEvent {
 		POKEOFCATEGORYADD(1, 8, "%s %s get %s%s"), //e.g. For the next 10 minutes, all water types get +1 $/min
 		ALLPOKEADD(1, 5, "%s pokemon get %s%d"),
 		POKEOFCATEGORYMULT(1, 8, "%s %s get x%s"),
-		ALLPOKEMULT(1, 5, "%s pokemon get x%s");
-
+		ALLPOKEMULT(1, 5, "%s pokemon get x%s"),
+		DECRSPAWNPERIOD(1,1,"Decrease wait time between new pokemon spawning by %s");
 		/**
 		 * The lower index of the set of parameters for the event's generator function
 		 */

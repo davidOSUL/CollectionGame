@@ -1,19 +1,28 @@
 Thing,InitialQuantity,Cost,Rank,Default?,sendBackWhenRemoved?,Max Allowed,Sell Back Value
-Pebble of Legends,1,999999,1,yes,yes,no limit,default
-Stone of Legends,1,999999,2,yes,yes,no limit,default
-Rock of Legends,1,999999,3,yes,yes,no limit,default
-Boulder of Legends,1,999999,4,yes,yes,no limit,default
-Mountain of Legends,1,999999,5,yes,yes,no limit,default
-Tectonic Plate of Legends,1,999999,6,yes,yes,no limit,default
-Fountain of Water,5,999999,7,yes,yes,no limit,default
-Fountain of Bugs,5,999999,8,yes,yes,no limit,default
-Dragon Scepter,5,999999,9,yes,yes,no limit,default
-Lawn Trimmings,5,999999,10,yes,yes,no limit,default
-A Rock,5,999999,11,yes,no,no limit,default
-A *Magical* Rock,5,999999,12,yes,yes,no limit,default
-Small Table,3,999999,13,yes,yes,no limit,default
-Large Table,3,999999,14,yes,yes,no limit,default
-Poker Table,3,999999,15,yes,yes,no limit,default
-Bronze Timer,infinite,999999,16,yes,yes,1,default
-Silver Timer,infinite,999999,17,yes,yes,1,default
-Gold Timer,infinite,999999,18,yes,yes,1,default
+Pebble of Legends,1,30,1,yes,yes,no limit,default
+Stone of Legends,1,70,2,yes,yes,no limit,default
+Rock of Legends,1,200,3,yes,yes,no limit,default
+Boulder of Legends,1,500,4,yes,yes,no limit,default
+Mountain of Legends,1,4000,5,yes,yes,no limit,default
+Tectonic Plate of Legends,1,15000,6,yes,yes,no limit,default
+Fountain of Water,3,100,7,yes,yes,no limit,default
+Fountain of Bugs,3,100,8,yes,yes,no limit,default
+Dragon Scepter,3,100,9,yes,yes,no limit,default
+Lawn Trimmings,3,100,10,yes,yes,no limit,default
+A Rock,infinite,10,11,yes,yes,no limit,default
+A *Magical* Rock,3,100,12,yes,yes,no limit,default
+Small Table,5,70,13,yes,yes,no limit,default
+Large Table,5,85,14,yes,yes,no limit,default
+Poker Table,5,200,15,yes,yes,no limit,default
+Smelly Sandwich,7,35,16,yes,yes,no limit,default
+Pretty Decent Sandwich,5,5,17,yes,yes,no limit,default
+Decadent Sandwich,3,50,18,yes,yes,no limit,default
+Bronze Timer,infinite,100,19,yes,yes,1,default
+Silver Timer,infinite,500,20,yes,yes,1,default
+Gold Timer,infinite,1500,21,yes,yes,1,default
+A Small Loan of 1|000 Dollars,infinite,0,22,yes,yes,1,-1000
+A Big Loan of 1|000|000 Dollars,infinite,0,23,yes,yes,1,-1000000
+Explosives,infinite,100,24,yes,yes,1,1
+Sand Clock,infinite,15000,25,yes,yes,1,default
+Time Bender,infinite,30000,26,yes,yes,1,default
+Master of Time and Space,infinite,60000,27,yes,yes,1,default

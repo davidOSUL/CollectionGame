@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import game.Board;
+import gameutils.GameUtils;
 import interfaces.SerializableConsumer;
 import interfaces.SerializableFunction;
 
@@ -42,14 +43,14 @@ public class CustomPeriodEvent extends Event {
 			numCurrentPeriodsElapsed = 0;
 		}
 		if (!keepTrackWhileOff()) {
-			if (millisAsMinutes(b.getTotalInGameTime()-timeOfLastChange) / period >= (numCurrentPeriodsElapsed+1)) {
+			if (GameUtils.millisAsMinutes(b.getTotalInGameTime()-timeOfLastChange) / period >= (numCurrentPeriodsElapsed+1)) {
 				getOnPeriod().accept(b);
 				numCurrentPeriodsElapsed++;
 				addToTotalPeriods();
 			}
 		}
 		else {
-			if (millisAsMinutes(b.getTotalTimeSinceStart()-timeOfLastChange) / period >= (numCurrentPeriodsElapsed+1)) {
+			if (GameUtils.millisAsMinutes(b.getTotalTimeSinceStart()-timeOfLastChange) / period >= (numCurrentPeriodsElapsed+1)) {
 				getOnPeriod().accept(b);
 				numCurrentPeriodsElapsed++;
 				addToTotalPeriods();
