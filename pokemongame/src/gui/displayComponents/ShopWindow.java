@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.swing.GrayFilter;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -129,11 +130,13 @@ public class ShopWindow {
 		
 		
 	}
-	private static Image generateImage(final ShopItem item) {
+	private Image generateImage(final ShopItem item) {
 		final Image sprite = GuiUtils.readTrimAndScaleImage(item.getImage(), PICTURE_DIM, PICTURE_DIM);
 		final Image overlay =GuiUtils.overlayImage(ITEM_TEMPLATE, sprite, SPRITE_IMAGE_LOC); 
-		final Image overlayWithQuantity = GuiUtils.overlayText(overlay, item.getQuantity() + "x", QUANTITY_LOC, DEFAULT_FONT);
-		final Image result = GuiUtils.overlayText(overlayWithQuantity, Integer.toString(item.getCost()), COST_LOC, DEFAULT_FONT);
+		final Image overlayWithQuantity = GuiUtils.overlayText(overlay, item.getDisplayQuantity() + "x", QUANTITY_LOC, DEFAULT_FONT);
+		Image result = GuiUtils.overlayText(overlayWithQuantity, Integer.toString(item.getCost()), COST_LOC, DEFAULT_FONT);
+		if (gv.getPresenter().shouldGreyOut(item))
+			result = GrayFilter.createDisabledImage(result);
 		return result;
 	}
 	public JComponent getShopWindowAsScrollable() {

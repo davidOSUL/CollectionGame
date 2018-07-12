@@ -417,6 +417,9 @@ public class MainGamePanel extends JPanel{
 	      keyBindings.addKeyBinding(KeyEvent.VK_LEFT, () -> {
 	    	  //TODO: Implement
 	      });
+	      keyBindings.addKeyBinding(KeyEvent.VK_I, () -> {
+	    	  gv.getPresenter().displayAdvancedStats();
+	      });
 	   }
 	/**
 	 * adds grids to board and adds their listeners

@@ -125,5 +125,30 @@ public final class GameUtils {
 
 	    return minutes + ":" + secs;
 	}
+	/**
+	 * returns given milliseconds to verbally described time, providing as little info as possible.
+	 * (e.g. 1:30 is "1 minute and 30 seconds". :34 is "34 seconds" and 3:00 is "3 minutes"
+	 * @param milliseconds
+	 * @return
+	 */
+	public static String millisecondsToWrittenOutTime(final long milliseconds) {
+		if (milliseconds < 0)
+	    	return "0 minutes";
+		final long minutes = (milliseconds / 1000) / 60;
+	    final long seconds = (milliseconds / 1000) % 60;
+	    final String secondsStr = Long.toString(seconds);
+	    String secs;
+	    if (secondsStr.length() >= 2) {
+	        secs = secondsStr.substring(0, 2);
+	    }
+	    else
+	    	secs = secondsStr;
+	    if (seconds == 0)
+	    	return minutes + " minutes";
+	    if (minutes == 0)
+	    	return secs + " seconds";
+	    return minutes + " minutes and " + secs + " seconds";
+	    			
+	}
 	
 }

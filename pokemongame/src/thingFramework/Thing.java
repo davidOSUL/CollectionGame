@@ -236,8 +236,10 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	 */
 	public final void multiplyIntegerAttribute(final String name, final int multiplicationVal, final boolean removeIfZero) {
 		boolean modified = false;
+		if (!Attribute.isValidAttribute(name))
+			throw new IllegalArgumentException("Illegel attribute name " + name);
 		if (containsAttribute(name)) {
-			getAttribute(name).setValue(((Integer) getAttributeVal(name))*multiplicationVal);
+			setAttributeVal(name, ((Integer) getAttributeVal(name))*multiplicationVal);
 			modified = true;
 		}
 		if (modified && removeIfZero && (Integer)getAttributeVal(name) == 0)
@@ -251,8 +253,10 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	 */
 	public final void divideIntegerAttribute(final String name, final int divideVal, final boolean removeIfZero) {
 		boolean modified = false;
+		if (!Attribute.isValidAttribute(name))
+			throw new IllegalArgumentException("Illegel attribute name " + name);
 		if (containsAttribute(name)) {
-			getAttribute(name).setValue(((Integer) getAttributeVal(name))/divideVal);
+			setAttributeVal(name, ((Integer) getAttributeVal(name))/divideVal);
 			modified = true;
 		}
 		if (modified && removeIfZero && (Integer)getAttributeVal(name) == 0)

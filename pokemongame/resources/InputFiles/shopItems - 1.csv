@@ -1,0 +1,19 @@
+Thing,InitialQuantity,Cost,Rank,Default?,sendBackWhenRemoved?,Max Allowed
+Pebble of Legends,1,999999,1,yes,yes,no limit
+Stone of Legends,1,999999,2,yes,yes,no limit
+Rock of Legends,1,999999,3,yes,yes,no limit
+Boulder of Legends,1,999999,4,yes,yes,no limit
+Mountain of Legends,1,999999,5,yes,yes,no limit
+Tectonic Plate of Legends,1,999999,6,yes,yes,no limit
+Fountain of Water,5,999999,7,yes,yes,no limit
+Fountain of Bugs,5,999999,8,yes,yes,no limit
+Dragon Scepter,5,999999,9,yes,yes,no limit
+Lawn Trimmings,5,999999,10,yes,yes,no limit
+A Rock,5,999999,11,yes,no,no limit
+A *Magical* Rock,5,999999,12,yes,yes,no limit
+Small Table,3,999999,13,yes,yes,no limit
+Large Table,3,999999,14,yes,yes,no limit
+Poker Table,3,999999,15,yes,yes,no limit
+Bronze Timer,infinite,999999,16,yes,yes,1
+Silver Timer,infinite,999999,17,yes,yes,1
+Gold Timer,infinite,999999,18,yes,yes,1

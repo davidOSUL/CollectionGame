@@ -108,7 +108,7 @@ public class InfoWindowBuilder {
 	 * @return the new Info Window
 	 */
 	public InfoWindowBuilder setBackgroundImage(final Image i) {
-		this.backgroundImage = GuiUtils.getScaledImage(i, panel.getWidth(), panel.getHeight());
+		this.backgroundImage = i;
 		return this;
 	}
 	/**
@@ -148,17 +148,6 @@ public class InfoWindowBuilder {
 	 * @return the created info window
 	 */
 	public JComponent createWindow() {
-
-		final JLayeredPane result = new JLayeredPane();
-		result.setLayout(null);
-		result.setPreferredSize(new Dimension(panel.getWidth(), panel.getHeight()));
-		final JPanel foreground = new JPanel();
-		foreground.setBounds(0, 0, panel.getWidth(), panel.getHeight());
-		foreground.setOpaque(false);
-		
-		foreground.setLayout(new BoxLayout(foreground, BoxLayout.Y_AXIS));
-		foreground.setPreferredSize(new Dimension(panel.getWidth(), panel.getHeight()));
-		
 		final JPanel infoPan = new JPanel();
 		final MultiLineLabel label = new MultiLineLabel(info);
 		label.setPreferredSize(label.getMaximumSize());
@@ -167,6 +156,19 @@ public class InfoWindowBuilder {
 		
 		infoPan.add(label);
 		infoPan.setOpaque(false);
+		//panel.setSize(Math.max(label.getPreferredSize().width, panel.getWidth()), Math.max(label.getPreferredSize().height, panel.getHeight()));
+		final JLayeredPane result = new JLayeredPane();
+		result.setLayout(null);
+		result.setPreferredSize(new Dimension(panel.getWidth(), panel.getHeight()));
+		//result.setSize(panel.getSize());
+		final JPanel foreground = new JPanel();
+		foreground.setBounds(0, 0, panel.getWidth(), panel.getHeight());
+		foreground.setOpaque(false);
+		
+		foreground.setLayout(new BoxLayout(foreground, BoxLayout.Y_AXIS));
+		foreground.setPreferredSize(new Dimension(panel.getWidth(), panel.getHeight()));
+		
+		
 		
 		final JPanel itemPan = new JPanel();
 		JLabel jl = new JLabel("");
@@ -196,6 +198,7 @@ public class InfoWindowBuilder {
 		foreground.revalidate();
 		foreground.repaint();
 		if (backgroundImage != null) {
+			backgroundImage = GuiUtils.getScaledImage(backgroundImage, panel.getWidth(), panel.getHeight());
 			final GameSpace background = new GameSpace(backgroundImage);
 			result.add(background, JLayeredPane.DEFAULT_LAYER);
 		}

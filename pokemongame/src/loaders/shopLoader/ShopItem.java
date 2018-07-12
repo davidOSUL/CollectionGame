@@ -22,36 +22,51 @@ public class ShopItem implements Serializable, Imagable{
 	private int displayRank;
 	private String image;
 	private String description;
+	public static final int INFINITY = -1;
+	/**
+	 * if the user removes this item (doesn't sell it back), should it be sent back to the shop
+	 */
+	private final boolean sendBackToShopWhenRemoved;
+	/**
+	 * the maximum that are allowed to be on the board at a time
+	 */
+	private final int maxAllowed;
 	/**
 	 * Construct a new ShopItem with the given paramter
 	 * @param thingName the thingName
 	 * @param initialQuantity the quantity
 	 * @param cost the cost
 	 * @param displayRank the order that the ShopItem should be displayed relative to other shopItems (1 first, 2 second, etc.)
+	 * @param sendBackToShopWhenRemoved if set to true, signifies that this shop item should be sent back when it is removed by the user (even if not sold back)
+	 * @param maxAllowed the maximum amount of these items allowed on the board at a time
 	 */
-	protected ShopItem(String thingName, int initialQuantity, int cost, int displayRank) {
+	protected ShopItem(final String thingName, final int initialQuantity, final int cost, final int displayRank, final boolean sendBackToShopWhenRemoved, final int maxAllowed) {
 		this.setThingName(thingName);
 		this.setQuantity(initialQuantity);
 		this.setCost(cost);
 		this.setDisplayRank(displayRank);
 		setImage();
 		setDescription();
+		this.sendBackToShopWhenRemoved = sendBackToShopWhenRemoved;
+		this.maxAllowed = maxAllowed;
 	}
 	/**
 	 * Construct a new ShopItem using an array of ints for the last three values. Equivalent to <code>ShopItem(thingName, quantityCostAndRank[0], quantityCostAndRank[1], quantityCostAndRank[2])</code>
 	 * Should only be called by ShopItemLoader
 	 * @param thingName the name of the thing
 	 * @param quantityCostAndRank an array where the first value is quantity, the second is cost, and the third is displayRank
+	 * @param sendBackToShopWhenRemoved if set to true, signifies that this shop item should be sent back when it is removed by the user (even if not sold back)
+	 * @param maxAllowed the maximum amount of these items allowed on the board at a time
 	 */
-	protected ShopItem(String thingName, int[] quantityCostAndRank) {
-		this(thingName, quantityCostAndRank[0], quantityCostAndRank[1], quantityCostAndRank[2]);
+	protected ShopItem(final String thingName, final int[] quantityCostAndRank, final boolean sendBackToShopWhenRemoved, final int maxAllowed) {
+		this(thingName, quantityCostAndRank[0], quantityCostAndRank[1], quantityCostAndRank[2], sendBackToShopWhenRemoved, maxAllowed);
 	}
 	/**
 	 * Construct a new ShopItem using all the values of the passed in shopItem. Should only be called by ShopItemLoader
 	 * @param shopItem the shop item to call
 	 */
-	protected ShopItem(ShopItem shopItem) {
-		this(shopItem.getThingName(), shopItem.getQuantity(), shopItem.getCost(), shopItem.getDisplayRank());
+	protected ShopItem(final ShopItem shopItem) {
+		this(shopItem.getThingName(), shopItem.getQuantity(), shopItem.getCost(), shopItem.getDisplayRank(), shopItem.shouldSendBackToShopWhenRemoved(), shopItem.getMaxAllowed());
 	}
 	/**
 	 * @return the thingName
@@ -62,7 +77,7 @@ public class ShopItem implements Serializable, Imagable{
 	/**
 	 * @param thingName the thingName to set
 	 */
-	public void setThingName(String thingName) {
+	public void setThingName(final String thingName) {
 		this.thingName = thingName;
 	}
 	/**
@@ -74,7 +89,7 @@ public class ShopItem implements Serializable, Imagable{
 	/**
 	 * @param cost the cost to set
 	 */
-	public void setCost(int cost) {
+	public void setCost(final int cost) {
 		this.cost = cost;
 	}
 	/**
@@ -83,11 +98,15 @@ public class ShopItem implements Serializable, Imagable{
 	public int getQuantity() {
 		return quantity;
 	}
+	public String getDisplayQuantity() {
+		return quantity == INFINITY ? "∞" : Integer.toString(quantity);
+	}
 	/**
-	 * @param quantity the quantity to set
+	 * @param sets the quantity of this shopitem. If the shop items current quantity == INFINITY, then no change occurs
 	 */
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
+	public void setQuantity(final int quantity) {
+		if (this.quantity != INFINITY)
+			this.quantity = quantity;
 	}
 	/**
 	 * @return the displayRank
@@ -98,12 +117,13 @@ public class ShopItem implements Serializable, Imagable{
 	/**
 	 * @param displayRank the displayRank to set
 	 */
-	public void setDisplayRank(int displayRank) {
+	public void setDisplayRank(final int displayRank) {
 		this.displayRank = displayRank;
 	}
 	/**
 	 * @return the image
 	 */
+	@Override
 	public String getImage() {
 		return image;
 	}
@@ -135,6 +155,23 @@ public class ShopItem implements Serializable, Imagable{
 	 */
 	private void setDescription() {
 		this.description = ThingLoader.sharedInstance().getThingDescription(thingName);
+	}
+	/**
+	 * @return the sendBackToShopWhenRemoved
+	 */
+	public boolean shouldSendBackToShopWhenRemoved() {
+		return sendBackToShopWhenRemoved;
+	}
+	/**
+	 * return true if you can place another of this shop item
+	 * @param currentPresent the number that are current present
+	 * @return true if there is no limit to number allowed or if currentPresent < maxAllowed
+	 */
+	public boolean allowedToPlaceAnother(final int currentPresent) {
+		return maxAllowed == INFINITY || currentPresent < maxAllowed; 
+	}
+	private int getMaxAllowed() {
+		return maxAllowed;
 	}
 	
 

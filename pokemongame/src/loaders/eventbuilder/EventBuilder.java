@@ -155,38 +155,4 @@ public class EventBuilder {
 
 	}
 
-
-	/**
-	 * All TypicalEvents. Contains the lower index and the upper index of the parsed input line, where the inputs to the corresponding method that generates the event can be found
-	 * @author David O'Sullivan
-	 *
-	 */
-	private enum TypicalEvents {
-		RANDOMGOLD(1, 3, "Has a %d%% Chance of Generating %d PokeCash Every %.2f Minutes"), //of the format randomgold:x:y:z, so x (the first) will be at 1 and y (the last) will be at 3
-		INCREASE_LEGENDARY_CHANCE(1,1, "Increases chance of legendary pokemon spawning by %d%%");
-
-		/**
-		 * The lower index of the set of parameters for the event's generator function
-		 */
-		private final int lower;
-		/**
-		 * The upper index of the set of parameters for the event's generator function
-		 */
-		private final int upper;
-		private final String descriptionTemplate;
-		private TypicalEvents(final int lower, final int upper, final String descriptionTemplate) {
-			this.lower = lower;
-			this.upper = upper;
-			this.descriptionTemplate = descriptionTemplate;
-		}
-		private int getLower() {
-			return lower;
-		}
-		private int getUpper() {
-			return upper;
-		}
-		private String getDescription(final Object ...args) {
-			return String.format(descriptionTemplate, args);
-		}
-	}
 }

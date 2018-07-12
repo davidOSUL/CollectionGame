@@ -10,6 +10,7 @@ public abstract class GlobalModifierEvent<M extends Thing, C extends Thing> exte
 	private final Modifier<M> mod;
 	private final boolean removeCreatorWhenDone;
 	private final boolean displayCountdown;
+	private boolean sentRequest = false;
 	public GlobalModifierEvent(final Modifier<M> mod, final boolean removeCreatorWhenDone, final boolean displayCountdown) {
 		this.mod = mod;
 		this.removeCreatorWhenDone = removeCreatorWhenDone;
@@ -27,8 +28,9 @@ public abstract class GlobalModifierEvent<M extends Thing, C extends Thing> exte
 		setOnTick(board -> {
 			if (displayCountdown)
 				getCreator().setAttributeVal("time left", mod.timeLeft(board.getTotalInGameTime()));
-			if (removeCreatorWhenDone && mod.isDone(board.getTotalInGameTime())) {
+			if (!sentRequest && removeCreatorWhenDone && mod.isDone(board.getTotalInGameTime())) {
 				board.addToRemoveRequest(getCreator()); //request to remove the creator. Note that the removal of the modification itself is handled by the board
+				sentRequest = true;
 			}
 		});
 	}
@@ -36,7 +38,7 @@ public abstract class GlobalModifierEvent<M extends Thing, C extends Thing> exte
 	public void setCreator(final C creator) {
 		super.setCreator(creator);
 		if (displayCountdown && !getCreator().containsAttribute("time left"))
-			creator.addAttribute(Attribute.generateAttribute("time left"));
+			getCreator().addAttribute(Attribute.generateAttribute("time left"));
 	}
 	public Modifier<M> getMod() {
 		return mod;

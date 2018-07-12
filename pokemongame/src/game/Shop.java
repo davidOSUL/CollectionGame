@@ -25,15 +25,15 @@ public class Shop implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Set<String> itemsInitiallyInShop;
+	private final Set<String> itemsInitiallyInShop;
 	/**
 	 * Map between the name of an item and the corresponding shop item
 	 */
-	private Map<String, ShopItem> itemsInShop = new HashMap<String, ShopItem>();
+	private final Map<String, ShopItem> itemsInShop = new HashMap<String, ShopItem>();
 	/**
 	 * Mantains priorty queue of all values in "itemsInShop" map, sorted by displayrank
 	 */
-	private Set<ShopItem> itemsInOrder;
+	private final Set<ShopItem> itemsInOrder;
 	/**
 	 * Creates a new Shop with the default initial itmes from ShopItemLoader added
 	 */
@@ -48,7 +48,7 @@ public class Shop implements Serializable{
 	 *Upon DeSerilization, this function is called by the JVM. This will allow us to update the shop inventory with new items in the future, keeping the old items
 	 *and their quantitities/prices the same
 	 */
-	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+	private void readObject(final ObjectInputStream ois) throws ClassNotFoundException, IOException {
 		//default serilization
 		ois.defaultReadObject();		
 	}
@@ -57,16 +57,16 @@ public class Shop implements Serializable{
 	 */
 	public void checkForShopUpdates() {
 		ShopItemLoader.sharedInstance().generateInitialShopItems().forEach(shopItem -> { //TODO: Put this in a method "start of session" along with more stuff from board
-			String name = shopItem.getThingName();
+			final String name = shopItem.getThingName();
 			if (!itemsInitiallyInShop.contains(name)) {
 				itemsInitiallyInShop.add(name);
 				itemsInShop.put(name, shopItem);
 				itemsInOrder.add(shopItem);
 			}
 		});
-		Iterator<String> it = itemsInitiallyInShop.iterator();
+		final Iterator<String> it = itemsInitiallyInShop.iterator();
 		while (it.hasNext()) {
-			String name = it.next();
+			final String name = it.next();
 			if (!ShopItemLoader.sharedInstance().hasShopItem(name)) {
 				it.remove();
 				if (itemsInShop.containsKey(name)) {
@@ -87,21 +87,21 @@ public class Shop implements Serializable{
 	 * @param name the name of the shop item
 	 * @return true if that name corresponds to a valid shop item
 	 */
-	public boolean isValidShopItem(String name) {
+	public boolean isValidShopItem(final String name) {
 		return ShopItemLoader.sharedInstance().hasShopItem(name);
 	}
 	/**
 	 * Adds a new ShopItem to the shop with quantity one if not present. Or if present increases its quantity by 1
 	 * @param name the name of the shop item to add
 	 */
-	public void addToShopStock(String name) {
+	public void addToShopStock(final String name) {
 		if (!isValidShopItem(name))
 			throw new IllegalArgumentException(name + " is not a valid shop item"); //TODO: add warning that they won't be able to repurchase
 		if (itemsInShop.containsKey(name)) {
 			itemsInShop.get(name).increaseQuantity();
 			return;
 		}
-		ShopItem si = ShopItemLoader.sharedInstance().generateShopItem(name);
+		final ShopItem si = ShopItemLoader.sharedInstance().generateShopItem(name);
 		si.setQuantity(1);
 		itemsInShop.put(name, si);
 		itemsInOrder.add(si);
@@ -114,7 +114,7 @@ public class Shop implements Serializable{
 	 * not for sale right now)
 	 * @param name
 	 */
-	private void throwIfNotPresent(String name) {
+	private void throwIfNotPresent(final String name) {
 		if (!hasThingForPurchase(name))
 			throw new IllegalArgumentException(name + " is not currently in the shop");
 
@@ -123,7 +123,7 @@ public class Shop implements Serializable{
 	 * @param name the ShopItem
 	 * @return true if exists in shop
 	 */
-	public boolean hasThingForPurchase(String name) {
+	public boolean hasThingForPurchase(final String name) {
 		return itemsInShop.containsKey(name);
 	}
 	/**
@@ -131,39 +131,39 @@ public class Shop implements Serializable{
 	 * @param name the Name of the shop item
 	 * @return the thing
 	 */
-	public Thing purchase(String name) {
+	public Thing purchase(final String name) {
 		throwIfNotPresent(name);
-		Thing thing = ShopItemLoader.sharedInstance().generateNewThing(name);
+		final Thing thing = ShopItemLoader.sharedInstance().generateNewThing(name);
 		removeOne(name);
 		return thing;
 	}
-	public Thing purchase(ShopItem item) {
+	public Thing purchase(final ShopItem item) {
 		if (!itemsInOrder.contains(item))
 			throw new IllegalArgumentException(item.getThingName() + " is not currently in the shop");
 		return purchase(item.getThingName());
 	}
-	public Thing getThingCopy(ShopItem item) {
+	public Thing getThingCopy(final ShopItem item) {
 		return ShopItemLoader.sharedInstance().generateNewThing(item.getThingName());
 	}
-	public int getCost(String name) {
+	public int getCost(final String name) {
 		throwIfNotPresent(name);
 		return itemsInShop.get(name).getCost();
 	}
-	private void updateQuantity(String name, int newQuantity) {
-		if (newQuantity <= 0) {
+	private void updateQuantity(final String name, final int newQuantity) {
+		if (newQuantity <= 0 && itemsInShop.get(name).getQuantity() != ShopItem.INFINITY) {
 			itemsInOrder.remove(itemsInShop.get(name));
 			itemsInShop.remove(name);
 		}
 		else
 			itemsInShop.get(name).setQuantity(newQuantity);
 	}
-	private void removeOne(String name) {
+	private void removeOne(final String name) {
 		updateQuantity(name, itemsInShop.get(name).getQuantity()-1);
 	}
 	private enum ItemComparator implements Comparator<ShopItem> {
 		INSTANCE;
 		@Override
-		public int compare(ShopItem s1, ShopItem s2) {
+		public int compare(final ShopItem s1, final ShopItem s2) {
 			return Integer.compare(s1.getDisplayRank(), s2.getDisplayRank());
 		}
 	}

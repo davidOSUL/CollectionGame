@@ -26,7 +26,7 @@ public class GlobalPokemonModifierEvent<C extends Thing> extends GlobalModifierE
 
 	@Override
 	public HeldEvent<C> makeCopy() {
-		return new GlobalPokemonModifierEvent<C>(this.getMod(), this.getRemoveCreatorWhenDone(), this.getDisplayCountdown());
+		return new GlobalPokemonModifierEvent<C>(this);
 	}
 
 }

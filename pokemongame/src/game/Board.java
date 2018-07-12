@@ -3,6 +3,7 @@ import static gameutils.Constants.DEBUG;
 import static gameutils.Constants.RAPID_SPAWN;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
@@ -719,9 +720,20 @@ public class Board implements Serializable {
 	 */
 	public void sellBack(final ShopItem item) {
 		addGold(getSellBackValue(item));
+		sendItemBackToShop(item);
+	}
+	/**
+	 * Sends the item back to shop without adding any gold
+	 * @param item the item to send back
+	 */
+	public void sendItemBackToShop(final ShopItem item) {
 		if (canAddBackToShopStock(item))
 			shop.addToShopStock(item.getThingName());
 	}
+	/**
+	 * @param item the item to sell back
+	 * @return how much it would be sold back for
+	 */
 	public int getSellBackValue(final ShopItem item) {
 		return Math.max(1 , (int)(item.getCost()*sellBackPercent));
 	}
@@ -793,6 +805,7 @@ public class Board implements Serializable {
 	 * @param t
 	 */
 	public synchronized void addToRemoveRequest(final Thing t) {
+		System.out.println("HELLO");
 		removeRequests.add(t);
 	}
 	/**
@@ -808,7 +821,16 @@ public class Board implements Serializable {
 	public synchronized Thing getNextRemoveRequest() {
 		return removeRequests.poll();
 	}
-	
+	public String getAdvancedStats() {
+		final StringBuilder sb = new StringBuilder();
+		final DecimalFormat dfDouble = new DecimalFormat("0.00"); 
+		sb.append("Legendary Percent Chance: " + dfDouble.format(legendaryChance) + "%");
+		sb.append("\n");
+		sb.append("Look for New Pokemon Period: " + dfDouble.format(getLookPokemonPeriod()) + " minutes");
+		sb.append("\n");
+		sb.append("Chance that on New Pokemon Period, a Pokemon is Found: " + dfDouble.format(this.getPercentChancePokemonFound()) + "%");
+		return sb.toString();
+	}
 
 
 }

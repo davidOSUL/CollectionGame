@@ -3,6 +3,7 @@ import static gameutils.Constants.DEBUG;
 import static gameutils.Constants.PRINT_BOARD;
 import static gui.guiutils.GUIConstants.SHOW_CONFIRM_ON_CLOSE;
 
+import java.awt.Dimension;
 import java.awt.Image;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -13,13 +14,18 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.Random;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
@@ -87,7 +93,9 @@ public class Presenter implements Serializable {
 	private transient String oldString;  //used for debugging only, represent board.toString(), print when that changes
 	private transient String newString; //used for debugging only,  represent board.toString(), print when that changes
 	/**
-	 * Map of all things that are on board and were sold via the shop. This is made transient to manually set GUI
+	 * Map of all things that are on board and were sold via the shop. This is made transient to manually set GUI.
+	 * Note that although each gridspace will be unique multiple gridspaces can map to same shop item (if the item is purchased
+	 * more than once for instance)
 	 */
 	private transient Map<GridSpace, ShopItem> soldThings; 
 	/**
@@ -110,10 +118,7 @@ public class Presenter implements Serializable {
 	 * When in a delete attempt, this is the GameSpace that the user wants to delete
 	 */
 	private transient GridSpace gridSpaceToDelete = null;
-	/**
-	 * if true, will update shop upon clicking
-	 */
-	private transient boolean shopNeedsUpdate = false;
+
 	/*
 	 * Non-transient Instance Variables:
 	 * 
@@ -140,6 +145,7 @@ public class Presenter implements Serializable {
 	private volatile boolean popupMenusEnabled = true;
 	private final String title;
 	private String goodbyeMessage = "Goodbye!";
+	private final Queue<GridSpace> toBeDeleted = new ConcurrentLinkedQueue<GridSpace>();
 	private void writeObject(final ObjectOutputStream oos) throws IOException {
 		oos.defaultWriteObject();
 		final Map<GridSpaceData, Thing> allThingsData = new LinkedHashMap<GridSpaceData, Thing>();
@@ -211,12 +217,7 @@ public class Presenter implements Serializable {
 			System.out.println(board.getTimeStats());
 
 	}
-	/**
-	 * signify that the next time the shop is clicked it should be updated before opening
-	 */
-	private void suggestShopUpdate() {
-		shopNeedsUpdate = true; //slight optimization so I can get away with rebuilding the entire shop window every time it needs to update, seems to be good enough for now...
-	}
+	
 	/**
 	 * Get the GameView associated with this Presenter
 	 * @return the GameView that this presenter has
@@ -270,7 +271,7 @@ public class Presenter implements Serializable {
 			timer.start();
 			dialog.setVisible(true);
 		});
-		
+
 	}
 	/**
 	 * Sets the board for this presenter
@@ -288,31 +289,19 @@ public class Presenter implements Serializable {
 	public boolean containsGridSpace(final GridSpace gs) {
 		return allThings.containsKey(gs);
 	}
-	/**
-	 * Removes the GridSpace from the GUI and removes the thing that it corresponds to from the board. Also removes it
-	 * from allThings and soldThings (if present)
-	 * @param gs the GridSpace to remove
-	 * @param removeFromBoard if true will remove the thing from board, otherwise just removes it from allThings map/soldThings map
-	 * @return the mapEntry that was removed
-	 */
-	private  AllThingsMapEntry removeGridSpace(final GridSpace gs, final boolean removeFromBoard) {
-		return removeGridSpace(gs, removeFromBoard, true);
-	}
+	
 	/**
 	 * Removes the GridSpace from the GUI and removes the thing that it corresponds to from the board. Also removes it
 	 * from allThings.
 	 * @param gs the GridSpace to remove
 	 * @param removeFromBoard if true will remove the thing from board, otherwise just removes it from allThings map/soldThings map
-	 * @param removeFromSoldThings if true will remove the thing from soldThings map
 	 * @return the mapEntry that was removed
 	 */
-	private AllThingsMapEntry removeGridSpace(final GridSpace gs, final boolean removeFromBoard, final boolean removeFromSoldThings) {
+	private AllThingsMapEntry removeGridSpace(final GridSpace gs, final boolean removeFromBoard) {
 		if (!allThings.containsKey(gs))
 			throw new RuntimeException("Attempted To Remove Non-Existant GridSpace");
 		if (removeFromBoard)
 			board.removeThing(allThings.get(gs));
-		if (removeFromSoldThings)
-			soldThings.remove(gs);
 		return new AllThingsMapEntry(gs, allThings.remove(gs));
 	}
 	/**
@@ -324,10 +313,11 @@ public class Presenter implements Serializable {
 		gameView.setWildPokemonCount(board.numPokemonWaiting());
 		gameView.setBoardAttributes(board.getGold(), board.getPopularity());
 		gameView.updateDisplay();
-		updateToolTips();
+		if (state != CurrentState.PLACING_SPACE && !toBeDeleted.isEmpty()) {
+			deleteGridSpace(toBeDeleted.poll());
+		}
 	}
 	private void updateToolTips() {
-		//TODO: Make time based events have countdown timer
 		if (toolTipsEnabled)
 			allThings.forEach((gs, thing) -> DescriptionManager.getInstance().setDescription(gs, thing));
 	}
@@ -347,6 +337,17 @@ public class Presenter implements Serializable {
 		if (board == null || gameView == null)
 			return;
 		board.update();
+		if (board.hasRemoveRequest()) {
+			final Thing toRemove = board.getNextRemoveRequest();
+			SwingUtilities.invokeLater(() -> {
+				final GridSpace[] toDelete = new GridSpace[1];
+				allThings.forEach((gs, t) -> {
+					if (t == toRemove)
+						toDelete[0] = gs;
+				});
+				toBeDeleted.add(toDelete[0]);
+			});	
+		}
 		if (DEBUG || PRINT_BOARD) {
 			newString = board.toString();
 			if (!newString.equals(oldString)) {
@@ -372,8 +373,10 @@ public class Presenter implements Serializable {
 				Object[] options = {"Save And Quit", "Quit Without Saving", "Cancel"};
 				@Override
 				public void windowClosing(final java.awt.event.WindowEvent windowEvent) {
+					stopToolTips();
 					final int n = JOptionPane.showOptionDialog(gameView, goodbyeMessage, "", 
 							JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+					resumeToolTips();
 					if (n == JOptionPane.CANCEL_OPTION || n == JOptionPane.CLOSED_OPTION)
 						return;
 					if (n == JOptionPane.YES_OPTION) {
@@ -385,6 +388,10 @@ public class Presenter implements Serializable {
 				}
 			});
 		}
+		final Timer timer = new Timer(100, e -> updateToolTips());
+		timer.setRepeats(true);
+		timer.setInitialDelay(0);
+		timer.start();
 
 	}
 	private String generateRandomGoodbyeMessage() {
@@ -465,18 +472,24 @@ public class Presenter implements Serializable {
 	 * @param type the type of add (from queue, moving, etc.)
 	 */
 	public void notifyAdded(final GridSpace gs, final AddType type) {
-		if (type.isNewThing)
-			addGridSpace(gs, type);
+		if (toBeDeleted.contains(gs)) {
+			toBeDeleted.remove(gs);
+			deleteGridSpace(gs);
+			finishAddAttempt();
+			return;
+		}
 		switch(type) {
 		case POKE_FROM_QUEUE:
 			board.confirmGrab();
 			break;
 		case ITEM_FROM_SHOP:
 			soldThings.put(gs, itemToPurchase);
-			board.confirmPurchase();
-			suggestShopUpdate();
+			thingToAdd = board.confirmPurchase();
+			updateShop();
 			break;
 		}
+		if (type.isNewThing)
+			addGridSpace(gs, type);
 		gs.updateListeners(soldThings.containsKey(gs));
 		finishAddAttempt();
 	}
@@ -578,12 +591,22 @@ public class Presenter implements Serializable {
 		return true;
 
 	}
+	private void deleteGridSpace(final GridSpace gs) {
+		/*
+		 * Note how this method is different from confirmSellBack in that it conditionally sends items back to the board,
+		 * and doesn't refund money if it does
+		 */
+		final ShopItem item = soldThings.remove(gs);
+		if (item.shouldSendBackToShopWhenRemoved())
+			board.sendItemBackToShop(item);
+		this.removeGridSpace(gs, true);
+		gs.removeFromGrid();
+		updateShop();
+	}
 	private void confirmDelete() {
 		if (state != CurrentState.DELETE_CONFIRM_WINDOW || gridSpaceToDelete == null) 
 			throw new RuntimeException("No Delete to Confirm");
-		soldThings.remove(gridSpaceToDelete);
-		this.removeGridSpace(gridSpaceToDelete, true);
-		gridSpaceToDelete.removeFromGrid();
+		deleteGridSpace(gridSpaceToDelete);
 		finishDeleteAttempt();
 	}
 	/**
@@ -621,7 +644,7 @@ public class Presenter implements Serializable {
 		soldThings.remove(gridSpaceToDelete);
 		this.removeGridSpace(gridSpaceToDelete, true);
 		gridSpaceToDelete.removeFromGrid();
-		suggestShopUpdate();
+		updateShop();
 		finishSellBackAttempt();
 	}
 	/**
@@ -652,21 +675,14 @@ public class Presenter implements Serializable {
 		if (state != CurrentState.GAMEPLAY)
 			return;
 		setState(CurrentState.IN_SHOP);
-		SwingUtilities.invokeLater(() -> {
-			if (shopNeedsUpdate) {
-				shopNeedsUpdate = false;
-				shopWindow.updateItems(board.getItemsInShop());
-			}
-			final JComponent cards = shopWindow.getShopWindowAsCardLayout();
-			setCurrentWindow(cards);
-			gameView.setInShop(true);
-		});
-		
+		final JComponent cards = shopWindow.getShopWindowAsCardLayout();
+		setCurrentWindow(cards);
+		gameView.setInShop(true);
+
 
 	}
-
 	public void attemptPurchaseThing(final ShopItem item) {
-		if (!board.canPurchase(item))
+		if (!board.canPurchase(item) || !item.allowedToPlaceAnother(numOfItemOnBoard(item)))
 			return;
 		closeShop();
 		setState(CurrentState.PURCHASE_CONFIRM_WINDOW);
@@ -688,6 +704,32 @@ public class Presenter implements Serializable {
 			throw new RuntimeException("not in shop!");
 		gameView.setInShop(false);
 		setState(CurrentState.GAMEPLAY);
+	}
+	/**
+	 * update the shop window
+	 */
+	private void updateShop() {
+		SwingUtilities.invokeLater(() -> {
+			shopWindow.updateItems(board.getItemsInShop());
+			if (state == CurrentState.IN_SHOP)
+				refreshShop();
+		});
+	}
+	/**
+	 * Refresh the shop window
+	 */
+	private void refreshShop() {
+		final JComponent cards = shopWindow.getShopWindowAsCardLayout();
+		setCurrentWindow(cards);
+	}
+	public int numOfItemOnBoard(final ShopItem item) {
+		int count = 0;
+		for (final Map.Entry<GridSpace, ShopItem> entry : soldThings.entrySet()) {
+			if (entry.getValue() == item)
+				count++;
+		}
+		return count;
+			
 	}
 	/**
 	 * To be called when the currentWindow's enter button is pressed
@@ -743,7 +785,13 @@ public class Presenter implements Serializable {
 		case PLACING_SPACE:
 			gameView.cancelGridSpaceAdd();
 			break;
+		case ADVANCED_STATS_WINDOW:
+			CleanUp();
+			Finish();
+			break;
 		case GAMEPLAY:
+			break;
+		default:
 			break;
 		}
 
@@ -780,6 +828,15 @@ public class Presenter implements Serializable {
 
 	}
 	/**
+	 * Displays the advanced stat window for this board
+	 */
+	public void displayAdvancedStats() {
+		if (state != CurrentState.GAMEPLAY)
+			return;
+		setState(CurrentState.ADVANCED_STATS_WINDOW);
+		setCurrentWindow(advancedStatsWindow());
+	}
+	/**
 	 * Generates a new JPanel confirming if the user actually wants to delete the passed in thing
 	 * @param t The thing that the user needs to confirm deletion of
 	 * @return the created JPanel
@@ -799,7 +856,7 @@ public class Presenter implements Serializable {
 	private JComponent confirmPurchaseWindow(final ShopItem item) {
 		return new InfoWindowBuilder()
 				.setPresenter(this)
-				.setInfo("Are you sure you want to purchase " + item.getThingName() + " for " + item.getCost() + GuiUtils.getToolTipDollar() + "?")
+				.setInfo("Are you sure you want to purchase " + item.getThingName() + "\nfor " + item.getCost() + GuiUtils.getToolTipDollar() + "?")
 				.setImagable(item)
 				.setScale(96, 96)
 				.addEnterButton("Yes")
@@ -821,13 +878,39 @@ public class Presenter implements Serializable {
 				.setBackgroundImage(INFO_WINDOW_BACKGROUND)
 				.createWindow();
 	}
+	private JComponent advancedStatsWindow() {
+	//TODO: finish this
+		final JPanel panel = new JPanel();
+		final JTextArea area = new JTextArea(board.getAdvancedStats());
+		
+		area.setEditable(false);
+		area.setBounds(0, 0, area.getPreferredSize().width, area.getPreferredSize().height);
+		panel.setSize(area.getPreferredSize().width+20, area.getPreferredSize().height+20);
+		final JLayeredPane result = new JLayeredPane();
+		result.setLayout(null);
+		result.setPreferredSize(new Dimension(panel.getWidth(), panel.getHeight()));
+		result.add(area, JLayeredPane.PALETTE_LAYER);
+		result.add(new GameSpace(GuiUtils.getScaledImage(INFO_WINDOW_BACKGROUND, panel.getWidth(), panel.getHeight())), JLayeredPane.DEFAULT_LAYER);
+		
+		result.revalidate();
+		result.repaint();
+		result.setVisible(true);
+		result.setBounds(0, 0, panel.getWidth(), panel.getHeight());
+		panel.add(result);
+		panel.setVisible(true);
+		panel.setOpaque(true);
+		panel.revalidate();
+		panel.repaint();
+		return GuiUtils.componentWithBorder(panel);
+		
+	}
 	/**
 	 * The CurrentState of GamePlay
 	 * @author David O'Sullivan
 	 *
 	 */
 	private enum CurrentState {
-		GAMEPLAY, NOTIFICATION_WINDOW, PLACING_SPACE, DELETE_CONFIRM_WINDOW, IN_SHOP, PURCHASE_CONFIRM_WINDOW, SELL_BACK_CONFIRM_WINDOW
+		GAMEPLAY, NOTIFICATION_WINDOW, PLACING_SPACE, DELETE_CONFIRM_WINDOW, IN_SHOP, PURCHASE_CONFIRM_WINDOW, SELL_BACK_CONFIRM_WINDOW, ADVANCED_STATS_WINDOW
 	}
 	/**
 	 * The context of the Add Attempt
@@ -855,6 +938,17 @@ public class Presenter implements Serializable {
 			gridSpace = gs;
 			thing = t;
 		}
+	}
+	
+	public void notifyRightClickedGridSpace() {
+		DescriptionManager.getInstance().setEnabled(false);
+	}
+	public void notifyDoneWithRightClick() {
+		DescriptionManager.getInstance().setEnabled(true);
+
+	}
+	public boolean shouldGreyOut(final ShopItem item) {
+		return (!item.allowedToPlaceAnother(numOfItemOnBoard(item)) || !board.canPurchase(item));
 	}
 
 

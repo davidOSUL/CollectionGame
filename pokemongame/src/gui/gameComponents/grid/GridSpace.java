@@ -173,12 +173,15 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 		final BiConsumer<GameView, MouseEvent> onDoubleClick = (gv, e) -> {
 			gv.getPresenter().attemptMoveGridSpace(this);
 		};
+		
 		final MouseListener dubClickListener = new DoubleClickWithThreshold<GameView>(Grid.CLICK_DIST_THRESH, onDoubleClick, grid.getGameView());
-		this.addMouseListener(dubClickListener);
+		addMouseListener(dubClickListener);
 		listeners.add(dubClickListener);
+		
 		final MouseListener options = getDefaultPopupListener(hasSellBackOption);
-		listeners.add(options);
 		addMouseListener(options);
+		listeners.add(options);
+		
 	}
 	private MouseListener getDefaultPopupListener(final boolean hasSellBackOption) {
 		final SelectionWindowBuilder<GameView> swb = new SelectionWindowBuilder<GameView>(Grid.CLICK_DIST_THRESH, "Options");
@@ -194,7 +197,10 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 					onClickSellBack, grid.getGameView());
 		}
 		return swb.addOption(grid.getGameView().getPresenter().getDiscardText(this), onClickDelete, grid.getGameView())
-				.addOption("Move " + getName() + " To Bank").getListener();
+				.addOption("Move " + getName() + " To Bank")
+				.addDoOnMenuVisible(() -> grid.getGameView().getPresenter().notifyRightClickedGridSpace())
+				.addDoOnMenuClose(() -> grid.getGameView().getPresenter().notifyDoneWithRightClick())
+				.getListener();
 		
 	}
 	/**
@@ -223,6 +229,7 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	public Grid getGrid() {
 		return grid;
 	}
+
 	/**
 	 * Sets the image of this gridspace to one rotated 90 degrees. setImage will also update numColumns/numRows
 	 */

@@ -1,7 +1,6 @@
 package loaders.shopLoader;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,7 +19,7 @@ import thingFramework.Thing;
  *
  */
 public class ShopItemLoader {
-	private static final String SHOP_ITEM_PATH = "/InputFiles/shopItems.csv";
+	private static final String SHOP_ITEM_PATH = "/InputFiles/shopItems - 1.csv";
 	private static final ShopItemLoader INSTANCE = new ShopItemLoader();
 	/**
 	 * The set of all possible items for the shop to have
@@ -33,7 +32,7 @@ public class ShopItemLoader {
 	/**
 	 * Map between shop item names and the shop item
 	 */
-	private Map<String, ShopItem> shopItemMap = new HashMap<String, ShopItem>();
+	private final Map<String, ShopItem> shopItemMap = new HashMap<String, ShopItem>();
 	private ShopItemLoader() {
 		load(SHOP_ITEM_PATH);
 		shopItems = Collections.unmodifiableSet(shopItems);
@@ -42,22 +41,22 @@ public class ShopItemLoader {
 	public static ShopItemLoader sharedInstance() {
 		return INSTANCE;
 	}
-	public ShopItem generateShopItem(String name) {
+	public ShopItem generateShopItem(final String name) {
 		return new ShopItem(shopItemMap.get(name));
 	}
-	public Thing generateNewThing(String name) {
+	public Thing generateNewThing(final String name) {
 		if (!hasShopItem(name))
 			throw new IllegalArgumentException(name + " not a valid shop item");
 		return ThingLoader.sharedInstance().generateNewThing(name);
 	}
-	public boolean hasShopItem(String name) {
+	public boolean hasShopItem(final String name) {
 		return shopItemMap.containsKey(name);
 	}
-	public boolean hasShopItem(ShopItem item) {
+	public boolean hasShopItem(final ShopItem item) {
 		return shopItems.contains(item);
 	}
 	public Set<ShopItem> generateInitialShopItems() {
-		Set<ShopItem> generatedItems = new HashSet<ShopItem>();
+		final Set<ShopItem> generatedItems = new HashSet<ShopItem>();
 		initialShopItems.forEach(x -> generatedItems.add(generateShopItem(x.getThingName())));
 		return generatedItems;
 	}
@@ -70,19 +69,28 @@ public class ShopItemLoader {
 	 *<br> ... </br>
 	 * @param path the path to the CSV with the shop items
 	 */
-	private void load(String path) {
+	private void load(final String path) {
 		try {
-			for (String[] values : CSVReader.readCSV(path, true)) {
-				int[] quantityCostAndRank = GameUtils.parseAllInRangeToInt(values, 1, 3);
+			for (final String[] values : CSVReader.readCSV(path, true)) {
+				final int[] quantityCostAndRank;
+				if (!values[1].equalsIgnoreCase("infinite"))
+					quantityCostAndRank = GameUtils.parseAllInRangeToInt(values, 1, 3);
+				else {
+					final int[] costAndRank = GameUtils.parseAllInRangeToInt(values, 2, 3);
+					quantityCostAndRank = new int[]{ShopItem.INFINITY, costAndRank[0], costAndRank[1]};
+				}
 				if (!ThingLoader.sharedInstance().hasThing(values[0])) 
 					throw new RuntimeException("attempted to parse ShopItem with Thing Name: " + values[0] + " which does not have a corresponding thing");
-				ShopItem item = new ShopItem(values[0], quantityCostAndRank);
+				final boolean removeWhenDeleted = values[4].equalsIgnoreCase("yes");
+				final int maxAllowed;
+				maxAllowed = values[6].equalsIgnoreCase("no limit") ? ShopItem.INFINITY :Integer.parseInt(values[6]);
+				final ShopItem item = new ShopItem(values[0], quantityCostAndRank, removeWhenDeleted, maxAllowed);
 				shopItemMap.put(values[0], item);
 				shopItems.add(item);
 				if (values[4].equalsIgnoreCase("yes"))
 					initialShopItems.add(item);
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

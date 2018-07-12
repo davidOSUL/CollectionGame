@@ -90,7 +90,7 @@ public class Attribute implements Serializable{
 	/**
 	 * If this thing only exists for a certain amount of time, how much time it exists for
 	 */
-	private static final Attribute TIME_LEFT = new Attribute(9, "Time left", "time left", ParseType.STRING, new String("Infinite"), AttributeType.DISPLAYTYPE);
+	private static final Attribute TIME_LEFT = new Attribute(10, "Time left", "time left", ParseType.STRING, new String("Infinite"), AttributeType.DISPLAYTYPE);
 	private Object value = null;
 	static int currId = 0;
 	private static Map<String, Attribute> idMap;
@@ -189,6 +189,23 @@ public class Attribute implements Serializable{
 			sb.append("/10");
 		return sb.toString();
 		
+	}
+	/**
+	 * @return this attribute with the value displayed followed by the name
+	 */
+	public String toReverseString() {
+		final StringBuilder sb = new StringBuilder();
+		if (parsetype.equals(ParseType.ENUMSETPOKEMONTYPE))
+			sb.append( GameUtils.toTitleCase(getValue().toString().replace("[", "").replace("]", "").toLowerCase()));
+		else if (parsetype.equals(ParseType.BOOLEAN))
+			sb.append(getValue().toString().equalsIgnoreCase("true") ? "yes" : "no");
+		else
+			sb.append(getValue().toString());
+		if (this.containsType(AttributeType.OUTOFTEN))
+			sb.append("/10");
+		sb.append(" ");
+		sb.append(displayName);
+		return sb.toString();
 	}
 	public static boolean isValidAttribute(final String name) {
 		return idMap.containsKey(name);

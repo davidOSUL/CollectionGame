@@ -49,12 +49,12 @@ public final class ThingLoader {
 	/**
 	 * The location of the csv of all the thing to import into the game
 	 */
-	private static final String[] THING_LIST_LOCATIONS = {"/InputFiles/pokemonList.csv", "/InputFiles/itemList.csv"};
+	private static final String[] THING_LIST_LOCATIONS = {"/InputFiles/pokemonList.csv", "/InputFiles/itemList - 1.csv"};
 	/**
 	 * The location of all pregenerated "basic" events to load into the game. I.E.
 	 * items that have events that can be described by methods in the ThingLoader class
 	 */
-	private static final String EVENT_MAP_LOCATION = "/InputFiles/eventMapList.csv";
+	private static final String EVENT_MAP_LOCATION = "/InputFiles/eventMapList - 1.csv";
 	/**
 	 * Location of csv containing extra attributes for things. Format as specified in thingloader
 	 */
