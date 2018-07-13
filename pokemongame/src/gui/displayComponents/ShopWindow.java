@@ -87,6 +87,7 @@ public class ShopWindow {
 	private static final int INITIAL_ROW_OFFSET = 0;
 	private static final int END_ROW_OFFSET = 0;
 	private static final Image CARD_BACKGROUND = GuiUtils.readTrimAndScaleImage("/sprites/ui/sand_template.jpg", 80*TOTAL_NUM_COLS, 80*TOTAL_NUM_ROWS);
+	private int currentIndex = 0;
 	/**
 	 * Creates a new ShopWindow with no items
 	 * @param gv the gameView to interact with
@@ -160,12 +161,19 @@ public class ShopWindow {
 		
 		return panel;
 	}
+	public JComponent getShopWindowAtCurrentLocation() {
+		return getShopWindowAsCardLayout(currentIndex);
+	}
 	public JComponent getShopWindowAsCardLayout() {
-		((CardLayout) cardLayoutShopWindow.getLayout()).show(cardLayoutShopWindow, Integer.toString(0));
+		return getShopWindowAsCardLayout(0);
+		
+	}
+	private JComponent getShopWindowAsCardLayout(int i) {
+		currentIndex = i;
+		((CardLayout) cardLayoutShopWindow.getLayout()).show(cardLayoutShopWindow, Integer.toString(i));
 		cardLayoutShopWindow.revalidate();
 		cardLayoutShopWindow.repaint();
 		return GuiUtils.componentWithBorder(cardLayoutShopWindow);
-	
 		
 	}
 	private void generateCardShopWindows(final PictureButton[] allItems) {
@@ -184,12 +192,12 @@ public class ShopWindow {
 		final JPanel[][] holder = getNewHolder(gs);
 		holder[0][0].add(ButtonBuilder.generatePictureButton("cancel_button", p -> p.Canceled(), gv.getPresenter()));
 		if (addPrev) {
-			final PictureButton<CardLayout> prevButton = ButtonBuilder.generatePictureButton("prev_button",cl -> cl.show(cardLayoutShopWindow, Integer.toString(windowIndex-1)), (CardLayout) cardLayoutShopWindow.getLayout());
+			final PictureButton<CardLayout> prevButton = ButtonBuilder.generatePictureButton("prev_button",cl -> {cl.show(cardLayoutShopWindow, Integer.toString(windowIndex-1)); currentIndex = windowIndex-1;}, (CardLayout) cardLayoutShopWindow.getLayout());
 			holder[TOTAL_NUM_ROWS-1][0].setLayout(new GridBagLayout());
 			holder[TOTAL_NUM_ROWS-1][0].add(prevButton);
 		}
 		if (addNext) {
-			final PictureButton<CardLayout> nextButton = ButtonBuilder.generatePictureButton("next_button", cl -> cl.show(cardLayoutShopWindow, Integer.toString(windowIndex+1)), (CardLayout) cardLayoutShopWindow.getLayout());
+			final PictureButton<CardLayout> nextButton = ButtonBuilder.generatePictureButton("next_button", cl -> {cl.show(cardLayoutShopWindow, Integer.toString(windowIndex+1)); currentIndex = windowIndex+1;}, (CardLayout) cardLayoutShopWindow.getLayout());
 			holder[TOTAL_NUM_ROWS-1][TOTAL_NUM_COLS-1].setLayout(new GridBagLayout());
 			holder[TOTAL_NUM_ROWS-1][TOTAL_NUM_COLS-1].add(nextButton);
 		}

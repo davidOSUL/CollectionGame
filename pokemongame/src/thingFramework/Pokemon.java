@@ -32,7 +32,7 @@ public class Pokemon extends Thing implements Serializable, Eventful, Imagable {
 		super(name, image, attributes);
 	}
 	public Pokemon(final Pokemon p) {
-		this(p.getName(), p.getImage(), Thing.makeAttributeCopy(p.getAttributes()), p.getEvents());
+		this(p.getName(), p.getImage(), Thing.makeAttributeCopy(p.getAttributes()));
 	}
 
 	@Override

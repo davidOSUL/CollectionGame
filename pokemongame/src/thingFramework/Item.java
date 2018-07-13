@@ -32,10 +32,10 @@ public class Item extends Thing implements Serializable, Eventful, Imagable{
 		super(name, image, attributes, GameUtils.toArrayList(events));
 	}
 	public Item(final String name, final String image, final Set<Attribute> attributes, final List<Event> events ) {
-		super(name, image, attributes, events);
+		super(name, image, attributes);
 	}
 	public Item(final Item i) {
-		this(i.getName(), i.getImage(), Thing.makeAttributeCopy(i.getAttributes()), i.getEvents());
+		this(i.getName(), i.getImage(), Thing.makeAttributeCopy(i.getAttributes()));
 	}
 	@Override
 	protected

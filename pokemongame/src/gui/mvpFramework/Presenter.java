@@ -3,6 +3,7 @@ import static gameutils.Constants.DEBUG;
 import static gameutils.Constants.PRINT_BOARD;
 import static gui.guiutils.GUIConstants.SHOW_CONFIRM_ON_CLOSE;
 
+import java.awt.CardLayout;
 import java.awt.Image;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -144,6 +145,7 @@ public class Presenter implements Serializable {
 	private final String title;
 	private String goodbyeMessage = "Goodbye!";
 	private final Queue<GridSpace> toBeDeleted = new ConcurrentLinkedQueue<GridSpace>();
+	private boolean suggestShopUpdate = false;
 	private int amountOfLastGold = -1;
 	private void writeObject(final ObjectOutputStream oos) throws IOException {
 		oos.defaultWriteObject();
@@ -199,11 +201,12 @@ public class Presenter implements Serializable {
 		case DELETE_CONFIRM_WINDOW:
 		case NOTIFICATION_WINDOW: 
 		case SELL_BACK_CONFIRM_WINDOW:
+		case ADVANCED_STATS_WINDOW:
 			Canceled();
 			break;
 		case PURCHASE_CONFIRM_WINDOW:
-			Canceled();
-			closeShop();
+			Canceled(); //close purchase confirm
+			Canceled(); //close shop
 			break;
 		case PLACING_SPACE:
 			GuiUtils.displayError(new IllegalStateException("Should not have been able to save while placing"), gameView);
@@ -312,11 +315,15 @@ public class Presenter implements Serializable {
 		gameView.setWildPokemonCount(board.numPokemonWaiting());
 		if (board.getGold() != amountOfLastGold) {
 			amountOfLastGold = board.getGold();
-			updateShop();
+			if (state == CurrentState.IN_SHOP)
+				updateShop();
+			else
+				suggestShopUpdate();
 		}
 		gameView.setBoardAttributes(board.getGold(), board.getPopularity());
 		gameView.updateDisplay();
 		if (state != CurrentState.PLACING_SPACE && !toBeDeleted.isEmpty()) {
+		
 			deleteGridSpace(toBeDeleted.poll());
 		}
 		
@@ -349,6 +356,7 @@ public class Presenter implements Serializable {
 					if (t == toRemove)
 						toDelete[0] = gs;
 				});
+				toDelete[0].removeListeners();
 				toBeDeleted.add(toDelete[0]);
 			});	
 		}
@@ -694,6 +702,10 @@ public class Presenter implements Serializable {
 	public void shopClicked() {
 		if (state != CurrentState.GAMEPLAY)
 			return;
+		if (suggestShopUpdate) {
+			updateShop();
+			suggestShopUpdate = false;
+		}
 		setState(CurrentState.IN_SHOP);
 		final JComponent cards = shopWindow.getShopWindowAsCardLayout();
 		setCurrentWindow(cards);
@@ -739,8 +751,14 @@ public class Presenter implements Serializable {
 	 * Refresh the shop window
 	 */
 	private void refreshShop() {
-		final JComponent cards = shopWindow.getShopWindowAsCardLayout();
+		final JComponent cards = shopWindow.getShopWindowAtCurrentLocation();
 		setCurrentWindow(cards);
+	}
+	/**
+	 * Inform that the next time the shop is clicked, it should update beforehand
+	 */
+	private void suggestShopUpdate() {
+		suggestShopUpdate = true;
 	}
 	public int numOfItemOnBoard(final ShopItem item) {
 		int count = 0;

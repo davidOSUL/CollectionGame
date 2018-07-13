@@ -84,6 +84,10 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	public List<Event> getEvents() {
 		return eventList;
 	}
+	/**
+	 * @return a copy of this thing. Note that this does NOT copy events. (It does however create new board attribute
+	 * events)
+	 */
 	public abstract Thing makeCopy();
 	protected static <T> boolean  addModifierIfShould(final Modifier<T> mod, final Collection<Modifier<T>> toAdd, final T t) {
 		final boolean performed = mod.performModificationIfShould(t);
