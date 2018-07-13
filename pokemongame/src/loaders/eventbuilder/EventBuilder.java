@@ -47,7 +47,7 @@ public class EventBuilder {
 				});
 		mapHeldEvents.put("Explosives", GameUtils.toArrayList((explosivesEvent)));
 		eventNameToDescription.put("Explosives", "Permanently Removes all Pokemon on the board.\n"
-				+ "For each pokemon removed this way you get 100" + GuiUtils.getToolTipDollar());
+				+ "For each pokemon removed this way you get <font color=\"green\">+" + GuiUtils.getToolTipDollar() + 100  );
 		
 		//mapEvents.put("Small Table", new ArrayList<Event>(Arrays.asList(generateRandomGoldEvent(30, 20, 5))));
 	}

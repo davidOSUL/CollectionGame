@@ -235,6 +235,24 @@ public final class GuiUtils {
 		return new Point(p1.x-p2.x, p1.y-p2.y);
 	}
 	/**
+	 * Adds coordinate-wise p1-p2 (that is (p1.x+p2.x, p1.y+p2.y))
+	 * @param p1 the first point
+	 * @param p2 the second point
+	 * @return the new point which is p1-p2
+	 */
+	public static Point addPoints(final Point p1, final Point p2) {
+		return new Point(p1.x+p2.x, p1.y+p2.y);
+	}
+	/**
+	 * Performs integer division coordinate wise on the point (that is (p1.x/divideBy, p1.y/divideBy))
+	 * @param p1 the first point
+	 * @param divideBy the amount to divideBy
+	 * @return the new point which is p1/divideBy
+	 */
+	public static Point dividePoint(final Point p1, int divideBy) {
+		return new Point(p1.x/divideBy, p1.y/divideBy);
+	}
+	/**
 	 * Returns a new image which is the given image but with all transparent pixels filled in with the provided color
 	 * @param image the original image
 	 * @param color the background color
@@ -337,5 +355,35 @@ public final class GuiUtils {
 		panel.revalidate();
 		panel.repaint();
 		return panel;
+	}
+	/**
+	 * Return the beggining of any attribute that should change color depending on sign, note that 
+	 * one still needs to call < /font > themselves
+	 * @param amount the amount of the atttribute
+	 * @param plusChar what should go in front of the number if it is positive
+	 * @return "< font color=positive_color > plusChar" if amount is >= 0, or "< font color = negative_color >" otherwise
+	 */
+	public static String getPositive(final int amount, char plusChar) {
+		return amount >= 0 ? "<font color=\"green\">" + plusChar : "<font color=\"red\">";
+	}
+	/**
+	 * Return the beggining of any attribute that should change color depending on sign, note that 
+	 * one still needs to call < /font > themselves
+	 * @param isPositive whether or not it is positive
+	 * @param plusChar what should go in front of the number if it is positive
+	 * @return "< font color=positive_color > plusChar" if amount is >= 0, or "< font color = negative_color >" otherwise
+	 */
+	public static String getPositive(final boolean isPositive, char plusChar) {
+		return isPositive ? "<font color=\"green\">" + plusChar : "<font color=\"red\">";
+	}
+	/**
+	 * Return the beggining of any attribute that should change color depending on sign, note that 
+	 * one still needs to call < /font > themselves
+	 * @param isPositive whether or not it is positive
+	 * @param plusChar what should go in front of the number if it is positive
+	 * @return "< font color=positive_color > plusChar" if amount is >= 0, or "< font color = negative_color >" otherwise
+	 */
+	public static String getPositive(final boolean isPositive, String plusChar) {
+		return isPositive ? "<font color=\"green\">" + plusChar : "<font color=\"red\">";
 	}
 }

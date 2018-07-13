@@ -20,7 +20,7 @@ public final class Constants {
 	/**
 	 * starts game with large amount of money/popularity
 	 */
-	public final static boolean CHEAT_MODE = true;
+	public final static boolean CHEAT_MODE = false;
 	private Constants() {
 		// TODO Auto-generated constructor stub
 	}

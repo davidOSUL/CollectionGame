@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import gameutils.GameUtils;
+import gui.guiutils.GuiUtils;
 
 public class Attribute implements Serializable{
 	/**
@@ -21,11 +22,11 @@ public class Attribute implements Serializable{
 	/**
 	 * Increase in Gold Per Hour
 	 */
-	private static final Attribute GPH = new Attribute(2, "PokeCash/hour", "gph", ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD, AttributeType.COLOR_BASED_ON_SIGN, AttributeType.PLUS_FOR_POSITIVE).setIgnoreValAndReturn(new Integer(0)); 
+	private static final Attribute GPH = new Attribute(2, GuiUtils.getToolTipDollar()+"/hour", "gph", ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD, AttributeType.COLOR_BASED_ON_SIGN, AttributeType.PLUS_FOR_POSITIVE).setIgnoreValAndReturn(new Integer(0)); 
 	/**
 	 * Increase in Gold Per Minute
 	 */
-	private static final Attribute GPM = new Attribute(3, "PokeCash/minute", "gpm",ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD, AttributeType.COLOR_BASED_ON_SIGN, AttributeType.PLUS_FOR_POSITIVE).setIgnoreValAndReturn(new Integer(0)); ;
+	private static final Attribute GPM = new Attribute(3, GuiUtils.getToolTipDollar()+"/minute", "gpm",ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD, AttributeType.COLOR_BASED_ON_SIGN, AttributeType.PLUS_FOR_POSITIVE).setIgnoreValAndReturn(new Integer(0)); ;
 	/**
 	 *Increase in Popularity 
 	 */
@@ -193,6 +194,12 @@ public class Attribute implements Serializable{
 		final StringBuilder sb = new StringBuilder("<span>" +displayName);
 		if (!displayName.isEmpty())
 			sb.append(": ");
+		sb.append(valueDisplay('+'));
+		return sb.toString();
+		
+	}
+	private String valueDisplay(char plusChar) {
+		StringBuilder sb = new StringBuilder();
 		if (parsetype.equals(ParseType.ENUMSETPOKEMONTYPE))
 			sb.append( GameUtils.toTitleCase(getValue().toString().replace("[", "").replace("]", "").toLowerCase()));
 		else if (parsetype.equals(ParseType.BOOLEAN))
@@ -201,13 +208,7 @@ public class Attribute implements Serializable{
 			if (containsType(AttributeType.ITALICS))
 				sb.append("<i>");
 			if (containsType(AttributeType.COLOR_BASED_ON_SIGN)) {
-				if (isPositive())
-					sb.append("<font color=\"green\">");
-				else
-					sb.append("<font color=\"red\">");
-			}
-			if (containsType(AttributeType.PLUS_FOR_POSITIVE) && isPositive()) {
-				sb.append('+');
+				sb.append(GuiUtils.getPositive(isPositive(), containsType(AttributeType.PLUS_FOR_POSITIVE) ? Character.toString(plusChar) : ""));
 			}
 			
 			sb.append(getValue().toString());
@@ -221,7 +222,6 @@ public class Attribute implements Serializable{
 		sb.append(extraDescription);
 		sb.append("</span>");
 		return sb.toString();
-		
 	}
 	private boolean isPositive() {
 		switch(parsetype) {
@@ -245,16 +245,19 @@ public class Attribute implements Serializable{
 	 * @return this attribute with the value displayed followed by the name
 	 */
 	public String toReverseString() {
+		return toReverseString('+');
+	}
+	public String toReverseString(char plusChar) {
 		//TODO: Change this to call toString()
-		final StringBuilder sb = new StringBuilder();
-		if (parsetype.equals(ParseType.ENUMSETPOKEMONTYPE))
+		final StringBuilder sb = new StringBuilder(valueDisplay(plusChar));
+		/*if (parsetype.equals(ParseType.ENUMSETPOKEMONTYPE))
 			sb.append( GameUtils.toTitleCase(getValue().toString().replace("[", "").replace("]", "").toLowerCase()));
 		else if (parsetype.equals(ParseType.BOOLEAN))
 			sb.append(getValue().toString().equalsIgnoreCase("true") ? "yes" : "no");
 		else
 			sb.append(getValue().toString());
 		if (this.containsType(AttributeType.OUTOFTEN))
-			sb.append("/10");
+			sb.append("/10");*/
 		sb.append(" ");
 		sb.append(displayName);
 		return sb.toString();

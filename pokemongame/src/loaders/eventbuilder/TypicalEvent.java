@@ -8,6 +8,7 @@ import effects.GlobalPokemonModifierEvent;
 import effects.HeldEvent;
 import effects.OnPeriodEventWithDisplay;
 import gameutils.GameUtils;
+import gui.guiutils.GuiUtils;
 import interfaces.SerializableConsumer;
 import interfaces.SerializablePredicate;
 import modifiers.Modifier;
@@ -40,12 +41,12 @@ public final class TypicalEvent {
 		case RANDOMGOLD:
 			final int[] integerInputs = GameUtils.parseAllInRangeToInt(inputs, lower, upper-1); //upper-1 because the last input will be a double that we have to parse seperately
 			te.he = generateRandomGoldEvent(integerInputs[0], integerInputs[1], Double.parseDouble(inputs[upper]));
-			te.description = eventType.getDescription(integerInputs[0], integerInputs[1], Double.parseDouble(inputs[upper]));
+			te.description = eventType.getDescription(integerInputs[0], getRandomGoldString(integerInputs[1]), Double.parseDouble(inputs[upper]));
 			break;
 		case LEGCHANCEINCR:
 			final int amount = Integer.parseInt(inputs[lower]);
 			te.e= generateLegendaryChanceIncreaseEvent(amount);
-			te.description = eventType.getDescription(amount);
+			te.description = eventType.getDescription(GuiUtils.getPositive(amount, '+') + amount + "%</font>");
 			break;
 		case ALLPOKEADD:
 			String attributeToAdd = inputs[lower];
@@ -53,7 +54,7 @@ public final class TypicalEvent {
 			long timeToExist = parseLong(inputs[lower+2]);
 			String displayAttribute = Attribute.generateAttribute(attributeToAdd, Integer.toString(amountToAdd)).toReverseString();
 			te.he = generateIntegerAddToAllPokemonEvent(attributeToAdd, amountToAdd, timeToExist, Boolean.parseBoolean(inputs[lower+3]), Boolean.parseBoolean(inputs[lower+4]));
-			te.description = eventType.getDescription(getTimeDisplayDescription(timeToExist), getPositive(amountToAdd), displayAttribute);
+			te.description = eventType.getDescription(getTimeDisplayDescription(timeToExist), displayAttribute);
 			break;
 		case POKEOFCATEGORYADD:
 			amountToAdd =  Integer.parseInt(inputs[lower+3]);
@@ -62,13 +63,13 @@ public final class TypicalEvent {
 			attributeToAdd = inputs[lower+2];
 			displayAttribute = Attribute.generateAttribute(attributeToAdd, Integer.toString(amountToAdd)).toReverseString();
 			te.he = generateIntegerAddToAllOfPokemonCategoryEvent(inputs[lower], inputs[lower+1], attributeToAdd, amountToAdd, timeToExist, Boolean.parseBoolean(inputs[lower+5]), Boolean.parseBoolean(inputs[lower+6]));
-			te.description = eventType.getDescription(getTimeDisplayDescription(timeToExist), verbalDescription, getPositive(amountToAdd), displayAttribute);
+			te.description = eventType.getDescription(getTimeDisplayDescription(timeToExist), verbalDescription,  displayAttribute);
 			break;
 		case ALLPOKEMULT:
 			String attributeToMultiply = inputs[lower];
 			int amountToMultiply =  Integer.parseInt(inputs[lower+1]);
 			timeToExist = parseLong(inputs[lower+2]);
-			displayAttribute = Attribute.generateAttribute(attributeToMultiply, Integer.toString(amountToMultiply)).toReverseString();
+			displayAttribute = Attribute.generateAttribute(attributeToMultiply, Integer.toString(amountToMultiply)).toReverseString('x');
 			te.he = generateIntegerMultiplyToAllPokemonEvent(attributeToMultiply, amountToMultiply, timeToExist, Boolean.parseBoolean(inputs[lower+3]), Boolean.parseBoolean(inputs[lower+4]));
 			te.description = eventType.getDescription(getTimeDisplayDescription(timeToExist), displayAttribute);
 			break;
@@ -77,7 +78,7 @@ public final class TypicalEvent {
 			timeToExist = parseLong(inputs[lower+4]);
 			verbalDescription = inputs[upper];
 			attributeToMultiply = inputs[lower+2];
-			displayAttribute = Attribute.generateAttribute(attributeToMultiply, Integer.toString(amountToMultiply)).toReverseString();
+			displayAttribute = Attribute.generateAttribute(attributeToMultiply, Integer.toString(amountToMultiply)).toReverseString('x');
 			te.he = generateIntegerMultiplyToAllPokemonOfCategoryEvent(inputs[lower], inputs[lower+1], attributeToMultiply, amountToMultiply, timeToExist, Boolean.parseBoolean(inputs[lower+5]), Boolean.parseBoolean(inputs[lower+6]));
 			te.description = eventType.getDescription(getTimeDisplayDescription(timeToExist), verbalDescription, displayAttribute);
 			break;
@@ -103,8 +104,8 @@ public final class TypicalEvent {
 		}
 		return sb.toString();
 	}
-	private static String getPositive(final int amount) {
-		return amount >= 0 ? "+" : "";
+	private static String getRandomGoldString(int amountOfGold) {
+		return  GuiUtils.getPositive(amountOfGold, '+') + GuiUtils.getToolTipDollar() + amountOfGold + "</font>";
 	}
 	/**
 	 * Generates an event that every periodInMinute minutes will with a percentChance chance add the specified amount of gold to the board
@@ -236,12 +237,12 @@ public final class TypicalEvent {
 	 */
 	//TODO: PUT THESE IN THEIR OWN CLASS
 	enum EventType {
-		RANDOMGOLD(1, 3, "Has a %d%% Chance of Generating %d PokeCash Every %.2f Minutes"), //of the format randomgold:x:y:z, so x (the first) will be at 1 and y (the last) will be at 3
-		LEGCHANCEINCR(1,1, "Increases chance of legendary pokemon spawning by %d%%"),
-		POKEOFCATEGORYADD(1, 8, "%s %s get %s%s"), //e.g. For the next 10 minutes, all water types get +1 $/min
-		ALLPOKEADD(1, 5, "%s pokemon get %s%d"),
-		POKEOFCATEGORYMULT(1, 8, "%s %s get x%s"),
-		ALLPOKEMULT(1, 5, "%s pokemon get x%s"),
+		RANDOMGOLD(1, 3, "Has a %d%% Chance of Generating %s every %.2f Minutes"), //of the format randomgold:x:y:z, so x (the first) will be at 1 and y (the last) will be at 3
+		LEGCHANCEINCR(1,1, "Increases chance of legendary pokemon spawning by %s"),
+		POKEOFCATEGORYADD(1, 8, "%s %s get %s"), //e.g. For the next 10 minutes, all water types get +1 $/min
+		ALLPOKEADD(1, 5, "%s pokemon get %s"),
+		POKEOFCATEGORYMULT(1, 8, "%s %s get %s"),
+		ALLPOKEMULT(1, 5, "%s pokemon get %s"),
 		DECRSPAWNPERIOD(1,1,"Decrease wait time between new pokemon spawning by %s");
 		/**
 		 * The lower index of the set of parameters for the event's generator function

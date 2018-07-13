@@ -54,7 +54,7 @@ public class Board implements Serializable {
 	/**
 	 * The minimum amount of gold a player can have
 	 */
-	private static final int MINGOLD = 0;
+	private static final int MINGOLD = -9999999;
 	/**
 	 * The chance that a pokemon with a name of a pokemon already on the board will spawn
 	 */

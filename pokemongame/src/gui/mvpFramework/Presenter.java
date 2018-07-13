@@ -144,6 +144,7 @@ public class Presenter implements Serializable {
 	private final String title;
 	private String goodbyeMessage = "Goodbye!";
 	private final Queue<GridSpace> toBeDeleted = new ConcurrentLinkedQueue<GridSpace>();
+	private int amountOfLastGold = -1;
 	private void writeObject(final ObjectOutputStream oos) throws IOException {
 		oos.defaultWriteObject();
 		final Map<GridSpaceData, Thing> allThingsData = new LinkedHashMap<GridSpaceData, Thing>();
@@ -309,11 +310,16 @@ public class Presenter implements Serializable {
 		if (board == null || gameView == null)
 			return;
 		gameView.setWildPokemonCount(board.numPokemonWaiting());
+		if (board.getGold() != amountOfLastGold) {
+			amountOfLastGold = board.getGold();
+			updateShop();
+		}
 		gameView.setBoardAttributes(board.getGold(), board.getPopularity());
 		gameView.updateDisplay();
 		if (state != CurrentState.PLACING_SPACE && !toBeDeleted.isEmpty()) {
 			deleteGridSpace(toBeDeleted.poll());
 		}
+		
 	}
 	private void updateToolTips() {
 		if (toolTipsEnabled)
@@ -428,7 +434,10 @@ public class Presenter implements Serializable {
 		allThings.forEach((gs, t) -> updateListener(gs));
 	}
 	private void updateListener(final GridSpace gs) {
-		gs.updateListeners(soldThings.containsKey(gs), !isNotRemovable(gs));
+		int val = 0;
+		if (soldThings.containsKey(gs))
+			val = board.getSellBackValue(soldThings.get(gs));
+		gs.updateListeners(soldThings.containsKey(gs), !isNotRemovable(gs), val > 0 || board.getGold() >= Math.abs(val));
 	}
 	private boolean isNotRemovable(final GridSpace gs) {
 		return allThings.get(gs).containsAttribute("removable") && (!(Boolean)allThings.get(gs).getAttributeVal("removable"));
@@ -811,7 +820,8 @@ public class Presenter implements Serializable {
 	 * Gets rid of the currentWindow
 	 */
 	public void CleanUp() {
-		gameView.removeDisplay(currentWindow);
+		if (currentWindow != null)
+			gameView.removeDisplay(currentWindow);
 		currentWindow = null;	
 	}
 	/**

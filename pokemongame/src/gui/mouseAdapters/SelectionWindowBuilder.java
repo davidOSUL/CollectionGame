@@ -54,6 +54,19 @@ public class SelectionWindowBuilder<T> {
 	 * Adds a new Element to the Popupmenu, uses the passed in allowableDistance as the value for the maximum distance
 	 * between pressing and releasing an object
 	 * @param name the name of the element
+	 * @param onClick what should happen when it is clicked
+	 * @param actOn what it is acted on
+	 * @param enabled whether or not this option is enabled
+	 * @return this
+	 */
+	public SelectionWindowBuilder<T> addOption(final String name, final BiConsumer<T, MouseEvent> onClick, final T actOn, final boolean enabled) {
+		final MouseListener listener = new MouseClickWithThreshold<T>(allowableDistance, onClick, actOn);
+		return addOption(name, listener, enabled);
+	}
+	/**
+	 * Adds a new Element to the Popupmenu, uses the passed in allowableDistance as the value for the maximum distance
+	 * between pressing and releasing an object
+	 * @param name the name of the element
 	 * @param listener what should happen when it is clicked
 	 * @return this
 	 */
@@ -61,6 +74,21 @@ public class SelectionWindowBuilder<T> {
 		final JMenuItem item = new JMenuItem(name);
 		item.addMouseListener(listener);
 		menu.add(item);
+		return this;
+	}
+	/**
+	 * Adds a new Element to the Popupmenu, uses the passed in allowableDistance as the value for the maximum distance
+	 * between pressing and releasing an object
+	 * @param name the name of the element
+	 * @param listener what should happen when it is clicked
+	 * @param enabled whether or not this option is enabled
+	 * @return this
+	 */
+	public SelectionWindowBuilder<T> addOption(final String name, final MouseListener listener, final boolean enabled) {
+		final JMenuItem item = new JMenuItem(name);
+		item.addMouseListener(listener);
+		menu.add(item);
+		item.setEnabled(enabled);
 		return this;
 	}
 	/**

@@ -48,6 +48,7 @@ public class Runner  {
 		updateStartPanel = new Timer(10, updateStartScreen);
 	}
 	public static void main(final String... args) {
+		System.setProperty("apple.eawt.quitStrategy", "CLOSE_ALL_WINDOWS");
 		SwingUtilities.invokeLater(() -> {
 			final Runner runner = new Runner();
 			if (SKIP_LOAD_SCREEN)

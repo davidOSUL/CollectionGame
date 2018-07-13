@@ -133,10 +133,17 @@ public class ShopWindow {
 	private Image generateImage(final ShopItem item) {
 		Image sprite = null;
 		sprite = GuiUtils.readAndTrimImage(item.getImage());
-		if (sprite.getWidth(null) > PICTURE_DIM || sprite.getHeight(null) > PICTURE_DIM)
-			sprite = GuiUtils.getScaledImage(sprite, PICTURE_DIM, PICTURE_DIM);
-		//sprite = GuiUtils.readTrimAndScaleImage(item.getImage(), PICTURE_DIM, PICTURE_DIM);
-		final Image overlay =GuiUtils.overlayImage(ITEM_TEMPLATE, sprite, SPRITE_IMAGE_LOC); 
+		final Image overlay;
+		if (sprite.getWidth(null) > PICTURE_DIM || sprite.getHeight(null) > PICTURE_DIM) {
+			sprite = GuiUtils.getScaledImage(sprite, PICTURE_DIM, PICTURE_DIM); 
+		}
+		
+		if (sprite.getWidth(null) < PICTURE_DIM/2 && sprite.getHeight(null) < PICTURE_DIM/2) {
+			overlay = GuiUtils.overlayImage(ITEM_TEMPLATE, sprite, 
+					GuiUtils.addPoints(new Point(PICTURE_DIM/2, PICTURE_DIM/2), SPRITE_IMAGE_LOC));
+		}
+		else
+			overlay =GuiUtils.overlayImage(ITEM_TEMPLATE, sprite, SPRITE_IMAGE_LOC); 
 		final Image overlayWithQuantity = GuiUtils.overlayText(overlay, item.getDisplayQuantity() + "x", QUANTITY_LOC, DEFAULT_FONT);
 		Image result = GuiUtils.overlayText(overlayWithQuantity, Integer.toString(item.getCost()), COST_LOC, DEFAULT_FONT);
 		if (gv.getPresenter().shouldGreyOut(item))

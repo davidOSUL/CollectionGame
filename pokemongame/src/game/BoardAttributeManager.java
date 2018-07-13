@@ -34,7 +34,7 @@ public final class BoardAttributeManager {
 
 		switch (nameOfEvent) {
 		case "gph":
-			event = new OnPeriodEventWithDisplay<Thing>(board -> board.addGold((Integer) valueOfEvent), 60, "gph", creator);
+			event = new OnPeriodEventWithDisplay<Thing>(board -> board.addGold((Integer) valueOfEvent), .1, "gph", creator);
 			event.addToName("GPH: ");
 			break;
 		case "gpm":
