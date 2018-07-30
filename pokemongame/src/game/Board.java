@@ -122,14 +122,6 @@ public class Board implements Serializable {
 	 * Amount of money times original cost to discount on sellback of an item
 	 */
 	private final double sellBackPercent = .5;
-	/**
-	 * % chance that a legendary pokemon spawns
-	 */
-	private double legendaryChance = 0;
-	/**
-	 * Amount to decrease the calculated look for pokemon period by (in minutes)
-	 */
-	private double periodDecreaseMod = 0;
 	static {
 		long rt = 0; //running total
 
@@ -210,7 +202,13 @@ public class Board implements Serializable {
 	 * signifigantly less likely to show up. Map from the name of the pokemon to the # present
 	 */
 	private volatile Map<String, Integer> uniquePokemonLookup = new HashMap<String, Integer>();
+	/**
+	 * the shop associated with this board
+	 */
 	private final Shop shop;
+	/**
+	 * Manages all the events of the game
+	 */
 	private final EventManager events;
 	/**
 	 * Manages the gametime and session time of the current board. Note that newSession should be called to 
@@ -218,8 +216,22 @@ public class Board implements Serializable {
 	 */
 	private final SessionTimeManager stm;
 	//TODO: Put all possible things with their associated events in a manager of its own, should be able to grab events with quantity > 0 
+	/**
+	 * Used for managing all the global modifiers on the board
+	 */
 	private final ModifierManager modifierManager;
+	/**
+	 * The queue of Things that have been requested to be removed from the board
+	 */
 	private final Queue<Thing> removeRequests = new LinkedList<Thing>();
+	/**
+	 * % chance that a legendary pokemon spawns
+	 */
+	private double legendaryChance = 0;
+	/**
+	 * Amount to decrease the calculated look for pokemon period by (in minutes)
+	 */
+	private double periodDecreaseMod = 0;
 	public Board() {
 		shop = new Shop();
 		stm = new SessionTimeManager();
