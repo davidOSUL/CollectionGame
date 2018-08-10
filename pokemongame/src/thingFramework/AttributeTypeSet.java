@@ -21,9 +21,19 @@ public class AttributeTypeSet implements Serializable {
 		else
 			typeMap = EnumSet.copyOf(Arrays.asList(attributeTypes));
 	}
+	private AttributeTypeSet(final EnumSet<AttributeType> typeMap) {
+		this.typeMap = typeMap;
+	}
 	public boolean containsAttributeType(final AttributeType at) {
 		return typeMap.contains(at);
 	}
+	public boolean addAttributeType(final AttributeType at) {
+		return typeMap.add(at);
+	}
+	public AttributeTypeSet makeCopy() {
+		return new AttributeTypeSet(EnumSet.copyOf(typeMap));
+	}
+
 	
 	
 }

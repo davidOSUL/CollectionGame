@@ -10,15 +10,18 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import gui.guiutils.GuiUtils;
+
 /**
  * Used for reading in CSV files and returning the values within
+ * Replaces '|' with ',' '^' with '\n', and 'MONEY_SYMBOL' with GuiUtils.getMoneySymbol()
  * @author David O'Sullivan
  *
  */
 public final class CSVReader {
-
+	
 	private CSVReader() {
-		// TODO Auto-generated constructor stub
+		
 	}
 	/**
 	 * Reads in a CSV file, returning a list of String[], where each String[] is a given line of the file, split by ","
@@ -115,7 +118,7 @@ public final class CSVReader {
 			final String line = modifyLineBy.apply(lines.get(i));
 			valueList.add(line.split(splitBy, splitLimit));
 			for (int k =0; k < valueList.get(j).length; k++) {
-				valueList.get(j)[k] = valueList.get(j)[k].replace('|', ',').replace('^', '\n');
+				valueList.get(j)[k] = valueList.get(j)[k].replace('|', ',').replace('^', '\n').replace("MONEY_SYMBOL", GuiUtils.getMoneySymbol());
 			}
 			j++;
 		}

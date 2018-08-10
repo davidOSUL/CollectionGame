@@ -105,7 +105,7 @@ public final class TypicalEvent {
 		return sb.toString();
 	}
 	private static String getRandomGoldString(int amountOfGold) {
-		return  GuiUtils.getPositive(amountOfGold, '+') + GuiUtils.getToolTipDollar() + amountOfGold + "</font>";
+		return  GuiUtils.getPositive(amountOfGold, '+') + GuiUtils.getMoneySymbol() + amountOfGold + "</font>";
 	}
 	/**
 	 * Generates an event that every periodInMinute minutes will with a percentChance chance add the specified amount of gold to the board

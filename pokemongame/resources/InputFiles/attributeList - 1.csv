@@ -1,0 +1,4 @@
+Name,Type,Default Value,Attribute Types,Should put on description?,Display Name,Display Settings,Ignore Value,Display Rank
+gph,Integer,0,Statmod,yes,MONEY_SYMBOL/hour,color_based_on_sign:plus_for_positive,0,1
+gpm,Integer,0,Statmod,yes,MONEY_SYMBOL/minute,color_based_on_sign:plus_for_positive,0,2
+popularity boost,Integer,0,Statmod,yes,Popularity,color_based_on_sign:plus_for_positive,0,3

@@ -9,15 +9,15 @@ public enum AttributeType {
 	/**
 	 * To be used by pokemon only
 	 */
-	POKEONLY,
+	POKEONLY, //keep
 	/**
 	 * To be used by items only
 	 */
-	ITEMONLY,
+	ITEMONLY, //keep
 	/**
 	 * Modifies a board statistic
 	 */
-	STATMOD,
+	STATMOD, //keep
 	/**
 	 * An intrinsic characterstic of a thing (a pokemon type, or a color for example)
 	 */

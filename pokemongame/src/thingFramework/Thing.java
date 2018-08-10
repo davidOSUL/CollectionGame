@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
 
+import attribues.AttributeFactory;
 import effects.Event;
 import effects.Eventful;
 import game.Board;
@@ -74,6 +75,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 			addToEventList(events);
 	}
 	protected static Set<Attribute> makeAttributeCopy(final Set<Attribute> attributes) {
+		AttributeFactory.getInstance(); //TODO: DELETE
 		final Set<Attribute> newAttributes = new HashSet<Attribute>();
 		for (final Attribute at : attributes) {
 			newAttributes.add(Attribute.generateAttribute(at));

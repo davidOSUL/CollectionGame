@@ -22,11 +22,11 @@ public class Attribute implements Serializable{
 	/**
 	 * Increase in Gold Per Hour
 	 */
-	private static final Attribute GPH = new Attribute(2, GuiUtils.getToolTipDollar()+"/hour", "gph", ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD, AttributeType.COLOR_BASED_ON_SIGN, AttributeType.PLUS_FOR_POSITIVE).setIgnoreValAndReturn(new Integer(0)); 
+	private static final Attribute GPH = new Attribute(2, GuiUtils.getMoneySymbol()+"/hour", "gph", ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD, AttributeType.COLOR_BASED_ON_SIGN, AttributeType.PLUS_FOR_POSITIVE).setIgnoreValAndReturn(new Integer(0)); 
 	/**
 	 * Increase in Gold Per Minute
 	 */
-	private static final Attribute GPM = new Attribute(3, GuiUtils.getToolTipDollar()+"/minute", "gpm",ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD, AttributeType.COLOR_BASED_ON_SIGN, AttributeType.PLUS_FOR_POSITIVE).setIgnoreValAndReturn(new Integer(0)); ;
+	private static final Attribute GPM = new Attribute(3, GuiUtils.getMoneySymbol()+"/minute", "gpm",ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD, AttributeType.COLOR_BASED_ON_SIGN, AttributeType.PLUS_FOR_POSITIVE).setIgnoreValAndReturn(new Integer(0)); ;
 	/**
 	 *Increase in Popularity 
 	 */

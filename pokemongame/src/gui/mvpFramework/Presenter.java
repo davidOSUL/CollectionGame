@@ -895,7 +895,7 @@ public class Presenter implements Serializable {
 	private JComponent confirmPurchaseWindow(final ShopItem item) {
 		return new InfoWindowBuilder()
 				.setPresenter(this)
-				.setInfo("Are you sure you want to purchase \n" + item.getThingName() + "\nfor " + item.getCost() + GuiUtils.getToolTipDollar() + "?")
+				.setInfo("Are you sure you want to purchase \n" + item.getThingName() + "\nfor " + item.getCost() + GuiUtils.getMoneySymbol() + "?")
 				.setImagable(item)
 				.setScale(96, 96)
 				.addEnterButton("Yes")
@@ -982,11 +982,11 @@ public class Presenter implements Serializable {
 		int sellBackValue = getGridSpaceSellBackValue(gs);
 		final String sellBackString;
 		if (sellBackValue >= 0) {
-			sellBackString = "Sell " + gs.getName() + "\nback for " + GuiUtils.getToolTipDollar() + sellBackValue
+			sellBackString = "Sell " + gs.getName() + "\nback for " + GuiUtils.getMoneySymbol() + sellBackValue
 					;
 		}
 		else {
-			sellBackString = "Pay " + GuiUtils.getToolTipDollar() + Math.abs(sellBackValue) +  " to return\n" + gs.getName() + " to the shop";
+			sellBackString = "Pay " + GuiUtils.getMoneySymbol() + Math.abs(sellBackValue) +  " to return\n" + gs.getName() + " to the shop";
 		}
 		return sellBackString;
 	}

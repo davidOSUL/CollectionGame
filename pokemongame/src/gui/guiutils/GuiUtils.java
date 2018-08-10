@@ -68,7 +68,7 @@ public final class GuiUtils {
 		return input;
 
 	}
-	public static String getToolTipDollar() {
+	public static String getMoneySymbol() {
 		//return pokeCash;
 		return "$";
 	}
