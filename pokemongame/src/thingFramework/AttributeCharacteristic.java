@@ -5,7 +5,7 @@ package thingFramework;
  * 
  * @author David O'Sullivan
  */
-public enum AttributeType {
+public enum AttributeCharacteristic {
 	/**
 	 * To be used by pokemon only
 	 */

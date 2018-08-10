@@ -34,7 +34,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	private static final long serialVersionUID = 1L;
 	private final String name;
 	private final String image;
-	private final static AttributeType BOARDTYPE = AttributeType.STATMOD;
+	private final static AttributeCharacteristic BOARDTYPE = AttributeCharacteristic.STATMOD;
 	private final Map<Attribute, Event> boardAttributes;
 	private final EnumSet<ThingType> types;
 	private final Set<Attribute> attributes; 
@@ -140,7 +140,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 		return attributeNameMap;
 	}
 
-	private final Set<Attribute> getAttributesThatContainType(final AttributeType at) {
+	private final Set<Attribute> getAttributesThatContainType(final AttributeCharacteristic at) {
 		if (attributes == null)
 			return new HashSet<Attribute>();
 		final Set<Attribute> validAttributes = new HashSet<Attribute>();
@@ -227,7 +227,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 		
 		updateDescription();
 	}
-	public final List<Attribute> getAttributesOfType(final AttributeType at) {
+	public final List<Attribute> getAttributesOfType(final AttributeCharacteristic at) {
 		final List<Attribute> returnAttributes = new ArrayList<Attribute>();
 		for (final Attribute a: attributes) {
 			if (a.containsType(at))
@@ -321,7 +321,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	private String generateDescription() {
 		final StringBuilder description = new StringBuilder();
 		final TreeMap<Integer, String> orderedDisplays = new TreeMap<Integer, String>();
-		for (final Attribute at: getAttributesOfType(AttributeType.DISPLAYTYPE)) {
+		for (final Attribute at: getAttributesOfType(AttributeCharacteristic.DISPLAYTYPE)) {
 
 			orderedDisplays.put(at.getDisplayOrderVal(), at.toString());
 		}

@@ -18,82 +18,82 @@ public class Attribute implements Serializable{
 	/**
 	 * Nothing to do with actual attributes, just a general overview of this Thing
 	 */
-	private static final Attribute FLAVOR_DESCRIPTION = new Attribute(1, "Info", "flavor description",  ParseType.STRING, new String(""), AttributeType.DISPLAYTYPE, AttributeType.ITALICS);
+	private static final Attribute FLAVOR_DESCRIPTION = new Attribute(1, "Info", "flavor description",  ParseType.STRING, new String(""), AttributeCharacteristic.DISPLAYTYPE, AttributeCharacteristic.ITALICS);
 	/**
 	 * Increase in Gold Per Hour
 	 */
-	private static final Attribute GPH = new Attribute(2, GuiUtils.getMoneySymbol()+"/hour", "gph", ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD, AttributeType.COLOR_BASED_ON_SIGN, AttributeType.PLUS_FOR_POSITIVE).setIgnoreValAndReturn(new Integer(0)); 
+	private static final Attribute GPH = new Attribute(2, GuiUtils.getMoneySymbol()+"/hour", "gph", ParseType.INTEGER, new Integer(0), AttributeCharacteristic.DISPLAYTYPE, AttributeCharacteristic.STATMOD, AttributeCharacteristic.GOLDMOD, AttributeCharacteristic.COLOR_BASED_ON_SIGN, AttributeCharacteristic.PLUS_FOR_POSITIVE).setIgnoreValAndReturn(new Integer(0)); 
 	/**
 	 * Increase in Gold Per Minute
 	 */
-	private static final Attribute GPM = new Attribute(3, GuiUtils.getMoneySymbol()+"/minute", "gpm",ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.GOLDMOD, AttributeType.COLOR_BASED_ON_SIGN, AttributeType.PLUS_FOR_POSITIVE).setIgnoreValAndReturn(new Integer(0)); ;
+	private static final Attribute GPM = new Attribute(3, GuiUtils.getMoneySymbol()+"/minute", "gpm",ParseType.INTEGER, new Integer(0), AttributeCharacteristic.DISPLAYTYPE, AttributeCharacteristic.STATMOD, AttributeCharacteristic.GOLDMOD, AttributeCharacteristic.COLOR_BASED_ON_SIGN, AttributeCharacteristic.PLUS_FOR_POSITIVE).setIgnoreValAndReturn(new Integer(0)); ;
 	/**
 	 *Increase in Popularity 
 	 */
-	private static final Attribute POPULARITY_BOOST = new Attribute(4, "Popularity", "popularity boost",ParseType.INTEGER, new Integer(0), AttributeType.DISPLAYTYPE, AttributeType.STATMOD, AttributeType.POPMOD, AttributeType.COLOR_BASED_ON_SIGN, AttributeType.PLUS_FOR_POSITIVE).setIgnoreValAndReturn(new Integer(0)); ;
+	private static final Attribute POPULARITY_BOOST = new Attribute(4, "Popularity", "popularity boost",ParseType.INTEGER, new Integer(0), AttributeCharacteristic.DISPLAYTYPE, AttributeCharacteristic.STATMOD, AttributeCharacteristic.POPMOD, AttributeCharacteristic.COLOR_BASED_ON_SIGN, AttributeCharacteristic.PLUS_FOR_POSITIVE).setIgnoreValAndReturn(new Integer(0)); ;
 	/**
 	 * Electric, etc.
 	 */
-	private static final Attribute TYPES = new Attribute(5, "Types", "type", ParseType.ENUMSETPOKEMONTYPE, EnumSet.of(PokemonType.NORMAL), AttributeType.DISPLAYTYPE, AttributeType.CHARACTERISTIC);
+	private static final Attribute TYPES = new Attribute(5, "Types", "type", ParseType.ENUMSETPOKEMONTYPE, EnumSet.of(PokemonType.NORMAL), AttributeCharacteristic.DISPLAYTYPE, AttributeCharacteristic.CHARACTERISTIC);
 	/**
 	 * Current Happiness of a pokemon (/10)
 	 */
-	private static final Attribute HAPPINESS = new Attribute(6, "happiness", ParseType.INTEGER, new Integer(0),AttributeType.CHANGINGVAL, AttributeType.DISPLAYTYPE, AttributeType.POKEONLY, AttributeType.OUTOFTEN);
+	private static final Attribute HAPPINESS = new Attribute(6, "happiness", ParseType.INTEGER, new Integer(0),AttributeCharacteristic.CHANGINGVAL, AttributeCharacteristic.DISPLAYTYPE, AttributeCharacteristic.POKEONLY, AttributeCharacteristic.OUTOFTEN);
 	/**
 	 * Current Level of a pokemon
 	 */
-	private static final Attribute LEVEL = new Attribute(7, "level", ParseType.INTEGER, new Integer(1),AttributeType.CHANGINGVAL, AttributeType.DISPLAYTYPE, AttributeType.POKEONLY);
+	private static final Attribute LEVEL = new Attribute(7, "level", ParseType.INTEGER, new Integer(1),AttributeCharacteristic.CHANGINGVAL, AttributeCharacteristic.DISPLAYTYPE, AttributeCharacteristic.POKEONLY);
 	/**
 	 * The rarity of a pokemon, on scale of 1-10, derived from catchrate. 
 	 * higher is more rare. This version of rarity is used for display purposes only
 	 */
-	private static final Attribute RARITY_OUT_OF_10 = new Attribute(8, "Rarity", "rarity10", ParseType.INTEGER, new Integer(1), AttributeType.CHARACTERISTIC, AttributeType.DISPLAYTYPE, AttributeType.POKEONLY, AttributeType.OUTOFTEN);
+	private static final Attribute RARITY_OUT_OF_10 = new Attribute(8, "Rarity", "rarity10", ParseType.INTEGER, new Integer(1), AttributeCharacteristic.CHARACTERISTIC, AttributeCharacteristic.DISPLAYTYPE, AttributeCharacteristic.POKEONLY, AttributeCharacteristic.OUTOFTEN);
 	/**
 	 * Whether or not this pokemon is legendary
 	 */
-	private static final Attribute IS_LEGENDARY = new Attribute(9, "legendary", "legendary", ParseType.BOOLEAN, Boolean.FALSE, AttributeType.POKEONLY, AttributeType.CHARACTERISTIC, AttributeType.DISPLAYTYPE);
+	private static final Attribute IS_LEGENDARY = new Attribute(9, "legendary", "legendary", ParseType.BOOLEAN, Boolean.FALSE, AttributeCharacteristic.POKEONLY, AttributeCharacteristic.CHARACTERISTIC, AttributeCharacteristic.DISPLAYTYPE);
 	/**
 	 * A verbal description of the events asssociated with this thing
 	 */
-	private static final Attribute EVENT_DESCRIPTION = new Attribute(10, "", "event description", ParseType.STRING, new String(""), AttributeType.DISPLAYTYPE);
+	private static final Attribute EVENT_DESCRIPTION = new Attribute(10, "", "event description", ParseType.STRING, new String(""), AttributeCharacteristic.DISPLAYTYPE);
 	/**
 	 * Any other extra description to put after every other displaytype
 	 */
-	private static final Attribute ADDITIONAL_DESCRIPTION = new Attribute(Integer.MAX_VALUE, "", "additional description", ParseType.STRING, new String(""), AttributeType.DISPLAYTYPE);
+	private static final Attribute ADDITIONAL_DESCRIPTION = new Attribute(Integer.MAX_VALUE, "", "additional description", ParseType.STRING, new String(""), AttributeCharacteristic.DISPLAYTYPE);
 	/**
 	 * If this thing only exists for a certain amount of time, how much time it exists for
 	 */
-	private static final Attribute TIME_LEFT = new Attribute(11, "Time left", "time left", ParseType.STRING, new String("Infinite"), AttributeType.DISPLAYTYPE);
+	private static final Attribute TIME_LEFT = new Attribute(11, "Time left", "time left", ParseType.STRING, new String("Infinite"), AttributeCharacteristic.DISPLAYTYPE);
 	/**
 	 * The catch rate of a pokemon on a scale from 3-255
 	 */
-	private static final Attribute CATCH_RATE = new Attribute("catch rate", ParseType.INTEGER, new Integer(3), AttributeType.CHARACTERISTIC, AttributeType.POKEONLY);
+	private static final Attribute CATCH_RATE = new Attribute("catch rate", ParseType.INTEGER, new Integer(3), AttributeCharacteristic.CHARACTERISTIC, AttributeCharacteristic.POKEONLY);
 	/**
 	 * The rarity of a pokemon, on scale of 1-99, derived from catchrate. 
 	 * higher is more rare
 	 */
-	private static final Attribute RARITY = new Attribute("rarity", ParseType.INTEGER, new Integer(1),AttributeType.CHARACTERISTIC, AttributeType.POKEONLY);
+	private static final Attribute RARITY = new Attribute("rarity", ParseType.INTEGER, new Integer(1),AttributeCharacteristic.CHARACTERISTIC, AttributeCharacteristic.POKEONLY);
 	/**
 	 * The description of an item. Note it doesn't have an orderdisplayvalue because the description is just a combination of all those elements that do
 	 * (and some other text potentially)
 	 */
-	private static final Attribute DESCRIPTION = new Attribute("description", ParseType.STRING, new String(""), AttributeType.CHARACTERISTIC);
+	private static final Attribute DESCRIPTION = new Attribute("description", ParseType.STRING, new String(""), AttributeCharacteristic.CHARACTERISTIC);
 	/**
 	 * The experience group (fast, slow, erratic, etc.) to which this pokemon belongs to.
 	 */
-	private static final Attribute EXPERIENCE_GROUP = new Attribute("experience group", ParseType.EXPERIENCEGROUP, ExperienceGroup.SLOW,  AttributeType.POKEONLY, AttributeType.CHARACTERISTIC);
+	private static final Attribute EXPERIENCE_GROUP = new Attribute("experience group", ParseType.EXPERIENCEGROUP, ExperienceGroup.SLOW,  AttributeCharacteristic.POKEONLY, AttributeCharacteristic.CHARACTERISTIC);
 	/**
 	 * Whether or not this pokemon has both A. an evolution and B. evolves via levels
 	 */
-	private static final Attribute HAS_EVOLUTION = new Attribute("has evolution", ParseType.BOOLEAN, new Boolean(false), AttributeType.POKEONLY, AttributeType.CHARACTERISTIC);
+	private static final Attribute HAS_EVOLUTION = new Attribute("has evolution", ParseType.BOOLEAN, new Boolean(false), AttributeCharacteristic.POKEONLY, AttributeCharacteristic.CHARACTERISTIC);
 	/**
 	 * the next evolution for this pokemon
 	 */
-	private static final Attribute NEXT_EVOLUTIONS = new Attribute("next evolutions", ParseType.LISTSTRING, Arrays.asList("default"), AttributeType.POKEONLY, AttributeType.CHARACTERISTIC);
+	private static final Attribute NEXT_EVOLUTIONS = new Attribute("next evolutions", ParseType.LISTSTRING, Arrays.asList("default"), AttributeCharacteristic.POKEONLY, AttributeCharacteristic.CHARACTERISTIC);
 	/**
 	 * the level this pokemon evolves at
 	 */
-	private static final Attribute LEVEL_OF_EVOLUTION = new Attribute("level of evolution", ParseType.INTEGER, new Integer(-1), AttributeType.POKEONLY, AttributeType.CHARACTERISTIC);
+	private static final Attribute LEVEL_OF_EVOLUTION = new Attribute("level of evolution", ParseType.INTEGER, new Integer(-1), AttributeCharacteristic.POKEONLY, AttributeCharacteristic.CHARACTERISTIC);
 	/**
 	 * Whether or not this thing can be removed from the board
 	 */
@@ -104,7 +104,7 @@ public class Attribute implements Serializable{
 	private static Map<String, Attribute> idMap;
 	private final String name;
 	private final String displayName;
-	private final AttributeTypeSet atTypes;
+	private final AttributeCharacteristicSet atTypes;
 	private final Object defaultValue;
 	/**
 	 * The value at which if the input value to generateAttribute has this value, the attribute class reccomends you ignore the value
@@ -134,19 +134,19 @@ public class Attribute implements Serializable{
 		this(at);
 		parseAndSetValue(value);
 	}
-	private Attribute(final int orderOfDisplay, final String name, final ParseType parsetype, final Object defaultValue, final AttributeType... types) {
+	private Attribute(final int orderOfDisplay, final String name, final ParseType parsetype, final Object defaultValue, final AttributeCharacteristic... types) {
 		this(orderOfDisplay, name.substring(0, 1).toUpperCase()+name.substring(1), name, parsetype, defaultValue, types);
 	}
-	private Attribute(final int orderOfDisplay, final String displayName, final String name, final ParseType parsetype, final Object defaultValue, final AttributeType... types) {
+	private Attribute(final int orderOfDisplay, final String displayName, final String name, final ParseType parsetype, final Object defaultValue, final AttributeCharacteristic... types) {
 		this(orderOfDisplay, displayName, name, currId++, parsetype, defaultValue, types);
 	}
-	private Attribute(final String name, final ParseType parsetype, final Object defaultValue, final AttributeType... types) {
+	private Attribute(final String name, final ParseType parsetype, final Object defaultValue, final AttributeCharacteristic... types) {
 		this(name.substring(0, 1).toUpperCase()+name.substring(1), name, parsetype, defaultValue, types);
 	}
-	private Attribute(final String displayName, final String name, final ParseType parsetype, final Object defaultValue, final AttributeType... types) {
+	private Attribute(final String displayName, final String name, final ParseType parsetype, final Object defaultValue, final AttributeCharacteristic... types) {
 		this(-1, displayName, name, currId++, parsetype, defaultValue, types);
 	}
-	private Attribute(final int orderOfDisplay, final String displayName, final String name, final int id, final ParseType parsetype, final Object defaultValue, final AttributeType ...types) {
+	private Attribute(final int orderOfDisplay, final String displayName, final String name, final int id, final ParseType parsetype, final Object defaultValue, final AttributeCharacteristic ...types) {
 		this.orderOfDisplay = orderOfDisplay;
 		this.name = name;
 		this.id = id;
@@ -162,8 +162,8 @@ public class Attribute implements Serializable{
 
 		
 		this.defaultValue = defaultValue;
-		atTypes = new AttributeTypeSet(types);
-		if (orderOfDisplay == 0 || (orderOfDisplay < 0 && atTypes.containsAttributeType(AttributeType.DISPLAYTYPE)) || (orderOfDisplay > 0 && !atTypes.containsAttributeType(AttributeType.DISPLAYTYPE)))
+		atTypes = new AttributeCharacteristicSet(types);
+		if (orderOfDisplay == 0 || (orderOfDisplay < 0 && atTypes.containsAttributeType(AttributeCharacteristic.DISPLAYTYPE)) || (orderOfDisplay > 0 && !atTypes.containsAttributeType(AttributeCharacteristic.DISPLAYTYPE)))
 			throw new Error("order of display should not be present for: " + getName());
 		getIdMap().put(name, this);
 	}
@@ -205,19 +205,19 @@ public class Attribute implements Serializable{
 		else if (parsetype.equals(ParseType.BOOLEAN))
 			sb.append(getValue().toString().equalsIgnoreCase("true") ? "yes" : "no");
 		else {
-			if (containsType(AttributeType.ITALICS))
+			if (containsType(AttributeCharacteristic.ITALICS))
 				sb.append("<i>");
-			if (containsType(AttributeType.COLOR_BASED_ON_SIGN)) {
-				sb.append(GuiUtils.getPositive(isPositive(), containsType(AttributeType.PLUS_FOR_POSITIVE) ? Character.toString(plusChar) : ""));
+			if (containsType(AttributeCharacteristic.COLOR_BASED_ON_SIGN)) {
+				sb.append(GuiUtils.getPositive(isPositive(), containsType(AttributeCharacteristic.PLUS_FOR_POSITIVE) ? Character.toString(plusChar) : ""));
 			}
 			
 			sb.append(getValue().toString());
 		}	
-		if (this.containsType(AttributeType.OUTOFTEN))
+		if (this.containsType(AttributeCharacteristic.OUTOFTEN))
 			sb.append("/10");
-		if (containsType(AttributeType.COLOR_BASED_ON_SIGN))
+		if (containsType(AttributeCharacteristic.COLOR_BASED_ON_SIGN))
 			sb.append("</font>");
-		if (containsType(AttributeType.ITALICS))
+		if (containsType(AttributeCharacteristic.ITALICS))
 			sb.append("</i>");
 		sb.append(extraDescription);
 		sb.append("</span>");
@@ -268,14 +268,14 @@ public class Attribute implements Serializable{
 	public static Attribute getAttribute(final String name) {
 		return isValidAttribute(name) ? idMap.get(name) : null;
 	}
-	public boolean containsType(final AttributeType at) {
+	public boolean containsType(final AttributeCharacteristic at) {
 		return atTypes.containsAttributeType(at);
 	}
 	public boolean pokeOnly() {
-		return containsType(AttributeType.POKEONLY);
+		return containsType(AttributeCharacteristic.POKEONLY);
 	}
 	public boolean itemOnly() {
-		return containsType(AttributeType.ITEMONLY);
+		return containsType(AttributeCharacteristic.ITEMONLY);
 	}
 	public Class<?> getParseClass() {
 		switch (parsetype) {
@@ -303,7 +303,7 @@ public class Attribute implements Serializable{
 		}
 		return Object.class;
 	}
-	public static boolean allDontContainType(final Set<Attribute> set, final AttributeType at) {
+	public static boolean allDontContainType(final Set<Attribute> set, final AttributeCharacteristic at) {
 		for (final Attribute a: set) {
 			if ((a.containsType(at)))
 				return false;
@@ -315,14 +315,14 @@ public class Attribute implements Serializable{
 	 * @return true if all attributes are valid of a thing of Type POKEMON
 	 */
 	public static boolean validatePokemon(final Set<Attribute> set) {
-		return allDontContainType(set, AttributeType.ITEMONLY);
+		return allDontContainType(set, AttributeCharacteristic.ITEMONLY);
 	}
 	/**
 	 * @param set Set of Attributes
 	 * @return true if all the attributes are valid for an Thing of Type ITEM
 	 */
 	public static boolean validateItem(final Set<Attribute> set) {
-		return allDontContainType(set, AttributeType.POKEONLY);
+		return allDontContainType(set, AttributeCharacteristic.POKEONLY);
 	}
 	public Object getValue() {
 		return value;
@@ -338,7 +338,7 @@ public class Attribute implements Serializable{
 		return objectToIgnoreValueAt;
 	}
 	public int getDisplayOrderVal(){
-		if (!this.containsType(AttributeType.DISPLAYTYPE))
+		if (!this.containsType(AttributeCharacteristic.DISPLAYTYPE))
 			throw new Error("ATTRIBUTE SHOULD NOT BE DISPLAYED");
 		return orderOfDisplay;
 	}

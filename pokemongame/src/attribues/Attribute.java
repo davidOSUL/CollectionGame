@@ -2,17 +2,18 @@ package attribues;
 
 import java.io.Serializable;
 
-import thingFramework.AttributeTypeSet;
+import thingFramework.AttributeCharacteristicSet;
 /*
  * Load attributes from file:
  * gph IntegerType extraDescription:"", etc.
  * Have AttributeFactory Class, which has generateAttribute <T> Method
  * AttributeFactory can have List<Attribute<Integer>>, etc.
  */
-abstract class Attribute<T> implements Serializable {
+public abstract class Attribute<T> implements Serializable {
 	private T value;
 	private T defaultValue;
-	private AttributeTypeSet atTypes;
+	private AttributeCharacteristicSet atttributeCharacteristicSet;
+	private ParseType parseType;
 	/**
 	 * An extra string that can be added on at the end of this toString's method
 	 */
@@ -26,9 +27,9 @@ abstract class Attribute<T> implements Serializable {
 	protected Attribute(final Attribute<T> at) {
 		setValue(at.value);
 		setDefaultValue(at.defaultValue);
-		setAttributeTypeSet(at.atTypes.makeCopy());
+		setAttributeTypeSet(at.atttributeCharacteristicSet.makeCopy());
 	}
-	void setValue(final T value) {
+	public void setValue(final T value) {
 		this.value = value;
 	}
 	public T getValue() {
@@ -38,11 +39,20 @@ abstract class Attribute<T> implements Serializable {
 		this.defaultValue = defaultValue;
 	}
 
-	void setAttributeTypeSet(final AttributeTypeSet atTypes) {
-		this.atTypes = atTypes;
+	void setAttributeTypeSet(final AttributeCharacteristicSet atTypes) {
+		this.atttributeCharacteristicSet = atTypes;
 	}
 	void setIgnoreValue(final T ignoreValue) {
 		this.objectToIgnoreValueAt = ignoreValue;
+	}
+	public boolean valEquals(final T value) {
+		return value.equals(this.value);
+	}
+	public void setParseType(final ParseType parseType) {
+		this.parseType = parseType;
+	}
+	public boolean valEqualsParse(final String value) {
+		return AttributeValueParser.getInstance().<T>parseValue(value, parseType).equals(this.value);
 	}
 
 }

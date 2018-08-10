@@ -3,8 +3,8 @@ package attribues;
 import java.util.Arrays;
 import java.util.EnumSet;
 
-import thingFramework.AttributeType;
-import thingFramework.AttributeTypeSet;
+import thingFramework.AttributeCharacteristic;
+import thingFramework.AttributeCharacteristicSet;
 import thingFramework.ExperienceGroup;
 import thingFramework.PokemonType;
 
@@ -29,7 +29,7 @@ public class AttributeValueParser {
 			case STRING:
 				newVal = value;
 				break;
-			case ENUMSETPOKEMONTYPE:
+			case POKEMONTYPE:
 				final String[] types = value.split(" ");
 				PokemonType firstType;
 				final PokemonType[] poketypes = new PokemonType[types.length-1];
@@ -56,11 +56,11 @@ public class AttributeValueParser {
 			}
 			return (T) newVal;
 	}
-	public AttributeTypeSet parseAttributeTypeSet(final String value, final String delimiter) {
+	public AttributeCharacteristicSet parseAttributeTypeSet(final String value, final String delimiter) {
 		final String[] types = value.split(delimiter);
-		final AttributeTypeSet atTypes = new AttributeTypeSet();
+		final AttributeCharacteristicSet atTypes = new AttributeCharacteristicSet();
 		for (final String type: types)
-			atTypes.addAttributeType(AttributeType.valueOf(type.trim().toUpperCase()));
+			atTypes.addAttributeType(AttributeCharacteristic.valueOf(type.trim().toUpperCase()));
 		return atTypes;
 	}
 		

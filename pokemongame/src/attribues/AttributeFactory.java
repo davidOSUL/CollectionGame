@@ -5,8 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import attributeTypes.listAttributes.ListStringAttribute;
+import attributeTypes.regularAttributes.DoubleAttribute;
+import attributeTypes.regularAttributes.IntegerAttribute;
+import attributeTypes.regularAttributes.StringAttribute;
 import loaders.CSVReader;
-import thingFramework.AttributeTypeSet;
+import thingFramework.AttributeCharacteristicSet;
 
 public class AttributeFactory {
 	private static final AttributeFactory INSTANCE = new AttributeFactory();
@@ -25,6 +29,7 @@ public class AttributeFactory {
 	private final Map<String, IntegerAttribute> integerAttributes = new HashMap<String, IntegerAttribute>();
 	private final Map<String, StringAttribute> stringAttributes = new HashMap<String, StringAttribute>();
 	private final Map<String, DoubleAttribute> doubleAttributes = new HashMap<String, DoubleAttribute>();
+	private final Map<String, ListStringAttribute> listStringAttributes = new HashMap<String, ListStringAttribute>();
 	private AttributeFactory() {
 		loadAttributeTemplates();
 	}
@@ -61,6 +66,12 @@ public class AttributeFactory {
 					attribute = stringAttribute;
 					break;
 				}
+				case "List of Strings": {
+					final ListStringAttribute listStringAttribute = new ListStringAttribute();
+					addAttributeDetails(values, listStringAttribute, ParseType.LISTSTRING);
+					listStringAttributes.put(name, listStringAttributes);
+					attribute = listStringAttribute;
+				}
 			}
 			if (arrayContainsValue(values, DISPLAY_SETTINGS_LOC))
 				attribute.parseAndSetSettings(values[DISPLAY_SETTINGS_LOC], DISPLAY_SETTINGS_DELIM);
@@ -77,7 +88,7 @@ public class AttributeFactory {
 	private static <T> void addAttributeDetails(final String[] values, final Attribute<T> attribute, final ParseType parseType) {
 		attribute.setDefaultValue(AttributeValueParser.getInstance().parseValue(values[DEF_VAL_LOC], parseType));
 		if (!arrayContainsValue(values, ATTRIBUTE_TYPES_LOC))
-				attribute.setAttributeTypeSet(new AttributeTypeSet());
+				attribute.setAttributeTypeSet(new AttributeCharacteristicSet());
 		else
 			attribute.setAttributeTypeSet(AttributeValueParser.getInstance().parseAttributeTypeSet(values[ATTRIBUTE_TYPES_LOC], ATTRIBUTE_TYPES_DELIM));
 		if (arrayContainsValue(values, IGNORE_VALUE_LOC))
