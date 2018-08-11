@@ -13,7 +13,7 @@ public abstract class Attribute<T> implements Serializable {
 	private T value;
 	private T defaultValue;
 	private AttributeCharacteristicSet atttributeCharacteristicSet;
-	private ParseType parseType;
+	private AttributeFactory parseType;
 	/**
 	 * An extra string that can be added on at the end of this toString's method
 	 */
@@ -48,7 +48,7 @@ public abstract class Attribute<T> implements Serializable {
 	public boolean valEquals(final T value) {
 		return value.equals(this.value);
 	}
-	public void setParseType(final ParseType parseType) {
+	public void setParseType(final AttributeFactory parseType) {
 		this.parseType = parseType;
 	}
 	public boolean valEqualsParse(final String value) {

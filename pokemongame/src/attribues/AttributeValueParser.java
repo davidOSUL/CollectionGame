@@ -17,9 +17,9 @@ public class AttributeValueParser {
 	public static AttributeValueParser getInstance() {
 		return INSTANCE;
 	}
-	public <T> T parseValue(final String value, final ParseType parseType) {
+	public <T> T parseValue(final String value, final AttributeFactory parseType) {
 		Object newVal = null;
-			switch (parseType) {
+			switch (parseType.getAsEnum()) {
 			case INTEGER:
 				newVal = Integer.parseInt(value);
 				break;

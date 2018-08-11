@@ -2,7 +2,7 @@ package attribues;
 
 import java.util.EnumSet;
 
-public class ReadableAttribute<T, ME> extends Attribute<T> {
+public class ReadableAttribute<T> extends Attribute<T> {
 	private String displayName;
 	private boolean isVisible;
 	private EnumSet<Setting> settings;
@@ -14,7 +14,7 @@ public class ReadableAttribute<T, ME> extends Attribute<T> {
 	public ReadableAttribute(final String displayName) {
 		this.displayName = displayName;
 	}
-	protected ReadableAttribute(final ReadableAttribute<T, ME> attribute) {
+	protected ReadableAttribute(final ReadableAttribute<T> attribute) {
 		super(attribute);
 	}
 	@Override

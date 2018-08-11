@@ -1,19 +1,9 @@
 package attribues;
 
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import attributeTypes.listAttributes.ListStringAttribute;
-import attributeTypes.regularAttributes.DoubleAttribute;
-import attributeTypes.regularAttributes.IntegerAttribute;
-import attributeTypes.regularAttributes.StringAttribute;
-import loaders.CSVReader;
-import thingFramework.AttributeCharacteristicSet;
-
-public class AttributeFactory {
-	private static final AttributeFactory INSTANCE = new AttributeFactory();
+public final class AttributeFactory<T> {
 	private static final String ATTRIBUTE_LIST_PATH = "/InputFiles/attributeList - 1.csv";
 	private static final String ATTRIBUTE_TYPES_DELIM = ":";
 	private static final String DISPLAY_SETTINGS_DELIM = ":";
@@ -26,93 +16,28 @@ public class AttributeFactory {
 	private static final int DISPLAY_SETTINGS_LOC = 6;
 	private static final int IGNORE_VALUE_LOC = 7;
 	private static final int DISPLAY_RANK_LOC = 8;
-	private final Map<String, IntegerAttribute> integerAttributes = new HashMap<String, IntegerAttribute>();
-	private final Map<String, StringAttribute> stringAttributes = new HashMap<String, StringAttribute>();
-	private final Map<String, DoubleAttribute> doubleAttributes = new HashMap<String, DoubleAttribute>();
-	private final Map<String, ListStringAttribute> listStringAttributes = new HashMap<String, ListStringAttribute>();
-	private AttributeFactory() {
-		loadAttributeTemplates();
+	public static final AttributeFactory<Integer> INTEGER = new AttributeFactory<Integer>(ParseType.INTEGER);
+	public static final AttributeFactory<Double> DOUBLE = new AttributeFactory<Double>(ParseType.DOUBLE);
+	public static final AttributeFactory<String> STRING = new AttributeFactory<String>(ParseType.STRING);
+	private final ParseType enumVersion;
+	private final Map<String, Attribute<T>> attributes = new HashMap<String, Attribute<T>>();
+	private AttributeFactory(final ParseType enumVersion) {
+		this.enumVersion = enumVersion;
 	}
-	private void loadAttributeTemplates() {
-		List<String[]> output = null;
-		try {
-			output = CSVReader.readCSV(ATTRIBUTE_LIST_PATH, true);
-		} catch (final IOException e) {
-			e.printStackTrace();
-		}
-		for (final String[] values : output) {
-			final String name = values[NAME_LOC];
-			ReadableAttribute<?> attribute = null;
-			switch (values[TYPE_LOC].trim().toLowerCase()) {
-				case "integer": {
-					final IntegerAttribute integerAttribute = new IntegerAttribute();
-					addAttributeDetails(values, integerAttribute, ParseType.INTEGER);
-					integerAttributes.put(name, integerAttribute);
-					attribute = integerAttribute;
-					break;
-				}
-				
-				case "double": {
-					final DoubleAttribute doubleAttribute = new DoubleAttribute();
-					addAttributeDetails(values, doubleAttribute, ParseType.DOUBLE);
-					doubleAttributes.put(name, doubleAttribute);
-					attribute = doubleAttribute;
-					break;
-				}
-				case "string": {
-					final StringAttribute stringAttribute = new StringAttribute();
-					addAttributeDetails(values, stringAttribute, ParseType.STRING);
-					stringAttributes.put(name, stringAttribute);
-					attribute = stringAttribute;
-					break;
-				}
-				case "List of Strings": {
-					final ListStringAttribute listStringAttribute = new ListStringAttribute();
-					addAttributeDetails(values, listStringAttribute, ParseType.LISTSTRING);
-					listStringAttributes.put(name, listStringAttributes);
-					attribute = listStringAttribute;
-				}
-			}
-			if (arrayContainsValue(values, DISPLAY_SETTINGS_LOC))
-				attribute.parseAndSetSettings(values[DISPLAY_SETTINGS_LOC], DISPLAY_SETTINGS_DELIM);
-			attribute.setDisplayName(values[DISPLAY_NAME_LOC]);
-			if (arrayContainsValue(values, DISPLAY_RANK_LOC))
-				attribute.setDisplayRank(Integer.parseInt(values[DISPLAY_RANK_LOC]));
-			attribute.setIsVisible(values[IS_VISIBLE_LOC].equalsIgnoreCase("yes"));
-			
-		}
-	}
-	private static boolean arrayContainsValue(final String[] values, final int location) {
-		return values.length > location && !values[location].trim().equals("");
-	}
-	private static <T> void addAttributeDetails(final String[] values, final Attribute<T> attribute, final ParseType parseType) {
-		attribute.setDefaultValue(AttributeValueParser.getInstance().parseValue(values[DEF_VAL_LOC], parseType));
-		if (!arrayContainsValue(values, ATTRIBUTE_TYPES_LOC))
-				attribute.setAttributeTypeSet(new AttributeCharacteristicSet());
-		else
-			attribute.setAttributeTypeSet(AttributeValueParser.getInstance().parseAttributeTypeSet(values[ATTRIBUTE_TYPES_LOC], ATTRIBUTE_TYPES_DELIM));
-		if (arrayContainsValue(values, IGNORE_VALUE_LOC))
-			attribute.setIgnoreValue(AttributeValueParser.getInstance().parseValue(values[IGNORE_VALUE_LOC], parseType));
-		 
-	}
-	public static AttributeFactory getInstance() {
-		return INSTANCE;
+	private static void load() {
+		
 	}
 	
-	public IntegerAttribute generateIntegerAttribute(final String name, final int value) {
-		final IntegerAttribute newAttribute = integerAttributes.get(name).makeCopy();
-		newAttribute.setValue(value);
-		return newAttribute;
+	
+}/*
+public enum ParseType{
+	INTEGER(IntegerAttribute.class), DOUBLE(DoubleAttribute.class), STRING(StringAttribute.class), POKEMONTYPE(PokemonTypeAttribute.class), EXPERIENCEGROUP(ExperienceGroupAttribute.class), BOOLEAN(BooleanAttribute.class), LISTSTRING(ListStringAttribute.class);
+	private Class<? extends ReadableAttribute<?>> associatedClass;
+	private ParseType(Class<? extends ReadableAttribute<?>> associatedClass) {
+		this.associatedClass = associatedClass;
 	}
-	public DoubleAttribute generateDoubleAttribute(final String name, final double value) {
-		final DoubleAttribute newAttribute = doubleAttributes.get(name).makeCopy();
-		newAttribute.setValue(value);
-		return newAttribute;
-	}
-	public StringAttribute generateStringAttribute(final String name, final String value) {
-		final StringAttribute newAttribute = stringAttributes.get(name).makeCopy();
-		newAttribute.setValue(value);
-		return newAttribute;
+	public Class<? extends ReadableAttribute<?>> getAssociatedClass() {
+		return associatedClass;
 	}
 	
-}
+}*/
