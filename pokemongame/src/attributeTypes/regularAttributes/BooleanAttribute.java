@@ -1,6 +1,6 @@
 package attributeTypes.regularAttributes;
 
-import attribues.ReadableAttribute;
+import attributes.ReadableAttribute;
 import interfaces.Copyable;
 
 public class BooleanAttribute extends ReadableAttribute<Boolean> implements Copyable<BooleanAttribute> {

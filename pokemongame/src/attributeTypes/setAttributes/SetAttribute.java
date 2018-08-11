@@ -2,7 +2,7 @@ package attributeTypes.setAttributes;
 
 import java.util.Set;
 
-import attribues.ReadableAttribute;
+import attributes.ReadableAttribute;
 import interfaces.Copyable;
 
 abstract class SetAttribute<Q, T extends Set<Q>> extends ReadableAttribute<Set<Q>> implements Copyable<SetAttribute<Q, T>> {

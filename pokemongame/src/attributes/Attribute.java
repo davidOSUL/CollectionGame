@@ -1,19 +1,14 @@
-package attribues;
+package attributes;
 
 import java.io.Serializable;
 
+import attributes.AttributeFactories.AttributeFactory;
 import thingFramework.AttributeCharacteristicSet;
-/*
- * Load attributes from file:
- * gph IntegerType extraDescription:"", etc.
- * Have AttributeFactory Class, which has generateAttribute <T> Method
- * AttributeFactory can have List<Attribute<Integer>>, etc.
- */
-public abstract class Attribute<T> implements Serializable {
+abstract class Attribute<T> implements Serializable {
 	private T value;
 	private T defaultValue;
 	private AttributeCharacteristicSet atttributeCharacteristicSet;
-	private AttributeFactory parseType;
+	private AttributeFactory<T> creator;
 	/**
 	 * An extra string that can be added on at the end of this toString's method
 	 */
@@ -23,16 +18,16 @@ public abstract class Attribute<T> implements Serializable {
 	 * (Will not stop you from setting it however) (e.g. -1 for an attribute that should always be >=0)
 	 */
 	private  T objectToIgnoreValueAt = null;
-	Attribute() {}
+	Attribute(final AttributeFactory<T> creator) {this.creator = creator;}
 	protected Attribute(final Attribute<T> at) {
 		setValue(at.value);
 		setDefaultValue(at.defaultValue);
 		setAttributeTypeSet(at.atttributeCharacteristicSet.makeCopy());
 	}
-	public void setValue(final T value) {
+	void setValue(final T value) {
 		this.value = value;
 	}
-	public T getValue() {
+	T getValue() {
 		return value;
 	}
 	void setDefaultValue(final T defaultValue) {
@@ -45,14 +40,9 @@ public abstract class Attribute<T> implements Serializable {
 	void setIgnoreValue(final T ignoreValue) {
 		this.objectToIgnoreValueAt = ignoreValue;
 	}
-	public boolean valEquals(final T value) {
-		return value.equals(this.value);
-	}
-	public void setParseType(final AttributeFactory parseType) {
-		this.parseType = parseType;
-	}
-	public boolean valEqualsParse(final String value) {
-		return AttributeValueParser.getInstance().<T>parseValue(value, parseType).equals(this.value);
+	abstract Attribute<T> makeCopy();
+	AttributeFactory<T> getCreatorFactory() {
+		return creator;
 	}
 
 }

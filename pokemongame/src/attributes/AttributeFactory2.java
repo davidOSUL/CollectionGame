@@ -1,4 +1,4 @@
-package attribues;
+package attributes;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -9,9 +9,10 @@ import attributeTypes.listAttributes.ListStringAttribute;
 import attributeTypes.regularAttributes.DoubleAttribute;
 import attributeTypes.regularAttributes.IntegerAttribute;
 import attributeTypes.regularAttributes.StringAttribute;
+import attributes.AttributeFactories.AttributeFactory;
 import loaders.CSVReader;
 import thingFramework.AttributeCharacteristicSet;
-
+@Deprecated
 public class AttributeFactory2 {
 	private static final AttributeFactory2 INSTANCE = new AttributeFactory2();
 	private static final String ATTRIBUTE_LIST_PATH = "/InputFiles/attributeList - 1.csv";

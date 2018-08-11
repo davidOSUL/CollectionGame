@@ -1,25 +1,20 @@
-package attribues;
-
-import java.util.Arrays;
-import java.util.EnumSet;
+package attributes;
 
 import thingFramework.AttributeCharacteristic;
 import thingFramework.AttributeCharacteristicSet;
-import thingFramework.ExperienceGroup;
-import thingFramework.PokemonType;
 
-public class AttributeValueParser {
+class AttributeValueParser {
 	private final static AttributeValueParser INSTANCE = new AttributeValueParser();
 	
 	private AttributeValueParser() {
 		
 	}
-	public static AttributeValueParser getInstance() {
+	static AttributeValueParser getInstance() {
 		return INSTANCE;
 	}
-	public <T> T parseValue(final String value, final AttributeFactory parseType) {
+	<T> T parseValue(final String value, final ParseType<T> parseType) {
 		Object newVal = null;
-			switch (parseType.getAsEnum()) {
+			switch (parseType.getAssociatedEnum()) {
 			case INTEGER:
 				newVal = Integer.parseInt(value);
 				break;
@@ -29,7 +24,7 @@ public class AttributeValueParser {
 			case STRING:
 				newVal = value;
 				break;
-			case POKEMONTYPE:
+			/*case POKEMONTYPE:
 				final String[] types = value.split(" ");
 				PokemonType firstType;
 				final PokemonType[] poketypes = new PokemonType[types.length-1];
@@ -51,12 +46,12 @@ public class AttributeValueParser {
 					newVal = Arrays.asList(value.substring(1, value.length()-1).split("\\s*,\\s*"));
 				else
 					newVal = Arrays.asList(value);
-				break;
+				break;*/
 			
 			}
 			return (T) newVal;
 	}
-	public AttributeCharacteristicSet parseAttributeTypeSet(final String value, final String delimiter) {
+	AttributeCharacteristicSet parseAttributeTypeSet(final String value, final String delimiter) {
 		final String[] types = value.split(delimiter);
 		final AttributeCharacteristicSet atTypes = new AttributeCharacteristicSet();
 		for (final String type: types)

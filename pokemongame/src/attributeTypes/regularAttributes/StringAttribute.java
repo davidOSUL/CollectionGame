@@ -1,6 +1,6 @@
 package attributeTypes.regularAttributes;
 
-import attribues.ReadableAttribute;
+import attributes.ReadableAttribute;
 import interfaces.Copyable;
 
 public class StringAttribute extends ReadableAttribute<String> implements Copyable<StringAttribute>{

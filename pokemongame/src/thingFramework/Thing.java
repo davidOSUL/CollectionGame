@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
 
-import attribues.AttributeFactory2;
+import attributes.AttributeFactory2;
 import effects.Event;
 import effects.Eventful;
 import game.Board;

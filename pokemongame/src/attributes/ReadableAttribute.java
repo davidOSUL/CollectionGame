@@ -1,17 +1,21 @@
-package attribues;
+package attributes;
 
 import java.util.EnumSet;
 
-public class ReadableAttribute<T> extends Attribute<T> {
+import attributes.AttributeFactories.AttributeFactory;
+
+class ReadableAttribute<T> extends Attribute<T> {
 	private String displayName;
 	private boolean isVisible;
 	private EnumSet<Setting> settings;
 	private int displayRank = -1;
-	public ReadableAttribute() {
+	public ReadableAttribute(final AttributeFactory<T> creator) {
+		super(creator);
 		this.displayName = "";
 		settings = EnumSet.noneOf(Setting.class);
 	}
-	public ReadableAttribute(final String displayName) {
+	public ReadableAttribute(final AttributeFactory<T> creator, final String displayName) {
+		this(creator);
 		this.displayName = displayName;
 	}
 	protected ReadableAttribute(final ReadableAttribute<T> attribute) {
@@ -62,5 +66,9 @@ public class ReadableAttribute<T> extends Attribute<T> {
 		 * If the attribute should be displayed out of 10
 		 */
 		DISPLAY_OUT_OF_10;
+	}
+	@Override
+	Attribute<T> makeCopy() {
+		return new ReadableAttribute<T>(this);
 	}
 }

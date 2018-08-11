@@ -1,7 +1,7 @@
 package attributeTypes.enumAttributes;
 
 
-import attribues.ReadableAttribute;
+import attributes.ReadableAttribute;
 import interfaces.Copyable;
 
 
