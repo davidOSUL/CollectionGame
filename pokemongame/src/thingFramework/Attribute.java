@@ -208,7 +208,7 @@ public class Attribute implements Serializable{
 			if (containsType(AttributeCharacteristic.ITALICS))
 				sb.append("<i>");
 			if (containsType(AttributeCharacteristic.COLOR_BASED_ON_SIGN)) {
-				sb.append(GuiUtils.getPositive(isPositive(), containsType(AttributeCharacteristic.PLUS_FOR_POSITIVE) ? Character.toString(plusChar) : ""));
+				sb.append(GuiUtils.getSignedColorFormat(isPositive(), containsType(AttributeCharacteristic.PLUS_FOR_POSITIVE) ? Character.toString(plusChar) : ""));
 			}
 			
 			sb.append(getValue().toString());

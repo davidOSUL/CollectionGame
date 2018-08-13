@@ -34,4 +34,12 @@ public final class AttributeManager {
 		AttributeFactories.getInstance().getCreatorFactory(attributeName).getAttributeForManager(this, attributeName).setValueParse(value);
 		
 	}
+	public void generateAttributes(final String[] names, final String[] values) {
+		if (names.length != values.length)
+			throw new Error("names and values must have same length");
+		final Attribute[] attributes = new Attribute[names.length];
+		for (int i = 0; i < names.length; i++) {
+			generateAttribute(names[i], values[i]);
+		}
+	}
 }

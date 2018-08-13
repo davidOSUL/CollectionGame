@@ -1,4 +1,4 @@
-package thingFramework;
+package attributes;
 
 public class AttributeNotFoundException extends RuntimeException {
 

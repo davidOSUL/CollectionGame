@@ -2,15 +2,30 @@ package thingFramework;
 
 import java.util.EnumSet;
 
-public class PokemonTypeSet{
+import gameutils.EnumSetHolder;
+
+public class PokemonTypeSet extends EnumSetHolder<PokemonType>{
 	private EnumSet<PokemonType> types;
-	public PokemonTypeSet(PokemonType... types) {
-		types = EnumSet.
+	public PokemonTypeSet() {};
+	public PokemonTypeSet(final String...types) {
+		for (final String type : types) {
+			addValue(PokemonType.valueOf(type.trim().toUpperCase()));
+		}
 	}
-	public enum PokemonType {
-		BUG, DARK, DRAGON, ELECTRIC, FAIRY, FIGHTING, FIRE, 
-		FLYING, GHOST, GRASS, GROUND, ICE, NORMAL, 
-		POISON, PSYCHIC, ROCK, STEEL, WATER
+	private PokemonTypeSet(final PokemonTypeSet set) {
+		super(set);
 	}
+	@Override
+	public PokemonTypeSet makeCopy() {
+		return new PokemonTypeSet(this);
+	}
+
+	@Override
+	protected Class<PokemonType> getEnumClass() {
+		return PokemonType.class;
+	}
+
+
+	
 }
 

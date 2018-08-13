@@ -3,12 +3,13 @@ package attributes;
 import java.io.Serializable;
 
 import attributes.AttributeFactories.AttributeFactory;
-import thingFramework.AttributeCharacteristicSet;
+import interfaces.SerializableFunction;
 public abstract class Attribute<T> implements Serializable {
 	private T value;
 	private  T defaultValue;
 	private AttributeCharacteristicSet atttributeCharacteristicSet;
 	private final AttributeFactory<T> creator;
+	private SerializableFunction<T, Boolean> isPositive;
 	/**
 	 * The value at which if the input value to generateAttribute has this value, the attribute class reccomends you ignore the value
 	 * (Will not stop you from setting it however) (e.g. -1 for an attribute that should always be >=0)
@@ -20,6 +21,7 @@ public abstract class Attribute<T> implements Serializable {
 		setValue(at.value);
 		setDefaultValue(at.defaultValue);
 		setAttributeTypeSet(at.atttributeCharacteristicSet.makeCopy());
+		setIsPositiveFunction(at.isPositive);
 	}
 	public void setValue(final T value) {
 		this.value = value;
@@ -44,7 +46,21 @@ public abstract class Attribute<T> implements Serializable {
 	AttributeFactory<T> getCreatorFactory() {
 		return creator;
 	}
-
+	public boolean shouldIgnore() {
+		return getValue().equals(objectToIgnoreValueAt);
+	}
+	@Override
+	public String toString() {
+		return "Attribute Created by: " + creator + ". [value: " + value + ", defaultvalue: " + defaultValue + ", attributeCharacteristics: " + atttributeCharacteristicSet + ", ignoreValue: " + objectToIgnoreValueAt;
+	}
+	public boolean isPositive() {
+		if (isPositive == null)
+			return false;
+		return isPositive.apply(getValue());
+	}
+	void setIsPositiveFunction(final SerializableFunction<T, Boolean> isPositive) {
+		this.isPositive = isPositive;
+	}
 }
 //private enum ValidAttributes {
 //

@@ -46,7 +46,7 @@ public final class TypicalEvent {
 		case LEGCHANCEINCR:
 			final int amount = Integer.parseInt(inputs[lower]);
 			te.e= generateLegendaryChanceIncreaseEvent(amount);
-			te.description = eventType.getDescription(GuiUtils.getPositive(amount, '+') + amount + "%</font>");
+			te.description = eventType.getDescription(GuiUtils.getSignedColorFormat(amount, '+') + amount + "%</font>");
 			break;
 		case ALLPOKEADD:
 			String attributeToAdd = inputs[lower];
@@ -105,7 +105,7 @@ public final class TypicalEvent {
 		return sb.toString();
 	}
 	private static String getRandomGoldString(int amountOfGold) {
-		return  GuiUtils.getPositive(amountOfGold, '+') + GuiUtils.getMoneySymbol() + amountOfGold + "</font>";
+		return  GuiUtils.getSignedColorFormat(amountOfGold, '+') + GuiUtils.getMoneySymbol() + amountOfGold + "</font>";
 	}
 	/**
 	 * Generates an event that every periodInMinute minutes will with a percentChance chance add the specified amount of gold to the board

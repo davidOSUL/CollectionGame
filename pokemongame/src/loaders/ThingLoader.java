@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import attributes.AttributeNotFoundException;
 import gameutils.GameUtils;
 import loaders.eventbuilder.EventBuilder;
 import thingFramework.Attribute;
-import thingFramework.AttributeNotFoundException;
 import thingFramework.Item;
 import thingFramework.Pokemon;
 import thingFramework.Thing;

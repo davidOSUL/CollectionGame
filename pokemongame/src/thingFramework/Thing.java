@@ -13,7 +13,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
 
+import attributes.AttributeCharacteristic;
 import attributes.AttributeFactory2;
+import attributes.AttributeNotFoundException;
 import effects.Event;
 import effects.Eventful;
 import game.Board;
