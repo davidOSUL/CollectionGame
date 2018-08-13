@@ -5,13 +5,16 @@ import java.util.EnumSet;
 import attributes.AttributeFactories.AttributeFactory;
 
 class ReadableAttribute<T> extends Attribute<T> {
-	private String displayName;
+	private String displayName = "";
 	private boolean isVisible;
-	private EnumSet<Setting> settings;
+	private final EnumSet<Setting> settings;
 	private int displayRank = -1;
+	/**
+	 * An extra string that can be added on at the end of this toString's method
+	 */
+	private String extraDescription = "";
 	public ReadableAttribute(final AttributeFactory<T> creator) {
 		super(creator);
-		this.displayName = "";
 		settings = EnumSet.noneOf(Setting.class);
 	}
 	public ReadableAttribute(final AttributeFactory<T> creator, final String displayName) {
@@ -20,10 +23,17 @@ class ReadableAttribute<T> extends Attribute<T> {
 	}
 	protected ReadableAttribute(final ReadableAttribute<T> attribute) {
 		super(attribute);
+		this.displayName = attribute.displayName;
+		this.isVisible =  attribute.isVisible;
+		this.settings = EnumSet.copyOf(attribute.settings);
+		this.displayRank = attribute.displayRank;
+		this.extraDescription = attribute.extraDescription;
+		
+		
 	}
 	@Override
 	public String toString() {
-		return "";
+		return getValue() + " " + extraDescription;
 	}
 	public void setDisplayName(final String displayName) {
 		this.displayName = displayName;

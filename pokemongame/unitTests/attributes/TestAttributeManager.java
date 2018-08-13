@@ -6,8 +6,14 @@ public class TestAttributeManager {
 		manager.generateAttribute("gph", "5");
 		manager.generateAttribute("gpm");
 		manager.setAttributeValue("gpm", 10, ParseType.INTEGER);
-		System.out.println(manager.getAttributeValue("gph", ParseType.INTEGER));
+		final AttributeManager manager2 = new AttributeManager();
+		manager2.generateAttribute("gph", "7");
+		manager2.generateAttribute("gpm");
+		manager2.setAttributeValue("gpm", 17, ParseType.INTEGER);
+		System.out.println(manager.getAttribute("gph", ParseType.INTEGER).getValue());
 		System.out.println(manager.getAttributeAsString("gpm"));
+		System.out.println(manager2.getAttribute("gph", ParseType.INTEGER).getValue());
+		System.out.println(manager2.getAttributeAsString("gpm"));
 		
 	}
 	

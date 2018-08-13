@@ -4,15 +4,11 @@ import java.io.Serializable;
 
 import attributes.AttributeFactories.AttributeFactory;
 import thingFramework.AttributeCharacteristicSet;
-abstract class Attribute<T> implements Serializable {
+public abstract class Attribute<T> implements Serializable {
 	private T value;
-	private T defaultValue;
+	private  T defaultValue;
 	private AttributeCharacteristicSet atttributeCharacteristicSet;
-	private AttributeFactory<T> creator;
-	/**
-	 * An extra string that can be added on at the end of this toString's method
-	 */
-	private final String extraDescription = "";
+	private final AttributeFactory<T> creator;
 	/**
 	 * The value at which if the input value to generateAttribute has this value, the attribute class reccomends you ignore the value
 	 * (Will not stop you from setting it however) (e.g. -1 for an attribute that should always be >=0)
@@ -20,14 +16,18 @@ abstract class Attribute<T> implements Serializable {
 	private  T objectToIgnoreValueAt = null;
 	Attribute(final AttributeFactory<T> creator) {this.creator = creator;}
 	protected Attribute(final Attribute<T> at) {
+		this(at.creator);
 		setValue(at.value);
 		setDefaultValue(at.defaultValue);
 		setAttributeTypeSet(at.atttributeCharacteristicSet.makeCopy());
 	}
-	void setValue(final T value) {
+	public void setValue(final T value) {
 		this.value = value;
 	}
-	T getValue() {
+	public void setValueParse(final String value) {
+		this.value = AttributeValueParser.getInstance().parseValue(value, creator.getParseType());
+	}
+	public T getValue() {
 		return value;
 	}
 	void setDefaultValue(final T defaultValue) {

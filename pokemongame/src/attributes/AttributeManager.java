@@ -18,17 +18,20 @@ public final class AttributeManager {
 		generateAttribute(attributeName);
 		setAttributeValue(attributeName, value);
 	}
-	public <T> T getAttributeValue(final String attributeName, final ParseType<T> type) {
-		return type.getAssociatedFactory().getAttributeValueForManager(this, attributeName);
+	public <T> Attribute<T> getAttribute(final String attributeName, final ParseType<T> type) {
+		return type.getAssociatedFactory().getAttributeForManager(this, attributeName);
 	}
 	public String getAttributeAsString(final String attributeName) {
-		return AttributeFactories.getInstance().getCreatorFactory(attributeName).getAttributeValueForManager(this, attributeName).toString();
+		return AttributeFactories.getInstance().getCreatorFactory(attributeName).getAttributeForManager(this, attributeName).toString();
+	}
+	public <T> T getAttributeValue(final String attributeName, final ParseType<T> type) {
+		return getAttribute(attributeName, type).getValue();
 	}
 	public <T> void setAttributeValue(final String attributeName, final T value, final ParseType<T> type) {
-		type.getAssociatedFactory().setAttributeValueForManager(this, attributeName, value);
+		type.getAssociatedFactory().getAttributeForManager(this, attributeName).setValue(value);
 	}
-	public void setAttributeValue(final String attributeName, final String value) {
-		AttributeFactories.getInstance().getCreatorFactory(attributeName)
-		.setAttributeValueForManagerFromParse(this, attributeName, value);
+    public void setAttributeValue(final String attributeName, final String value) {
+		AttributeFactories.getInstance().getCreatorFactory(attributeName).getAttributeForManager(this, attributeName).setValueParse(value);
+		
 	}
 }

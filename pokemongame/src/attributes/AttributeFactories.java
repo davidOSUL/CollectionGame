@@ -26,19 +26,25 @@ final class AttributeFactories {
 	
 	private static final AttributeFactories INSTANCE = new AttributeFactories();
 	
-	final AttributeFactory<Integer> INTEGER_FACTORY = new AttributeFactory<Integer>(ParseType.INTEGER);
-	final AttributeFactory<Double> DOUBLE_FACTORY = new AttributeFactory<Double>(ParseType.DOUBLE);
-	final AttributeFactory<String> STRING_FACTORY = new AttributeFactory<String>(ParseType.STRING);
-	
-	private final Map<String, AttributeFactory<?>> factoryMapByName = new HashMap<String, AttributeFactory<?>>();
-	private final List<AttributeFactory<?>> factoryList = new ArrayList<AttributeFactory<?>>();
-	private final Map<String, Attribute<?>> allAttributeTemplates = new HashMap<String, Attribute<?>>();
+ 	private final AttributeFactory<Integer> INTEGER_FACTORY;
+	private final AttributeFactory<Double> DOUBLE_FACTORY;
+	private final AttributeFactory<String> STRING_FACTORY;
+
+	private final Map<String, AttributeFactory<?>> factoryMapByName ;
+	private final List<AttributeFactory<?>> factoryList;
+	private final Map<String, Attribute<?>> allAttributeTemplates;
 	private AttributeFactories() {
+		factoryMapByName = new HashMap<String, AttributeFactory<?>>();
+		factoryList = new ArrayList<AttributeFactory<?>>();
+		allAttributeTemplates = new HashMap<String, Attribute<?>>();
+		INTEGER_FACTORY = new AttributeFactory<Integer>(ParseType.INTEGER);
+		DOUBLE_FACTORY = new AttributeFactory<Double>(ParseType.DOUBLE);
+		STRING_FACTORY = new AttributeFactory<String>(ParseType.STRING);
 		loadAttributeTemplates();
 	}
 	
 	static AttributeFactories getInstance() {
-		return INSTANCE;
+ 		return INSTANCE;
 	}
 	private static boolean arrayContainsValue(final String[] values, final int location) {
 		return values.length > location && !values[location].trim().equals("");
@@ -65,11 +71,13 @@ final class AttributeFactories {
 		private final ParseType<T> parseType;
 		private final Map<String, Attribute<T>> attributeTemplates = new HashMap<String, Attribute<T>>();
 		private final Map<AttributeManager, Map<String, Attribute<T>>> associatedAttributeManagers = new HashMap<AttributeManager, Map<String, Attribute<T>>>();
-		private AttributeFactory(final ParseType parseType) {
+		private AttributeFactory(final ParseType<T> parseType) {
 			this.parseType = parseType;
+			parseType.setAssociatedFactory(this);
 			factoryMapByName.put(parseType.getAssociatedEnum().toString().toLowerCase(), this);
 			factoryList.add(this);
 		}	
+
 		void addNewManager(final AttributeManager manager) {
 			associatedAttributeManagers.put(manager, new HashMap<String, Attribute<T>>());
 		}
@@ -81,18 +89,12 @@ final class AttributeFactories {
 			if (!attributeTemplates.containsKey(attributeName))
 				throw new AttributeNotFoundException(attributeName + "is not a valid attribute");
 		}
-		T getAttributeValueForManager(final AttributeManager manager, final String name) {
+		Attribute<T> getAttributeForManager(final AttributeManager manager, final String name) {
 			throwIfInvalidTemplate(name);
 			if (!associatedAttributeManagers.get(manager).containsKey(name)) {
 				throw new AttributeNotFoundException(name + " is a valid attribute, however it has not been generated for this manager (" + manager + ")");
 			}
-			return associatedAttributeManagers.get(manager).get(name).getValue();
-		}
-		void setAttributeValueForManager(final AttributeManager manager, final String name, final T value) {
-			associatedAttributeManagers.get(manager).get(name).setValue(value);
-		}
-		void setAttributeValueForManagerFromParse(final AttributeManager manager, final String name, final String value) {
-			associatedAttributeManagers.get(manager).get(name).setValue(AttributeValueParser.getInstance().parseValue(value, parseType));
+			return associatedAttributeManagers.get(manager).get(name);
 		}
 		ParseType<T> getParseType() {
 			return parseType;
