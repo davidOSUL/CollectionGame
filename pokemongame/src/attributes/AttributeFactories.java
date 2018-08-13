@@ -20,12 +20,13 @@ final class AttributeFactories {
 	private static final int TYPE_LOC = 1;
 	private static final int DEF_VAL_LOC = 2;
 	private static final int ATTRIBUTE_TYPES_LOC = 3;
-	private static final int IS_VISIBLE_LOC = 4;
+	private static final int IS_READABLE_LOC = 4;
 	private static final int DISPLAY_NAME_LOC = 5;
 	private static final int DISPLAY_SETTINGS_LOC = 6;
 	private static final int IGNORE_VALUE_LOC = 7;
 	private static final int DISPLAY_RANK_LOC = 8;
 	
+	private static final String FINAL_DISPLAY_RANK = "END";
 	private static final AttributeFactories INSTANCE = new AttributeFactories();
 	
  	private final AttributeFactory<Integer> INTEGER_FACTORY;
@@ -36,18 +37,18 @@ final class AttributeFactories {
 	private final AttributeFactory<ExperienceGroup> EXPERIENCE_GROUP_FACTORY;
 	private final AttributeFactory<List<?>> LIST_FACTORY;
 	
-	private final Map<String, AttributeFactory<?>> factoryMapByName ;
+	private final Map<String, AttributeFactory<?>> factoryMapByParseType;
+	private final Map<String, AttributeFactory<?>> factoryMapByNameOfAttributeTemplate;
 	private final List<AttributeFactory<?>> factoryList;
-	private final Map<String, Attribute<?>> allAttributeTemplates;
 	private AttributeFactories() {
-		factoryMapByName = new HashMap<String, AttributeFactory<?>>();
+		factoryMapByParseType = new HashMap<String, AttributeFactory<?>>();
 		factoryList = new ArrayList<AttributeFactory<?>>();
-		allAttributeTemplates = new HashMap<String, Attribute<?>>();
+		factoryMapByNameOfAttributeTemplate = new HashMap<String, AttributeFactory<?>>();
 		
 		INTEGER_FACTORY = new AttributeFactory<Integer>(ParseType.INTEGER, x -> x >= 0);
 		DOUBLE_FACTORY = new AttributeFactory<Double>(ParseType.DOUBLE, x -> x >= 0);
 		STRING_FACTORY = new AttributeFactory<String>(ParseType.STRING);
-		BOOLEAN_FACTORY = new AttributeFactory<Boolean>(ParseType.BOOLEAN);
+		BOOLEAN_FACTORY = new AttributeFactory<Boolean>(ParseType.BOOLEAN, x -> x);
 		POKEMON_TYPES_FACTORY = new AttributeFactory<PokemonTypeSet>(ParseType.POKEMON_TYPES);
 		EXPERIENCE_GROUP_FACTORY = new AttributeFactory<ExperienceGroup>(ParseType.EXPERIENCE_GROUP);
 		LIST_FACTORY = new AttributeFactory<List<?>>(ParseType.LIST);
@@ -70,14 +71,14 @@ final class AttributeFactories {
 		}
 		for (final String[] values : output) {
 			final String name = values[NAME_LOC];
-			factoryMapByName.get(values[TYPE_LOC].trim().toLowerCase()).createNewReadableAttributeTemplate(name, values);
+			factoryMapByParseType.get(values[TYPE_LOC].trim().toLowerCase()).createNewAttributeTemplate(name, values);
 		}
 	}
 	List<AttributeFactory<?>> getFactoryList() {
 		return factoryList;
 	}
 	AttributeFactory<?> getCreatorFactory(final String attributeName) {
-		return allAttributeTemplates.get(attributeName).getCreatorFactory();
+		return factoryMapByNameOfAttributeTemplate.get(attributeName);
 	}
 	final class AttributeFactory<T> {
 		private final ParseType<T> parseType;
@@ -87,7 +88,7 @@ final class AttributeFactories {
 		private AttributeFactory(final ParseType<T> parseType) {
 			this.parseType = parseType;
 			parseType.setAssociatedFactory(this);
-			factoryMapByName.put(parseType.getAssociatedEnum().toString().toLowerCase(), this);
+			factoryMapByParseType.put(parseType.getAssociatedEnum().toString().toLowerCase(), this);
 			factoryList.add(this);
 		}	
 		private AttributeFactory(final ParseType<T> parseType, final SerializableFunction<T, Boolean> isPositive) {
@@ -116,14 +117,30 @@ final class AttributeFactories {
 		ParseType<T> getParseType() {
 			return parseType;
 		}
-		private void createNewReadableAttributeTemplate(final String name, final String[] values) {
-			final ReadableAttribute<T> attribute = new ReadableAttribute<T>(this);
-			addBasicAttributeDetails(values, attribute);
-			addReadableAttributeDetails(values, attribute);
+		private void createNewAttributeTemplate(final String name, final String[] values) {
+			final Attribute<T> attribute;
+			if (values[IS_READABLE_LOC].equalsIgnoreCase("yes")) {
+				attribute = generateReadableAttribute(values);
+			}
+			else {
+				attribute = generateBasicAttribute(values);
+			}
 			attributeTemplates.put(name, attribute);
-			allAttributeTemplates.put(name, attribute);
+			factoryMapByNameOfAttributeTemplate.put(name, this);
+			System.out.println("NEW: " + attribute);
 		}
 		
+		private Attribute<T> generateBasicAttribute(final String[] values) {
+			final Attribute<T> attribute = new Attribute<T>(parseType);
+			addBasicAttributeDetails(values, attribute);
+			return attribute;
+		}
+		private ReadableAttribute<T> generateReadableAttribute(final String[] values) {
+			final ReadableAttribute<T> attribute = new ReadableAttribute<T>(parseType);
+			addBasicAttributeDetails(values, attribute);
+			addReadableAttributeDetails(values, attribute);
+			return attribute;
+		}
 		private void addBasicAttributeDetails(final String[] values, final Attribute<T> attribute) {
 			attribute.setDefaultValue(AttributeValueParser.getInstance().parseValue(values[DEF_VAL_LOC], parseType));
 			attribute.setIsPositiveFunction(isPositive);
@@ -132,10 +149,6 @@ final class AttributeFactories {
 			}
 			else {
 				attribute.setAttributeTypeSet(AttributeValueParser.getInstance().parseAttributeTypeSet(values[ATTRIBUTE_TYPES_LOC], ATTRIBUTE_TYPES_DELIM));
-			}
-			
-			if (arrayContainsValue(values, IGNORE_VALUE_LOC)) {
-				attribute.setIgnoreValue(AttributeValueParser.getInstance().parseValue(values[IGNORE_VALUE_LOC], parseType));
 			}
 		}
 		private void addReadableAttributeDetails(final String[] values, final ReadableAttribute<T> attribute) {
@@ -146,19 +159,26 @@ final class AttributeFactories {
 			attribute.setDisplayName(values[DISPLAY_NAME_LOC]);
 			
 			if (arrayContainsValue(values, DISPLAY_RANK_LOC)) {
-				attribute.setDisplayRank(Integer.parseInt(values[DISPLAY_RANK_LOC]));
+				final Integer displayRank = values[DISPLAY_RANK_LOC].equals(FINAL_DISPLAY_RANK) ? Integer.MAX_VALUE : Integer.parseInt(values[DISPLAY_RANK_LOC]);
+				attribute.setDisplayRank(displayRank);
 			}
 			
-			attribute.setIsVisible(values[IS_VISIBLE_LOC].equalsIgnoreCase("yes"));
+			if (arrayContainsValue(values, IGNORE_VALUE_LOC)) {
+				attribute.setIgnoreValue(AttributeValueParser.getInstance().parseValue(values[IGNORE_VALUE_LOC], parseType));
+			}
+			setDisplayFormat(attribute);
+			
+		}
+		private void setDisplayFormat(final ReadableAttribute<T> attribute) {
 			switch(parseType.getAssociatedEnum()) {
-				case BOOLEAN:
-					attribute.setDisplayFormat(s -> s.equalsIgnoreCase("true") ? "yes" : "no");
-					break;
-				case POKEMON_TYPES:
-					attribute.setDisplayFormat(s -> GameUtils.toTitleCase(s.replace("[", "").replace("]", "").toLowerCase()));
-					break;
-				default:
-					break;
+			case BOOLEAN:
+				attribute.setDisplayFormat(s -> s.equalsIgnoreCase("true") ? "yes" : "no");
+				break;
+			case POKEMON_TYPES:
+				attribute.setDisplayFormat(s -> GameUtils.toTitleCase(s.replace("[", "").replace("]", "").toLowerCase()));
+				break;
+			default:
+				break;
 			}
 		}
 		@Override

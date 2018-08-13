@@ -9,6 +9,8 @@ public class PokemonTypeSet extends EnumSetHolder<PokemonType>{
 	public PokemonTypeSet() {};
 	public PokemonTypeSet(final String...types) {
 		for (final String type : types) {
+			if(type.isEmpty())
+				continue;
 			addValue(PokemonType.valueOf(type.trim().toUpperCase()));
 		}
 	}

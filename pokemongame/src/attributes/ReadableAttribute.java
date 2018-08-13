@@ -2,7 +2,6 @@ package attributes;
 
 import java.util.EnumSet;
 
-import attributes.AttributeFactories.AttributeFactory;
 import gui.guiutils.GuiUtils;
 import interfaces.SerializableFunction;
 
@@ -16,12 +15,17 @@ class ReadableAttribute<T> extends Attribute<T> {
 	 * An extra string that can be added on at the end of this toString's method
 	 */
 	private String extraDescription = "";
-	public ReadableAttribute(final AttributeFactory<T> creator) {
-		super(creator);
+	/**
+	 * The value at which if the input value to generateAttribute has this value, it should not be printed
+	 * (Will not stop you from setting it however) (e.g. -1 for an attribute that should always be >=0)
+	 */
+	private  T objectToIgnoreValueAt = null;
+	public ReadableAttribute(final ParseType<T> parseType) {
+		super(parseType);
 		settings = EnumSet.noneOf(Setting.class);
 	}
-	public ReadableAttribute(final AttributeFactory<T> creator, final String displayName) {
-		this(creator);
+	public ReadableAttribute(final ParseType<T> parseType, final String displayName) {
+		this(parseType);
 		this.displayName = displayName;
 	}
 	protected ReadableAttribute(final ReadableAttribute<T> attribute) {
@@ -41,9 +45,10 @@ class ReadableAttribute<T> extends Attribute<T> {
 			sb.append(": ");
 		sb.append(getFormattedValue());
 		return sb.toString();
-		//return getValue() + " " + extraDescription;
 	}
 	private String getFormattedValue() {
+		if (getValue() == null)
+			return "";
 		final StringBuilder sb = new StringBuilder();
 		if (settings.contains(Setting.ITALICS));
 			sb.append("<i>");
@@ -52,7 +57,7 @@ class ReadableAttribute<T> extends Attribute<T> {
 		}
 		sb.append(formatDisplay.apply(getValue().toString()));
 		
-		if (settings.contains(Setting.DISPLAY_OUT_OF_10))
+		if (settings.contains(Setting.OUT_OF_TEN))
 			sb.append("/10");
 		if (settings.contains(Setting.COLOR_BASED_ON_SIGN))
 			sb.append("</font>");
@@ -74,8 +79,9 @@ class ReadableAttribute<T> extends Attribute<T> {
 			throw new IllegalStateException("Visible Readable Attribute Must have valid displayRank (>=0), instead has: " + displayRank);
 		}
 	}
-	public boolean isVisible() {
-		return isVisible;
+	@Override
+	public boolean shouldDisplay() {
+		return isVisible && !getValue().equals(objectToIgnoreValueAt);
 	}
 	public void parseAndSetSettings(final String settings, final String delimeter) {
 		final String[] settingsList = settings.split(delimeter);
@@ -88,6 +94,9 @@ class ReadableAttribute<T> extends Attribute<T> {
 	}
 	public void setDisplayRank(final int displayRank) {
 		this.displayRank = displayRank;
+	}
+	void setIgnoreValue(final T ignoreValue) {
+		this.objectToIgnoreValueAt = ignoreValue;
 	}
 	public enum Setting {
 		/**
@@ -105,7 +114,7 @@ class ReadableAttribute<T> extends Attribute<T> {
 		/**
 		 * If the attribute should be displayed out of 10
 		 */
-		DISPLAY_OUT_OF_10;
+		OUT_OF_TEN;
 	}
 	@Override
 	Attribute<T> makeCopy() {

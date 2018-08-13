@@ -2,22 +2,17 @@ package attributes;
 
 import java.io.Serializable;
 
-import attributes.AttributeFactories.AttributeFactory;
 import interfaces.SerializableFunction;
-public abstract class Attribute<T> implements Serializable {
+public class Attribute<T> implements Serializable {
 	private T value;
 	private  T defaultValue;
 	private AttributeCharacteristicSet atttributeCharacteristicSet;
-	private final AttributeFactory<T> creator;
+	private final ParseType<T> parseType;
 	private SerializableFunction<T, Boolean> isPositive;
-	/**
-	 * The value at which if the input value to generateAttribute has this value, the attribute class reccomends you ignore the value
-	 * (Will not stop you from setting it however) (e.g. -1 for an attribute that should always be >=0)
-	 */
-	private  T objectToIgnoreValueAt = null;
-	Attribute(final AttributeFactory<T> creator) {this.creator = creator;}
+	
+	Attribute(final ParseType<T> parseType) {this.parseType = parseType;}
 	protected Attribute(final Attribute<T> at) {
-		this(at.creator);
+		this(at.parseType);
 		setValue(at.value);
 		setDefaultValue(at.defaultValue);
 		setAttributeTypeSet(at.atttributeCharacteristicSet.makeCopy());
@@ -27,7 +22,7 @@ public abstract class Attribute<T> implements Serializable {
 		this.value = value;
 	}
 	public void setValueParse(final String value) {
-		this.value = AttributeValueParser.getInstance().parseValue(value, creator.getParseType());
+		this.value = AttributeValueParser.getInstance().parseValue(value, parseType);
 	}
 	public T getValue() {
 		return value;
@@ -39,24 +34,22 @@ public abstract class Attribute<T> implements Serializable {
 	void setAttributeTypeSet(final AttributeCharacteristicSet atTypes) {
 		this.atttributeCharacteristicSet = atTypes;
 	}
-	void setIgnoreValue(final T ignoreValue) {
-		this.objectToIgnoreValueAt = ignoreValue;
+	
+	Attribute<T> makeCopy() {
+		return new Attribute<T>(this);
 	}
-	abstract Attribute<T> makeCopy();
-	AttributeFactory<T> getCreatorFactory() {
-		return creator;
-	}
-	public boolean shouldIgnore() {
-		return getValue().equals(objectToIgnoreValueAt);
-	}
+	
 	@Override
 	public String toString() {
-		return "Attribute Created by: " + creator + ". [value: " + value + ", defaultvalue: " + defaultValue + ", attributeCharacteristics: " + atttributeCharacteristicSet + ", ignoreValue: " + objectToIgnoreValueAt;
+		return "Attribute Of Parse Type: " + parseType + ". [value: " + value + ", defaultvalue: " + defaultValue + ", attributeCharacteristics: " + atttributeCharacteristicSet + "]";
 	}
 	public boolean isPositive() {
 		if (isPositive == null)
 			return false;
 		return isPositive.apply(getValue());
+	}
+	public boolean shouldDisplay() {
+		return false;
 	}
 	void setIsPositiveFunction(final SerializableFunction<T, Boolean> isPositive) {
 		this.isPositive = isPositive;
