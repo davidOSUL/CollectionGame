@@ -2,6 +2,8 @@ package attributes;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,6 +115,9 @@ final class AttributeFactories {
 				throw new AttributeNotFoundException(name + " is a valid attribute, however it has not been generated for this manager (" + manager + ")");
 			}
 			return associatedAttributeManagers.get(manager).get(name);
+		}
+		Collection<Attribute<T>> getAllAttributesForManager(final AttributeManager manager) {
+			return Collections.unmodifiableCollection(associatedAttributeManagers.get(manager).values());
 		}
 		ParseType<T> getParseType() {
 			return parseType;

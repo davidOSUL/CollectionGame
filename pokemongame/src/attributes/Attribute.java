@@ -51,6 +51,9 @@ public class Attribute<T> implements Serializable {
 	public boolean shouldDisplay() {
 		return false;
 	}
+	public boolean hasCharacteristic(final AttributeCharacteristic characteristic) {
+		return atttributeCharacteristicSet.containsValue(characteristic);
+	}
 	void setIsPositiveFunction(final SerializableFunction<T, Boolean> isPositive) {
 		this.isPositive = isPositive;
 	}

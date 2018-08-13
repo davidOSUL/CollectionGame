@@ -1,5 +1,8 @@
 package attributes;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import attributes.AttributeFactories.AttributeFactory;
 
 public final class AttributeManager {
@@ -41,5 +44,23 @@ public final class AttributeManager {
 		for (int i = 0; i < names.length; i++) {
 			generateAttribute(names[i], values[i]);
 		}
+	}
+	public <T> Set<Attribute<T>> getAttributesOfCharacteristic(final AttributeCharacteristic characteristic, final ParseType<T> type) {
+		final Set<Attribute<T>> validAttributes = new HashSet<Attribute<T>>();
+		type.getAssociatedFactory().getAllAttributesForManager(this).forEach(at -> {
+			if (at.hasCharacteristic(characteristic))
+				validAttributes.add(at);
+		});
+		return validAttributes;
+	}
+	public Set<Attribute<?>> getAttributesOfCharacteristic(final AttributeCharacteristic characteristic) {
+		final Set<Attribute<?>> validAttributes = new HashSet<Attribute<?>>();
+		AttributeFactories.getInstance().getFactoryList().forEach(factory -> {
+			factory.getAllAttributesForManager(this).forEach(at -> {
+				if (at.hasCharacteristic(characteristic))
+					validAttributes.add(at);
+			});
+		});
+		return validAttributes;
 	}
 }
