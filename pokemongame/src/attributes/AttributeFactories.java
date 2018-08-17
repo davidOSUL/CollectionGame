@@ -121,10 +121,20 @@ final class AttributeFactories {
 		Attribute<T> generateAttributeForManager(final AttributeManager manager, final String name) {
 			throwIfInvalidTemplate(name);
 			final Attribute<T> attribute = attributeTemplates.get(name).makeCopy();
+			if (associatedAttributeManagers.get(manager).containsKey(name))
+				throw new IllegalArgumentException(name + "attribute already exists for manager:" + manager);
 			associatedAttributeManagers.get(manager).put(name, attribute);
 			attributeWatchers.get(manager).forEach(amw -> amw.onAttributeGenerated(attribute));
 			return attribute;
-			
+		}
+		Attribute<T> generateAttributeForManager(final AttributeManager manager, final String name, final T value) {
+			throwIfInvalidTemplate(name);
+			final Attribute<T> attribute = attributeTemplates.get(name).makeCopy();
+			if (associatedAttributeManagers.get(manager).containsKey(name))
+				throw new IllegalArgumentException(name + "attribute already exists for manager:" + manager);
+			associatedAttributeManagers.get(manager).put(name, attribute);
+			attributeWatchers.get(manager).forEach(amw -> amw.onAttributeGenerated(attribute));
+			return attribute;
 		}
 		Attribute<T> getAttributeForManager(final AttributeManager manager, final String name) {
 			throwIfInvalidTemplate(name);

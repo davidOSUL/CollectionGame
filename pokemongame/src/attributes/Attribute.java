@@ -77,6 +77,9 @@ public class Attribute<T> implements Serializable {
 	public void setExtraDescription(final String extraDescription) {
 		this.extraDescription = extraDescription;
 	}
+	boolean valEqualsParse(final String value) {
+		return AttributeValueParser.getInstance().parseValue(value, parseType).equals(getValue());
+	}
 }
 //private enum ValidAttributes {
 //

@@ -1,21 +1,8 @@
 package game;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Scanner;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-import effects.GlobalPokemonModifierEvent;
-import modifiers.Modifier;
-import thingFramework.Attribute;
-import thingFramework.Item;
-import thingFramework.Pokemon;
-
 public class BoardModifierTest {
 	public static void main(final String ...strings) {
-		final Board b = new Board();
+		/*final Board b = new Board();
 		final Modifier<Pokemon> mod = new Modifier<Pokemon>(60000, p -> p.addToIntegerAttribute("gpm", 300, false), p-> p.addToIntegerAttribute("gpm", -300, true));
 		final Modifier<Pokemon> mod2 = new Modifier<Pokemon>(20000, p -> p.addToIntegerAttribute("popularity boost", 100, false), p-> p.addToIntegerAttribute("popularity boost", -100, true));
 		final GlobalPokemonModifierEvent<Item> event1 = new GlobalPokemonModifierEvent<Item>(mod, true, true);
@@ -102,6 +89,6 @@ public class BoardModifierTest {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
+		}*/
 	}
 }

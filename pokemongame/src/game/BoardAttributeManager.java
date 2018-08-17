@@ -93,7 +93,7 @@ public final class BoardAttributeManager implements AttributeManagerWatcher<Inte
 	
 	@Override
 	public void onAttributeGenerated(final Attribute<Integer> addedAttribute) {
-		final Event e = eventBuilder(addedAttribute.getName(), addedAttribute.getValue());
+		final Event e = eventBuilder(addedAttribute.getName(), addedAttribute.getValue() == null ? 0 : addedAttribute.getValue());
 		if (e != null) {
 			holder.addToEventList(e);
 			addedEvents.put(addedAttribute, e);

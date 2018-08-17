@@ -75,10 +75,18 @@ public final class AttributeManager {
 	}
 	public void generateAttributes(final String[] names, final String[] values) {
 		if (names.length != values.length)
-			throw new Error("names and values must have same length");
+			throw new IllegalArgumentException("names and values must have same length");
 		final Attribute[] attributes = new Attribute[names.length];
 		for (int i = 0; i < names.length; i++) {
 			generateAttribute(names[i], values[i]);
+		}
+	}
+	public <T> void generateAttributes(final String[] names, final T[] values, final ParseType<T> type) {
+		if (names.length != values.length)
+			throw new IllegalArgumentException("names and values must have same length");
+		final Attribute[] attributes = new Attribute[names.length];
+		for (int i = 0; i < names.length; i++) {
+			generateAttribute(names[i], values[i], type);
 		}
 	}
 	public <T> Set<Attribute<T>> getAttributesOfCharacteristic(final AttributeCharacteristic characteristic, final ParseType<T> type) {
@@ -105,7 +113,7 @@ public final class AttributeManager {
 	private AttributeFactory<?> getCreator(final String attributeName) {
 		final AttributeFactory<?> creator = AttributeFactories.getInstance().getCreatorFactory(attributeName);
 		if (creator == null)
-			throw new IllegalArgumentException("Invalid attribute name");
+			throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
 		return creator;
 	}
 	private Set<Attribute<?>> getAllAttributesInOrder() {
@@ -140,5 +148,7 @@ public final class AttributeManager {
 		getCreator(attributeName).getAttributeForManager(this, attributeName).setExtraDescription(extraDescription);
 		updateDescription();
 	}
-	
+	public boolean attributeValueEqualsParse(final String attributeName, final String value) {
+		return getCreator(attributeName).getAttributeForManager(this, attributeName).valEqualsParse(value);
+	}
 }

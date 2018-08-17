@@ -138,8 +138,17 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	public final <T> void addAttribute(final String attributeName, final T value, final ParseType<T> type) {
 		attributes.generateAttribute(attributeName, value, type);
 	}
+	public final void addAttribute(final String attributeName, final String value) {
+		attributes.generateAttribute(attributeName, value);
+	}
+	public final <T> void addAttributes(final String[] attributeNames, final T[] values, final ParseType<T> type) {
+		attributes.generateAttributes(attributeNames, values, type);
+	}
 	public final void removeAttribute(final String attributeName) {
 		attributes.removeAttribute(attributeName);
+	}
+	public final boolean attributeValueEqualsParse(final String attributeName, final String value) {
+		return attributes.attributeValueEqualsParse(attributeName, value);
 	}
 	@Override
 	public void confirmEventRemovals(final Collection<Event> events) {
@@ -152,7 +161,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 			
 		});
 	}
-	public final <T> void setAttributeVal(final String name, final T value, final ParseType<T> type) {
+	public final <T> void setAttributeValue(final String name, final T value, final ParseType<T> type) {
 		attributes.setAttributeValue(name, value, type);
 	}
 	/**
@@ -215,7 +224,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	 */
 	public final <T> void mergeAttribute(final String name, final T value, final BiFunction<? super T,? super T,? extends T> func, final ParseType<T> type) {
 		if (containsAttribute(name))
-			setAttributeVal(name, func.apply(getAttributeValue(name, type), value), type);
+			setAttributeValue(name, func.apply(getAttributeValue(name, type), value), type);
 		else
 			addAttribute(name, value, type);
 	}

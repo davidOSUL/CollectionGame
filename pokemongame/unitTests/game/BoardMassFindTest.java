@@ -1,10 +1,11 @@
 package game;
 
+import attributes.ParseType;
 import thingFramework.Pokemon;
 
 public class BoardMassFindTest {
 
-	public static void main (String...strings) {
+	public static void main (final String...strings) {
 		/*Board b = new Board();
 		for (int i =0; i < 100000; i++) {
 			b.lookForPokemon(true);
@@ -12,12 +13,12 @@ public class BoardMassFindTest {
 				b.addThing(b.grabAndConfirm());
 		}
 		System.out.println("hi");*/
-		Board b = new Board();
+		final Board b = new Board();
 		int popVal = 0;
 		b.update();
 		try {
 			Thread.sleep(20);
-		} catch (InterruptedException e1) {
+		} catch (final InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
@@ -29,7 +30,7 @@ public class BoardMassFindTest {
 			p = b.grabWildPokemon();
 			}
 			b.confirmGrab();
-			popVal+= (Integer) p.getAttributeVal("popularity boost");
+			popVal+= p.getAttributeValue("popularity boost", ParseType.INTEGER);
 			System.out.println(popVal);
 			b.addThing(p);
 			b.update();
@@ -37,7 +38,7 @@ public class BoardMassFindTest {
 				System.out.println("WHAT");
 			try {
 				Thread.sleep(10);
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

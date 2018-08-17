@@ -10,9 +10,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import attributes.AttributeNotFoundException;
+import attributes.ParseType;
 import gameutils.GameUtils;
 import loaders.eventbuilder.EventBuilder;
-import thingFramework.Attribute;
 import thingFramework.Item;
 import thingFramework.Pokemon;
 import thingFramework.Thing;
@@ -149,7 +149,7 @@ public final class ThingLoader {
 			final String attribute = values[i];
 			final String value = values[i+1];
 			if (thingMap.containsKey(name))
-				thingMap.get(name).addAttribute(Attribute.generateAttribute(attribute, value));
+				thingMap.get(name).addAttribute(attribute, value);
 		}
 	}
 	private void loadAttributesForAllOthers(final String[] values, final ThingType civ, final Set<String> visitedNames) {
@@ -161,16 +161,16 @@ public final class ThingLoader {
 			case POKEMON:
 				for (final Pokemon p: pokemonSet) 
 					if (!visitedNames.contains(p.getName()))
-						p.addAttribute(Attribute.generateAttribute(attribute, value));
+						p.addAttribute(attribute, value);
 				break;
 			case ITEM:
 				for (final Item item: itemSet)
 					if (!visitedNames.contains(item.getName()))
-						item.addAttribute(Attribute.generateAttribute(attribute, value));
+						item.addAttribute(attribute, value);
 				break;
 			}
 			if (thingMap.containsKey(name))
-				thingMap.get(name).addAttribute(Attribute.generateAttribute(attribute, value));
+				thingMap.get(name).addAttribute(attribute, value);
 		}
 	}
 	
@@ -204,8 +204,8 @@ public final class ThingLoader {
 	private void loadPokemon(final String[] values) {
 		final String name = values[1];
 		final String texture = POKE_SPRITE_LOC + values[2];
-		final Set<Attribute> attributes = loadAttributes(values, 3, name);
-		final Pokemon pm = new Pokemon(name, texture, attributes);
+		final Pokemon pm = new Pokemon(name, texture);
+		loadAttributes(values, 3, name, pm);
 		thingMap.put(name, pm);
 		pokemonMap.put(name, pm);
 		
@@ -213,35 +213,32 @@ public final class ThingLoader {
 	private void loadItem(final String[] values) {
 			final String name = values[1];
 			final String texture = ITEM_SPRITE_LOC + values[2];
-			final Set<Attribute> attributes = loadAttributes(values, 3, name);
-			final Item i = new Item(name, texture, attributes);
+			final Item i = new Item(name, texture);
+			loadAttributes(values, 3, name, i);
 			thingMap.put(name, i);
 			itemMap.put(name, i);
 	}
 	
-	private Set<Attribute> loadAttributes(final String[] values, final int startLocation, final String name) {
-		final Set<Attribute> attributes = new HashSet<Attribute>();
+	private void loadAttributes(final String[] values, final int startLocation, final String name, final Thing thing) {
 		final Set<String> attributeNames = new HashSet<String>();
 		for (int i = startLocation; i < values.length; i++) {
 			final String atr = values[i];
 			if (atr.equals("")) 
 				continue;
 			final String[] nameValuePair = atr.split(":");
-			
 			if (attributeNames.contains(nameValuePair[0]))
 				throw new Error("DUPLICATE ATTRIBUTE: " + nameValuePair[0] + "FOR: " + name);
 			else
 				attributeNames.add(nameValuePair[0]);
 			if (nameValuePair[0].equals(GEN_CODE)) //if we want to generate random attributes
 				pokemonToGenerateAttributesFor.add(name);
-			else if (nameValuePair.length == 2) 
-				attributes.add(Attribute.generateAttribute(nameValuePair[0], nameValuePair[1]));
-			else if (nameValuePair.length == 1) 
-				attributes.add(Attribute.generateAttribute(nameValuePair[0]));
+			else if (nameValuePair.length == 2)  //have a name and a value
+				thing.addAttribute(nameValuePair[0], nameValuePair[1]);
+			else if (nameValuePair.length == 1) //just a name 
+				thing.addAttribute(nameValuePair[0]);
 			else
 				throw new Error("WRONG NUMBER OF ATTRIBUTE INFO : " + Arrays.toString(nameValuePair) + "FOR: " + name);
 		}
-		return attributes;
 	}
 	public String getThingDescription(final String thingName) {
 		return thingMap.get(thingName).toString();
@@ -351,22 +348,16 @@ public final class ThingLoader {
 	 * @param attributeName the name of the attribute to get the values for
 	 * @return the map from names to attribute value for the provided attribute type
 	 */
-	public final <T> Map<String, T> mapFromSetToAttributeValue(final String attributeName) {
-		return mapFromSetToAttributeValue(attributeName, thingSet);
+	public final <T> Map<String, T> mapFromSetToAttributeValue(final String attributeName, final ParseType<T> type) {
+		return mapFromSetToAttributeValue(attributeName, thingSet, type);
 	}
-	private final <T> Map<String, T> mapFromSetToAttributeValue(final String attributeName, final Set<? extends Thing> setToIterate) {
+	private final <T> Map<String, T> mapFromSetToAttributeValue(final String attributeName, final Set<? extends Thing> setToIterate, final ParseType<T> type) {
 		final Map<String, T> mapping = new HashMap<String, T>();
 		for (final Thing t : setToIterate) {
-			T o = null;
-			try {
-				if (!t.containsAttribute(attributeName))
-					continue;
-				o = (T) t.getAttributeVal(attributeName);
-			} catch (final AttributeNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			mapping.put(t.getName(), o);
+			if (!t.containsAttribute(attributeName))
+				continue;
+			final T value = t.getAttributeValue(attributeName, type);
+			mapping.put(t.getName(), value);
 		}
 		return mapping;
 	}
@@ -376,11 +367,11 @@ public final class ThingLoader {
 	 * @param attributeName the name of the attribute to get the values for
 	 * @return the map from names to attribute value for the provided attribute type
 	 */
-	public final <T> Map<String, T> mapFromSetToAttributeValue(final String attributeName, final ThingType type) {
-		return mapFromSetToAttributeValue(attributeName, getAppropriateSet(type));
+	public final <T> Map<String, T> mapFromSetToAttributeValue(final String attributeName, final ThingType thingType, final ParseType<T> parseType) {
+		return mapFromSetToAttributeValue(attributeName, getAppropriateSet(thingType), parseType);
 	}
-	private final Set<String> getThingsWithAttributeVal(final String attributeName, final Object desiredValue, final Set<? extends Thing> setToIterate) {
-		return mapFromSetToAttributeValue(attributeName, setToIterate).entrySet().stream()
+	private final <T> Set<String> getThingsWithAttributeVal(final String attributeName, final T desiredValue, final Set<? extends Thing> setToIterate, final ParseType<T> parseType) {
+		return mapFromSetToAttributeValue(attributeName, setToIterate, parseType).entrySet().stream()
 				.filter(p -> p.getValue().equals(desiredValue)).
 				collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue())).keySet();
 	}
@@ -390,8 +381,8 @@ public final class ThingLoader {
 	 * @param desiredValue the desired value for the attribute
 	 * @return the set of all things that have that attribute and have the desired value for that attribute
 	 */
-	public final Set<String> getThingsWithAttributeVal(final String attributeName, final Object desiredValue) {
-		return getThingsWithAttributeVal(attributeName, desiredValue, thingSet);
+	public final <T> Set<String> getThingsWithAttributeVal(final String attributeName, final T desiredValue, final ParseType<T> parseType) {
+		return getThingsWithAttributeVal(attributeName, desiredValue, thingSet, parseType);
 	}
 	/**
 	 * Returns the set of things of the given type with the desired attribute value
@@ -399,8 +390,8 @@ public final class ThingLoader {
 	 * @param desiredValue the desired value for the attribute
 	 * @return the set of all things that have that attribute and have the desired value for that attribute
 	 */
-	public final Set<String> getThingsWithAttributeVal(final String attributeName, final Object desiredValue, final ThingType type) {
-		return mapFromSetToAttributeValue(attributeName, getAppropriateSet(type)).entrySet().stream()
+	public final <T> Set<String> getThingsWithAttributeVal(final String attributeName, final T desiredValue, final ThingType type, final ParseType<T> parseType) {
+		return mapFromSetToAttributeValue(attributeName, getAppropriateSet(type), parseType).entrySet().stream()
 				.filter(p -> p.getValue().equals(desiredValue)).
 				collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue())).keySet();
 	}
@@ -445,7 +436,9 @@ public final class ThingLoader {
 			final String level = values[1];
 			if (hasPokemon(name)) {
 				if (!namesLoaded.contains(name)) {
-					getPokemon(name).addAttributes(Attribute.generateAttributes(new String[] {"level of evolution", "has evolution"}, new String[] {level, "true"}));
+					final Pokemon p = getPokemon(name);
+					p.addAttribute("level of evolution", level);
+					p.addAttribute("has evolution", true, ParseType.BOOLEAN);
 					namesLoaded.add(name);
 				}
 			}
@@ -460,30 +453,30 @@ public final class ThingLoader {
 			final boolean hasThird = !thirdPokemon.equals("");
 			String[] secondAsArray = {secondPokemon};
 			try {
-				if (hasSecond && hasPokemon(secondPokemon) && getPokemon(firstPokemon).containsAttribute("has evolution") && (Boolean) getPokemon(firstPokemon).getAttributeVal("has evolution")) {
+				if (hasSecond && hasPokemon(secondPokemon) && getPokemon(firstPokemon).containsAttribute("has evolution") && getPokemon(firstPokemon).getAttributeValue("has evolution", ParseType.BOOLEAN)) {
 					if (secondPokemon.startsWith("\"")) { //if it has multiple second evolutions it will be of form \"Aaa\r\nBbb\r\nCcc\r\n...\" we want to convert to [Aaa, Bbb, Ccc]
 						secondPokemon = secondPokemon.replace("\n", "").replace("\r", "").replace("\"", "");
 						secondAsArray = secondPokemon.split("(?=\\p{Lu})"); //split by uppercase letters
-						getPokemon(firstPokemon).addAttribute(Attribute.generateAttribute("next evolutions", Arrays.toString(secondAsArray)));
+						getPokemon(firstPokemon).addAttribute("next evolutions", Arrays.toString(secondAsArray));
 					} else {
-						getPokemon(firstPokemon).addAttribute(Attribute.generateAttribute("next evolutions", secondPokemon));
+						getPokemon(firstPokemon).addAttribute("next evolutions", secondPokemon);
 					}
 				}
 				if (hasThird && hasPokemon(thirdPokemon)) {
 					int i =0;
 					for (final String secPoke : secondAsArray) {
-						if (getPokemon(secPoke).containsAttribute("has evolution") && (Boolean) getPokemon(secPoke).getAttributeVal("has evolution")) {
+						if (getPokemon(secPoke).containsAttribute("has evolution") && getPokemon(secPoke).getAttributeValue("has evolution", ParseType.BOOLEAN)) {
 							if (thirdPokemon.startsWith("\"")) {
 								thirdPokemon = thirdPokemon.replace("\n", "").replace("\r", "").replace("\"", "");
 								final String[] thirdAsArray = thirdPokemon.split("(?=\\p{Lu})");
 								if (secondAsArray.length == 1)
-									getPokemon(secPoke).addAttribute(Attribute.generateAttribute("next evolutions", Arrays.toString(thirdAsArray)));
+									getPokemon(secPoke).addAttribute("next evolutions", Arrays.toString(thirdAsArray));
 								else if(secondAsArray.length==thirdAsArray.length) 
-									getPokemon(secPoke).addAttribute(Attribute.generateAttribute("next evolutions", thirdAsArray[i++]));
+									getPokemon(secPoke).addAttribute("next evolutions", thirdAsArray[i++]);
 								else
 									throw new Error("SPECIAL CASE NOT ACCOUNTED FOR");
 							} else {
-								getPokemon(secPoke).addAttribute(Attribute.generateAttribute("next evolutions", thirdPokemon));
+								getPokemon(secPoke).addAttribute("next evolutions", thirdPokemon);
 							}
 						}
 					}
@@ -517,11 +510,10 @@ public final class ThingLoader {
 					if (!hasThing(name)) 
 						continue;
 					final String description = values[1].trim();
-					getThing(name).addAttribute(Attribute.generateAttribute("flavor description", description));
+					getThing(name).addAttribute("flavor description", description);
 					//nameToDescription.put(name, description);
 				}	
 				for (final Thing t: getThingSet()) {
-					t.addAttribute(Attribute.generateAttribute("description"));
 					//final StringBuilder descriptionBuilder = new StringBuilder();
 					final String name = t.getName();
 					if (nameToDescription.containsKey(name)) {  
@@ -531,10 +523,9 @@ public final class ThingLoader {
 						//descriptionBuilder.append("\n" + generateStatDescriptions(getPokemon(name)));
 					}
 					if (eb.getEventDescription(name) != null) {
-						getThing(name).addAttribute(Attribute.generateAttribute("event description", eb.getEventDescription(name)));
+						getThing(name).addAttribute("event description", eb.getEventDescription(name));
 						//descriptionBuilder.append("\n" + eb.getEventDescription(name));
 					}
-					getThing(name).updateDescription();
 					//getThing(name).addAttribute(Attribute.generateAttribute("description", descriptionBuilder.toString()));
 				}
 			
@@ -583,15 +574,13 @@ public final class ThingLoader {
 					throw new Error("Pokemon does not have a metric for rarity");
 				int rarity = 0;
 				try {
-					rarity = (int) p.getAttributeVal("rarity");
+					rarity = p.getAttributeValue("rarity", ParseType.INTEGER);
 				} catch (final AttributeNotFoundException e) {
 					e.printStackTrace();
 				}
 				final String[] attributes = {"gpm", "gph", "popularity boost", "happiness"};
-				//TODO: Change code so that I can allow myself to delete the below comment
-				//Yes I know this is pretty fucking stupid that I'm converting it to string only to unconvert it to string again. I immensely regret setting up attributes the way I did, but I don't have the bandwidth to change it.
-				final String[] values = {Integer.toString(calcGPM(rarity)), Integer.toString(calcGPH(rarity)), Integer.toString(calcPopularity(rarity)), Integer.toString(calcHappiness(rarity))};
-				p.addAttributes(Attribute.generateAttributes(attributes, values));
+				final Integer[] values = {calcGPM(rarity), calcGPH(rarity),calcPopularity(rarity), calcHappiness(rarity)};
+				p.addAttributes(attributes, values, ParseType.INTEGER);
 				
 			}
 		}

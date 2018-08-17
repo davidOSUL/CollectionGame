@@ -32,6 +32,7 @@ public final class TypicalEvent {
 		final int lower = eventType.getLower();
 		final int upper = eventType.getUpper();
 		final TypicalEvent te = new TypicalEvent();
+		final String displayAttribute = "temp display";
 		switch (eventType) {
 		case DECRSPAWNPERIOD:
 			final long millis = parseLong(inputs[lower]);
@@ -52,7 +53,7 @@ public final class TypicalEvent {
 			String attributeToAdd = inputs[lower];
 			int amountToAdd =  Integer.parseInt(inputs[lower+1]);
 			long timeToExist = parseLong(inputs[lower+2]);
-			String displayAttribute = Attribute.generateAttribute(attributeToAdd, Integer.toString(amountToAdd)).toReverseString();
+			//String displayAttribute = Attribute.generateAttribute(attributeToAdd, Integer.toString(amountToAdd)).toReverseString();
 			te.he = generateIntegerAddToAllPokemonEvent(attributeToAdd, amountToAdd, timeToExist, Boolean.parseBoolean(inputs[lower+3]), Boolean.parseBoolean(inputs[lower+4]));
 			te.description = eventType.getDescription(getTimeDisplayDescription(timeToExist), displayAttribute);
 			break;
@@ -61,7 +62,7 @@ public final class TypicalEvent {
 			timeToExist = parseLong(inputs[lower+4]);
 			String verbalDescription = inputs[upper];
 			attributeToAdd = inputs[lower+2];
-			displayAttribute = Attribute.generateAttribute(attributeToAdd, Integer.toString(amountToAdd)).toReverseString();
+			//displayAttribute = Attribute.generateAttribute(attributeToAdd, Integer.toString(amountToAdd)).toReverseString();
 			te.he = generateIntegerAddToAllOfPokemonCategoryEvent(inputs[lower], inputs[lower+1], attributeToAdd, amountToAdd, timeToExist, Boolean.parseBoolean(inputs[lower+5]), Boolean.parseBoolean(inputs[lower+6]));
 			te.description = eventType.getDescription(getTimeDisplayDescription(timeToExist), verbalDescription,  displayAttribute);
 			break;
@@ -69,7 +70,7 @@ public final class TypicalEvent {
 			String attributeToMultiply = inputs[lower];
 			int amountToMultiply =  Integer.parseInt(inputs[lower+1]);
 			timeToExist = parseLong(inputs[lower+2]);
-			displayAttribute = Attribute.generateAttribute(attributeToMultiply, Integer.toString(amountToMultiply)).toReverseString('x');
+			//displayAttribute = Attribute.generateAttribute(attributeToMultiply, Integer.toString(amountToMultiply)).toReverseString('x');
 			te.he = generateIntegerMultiplyToAllPokemonEvent(attributeToMultiply, amountToMultiply, timeToExist, Boolean.parseBoolean(inputs[lower+3]), Boolean.parseBoolean(inputs[lower+4]));
 			te.description = eventType.getDescription(getTimeDisplayDescription(timeToExist), displayAttribute);
 			break;
@@ -78,7 +79,7 @@ public final class TypicalEvent {
 			timeToExist = parseLong(inputs[lower+4]);
 			verbalDescription = inputs[upper];
 			attributeToMultiply = inputs[lower+2];
-			displayAttribute = Attribute.generateAttribute(attributeToMultiply, Integer.toString(amountToMultiply)).toReverseString('x');
+			//displayAttribute = Attribute.generateAttribute(attributeToMultiply, Integer.toString(amountToMultiply)).toReverseString('x');
 			te.he = generateIntegerMultiplyToAllPokemonOfCategoryEvent(inputs[lower], inputs[lower+1], attributeToMultiply, amountToMultiply, timeToExist, Boolean.parseBoolean(inputs[lower+5]), Boolean.parseBoolean(inputs[lower+6]));
 			te.description = eventType.getDescription(getTimeDisplayDescription(timeToExist), verbalDescription, displayAttribute);
 			break;
@@ -147,7 +148,7 @@ public final class TypicalEvent {
 	private static HeldEvent<Thing> generateIntegerAddToAllOfPokemonCategoryEvent(final String categoryAttributeName, final String categoryAttributeValue, final String attributeToAdd, final int amountToAdd, final long lifetimeInMillis, final boolean removeWhenDone, final boolean displayCountdown) {
 		final SerializablePredicate<Pokemon> shouldModify = p -> {
 			return p.containsAttribute(categoryAttributeName) &&
-					p.getAttribute(categoryAttributeName).valEqualsParse(categoryAttributeValue);
+					p.attributeValueEqualsParse(categoryAttributeName, categoryAttributeValue);
 		};
 		final List<SerializableConsumer<Pokemon>> mods = getAddToIntModifiers(attributeToAdd, amountToAdd);
 		final Modifier<Pokemon> m = new Modifier<Pokemon>(lifetimeInMillis, shouldModify, mods.get(0), mods.get(1));
@@ -212,7 +213,8 @@ public final class TypicalEvent {
 	private static HeldEvent<Thing> generateIntegerMultiplyToAllPokemonOfCategoryEvent(final String categoryAttributeName, final String categoryAttributeValue, final String attributeToMultiply, final int amountToMultiply, final long lifetimeInMillis, final boolean removeWhenDone, final boolean displayCountdown) {
 		final SerializablePredicate<Pokemon> shouldModify = p -> {
 			return p.containsAttribute(categoryAttributeName) &&
-					p.getAttribute(categoryAttributeName).valEqualsParse(categoryAttributeValue);
+					p.attributeValueEqualsParse(categoryAttributeName, categoryAttributeValue);
+			//TODO: I want to get rid of val equals parse, so find a way to do this in the context of parsetypes
 		};
 		final List<SerializableConsumer<Pokemon>> mods = getMultiplyToIntModifiers(attributeToMultiply, amountToMultiply);
 		final Modifier<Pokemon> m = new Modifier<Pokemon>(lifetimeInMillis, shouldModify, mods.get(0), mods.get(1));

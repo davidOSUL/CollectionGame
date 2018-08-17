@@ -27,7 +27,7 @@ public abstract class GlobalModifierEvent<M extends Thing, C extends Thing> exte
 		});
 		setOnTick(board -> {
 			if (displayCountdown)
-				getCreator().setAttributeVal("time left", mod.timeLeft(board.getTotalInGameTime()), ParseType.STRING);
+				getCreator().setAttributeValue("time left", mod.timeLeft(board.getTotalInGameTime()), ParseType.STRING);
 			if (!sentRequest && removeCreatorWhenDone && mod.isDone(board.getTotalInGameTime())) {
 				board.addToRemoveRequest(getCreator()); //request to remove the creator. Note that the removal of the modification itself is handled by the board
 				sentRequest = true;

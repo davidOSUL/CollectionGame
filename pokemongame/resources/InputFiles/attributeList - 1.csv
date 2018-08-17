@@ -2,17 +2,17 @@ Name,Type,Default Value,Attribute Types,is Readable?,Display Name,Display Settin
 flavor description,String,,,yes,Info,italics,,0
 gph,Integer,0,Statmod,yes,MONEY_SYMBOL/hour,color_based_on_sign:plus_for_positive,0,1
 gpm,Integer,0,Statmod,yes,MONEY_SYMBOL/minute,color_based_on_sign:plus_for_positive,0,2
-popularity,Integer,0,Statmod,yes,Popularity,color_based_on_sign:plus_for_positive,0,3
-types,Pokemon_Types,,,yes,Types,,,4
+popularity boost,Integer,0,Statmod,yes,Popularity,color_based_on_sign:plus_for_positive,0,3
+type,Pokemon_Types,,,yes,Types,,,4
 happiness,Integer,0,Pokeonly,yes,Happiness,out_of_ten,-1,5
 level,Integer,1,Pokeonly,yes,Level,,-1,6
 rarity10,Integer,1,Pokeonly,yes,Rarity,out_of_ten,-1,7
-legendary?,Boolean,FALSE,Pokeonly,yes,Legendary,color_based_on_sign,FALSE,8
+legendary,Boolean,FALSE,Pokeonly,yes,Legendary,color_based_on_sign,FALSE,8
 event description,String,,,yes,,,,9
 additional description,String,,,yes,,,,END
 time left,String,Infinite,,yes,Time left,,,10
 catch rate,Integer,3,Pokeonly,no,,,,
-rarity10,Integer,1,Pokeonly,no,,,,
+rarity,Integer,1,Pokeonly,no,,,,
 experience group,Experience_Group,slow,Pokeonly,no,,,,
 has evolution,Boolean,FALSE,Pokeonly,no,,,,
 level of evolution,Integer,-1,Pokeonly,no,,,,

@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
 
+import attributes.ParseType;
 import effects.CustomPeriodEvent;
 import effects.Event;
 import effects.Eventful;
@@ -99,12 +100,12 @@ public class Board implements Serializable {
 	 * Map from nonlegendary pokemon names to their RARITY (NOT CHANCE) value
 	 */
 	private static final Map<String, Integer> pokeRarity;
-	private static final Set<String> legendaryPokemon = ThingLoader.sharedInstance().getThingsWithAttributeVal("legendary", true, ThingType.POKEMON);
-	private static final Set<String> nonLegendaryPokemon = ThingLoader.sharedInstance().getThingsWithAttributeVal("legendary", false, ThingType.POKEMON);
+	private static final Set<String> legendaryPokemon = ThingLoader.sharedInstance().getThingsWithAttributeVal("legendary", true, ThingType.POKEMON, ParseType.BOOLEAN);
+	private static final Set<String> nonLegendaryPokemon = ThingLoader.sharedInstance().getThingsWithAttributeVal("legendary", false, ThingType.POKEMON, ParseType.BOOLEAN);
 	private final Set<String> unFoundLegendaries = new HashSet<String>(legendaryPokemon);
 	static {
 		pokeRarity =
-				ThingLoader.sharedInstance().<Integer>mapFromSetToAttributeValue("rarity", ThingType.POKEMON)
+				ThingLoader.sharedInstance().<Integer>mapFromSetToAttributeValue("rarity", ThingType.POKEMON, ParseType.INTEGER)
 					.entrySet().stream().filter(p -> nonLegendaryPokemon.contains(p.getKey()))
 					.collect(Collectors.toMap(p-> p.getKey(), p -> p.getValue()));
 	}
@@ -142,6 +143,13 @@ public class Board implements Serializable {
 		}
 		RUNNING_TOTAL = rt;
 	}
+	
+	/*
+	 * Transient instance variables:
+	 * 
+	 * 
+	 */
+	
 	/**
 	 * The event that checks for pokemon on a certain period based on popularity
 	 * Since it is static, it will be recreated on serialization, meaning it will have a new 
@@ -157,10 +165,10 @@ public class Board implements Serializable {
 	private transient static final Item checkForPokemonThing = Item.generateBlankItemWithEvents(checkForPokemon);
 	
 	/*
-	 * Transient instance variables:
-	 * 
+	 * Non-transient instance variables:
 	 * 
 	 */
+	
 	/**
 	 * This is the currently Grabbed pokemon, it may be placed on the board and removed from foundPokemon or it may be put back
 	 */
@@ -169,10 +177,7 @@ public class Board implements Serializable {
 	 * This is the current ShopItem that may be purchased if the purchase is confirmed or it may be refunded if the purchase is canceled
 	 */
 	private ShopItem grabbedShopItem = null;
-	/*
-	 * Non-transient instance variables
-	 * 
-	 */
+	
 	
 	/**
 	 * The queue of found wild pokemon (pokemon generated from a lookForPokemon() call)
@@ -858,7 +863,7 @@ public class Board implements Serializable {
 	 * whereas calling amountToDecrease(-1000) will make it 61 seconds. 
 	 * @param amountToDecrease in milliseconds
 	 */
-	public void addToPeriodDecrease(long amountToDecreaseMillis) {
+	public void addToPeriodDecrease(final long amountToDecreaseMillis) {
 		periodDecreaseMod += GameUtils.millisAsMinutes(amountToDecreaseMillis);
 	}
 	/**
@@ -866,8 +871,8 @@ public class Board implements Serializable {
 	 * @return the number of pokemon removed this way
 	 */
 	public int removeAllPokemon() {
-		int i = pokemonOnBoard.size();
-		for (Pokemon p : pokemonOnBoard) {
+		final int i = pokemonOnBoard.size();
+		for (final Pokemon p : pokemonOnBoard) {
 			addToRemoveRequest(p);
 		}
 		return i;
