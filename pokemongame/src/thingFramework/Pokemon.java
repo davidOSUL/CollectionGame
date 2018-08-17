@@ -5,8 +5,9 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+import attributes.Attribute;
+import attributes.AttributeCharacteristic;
 import effects.Event;
 import effects.Eventful;
 import game.Board;
@@ -21,26 +22,20 @@ public class Pokemon extends Thing implements Serializable, Eventful, Imagable {
 	 */
 	private static final long serialVersionUID = 1L;
 	private final Collection<Modifier<Pokemon>> pokemonModifiers = new HashSet<Modifier<Pokemon>>(); 
-	public Pokemon(final String name, final String image, final Set<Attribute> attributes) {
-		super(name, image, attributes);
+	public Pokemon(final String name, final String image) {
+		super(name, image);
 		
 	}
-	public Pokemon(final String name, final String image, final Set<Attribute> attributes, final Event ...events) {
-		super(name, image, attributes, GameUtils.toArrayList(events));
+	public Pokemon(final String name, final String image, final Event ...events) {
+		super(name, image, GameUtils.toArrayList(events));
 	}
-	public Pokemon(final String name, final String image, final Set<Attribute> attributes, final List<Event> events) {
-		super(name, image, attributes);
+	public Pokemon(final String name, final String image, final List<Event> events) {
+		super(name, image, events);
 	}
 	public Pokemon(final Pokemon p) {
-		this(p.getName(), p.getImage(), Thing.makeAttributeCopy(p.getAttributes()));
+		super(p);
 	}
 
-	@Override
-	protected
-	boolean vallidateAttributes(final Set<Attribute> attributes) {
-		// TODO Auto-generated method stub
-		return Attribute.validatePokemon(attributes);
-	}
 
 	@Override
 	protected
@@ -73,6 +68,10 @@ public class Pokemon extends Thing implements Serializable, Eventful, Imagable {
 	
 	public boolean removeModifierIfPresent(final Modifier<Pokemon> mod) {
 		return Thing.removeModifierIfPresent(mod, pokemonModifiers, this);
+	}
+	@Override
+	protected boolean validateAttribute(final Attribute<?> attribute) {
+		return !attribute.hasCharacteristic(AttributeCharacteristic.ITEMONLY);
 	}
 
 	

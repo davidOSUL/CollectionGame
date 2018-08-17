@@ -5,8 +5,9 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+import attributes.Attribute;
+import attributes.AttributeCharacteristic;
 import effects.Event;
 import effects.Eventful;
 import game.Board;
@@ -25,23 +26,17 @@ public class Item extends Thing implements Serializable, Eventful, Imagable{
 	private Item(final Event...events) {
 		super(events);
 	}
-	public Item(final String name, final String image, final Set<Attribute> attributes) {
-		super(name, image, attributes);
+	public Item(final String name, final String image) {
+		super(name, image);
 	}
-	public Item(final String name, final String image, final Set<Attribute> attributes, final Event...events ) {
-		super(name, image, attributes, GameUtils.toArrayList(events));
+	public Item(final String name, final String image, final Event ...events) {
+		super(name, image, GameUtils.toArrayList(events));
 	}
-	public Item(final String name, final String image, final Set<Attribute> attributes, final List<Event> events ) {
-		super(name, image, attributes);
+	public Item(final String name, final String image, final List<Event> events) {
+		super(name, image, events);
 	}
 	public Item(final Item i) {
-		this(i.getName(), i.getImage(), Thing.makeAttributeCopy(i.getAttributes()));
-	}
-	@Override
-	protected
-	boolean vallidateAttributes(final Set<Attribute> attributes) {
-		return Attribute.validateItem(attributes);
-	
+		super(i);
 	}
 
 	@Override
@@ -76,6 +71,10 @@ public class Item extends Thing implements Serializable, Eventful, Imagable{
 	
 	public boolean removeModifierIfPresent(final Modifier<Item> mod) {
 		return Thing.removeModifierIfPresent(mod, itemModifiers, this);
+	}
+	@Override
+	protected boolean validateAttribute(final Attribute<?> attribute) {
+		return !attribute.hasCharacteristic(AttributeCharacteristic.POKEONLY);
 	}
 
 

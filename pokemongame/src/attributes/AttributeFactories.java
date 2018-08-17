@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import gameutils.GameUtils;
+import interfaces.SerializableConsumer;
 import interfaces.SerializableFunction;
 import loaders.CSVReader;
 import thingFramework.ExperienceGroup;
@@ -38,7 +39,7 @@ final class AttributeFactories {
 	private final AttributeFactory<PokemonTypeSet> POKEMON_TYPES_FACTORY;
 	private final AttributeFactory<ExperienceGroup> EXPERIENCE_GROUP_FACTORY;
 	private final AttributeFactory<List<?>> LIST_FACTORY;
-	
+
 	private final Map<String, AttributeFactory<?>> factoryMapByParseType;
 	private final Map<String, AttributeFactory<?>> factoryMapByNameOfAttributeTemplate;
 	private final List<AttributeFactory<?>> factoryList;
@@ -54,7 +55,6 @@ final class AttributeFactories {
 		POKEMON_TYPES_FACTORY = new AttributeFactory<PokemonTypeSet>(ParseType.POKEMON_TYPES);
 		EXPERIENCE_GROUP_FACTORY = new AttributeFactory<ExperienceGroup>(ParseType.EXPERIENCE_GROUP);
 		LIST_FACTORY = new AttributeFactory<List<?>>(ParseType.LIST);
-		
 		loadAttributeTemplates();
 	}
 	
@@ -86,6 +86,8 @@ final class AttributeFactories {
 		private final ParseType<T> parseType;
 		private final Map<String, Attribute<T>> attributeTemplates = new HashMap<String, Attribute<T>>();
 		private final Map<AttributeManager, Map<String, Attribute<T>>> associatedAttributeManagers = new HashMap<AttributeManager, Map<String, Attribute<T>>>();
+		private final Map<AttributeManager, SerializableConsumer<Attribute<T>>> doOnGenerations = new HashMap<AttributeManager, SerializableConsumer<Attribute<T>>>();
+		private final Map<AttributeManager, List<AttributeManagerWatcher<T>>> attributeWatchers = new HashMap<AttributeManager, List<AttributeManagerWatcher<T>>>();
 		private SerializableFunction<T, Boolean> isPositive = x -> false;
 		private AttributeFactory(final ParseType<T> parseType) {
 			this.parseType = parseType;
@@ -98,16 +100,31 @@ final class AttributeFactories {
 			this.isPositive = isPositive;
 			
 		}
+		Attribute<T> getAttributeTemplate(final String attributeName) {
+			throwIfInvalidTemplate(attributeName);
+			return attributeTemplates.get(attributeName);
+		}
+		
 		void addNewManager(final AttributeManager manager) {
 			associatedAttributeManagers.put(manager, new HashMap<String, Attribute<T>>());
+			attributeWatchers.put(manager, new ArrayList<AttributeManagerWatcher<T>>());
 		}
-		void generateAttributeForManager(final AttributeManager manager, final String name) {
+		void copyManagerToNewManager(final AttributeManager oldManager, final AttributeManager newManager) {
+			addNewManager(newManager);
+			for (final Map.Entry<String, Attribute<T>> entry : associatedAttributeManagers.get(oldManager).entrySet()) {
+				associatedAttributeManagers.get(newManager).put(entry.getKey(), entry.getValue().makeCopy());
+			}
+		}
+		void addNewWatcherForManager(final AttributeManager manager, final AttributeManagerWatcher<T> watcher) {
+			attributeWatchers.get(manager).add(watcher);
+		}
+		Attribute<T> generateAttributeForManager(final AttributeManager manager, final String name) {
 			throwIfInvalidTemplate(name);
-			associatedAttributeManagers.get(manager).put(name, attributeTemplates.get(name).makeCopy());
-		}
-		private void throwIfInvalidTemplate(final String attributeName) {
-			if (!attributeTemplates.containsKey(attributeName))
-				throw new AttributeNotFoundException(attributeName + "is not a valid attribute");
+			final Attribute<T> attribute = attributeTemplates.get(name).makeCopy();
+			associatedAttributeManagers.get(manager).put(name, attribute);
+			attributeWatchers.get(manager).forEach(amw -> amw.onAttributeGenerated(attribute));
+			return attribute;
+			
 		}
 		Attribute<T> getAttributeForManager(final AttributeManager manager, final String name) {
 			throwIfInvalidTemplate(name);
@@ -116,8 +133,37 @@ final class AttributeFactories {
 			}
 			return associatedAttributeManagers.get(manager).get(name);
 		}
+		void removeAttributeForManager(final AttributeManager manager, final String name) {
+			throwIfInvalidTemplate(name);
+			if (!associatedAttributeManagers.get(manager).containsKey(name)) {
+				throw new AttributeNotFoundException(name + " is a valid attribute, however it has not been generated for this manager (" + manager + ")");
+			}
+			final Attribute<T> removedAttribute = associatedAttributeManagers.get(manager).remove(name);
+			attributeWatchers.get(manager).forEach(amw -> amw.onAttributeRemoved(removedAttribute));
+		}
+		void setAttributeValueForManager(final AttributeManager manager, final String name, final T value) {
+			final Attribute<T> attribute = getAttributeForManager(manager, name);
+			attribute.setValue(value);
+			attributeWatchers.get(manager).forEach(amw -> amw.onAttributeModified(attribute));
+		}
+		void setAttributeValueForManager(final AttributeManager manager, final String name, final String value) {
+			final Attribute<T> attribute = getAttributeForManager(manager, name);
+			attribute.setValueParse(value);
+			attributeWatchers.get(manager).forEach(amw -> amw.onAttributeModified(attribute));
+		}
+		void setDoOnGenerationForManager(final AttributeManager manager, final SerializableConsumer<Attribute<T>> consumer) {
+			doOnGenerations.put(manager, consumer);
+		}
 		Collection<Attribute<T>> getAllAttributesForManager(final AttributeManager manager) {
 			return Collections.unmodifiableCollection(associatedAttributeManagers.get(manager).values());
+		}
+		boolean containsAttributeForManager(final AttributeManager manager, final String name) {
+			return attributeTemplates.containsKey(name) && associatedAttributeManagers.get(manager).containsKey(name);
+		}
+		
+		private void throwIfInvalidTemplate(final String attributeName) {
+			if (!attributeTemplates.containsKey(attributeName))
+				throw new AttributeNotFoundException(attributeName + "is not a valid attribute");
 		}
 		ParseType<T> getParseType() {
 			return parseType;
@@ -130,9 +176,9 @@ final class AttributeFactories {
 			else {
 				attribute = generateBasicAttribute(values);
 			}
+			attribute.setName(name);
 			attributeTemplates.put(name, attribute);
 			factoryMapByNameOfAttributeTemplate.put(name, this);
-			System.out.println("NEW: " + attribute);
 		}
 		
 		private Attribute<T> generateBasicAttribute(final String[] values) {

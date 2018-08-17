@@ -3,6 +3,7 @@ package loaders.eventbuilder;
 import java.util.ArrayList;
 import java.util.List;
 
+import attributes.ParseType;
 import effects.Event;
 import effects.GlobalPokemonModifierEvent;
 import effects.HeldEvent;
@@ -12,7 +13,6 @@ import gui.guiutils.GuiUtils;
 import interfaces.SerializableConsumer;
 import interfaces.SerializablePredicate;
 import modifiers.Modifier;
-import thingFramework.Attribute;
 import thingFramework.Pokemon;
 import thingFramework.Thing;
 
@@ -85,7 +85,7 @@ public final class TypicalEvent {
 		}
 		return te;
 	}
-	private static Event generateDecreaseSpawnRateEvent(long millis) {
+	private static Event generateDecreaseSpawnRateEvent(final long millis) {
 		return new Event(board -> board.addToPeriodDecrease(millis), board -> board.addToPeriodDecrease(-millis));
 	}
 	private static long parseLong(final String myLong) {
@@ -104,7 +104,7 @@ public final class TypicalEvent {
 		}
 		return sb.toString();
 	}
-	private static String getRandomGoldString(int amountOfGold) {
+	private static String getRandomGoldString(final int amountOfGold) {
 		return  GuiUtils.getSignedColorFormat(amountOfGold, '+') + GuiUtils.getMoneySymbol() + amountOfGold + "</font>";
 	}
 	/**
@@ -172,10 +172,10 @@ public final class TypicalEvent {
 	}
 	private static List<SerializableConsumer<Pokemon>> getAddToIntModifiers(final String attributeToAdd, final int amountToAdd) {
 		final SerializableConsumer<Pokemon> modification = p -> {
-			p.addToIntegerAttribute(attributeToAdd, amountToAdd, true);
+			p.modifyOrCreateAttribute(attributeToAdd, x -> x+amountToAdd, x -> x==0, amountToAdd, ParseType.INTEGER);
 		};
 		final SerializableConsumer<Pokemon> reverseModification =  p -> {
-			p.addToIntegerAttribute(attributeToAdd, -amountToAdd, true);
+			p.modifyOrCreateAttribute(attributeToAdd, x -> x - amountToAdd, x -> x == 0, -amountToAdd, ParseType.INTEGER);
 		};
 		final List<SerializableConsumer<Pokemon>> list = new ArrayList<SerializableConsumer<Pokemon>>();
 		list.add(modification);
@@ -220,10 +220,10 @@ public final class TypicalEvent {
 	}
 	private static List<SerializableConsumer<Pokemon>> getMultiplyToIntModifiers(final String attributeToAdd, final int amountToMult) {
 		final SerializableConsumer<Pokemon> modification = p -> {
-			p.multiplyIntegerAttribute(attributeToAdd, amountToMult, true);
+			p.modifyIfContainsAttribute(attributeToAdd, x -> x*amountToMult, x -> x==0, ParseType.INTEGER);
 		};
 		final SerializableConsumer<Pokemon> reverseModification =  p -> {
-			p.divideIntegerAttribute(attributeToAdd, amountToMult, false);
+			p.modifyIfContainsAttribute(attributeToAdd, x-> x / amountToMult, x -> false, ParseType.INTEGER);
 		};
 		final List<SerializableConsumer<Pokemon>> list = new ArrayList<SerializableConsumer<Pokemon>>();
 		list.add(modification);

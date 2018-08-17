@@ -31,8 +31,7 @@ public class OnPeriodEventWithDisplay<C extends Thing> extends ActOnHolderEvent<
 	private static <T extends Thing> SerializableTriConsumer<T, Event, Board> getDoOnTick(final String attributeName) {
 		final SerializableTriConsumer<T, Event, Board> update = (t, e, b) -> {
 			if (t.containsAttribute(attributeName)) { //TODO: less hacky fix
-				t.getAttribute(attributeName).setExtraDescription(" (" + e.getTimeToNextPeriod(b) + ")");
-				t.updateDescription();
+				t.setExtraDescription(attributeName, " (" + e.getTimeToNextPeriod(b) + ")");
 			}
 		};
 		return update;

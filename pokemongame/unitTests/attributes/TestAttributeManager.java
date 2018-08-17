@@ -3,6 +3,7 @@ package attributes;
 public class TestAttributeManager {
 	public static void main(final String[] args) {
 		final AttributeManager manager = new AttributeManager();
+		manager.setDoOnGenerationForType(at -> System.out.println(at.getName() + "created yay"), ParseType.INTEGER);
 		manager.generateAttribute("gph", "5");
 		manager.generateAttribute("gpm");
 		manager.setAttributeValue("gpm", 10, ParseType.INTEGER);

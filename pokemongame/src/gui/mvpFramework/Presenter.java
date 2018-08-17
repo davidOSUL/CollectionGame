@@ -3,7 +3,6 @@ import static gameutils.Constants.DEBUG;
 import static gameutils.Constants.PRINT_BOARD;
 import static gui.guiutils.GUIConstants.SHOW_CONFIRM_ON_CLOSE;
 
-import java.awt.CardLayout;
 import java.awt.Image;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -28,6 +27,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+import attributes.ParseType;
 import game.Board;
 import gui.displayComponents.DescriptionManager;
 import gui.displayComponents.InfoWindowBuilder;
@@ -448,7 +448,7 @@ public class Presenter implements Serializable {
 		gs.updateListeners(soldThings.containsKey(gs), !isNotRemovable(gs), val > 0 || board.getGold() >= Math.abs(val));
 	}
 	private boolean isNotRemovable(final GridSpace gs) {
-		return allThings.get(gs).containsAttribute("removable") && (!(Boolean)allThings.get(gs).getAttributeVal("removable"));
+		return allThings.get(gs).containsAttribute("removable") && (!allThings.get(gs).getAttributeValue("removable", ParseType.BOOLEAN));
 	}
 	/**
 	 * Sets the state and updates the tool tip manager accordingly
@@ -978,8 +978,8 @@ public class Presenter implements Serializable {
 	 * @param gs the gridspace of interest
 	 * @return the string that should be displayed to sell this gridspace back
 	 */
-	public String getSellBackString(GridSpace gs) {
-		int sellBackValue = getGridSpaceSellBackValue(gs);
+	public String getSellBackString(final GridSpace gs) {
+		final int sellBackValue = getGridSpaceSellBackValue(gs);
 		final String sellBackString;
 		if (sellBackValue >= 0) {
 			sellBackString = "Sell " + gs.getName() + "\nback for " + GuiUtils.getMoneySymbol() + sellBackValue

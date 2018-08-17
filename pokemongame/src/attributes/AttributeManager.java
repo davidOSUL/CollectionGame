@@ -2,26 +2,61 @@ package attributes;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import attributes.AttributeFactories.AttributeFactory;
+import interfaces.SerializablePredicate;
 
 public final class AttributeManager {
+	private SerializablePredicate<Attribute<?>> validate = x -> true;
+	private String currentDescription = "";
 	public AttributeManager() {
 		for (final AttributeFactory<?> factory: AttributeFactories.getInstance().getFactoryList())
 			factory.addNewManager(this);
 	}
+	private AttributeManager(final AttributeManager old) {
+		for (final AttributeFactory<?> factory: AttributeFactories.getInstance().getFactoryList())
+			factory.copyManagerToNewManager(old, this);
+		this.validate = old.validate;
+		this.currentDescription = old.currentDescription;
+	}
+	public void setAttributeValidation(final SerializablePredicate<Attribute<?>> validate) {
+		this.validate = validate;
+	}
+	public <T> void addWatcher(final AttributeManagerWatcher<T> watcher, final ParseType<T> type) {
+		type.getAssociatedFactory().addNewWatcherForManager(this, watcher);
+	}
 	public void generateAttribute(final String attributeName) {
-		AttributeFactories.getInstance().getCreatorFactory(attributeName).generateAttributeForManager(this, attributeName);
+		final AttributeFactory<?> creator = getCreator(attributeName);
+		if (containsAttribute(attributeName))
+			throw new IllegalArgumentException("Attribute " + attributeName + "already exists");
+		if (validate.test(creator.getAttributeTemplate(attributeName))) {
+			final Attribute<?> generatedAttribute = AttributeFactories.getInstance().getCreatorFactory(attributeName).generateAttributeForManager(this, attributeName);
+		}
+		else
+			throw new IllegalArgumentException("Attribute " + attributeName + " failed attribute validation");
+		updateDescription();
+
+	}
+	public void removeAttribute(final String attributeName) {
+		final AttributeFactory<?> creator = getCreator(attributeName);
+		if (!containsAttribute(attributeName))
+			throw new IllegalArgumentException("Attribute " + attributeName + " not present");
+		creator.removeAttributeForManager(this, attributeName);
+		updateDescription();
+
+
 	}
 	public <T> void generateAttribute(final String attributeName, final T value, final ParseType<T> type) {
 		generateAttribute(attributeName);
 		setAttributeValue(attributeName, value, type);
+		
 	}
 	public <T> void generateAttribute(final String attributeName, final String value) {
 		generateAttribute(attributeName);
 		setAttributeValue(attributeName, value);
 	}
-	public <T> Attribute<T> getAttribute(final String attributeName, final ParseType<T> type) {
+	private <T> Attribute<T> getAttribute(final String attributeName, final ParseType<T> type) {
 		return type.getAssociatedFactory().getAttributeForManager(this, attributeName);
 	}
 	public String getAttributeAsString(final String attributeName) {
@@ -31,11 +66,12 @@ public final class AttributeManager {
 		return getAttribute(attributeName, type).getValue();
 	}
 	public <T> void setAttributeValue(final String attributeName, final T value, final ParseType<T> type) {
-		type.getAssociatedFactory().getAttributeForManager(this, attributeName).setValue(value);
+		type.getAssociatedFactory().setAttributeValueForManager(this, attributeName, value);
+		updateDescription();
 	}
     public void setAttributeValue(final String attributeName, final String value) {
-		AttributeFactories.getInstance().getCreatorFactory(attributeName).getAttributeForManager(this, attributeName).setValueParse(value);
-		
+    		getCreator(attributeName).setAttributeValueForManager(this, attributeName, value);
+    		updateDescription();
 	}
 	public void generateAttributes(final String[] names, final String[] values) {
 		if (names.length != values.length)
@@ -63,4 +99,46 @@ public final class AttributeManager {
 		});
 		return validAttributes;
 	}
+	public boolean containsAttribute(final String attributeName) {
+		return getCreator(attributeName).containsAttributeForManager(this, attributeName);
+	}
+	private AttributeFactory<?> getCreator(final String attributeName) {
+		final AttributeFactory<?> creator = AttributeFactories.getInstance().getCreatorFactory(attributeName);
+		if (creator == null)
+			throw new IllegalArgumentException("Invalid attribute name");
+		return creator;
+	}
+	private Set<Attribute<?>> getAllAttributesInOrder() {
+		final Set<Attribute<?>> allAttributes = new TreeSet<Attribute<?>>((a1, a2) -> {
+			if (a1.getDisplayRank() == a2.getDisplayRank())
+				return 1;
+			else
+				return Integer.compare(a1.getDisplayRank(), a2.getDisplayRank());
+		});
+		for (final AttributeFactory<?> factory: AttributeFactories.getInstance().getFactoryList())
+			allAttributes.addAll(factory.getAllAttributesForManager(this));
+		return allAttributes;
+	}
+	@Override
+	public String toString() {
+		return currentDescription;
+	}
+	private void updateDescription() {
+		final StringBuilder result = new StringBuilder();
+		String newline = "";  
+		for (final Attribute at: getAllAttributesInOrder()) {
+			if (at.shouldDisplay())
+				result.append(newline).append(at.toString());
+		    newline = "\n";
+		}
+		currentDescription =  result.toString();
+	}
+	public AttributeManager makeCopy() {
+		return new AttributeManager(this);
+	}
+	public void setAttributeExtraDescription(final String attributeName, final String extraDescription) {
+		getCreator(attributeName).getAttributeForManager(this, attributeName).setExtraDescription(extraDescription);
+		updateDescription();
+	}
+	
 }

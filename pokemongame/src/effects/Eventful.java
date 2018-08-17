@@ -9,8 +9,10 @@ import java.util.List;
  *
  */
 public interface Eventful {
- public void confirmEventRemovals(Collection<Event> events);
+ public void confirmEventRemovals(final Collection<Event> events);
  public List<Event> getEvents();
+ public void addToEventList(final Collection<Event> events);
+ public void addToEventList(final Event event);
  public default String getName() {
 	 return "";
  }

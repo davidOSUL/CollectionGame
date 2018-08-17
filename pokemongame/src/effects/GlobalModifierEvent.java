@@ -1,8 +1,8 @@
 package effects;
 
+import attributes.ParseType;
 import game.Board;
 import modifiers.Modifier;
-import thingFramework.Attribute;
 import thingFramework.Thing;
 
 public abstract class GlobalModifierEvent<M extends Thing, C extends Thing> extends HeldEvent<C> {
@@ -27,7 +27,7 @@ public abstract class GlobalModifierEvent<M extends Thing, C extends Thing> exte
 		});
 		setOnTick(board -> {
 			if (displayCountdown)
-				getCreator().setAttributeVal("time left", mod.timeLeft(board.getTotalInGameTime()));
+				getCreator().setAttributeVal("time left", mod.timeLeft(board.getTotalInGameTime()), ParseType.STRING);
 			if (!sentRequest && removeCreatorWhenDone && mod.isDone(board.getTotalInGameTime())) {
 				board.addToRemoveRequest(getCreator()); //request to remove the creator. Note that the removal of the modification itself is handled by the board
 				sentRequest = true;
@@ -38,7 +38,7 @@ public abstract class GlobalModifierEvent<M extends Thing, C extends Thing> exte
 	public void setCreator(final C creator) {
 		super.setCreator(creator);
 		if (displayCountdown && !getCreator().containsAttribute("time left"))
-			getCreator().addAttribute(Attribute.generateAttribute("time left"));
+			getCreator().addAttribute("time left");
 	}
 	public Modifier<M> getMod() {
 		return mod;

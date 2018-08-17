@@ -12,10 +12,6 @@ class ReadableAttribute<T> extends Attribute<T> {
 	private int displayRank = -1;
 	private SerializableFunction<String, String> formatDisplay = x -> {return x;};
 	/**
-	 * An extra string that can be added on at the end of this toString's method
-	 */
-	private String extraDescription = "";
-	/**
 	 * The value at which if the input value to generateAttribute has this value, it should not be printed
 	 * (Will not stop you from setting it however) (e.g. -1 for an attribute that should always be >=0)
 	 */
@@ -34,7 +30,6 @@ class ReadableAttribute<T> extends Attribute<T> {
 		this.isVisible =  attribute.isVisible;
 		this.settings = EnumSet.copyOf(attribute.settings);
 		this.displayRank = attribute.displayRank;
-		this.extraDescription = attribute.extraDescription;
 		
 		
 	}
@@ -63,7 +58,7 @@ class ReadableAttribute<T> extends Attribute<T> {
 			sb.append("</font>");
 		if (settings.contains(Setting.ITALICS))
 			sb.append("</i>");
-		sb.append(extraDescription);
+		sb.append(getExtraDescription());
 		sb.append("</span>");
 		return sb.toString();
 	}
@@ -89,6 +84,7 @@ class ReadableAttribute<T> extends Attribute<T> {
 			this.settings.add(Setting.valueOf(setting.trim().toUpperCase()));
 		}
 	}
+	@Override
 	public int getDisplayRank() {
 		return displayRank;
 	}

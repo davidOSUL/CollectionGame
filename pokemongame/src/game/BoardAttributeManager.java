@@ -1,17 +1,17 @@
 package game;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
+import attributes.Attribute;
+import attributes.AttributeManagerWatcher;
 import effects.Event;
 import effects.OnPeriodEventWithDisplay;
-import thingFramework.Attribute;
 import thingFramework.Thing;
 /**
  * Manages all the Board Attributes (attributes of the board as a whole rather than to a specific Thing)
  * @author David O'Sullivan
  */
-public final class BoardAttributeManager {
+public final class BoardAttributeManager implements AttributeManagerWatcher<Integer> {
 	/*private static final SerializableTriConsumer<Thing, Event, Board> UPDATE_GPH = (t, e, b) -> {
 		t.getAttribute("gph").setExtraDescription(" (" + e.getTimeToNextPeriod(b) + ")");
 		t.updateDescription();
@@ -20,8 +20,13 @@ public final class BoardAttributeManager {
 		t.getAttribute("gpm").setExtraDescription(" (" + e.getTimeToNextPeriod(b) + ")");
 		t.updateDescription();
 	};*/
+	private Thing holder;
+	private final Map<Attribute<?>, Event> addedEvents = new HashMap<Attribute<?>, Event>();
 	private BoardAttributeManager() {
 
+	}
+	public BoardAttributeManager(final Thing holder) {
+		this.holder = holder;
 	}
 	/**
 	 * Builds Board events based on input name
@@ -29,51 +34,54 @@ public final class BoardAttributeManager {
 	 * @param valueOfEvent the amount to effect the attribute by
 	 * @return the created event
 	 */
-	private static Event eventBuilder(final String nameOfEvent, final Object valueOfEvent, final Thing creator) {
-		final Event event;
-
+	private Event eventBuilder(final String nameOfEvent, final int valueOfEvent) {
+		Event event = null;
 		switch (nameOfEvent) {
 		case "gph":
-			event = new OnPeriodEventWithDisplay<Thing>(board -> board.addGold((Integer) valueOfEvent), 60, "gph", creator);
+			event = new OnPeriodEventWithDisplay<Thing>(board -> board.addGold( valueOfEvent), 60, "gph", holder);
 			event.addToName("GPH: ");
 			break;
 		case "gpm":
-			event =  new OnPeriodEventWithDisplay<Thing>(board -> board.addGold((Integer) valueOfEvent), 1, "gpm", creator);
+			event =  new OnPeriodEventWithDisplay<Thing>(board -> board.addGold(valueOfEvent), 1, "gpm", holder);
 			event.addToName("GPM: ");
 			break;
 		case "popularity boost":
-			event = new Event(board -> board.addPopularity((Integer) valueOfEvent), board -> board.subtractPopularity((Integer) valueOfEvent));
+			event = new Event(board -> board.addPopularity(valueOfEvent), board -> board.subtractPopularity(valueOfEvent));
 			event.addToName("POP: ");
 			break;
 		default:
-			throw new Error("EVENT NOT FOUND");
+			break;
 		}
 		return event;
 	}
-	public static void modifyBoardEvent(final String AttributeName, final Event e, final Object newValue) {
+	private void modifyBoardEvent(final String AttributeName, final Event e, final int newValue) {
 		switch(AttributeName) {
 		case "gph":
-			e.setOnPeriod(board -> board.addGold((Integer) newValue));
+			e.setOnPeriod(board -> board.addGold(newValue));
 			break;
 		case "gpm":
-			e.setOnPeriod(board -> board.addGold((Integer) newValue));
+			e.setOnPeriod(board -> board.addGold(newValue));
 			break;
 		case "popularity boost":
-			e.setOnPlace(board -> board.addPopularity((Integer) newValue));
-			e.markForReset( board -> board.subtractPopularity((Integer) newValue));
+			e.setOnPlace(board -> board.addPopularity(newValue));
+			e.markForReset( board -> board.subtractPopularity(newValue));
 			break;
 		default:
-			throw new Error("EVENT NOT FOUND");
+			break;
 		}
 
 	}
-	/**
+	
+	/*
+	 * 
+	 
+	
 	 * Takes in a set of Attributes that effect the state of the board and generates the associated events for them. Creates new instances of the events. 
 	 * @param boardAttributes A Set of Attributes that modify the state of the board. 
 	 * Specifically, must be set of attributes that contain AttributeType Thing.BOARDTYPE
 	 * @param the holder of these attributes
 	 * @return The List of generated events
-	 */
+
 	public static Map<Attribute, Event> getEvents(final Set<Attribute> boardAttributes, final Thing creator) {
 		final Map<Attribute, Event> events = new HashMap<Attribute, Event>(boardAttributes.size());
 		for (final Attribute at: boardAttributes) {
@@ -81,15 +89,31 @@ public final class BoardAttributeManager {
 		}
 		return events;
 	}
+	*/
 	
-	/**
-	 * Takes in a board attribute and generates event that affect board
-	 * @param at the board attribute
-	 * @param the holder of these attributes
-	 * @return the generated event
-	 */
-	public static Event getEvent(final Attribute at, final Thing creator) {
-		return eventBuilder(at.getName(), at.getValue(), creator);
+	@Override
+	public void onAttributeGenerated(final Attribute<Integer> addedAttribute) {
+		final Event e = eventBuilder(addedAttribute.getName(), addedAttribute.getValue());
+		if (e != null) {
+			holder.addToEventList(e);
+			addedEvents.put(addedAttribute, e);
+		}
+		
 	}
-
+	@Override
+	public void onAttributeRemoved(final Attribute<Integer> removedAttribute) {
+		if (addedEvents.containsKey(removedAttribute)) {
+			addedEvents.remove(removedAttribute).markForRemoval();
+		}
+		
+	}
+	@Override
+	public void onAttributeModified(final Attribute<Integer> modifiedAttribute) {
+		if (addedEvents.containsKey(modifiedAttribute)) {
+			modifyBoardEvent(modifiedAttribute.getName(), addedEvents.get(modifiedAttribute), modifiedAttribute.getValue());
+		}
+		
+	}
+	
+	
 }
