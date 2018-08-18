@@ -20,11 +20,8 @@ public final class BoardAttributeManager implements AttributeManagerWatcher<Inte
 		t.getAttribute("gpm").setExtraDescription(" (" + e.getTimeToNextPeriod(b) + ")");
 		t.updateDescription();
 	};*/
-	private Thing holder;
+	private final Thing holder;
 	private final Map<Attribute<?>, Event> addedEvents = new HashMap<Attribute<?>, Event>();
-	private BoardAttributeManager() {
-
-	}
 	public BoardAttributeManager(final Thing holder) {
 		this.holder = holder;
 	}

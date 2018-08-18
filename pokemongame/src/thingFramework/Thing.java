@@ -71,9 +71,10 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	protected Thing(final Thing t) {
 		this.name = t.name;
 		this.image = t.image;
-		this.attributes = t.attributes.makeCopy();
+		this.attributes = new AttributeManager();
 		boardAttributeManager = new BoardAttributeManager(this);
 		attributes.addWatcher(boardAttributeManager, ParseType.INTEGER);
+		attributes.copyOverFromOldManager(t.attributes);
 	}
 	@Override
 	public List<Event> getEvents() {
@@ -241,7 +242,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	public String toString() {
 		if (name == null)
 			return "BLANK ITEM";
-		return "<u>" + name + "</u>" + (!attributes.toString().isEmpty() ? ":\n" + attributes : "");
+		return "<u>" + name + "</u>" + (!attributes.toString().isEmpty() ? "\n" + attributes : "");
 	}
 	@Override
 	public String getImage() {

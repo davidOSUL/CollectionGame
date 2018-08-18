@@ -30,6 +30,8 @@ class ReadableAttribute<T> extends Attribute<T> {
 		this.isVisible =  attribute.isVisible;
 		this.settings = EnumSet.copyOf(attribute.settings);
 		this.displayRank = attribute.displayRank;
+		this.objectToIgnoreValueAt = attribute.objectToIgnoreValueAt;
+		this.formatDisplay = attribute.formatDisplay;
 		
 		
 	}
@@ -45,7 +47,7 @@ class ReadableAttribute<T> extends Attribute<T> {
 		if (getValue() == null)
 			return "";
 		final StringBuilder sb = new StringBuilder();
-		if (settings.contains(Setting.ITALICS));
+		if (settings.contains(Setting.ITALICS))
 			sb.append("<i>");
 		if (settings.contains(Setting.COLOR_BASED_ON_SIGN)) {
 			sb.append(GuiUtils.getSignedColorFormat(isPositive(), settings.contains(Setting.PLUS_FOR_POSITIVE) ? "+" : ""));
@@ -76,7 +78,7 @@ class ReadableAttribute<T> extends Attribute<T> {
 	}
 	@Override
 	public boolean shouldDisplay() {
-		return isVisible && !getValue().equals(objectToIgnoreValueAt);
+		return isVisible && !(getValue() == null) && !getValue().equals(objectToIgnoreValueAt);
 	}
 	public void parseAndSetSettings(final String settings, final String delimeter) {
 		final String[] settingsList = settings.split(delimeter);

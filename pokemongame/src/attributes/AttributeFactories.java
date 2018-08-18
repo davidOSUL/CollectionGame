@@ -110,9 +110,8 @@ final class AttributeFactories {
 			attributeWatchers.put(manager, new ArrayList<AttributeManagerWatcher<T>>());
 		}
 		void copyManagerToNewManager(final AttributeManager oldManager, final AttributeManager newManager) {
-			addNewManager(newManager);
 			for (final Map.Entry<String, Attribute<T>> entry : associatedAttributeManagers.get(oldManager).entrySet()) {
-				associatedAttributeManagers.get(newManager).put(entry.getKey(), entry.getValue().makeCopy());
+				addAttributeForManager(newManager, entry.getKey(), entry.getValue().makeCopy());
 			}
 		}
 		void addNewWatcherForManager(final AttributeManager manager, final AttributeManagerWatcher<T> watcher) {
@@ -120,12 +119,15 @@ final class AttributeFactories {
 		}
 		Attribute<T> generateAttributeForManager(final AttributeManager manager, final String name) {
 			throwIfInvalidTemplate(name);
-			final Attribute<T> attribute = attributeTemplates.get(name).makeCopy();
 			if (associatedAttributeManagers.get(manager).containsKey(name))
 				throw new IllegalArgumentException(name + "attribute already exists for manager:" + manager);
+			final Attribute<T> attribute = attributeTemplates.get(name).makeCopy();
+			addAttributeForManager(manager, name, attribute);
+			return attribute;
+		}
+		private void addAttributeForManager(final AttributeManager manager, final String name, final Attribute<T> attribute) {
 			associatedAttributeManagers.get(manager).put(name, attribute);
 			attributeWatchers.get(manager).forEach(amw -> amw.onAttributeGenerated(attribute));
-			return attribute;
 		}
 		Attribute<T> generateAttributeForManager(final AttributeManager manager, final String name, final T value) {
 			throwIfInvalidTemplate(name);
@@ -228,6 +230,7 @@ final class AttributeFactories {
 				attribute.setIgnoreValue(AttributeValueParser.getInstance().parseValue(values[IGNORE_VALUE_LOC], parseType));
 			}
 			setDisplayFormat(attribute);
+			attribute.setIsVisible(true);
 			
 		}
 		private void setDisplayFormat(final ReadableAttribute<T> attribute) {
@@ -252,15 +255,3 @@ final class AttributeFactories {
 }
 	
 
-/*
-public enum ParseType{
-	INTEGER(IntegerAttribute.class), DOUBLE(DoubleAttribute.class), STRING(StringAttribute.class), POKEMONTYPE(PokemonTypeAttribute.class), EXPERIENCEGROUP(ExperienceGroupAttribute.class), BOOLEAN(BooleanAttribute.class), LISTSTRING(ListStringAttribute.class);
-	private Class<? extends ReadableAttribute<?>> associatedClass;
-	private ParseType(Class<? extends ReadableAttribute<?>> associatedClass) {
-		this.associatedClass = associatedClass;
-	}
-	public Class<? extends ReadableAttribute<?>> getAssociatedClass() {
-		return associatedClass;
-	}
-	
-}*/

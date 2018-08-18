@@ -14,7 +14,7 @@ public final class AttributeManager {
 		for (final AttributeFactory<?> factory: AttributeFactories.getInstance().getFactoryList())
 			factory.addNewManager(this);
 	}
-	private AttributeManager(final AttributeManager old) {
+	public void copyOverFromOldManager(final AttributeManager old) {
 		for (final AttributeFactory<?> factory: AttributeFactories.getInstance().getFactoryList())
 			factory.copyManagerToNewManager(old, this);
 		this.validate = old.validate;
@@ -134,15 +134,13 @@ public final class AttributeManager {
 	private void updateDescription() {
 		final StringBuilder result = new StringBuilder();
 		String newline = "";  
-		for (final Attribute at: getAllAttributesInOrder()) {
-			if (at.shouldDisplay())
+		for (final Attribute<?> at: getAllAttributesInOrder()) {
+			if (at.shouldDisplay()) {
 				result.append(newline).append(at.toString());
-		    newline = "\n";
+			    newline = "\n";
+			}
 		}
 		currentDescription =  result.toString();
-	}
-	public AttributeManager makeCopy() {
-		return new AttributeManager(this);
 	}
 	public void setAttributeExtraDescription(final String attributeName, final String extraDescription) {
 		getCreator(attributeName).getAttributeForManager(this, attributeName).setExtraDescription(extraDescription);
