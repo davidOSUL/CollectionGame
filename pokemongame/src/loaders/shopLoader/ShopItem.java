@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import gameutils.GameUtils;
 import interfaces.Imagable;
-import loaders.ThingLoader;
+import loaders.ThingFactory;
 
 /**
  * A singular item in the shop. This represents the "data" behind the item, that is the name, the quantity,
@@ -137,7 +137,7 @@ public class ShopItem implements Serializable, Imagable{
 	 * @param image the image to set
 	 */
 	private void setImage() {
-		this.image = ThingLoader.sharedInstance().getThingImage(thingName);
+		this.image = ThingFactory.sharedInstance().getThingImage(thingName);
 	}
 	/**
 	 * Increases the quantity of this shop item by one (if it is infinite, will stay at infinite)
@@ -163,7 +163,7 @@ public class ShopItem implements Serializable, Imagable{
 	 * @param description the description to set
 	 */
 	private void setDescription() {
-		this.description = ThingLoader.sharedInstance().getThingDescription(thingName);
+		this.description = ThingFactory.sharedInstance().getThingDescription(thingName);
 	}
 	/**
 	 * @return the sendBackToShopWhenRemoved

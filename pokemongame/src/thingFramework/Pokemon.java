@@ -2,12 +2,12 @@ package thingFramework;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 
 import attributes.Attribute;
 import attributes.AttributeCharacteristic;
+import attributes.attributegenerators.AttributeGenerator;
 import effects.Event;
 import effects.Eventful;
 import game.Board;
@@ -37,11 +37,6 @@ public class Pokemon extends Thing implements Serializable, Eventful, Imagable {
 	}
 
 
-	@Override
-	protected
-	EnumSet<ThingType> setThingType() {
-		return EnumSet.of(ThingType.POKEMON);
-	}
 	@Override
 	public
 	void onPlace(final Board board) {
@@ -73,7 +68,10 @@ public class Pokemon extends Thing implements Serializable, Eventful, Imagable {
 	protected boolean validateAttribute(final Attribute<?> attribute) {
 		return !attribute.hasCharacteristic(AttributeCharacteristic.ITEMONLY);
 	}
-
+	@Override
+	public void addGeneratedAttributes(final AttributeGenerator generator) {
+		generator.addAttributes(this);
+	}
 	
 
 	

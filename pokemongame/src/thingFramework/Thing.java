@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -16,6 +15,7 @@ import attributes.Attribute;
 import attributes.AttributeCharacteristic;
 import attributes.AttributeManager;
 import attributes.ParseType;
+import attributes.attributegenerators.AttributeGenerator;
 import effects.Event;
 import effects.Eventful;
 import game.Board;
@@ -123,8 +123,8 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	public final boolean containsAttribute(final String name) {
 		return attributes.containsAttribute(name);
 	}
+	public abstract void addGeneratedAttributes(AttributeGenerator generator);
 	protected abstract boolean validateAttribute(Attribute<?> attribute);
-	protected abstract EnumSet<ThingType> setThingType();
 	public abstract void onPlace(Board board);
 	public abstract void onRemove(Board board);
 	public final <T> T getAttributeValue(final String name, final ParseType<T> type) {
@@ -247,9 +247,6 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	@Override
 	public String getImage() {
 		return image;
-	}
-	public enum ThingType {
-		POKEMON, ITEM; //TODO: Get rid of this
 	}
 	@Override
 	public void addToEventList(final Collection<Event> events) {

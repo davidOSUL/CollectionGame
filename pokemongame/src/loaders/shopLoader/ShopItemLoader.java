@@ -9,7 +9,7 @@ import java.util.Set;
 
 import gameutils.GameUtils;
 import loaders.CSVReader;
-import loaders.ThingLoader;
+import loaders.ThingFactory;
 import thingFramework.Thing;
 
 /**
@@ -55,7 +55,7 @@ public class ShopItemLoader {
 	public Thing generateNewThing(final String name) {
 		if (!hasShopItem(name))
 			throw new IllegalArgumentException(name + " not a valid shop item");
-		return ThingLoader.sharedInstance().generateNewThing(name);
+		return ThingFactory.sharedInstance().generateNewThing(name);
 	}
 	public boolean hasShopItem(final String name) {
 		return shopItemMap.containsKey(name);
@@ -88,7 +88,7 @@ public class ShopItemLoader {
 					final int[] costAndRank = GameUtils.parseAllInRangeToInt(values, COST, RANK);
 					quantityCostAndRank = new int[]{ShopItem.INFINITY, costAndRank[0], costAndRank[1]};
 				}
-				if (!ThingLoader.sharedInstance().hasThing(values[NAME])) 
+				if (!ThingFactory.sharedInstance().hasThing(values[NAME])) 
 					throw new RuntimeException("attempted to parse ShopItem with Thing Name: " + values[NAME] + " which does not have a corresponding thing");
 				final boolean removeWhenDeleted = values[REMOVE_ON_DELETE].equalsIgnoreCase("yes");
 				final int maxAllowed= values[MAX_ALLOWED].equalsIgnoreCase("no limit") ? ShopItem.INFINITY :Integer.parseInt(values[MAX_ALLOWED]);

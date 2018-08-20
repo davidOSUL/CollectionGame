@@ -26,13 +26,13 @@ import effects.CustomPeriodEvent;
 import effects.Event;
 import effects.Eventful;
 import gameutils.GameUtils;
-import loaders.ThingLoader;
+import loaders.ThingFactory;
+import loaders.ThingType;
 import loaders.shopLoader.ShopItem;
 import modifiers.Modifier;
 import thingFramework.Item;
 import thingFramework.Pokemon;
 import thingFramework.Thing;
-import thingFramework.Thing.ThingType;
 /**
  * The "Model" in the MVP model. Manages the game state in memory.
  * <br> NOTE: newSession should be called at the beggining of a new session. </br>
@@ -100,12 +100,12 @@ public class Board implements Serializable {
 	 * Map from nonlegendary pokemon names to their RARITY (NOT CHANCE) value
 	 */
 	private static final Map<String, Integer> pokeRarity;
-	private static final Set<String> legendaryPokemon = ThingLoader.sharedInstance().getThingsWithAttributeVal("legendary", true, ThingType.POKEMON, ParseType.BOOLEAN);
-	private static final Set<String> nonLegendaryPokemon = ThingLoader.sharedInstance().getThingsWithAttributeVal("legendary", false, ThingType.POKEMON, ParseType.BOOLEAN);
+	private static final Set<String> legendaryPokemon = ThingFactory.sharedInstance().getThingsWithAttributeVal("legendary", true, ThingType.POKEMON, ParseType.BOOLEAN);
+	private static final Set<String> nonLegendaryPokemon = ThingFactory.sharedInstance().getThingsWithAttributeVal("legendary", false, ThingType.POKEMON, ParseType.BOOLEAN);
 	private final Set<String> unFoundLegendaries = new HashSet<String>(legendaryPokemon);
 	static {
 		pokeRarity =
-				ThingLoader.sharedInstance().<Integer>mapFromSetToAttributeValue("rarity", ThingType.POKEMON, ParseType.INTEGER)
+				ThingFactory.sharedInstance().<Integer>mapFromSetToAttributeValue("rarity", ThingType.POKEMON, ParseType.INTEGER)
 					.entrySet().stream().filter(p -> nonLegendaryPokemon.contains(p.getKey()))
 					.collect(Collectors.toMap(p-> p.getKey(), p -> p.getValue()));
 	}
@@ -335,7 +335,7 @@ public class Board implements Serializable {
 	 * Adds the provided pokemon to the foundPokemon queue and updates the set of pokemon names in addToUniquePokemonLookup
 	 */
 	private void addToFoundPokemon(final String name) {
-		final Pokemon p = ThingLoader.sharedInstance().generateNewPokemon(name);
+		final Pokemon p = ThingFactory.sharedInstance().generateNewPokemon(name);
 		foundPokemon.addLast(p);
 		addToUniquePokemonLookup(p);
 	}
@@ -620,7 +620,7 @@ public class Board implements Serializable {
 	 */
 	public Pokemon getPokemon(final String name) {
 		if (DEBUG)
-			return ThingLoader.sharedInstance().generateNewPokemon(name);
+			return ThingFactory.sharedInstance().generateNewPokemon(name);
 		else
 			throw new RuntimeException("Method should not be called when not debugging");
 	}
