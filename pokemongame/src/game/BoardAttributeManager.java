@@ -35,11 +35,11 @@ public final class BoardAttributeManager implements AttributeManagerWatcher<Inte
 		Event event = null;
 		switch (nameOfEvent) {
 		case "gph":
-			event = new OnPeriodEventWithDisplay<Thing>(board -> board.addGold( valueOfEvent), 60, "gph", holder);
+			event = new OnPeriodEventWithDisplay(board -> board.addGold( valueOfEvent), 60, "gph", holder);
 			event.addToName("GPH: ");
 			break;
 		case "gpm":
-			event =  new OnPeriodEventWithDisplay<Thing>(board -> board.addGold(valueOfEvent), 1, "gpm", holder);
+			event =  new OnPeriodEventWithDisplay(board -> board.addGold(valueOfEvent), 1, "gpm", holder);
 			event.addToName("GPM: ");
 			break;
 		case "popularity boost":

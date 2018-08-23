@@ -2,9 +2,12 @@ package loaders;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import attributes.attributegenerators.AttributeGenerator;
 import attributes.attributegenerators.AttributeGenerators;
 import thingFramework.Item;
 import thingFramework.Pokemon;
@@ -13,6 +16,9 @@ import thingFramework.Thing;
 class ThingLoader implements Loader {
 	private final String[] pathToThings;
 	private final ThingFactory factory;
+	private final ExtraAttributeLoader extraAttributeLoader;
+	private final boolean hasExtraAttributeLoader;
+	private final Map<Thing, AttributeGenerator> genAttributeThings = new HashMap<Thing, AttributeGenerator>();
 	private static final int NAME_LOC = 1;
 	private static final int IMAGE_LOC = 2;
 	private static final int ATTRIBUTE_LOC = 3;
@@ -24,11 +30,23 @@ class ThingLoader implements Loader {
 	ThingLoader(final ThingFactory factory, final String[] pathToThings) {
 		this.pathToThings = pathToThings;
 		this.factory = factory;
+		extraAttributeLoader = null;
+		hasExtraAttributeLoader = false;
+	}
+	ThingLoader(final ThingFactory factory, final String[] pathToThings, final ExtraAttributeLoader extraAttributeLoader) {
+		this.pathToThings = pathToThings;
+		this.factory = factory;
+		this.extraAttributeLoader = extraAttributeLoader;
+		hasExtraAttributeLoader = true;
 	}
 	@Override
 	public void load() {
 		for (final String path : pathToThings)
 			loadPath(path);
+		if (hasExtraAttributeLoader) {
+			extraAttributeLoader.load();
+		}
+		genAttributeThings.forEach((t, ag) -> t.addGeneratedAttributes(ag));
 	}
 	/**
 	 * <br> Assumes inputs of the form: </br> 
@@ -60,36 +78,44 @@ class ThingLoader implements Loader {
 		final Pokemon pm = new Pokemon(name, texture);
 		loadAttributes(values, name, pm);
 		factory.addNewPokemonTemplate(pm);
-		
+
 	}
 	private void loadItem(final String[] values) {
-			final String name = values[NAME_LOC];
-			final String texture = ITEM_SPRITE_LOC + values[IMAGE_LOC];
-			final Item i = new Item(name, texture);
-			loadAttributes(values, name, i);
-			factory.addNewItemTemplate(i);
+		final String name = values[NAME_LOC];
+		final String texture = ITEM_SPRITE_LOC + values[IMAGE_LOC];
+		final Item i = new Item(name, texture);
+		loadAttributes(values, name, i);
+		factory.addNewItemTemplate(i);
 	}
-	
+
 	private void loadAttributes(final String[] values, final String name, final Thing thing) {
 		final Set<String> attributeNames = new HashSet<String>();
 		for (int i = ATTRIBUTE_LOC; i < values.length; i++) {
 			final String atr = values[i];
-			if (atr.equals("")) 
+			if (atr.equals("")) { 
 				continue;
+			}
 			final String[] nameValuePair = atr.split(":");
-			if (attributeNames.contains(nameValuePair[0]))
+			if (attributeNames.contains(nameValuePair[0])) {
 				throw new ThingLoadException("Duplicate Attribute: " + nameValuePair[0] + "for: " + name);
-			else
+			}
+			else {
 				attributeNames.add(nameValuePair[0]);
-			if (nameValuePair[0].equals(GEN_CODE)) //if we want to generate random attributes
-				thing.addGeneratedAttributes(AttributeGenerators.getGenerateFromRarity());
-			else if (nameValuePair.length == 2)  //have a name and a value
+			}
+			if (nameValuePair[0].equals(GEN_CODE)) {//if we want to generate random attributes
+				genAttributeThings.put(thing, AttributeGenerators.getGenerateFromRarity());
+			}
+			else if (nameValuePair.length == 2)  {//have a name and a value
 				thing.addAttribute(nameValuePair[0], nameValuePair[1]);
-			else if (nameValuePair.length == 1) //just a name 
+			}
+			else if (nameValuePair.length == 1) {//just a name 
 				thing.addAttribute(nameValuePair[0]);
-			else
+			}
+			else {
 				throw new Error("Wrong number of attribute info : " + Arrays.toString(nameValuePair) + "for: " + name);
+			}
 		}
+
 	}
 
 }

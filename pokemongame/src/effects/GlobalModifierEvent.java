@@ -5,8 +5,7 @@ import game.Board;
 import modifiers.Modifier;
 import thingFramework.Thing;
 
-public abstract class GlobalModifierEvent<M extends Thing, C extends Thing> extends HeldEvent<C> {
-	private C creator;
+public abstract class GlobalModifierEvent<M extends Thing> extends Event {
 	private final Modifier<M> mod;
 	private final boolean removeCreatorWhenDone;
 	private final boolean displayCountdown;
@@ -34,12 +33,17 @@ public abstract class GlobalModifierEvent<M extends Thing, C extends Thing> exte
 			}
 		});
 	}
+	protected GlobalModifierEvent(final GlobalModifierEvent<M> copy) {
+		this(new Modifier<M>(copy.getMod()), copy.getRemoveCreatorWhenDone(), copy.getDisplayCountdown());
+	}
 	@Override
-	public void setCreator(final C creator) {
+	public void setCreator(final Thing creator) {
 		super.setCreator(creator);
 		if (displayCountdown && !getCreator().containsAttribute("time left"))
 			getCreator().addAttribute("time left");
 	}
+	@Override
+	public abstract GlobalModifierEvent makeCopy();
 	public Modifier<M> getMod() {
 		return mod;
 	}

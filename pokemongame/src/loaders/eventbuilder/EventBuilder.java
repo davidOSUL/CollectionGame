@@ -2,7 +2,6 @@ package loaders.eventbuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +12,7 @@ import effects.HeldEvent;
 import gameutils.GameUtils;
 import gui.guiutils.GuiUtils;
 import loaders.CSVReader;
+import loaders.ThingLoadException;
 import thingFramework.Thing;
 
 /**
@@ -35,9 +35,9 @@ public class EventBuilder {
 	 */
 	public EventBuilder() {
 	//Put "Special Items" (items that are one-ofs and can't be described by generator functions) here
-		HeldEvent<Thing> explosivesEvent = new ActOnHolderEvent<Thing>(
+		final HeldEvent<Thing> explosivesEvent = new ActOnHolderEvent<Thing>(
 				board -> {
-					int i = board.removeAllPokemon(); //remove all pokemon
+					final int i = board.removeAllPokemon(); //remove all pokemon
 					board.addGold(i*100); //add 100 for all pokemon removed
 				}, 
 				x->{}, 
@@ -49,7 +49,6 @@ public class EventBuilder {
 		eventNameToDescription.put("Explosives", "Permanently Removes all Pokemon on the board.\n"
 				+ "For each pokemon removed this way you get <font color=\"green\">+" + GuiUtils.getMoneySymbol() + 100  );
 		
-		//mapEvents.put("Small Table", new ArrayList<Event>(Arrays.asList(generateRandomGoldEvent(30, 20, 5))));
 	}
 	/**
 	 * Creates a new EventBuilder, creates "default items" and creates events for items in .csv file located at path
@@ -57,7 +56,6 @@ public class EventBuilder {
 	 */
 	public EventBuilder(final String path) {
 		this();
-		//Path p = FileSystems.getDefault().getPath(path);
 		loadEventsFromPath(path);
 	}
 	/**
@@ -80,13 +78,13 @@ public class EventBuilder {
 						if (typical.getHeldEvent() != null)
 							heldEvents.add(typical.getHeldEvent());
 						else
-							throw new Error("ISSUE ADDING EVENT TO: " + name);
+							throw new ThingLoadException("Issue adding event to: " + name);
 					}
 					else {
 						if (typical.getRegularEvent() != null)
 							regEvents.add(typical.getRegularEvent());
 						else
-							throw new Error("ISSUE ADDING EVENT TO: " + name);
+							throw new ThingLoadException("Issue adding event to: " + name);
 					}
 
 					description.append(typical.getDescription());
@@ -96,13 +94,7 @@ public class EventBuilder {
 				mapHeldEvents.put(name, heldEvents);
 				eventNameToDescription.put(name, description.toString());
 			}
-		} catch (final NumberFormatException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (final Error e) {
+		} catch (final NumberFormatException | IOException  e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

@@ -3,15 +3,14 @@ package effects;
 import game.Board;
 import modifiers.Modifier;
 import thingFramework.Pokemon;
-import thingFramework.Thing;
 
-public class GlobalPokemonModifierEvent<C extends Thing> extends GlobalModifierEvent<Pokemon, C> {
+public class GlobalPokemonModifierEvent extends GlobalModifierEvent<Pokemon> {
 
 	public GlobalPokemonModifierEvent(final Modifier<Pokemon> mod, final boolean removeWhenDone, final boolean displayCountdown) {
 		super(mod, removeWhenDone, displayCountdown);
 	}
-	private GlobalPokemonModifierEvent(final GlobalPokemonModifierEvent<C> copy) {
-		this(new Modifier<Pokemon>(copy.getMod()), copy.getRemoveCreatorWhenDone(), copy.getDisplayCountdown());
+	private GlobalPokemonModifierEvent(final GlobalPokemonModifierEvent copy) {
+		super(copy);
 	}
 	@Override
 	public void addModToBoard(final Board b) {
@@ -25,8 +24,8 @@ public class GlobalPokemonModifierEvent<C extends Thing> extends GlobalModifierE
 	}
 
 	@Override
-	public HeldEvent<C> makeCopy() {
-		return new GlobalPokemonModifierEvent<C>(this);
+	public GlobalPokemonModifierEvent makeCopy() {
+		return new GlobalPokemonModifierEvent(this);
 	}
 
 }

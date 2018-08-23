@@ -11,13 +11,13 @@ import thingFramework.Thing;
  * @author David O'Sullivan
  *
  */
-public class GlobalThingModifierEvent<C extends Thing> extends GlobalModifierEvent<Thing, C> {
+public class GlobalThingModifierEvent extends GlobalModifierEvent<Thing> {
 
 	public GlobalThingModifierEvent(final Modifier<Thing> mod, final boolean removeWhenDone, final boolean displayCountdown) {
 		super(mod, removeWhenDone, displayCountdown);
 	}
-	private GlobalThingModifierEvent(final GlobalThingModifierEvent<C> copy) {
-		this(new Modifier<Thing>(copy.getMod()), copy.getRemoveCreatorWhenDone(), copy.getDisplayCountdown());
+	private GlobalThingModifierEvent(final GlobalThingModifierEvent copy) {
+		super(copy);
 	}
 	@Override
 	public void addModToBoard(final Board b) {
@@ -28,7 +28,7 @@ public class GlobalThingModifierEvent<C extends Thing> extends GlobalModifierEve
 		b.removeGlobalThingModifier(getMod());
 	}
 	@Override
-	public HeldEvent<C> makeCopy() {
+	public GlobalThingModifierEvent makeCopy() {
 		return new GlobalThingModifierEvent(this);
 	}
 

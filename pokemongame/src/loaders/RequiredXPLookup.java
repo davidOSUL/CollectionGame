@@ -1,12 +1,7 @@
 package loaders;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -18,7 +13,7 @@ import thingFramework.ExperienceGroup;
  *
  */
 public final class RequiredXPLookup {
-	private final Path pathToXp = FileSystems.getDefault().getPath("resources/InputFiles/XPLookup.csv");
+	private final String pathToXp = "resources/InputFiles/XPLookup.csv";
 	/**
 	 * Map From The Level to an array of integers containing both the total XP you'd have to be to be at that level as well as the amount of additional XP needed to get to the next level
 	 */
@@ -99,38 +94,35 @@ public final class RequiredXPLookup {
 		return getMinXPAtLevel(eg, 100);
 	}
 	private RequiredXPLookup() {
-		List<String> lines = null;
+		int j =0;
 		try {
-			lines = Files.readAllLines(pathToXp, StandardCharsets.UTF_8);
+			for (final String[] values: CSVReader.readCSV(pathToXp)) {
+				final Integer level = Integer.parseInt(values[LEVEL_LOC]); //the level associated with that xp
+				final Integer[] xpVals = new Integer[values.length];
+				for (int i =0; i < values.length; i++) {
+					if ((i!=LEVEL_LOC && j!=LAST_LEVEL-1) || (j == LAST_LEVEL-1 && i <LEVEL_LOC))
+						xpVals[i]= Integer.parseInt(values[i]);
+				}
+				levelToXP.put(level, xpVals);
+				for (final ExperienceGroup eg : ExperienceGroup.values()) {
+					final int XP = Integer.parseInt(values[eg.ordinal()]);
+					if (!xpToLevels.containsKey(eg.ordinal())) {
+						final TreeMap<Integer, Integer> newMap = new TreeMap<Integer, Integer>();
+						newMap.put(XP, level);
+						xpToLevels.put(eg.ordinal(), newMap);
+					}
+					else {
+						xpToLevels.get(eg.ordinal()).put(XP, level);
+					}
+				}
+				j++;
+			}
+		} catch (final NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		int j =0;
-		for (final String line: lines) {
-			final String[] values = line.split(","); //the current line
-			final Integer level = Integer.parseInt(values[LEVEL_LOC]); //the level associated with that xp
-			final Integer[] xpVals = new Integer[values.length];
-			for (int i =0; i < values.length; i++) {
-				if (i!=LEVEL_LOC && j!=LAST_LEVEL-1)
-					xpVals[i]= Integer.parseInt(values[i]);
-				if (j == LAST_LEVEL-1 && i <LEVEL_LOC)
-					xpVals[i]= Integer.parseInt(values[i]); //the last line doesn't contain "next xp" as once you are at the last level there is no where else to go
-
-			}
-			levelToXP.put(level, xpVals);
-			for (final ExperienceGroup eg : ExperienceGroup.values()) {
-				final int XP = Integer.parseInt(values[eg.ordinal()]);
-				if (!xpToLevels.containsKey(eg.ordinal())) {
-					final TreeMap<Integer, Integer> newMap = new TreeMap<Integer, Integer>();
-					newMap.put(XP, level);
-					xpToLevels.put(eg.ordinal(), newMap);
-				}
-				else {
-					xpToLevels.get(eg.ordinal()).put(XP, level);
-				}
-			}
-			j++;
 		}
 	}
 }

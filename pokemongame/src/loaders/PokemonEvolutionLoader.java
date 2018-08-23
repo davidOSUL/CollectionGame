@@ -64,7 +64,7 @@ public class PokemonEvolutionLoader implements Loader {
 		return valid;
 	}
 	private void loadEvolution(final String[] values) {
-		final String[] pokemonNames = new String[MAX_NUMBER_EVOLUTIONS ];
+		final String[] pokemonNames = new String[MAX_NUMBER_EVOLUTIONS];
 		final boolean[] hasEvolution = new boolean[MAX_NUMBER_EVOLUTIONS-1];
 		for (int i =0 ; i < MAX_NUMBER_EVOLUTIONS; i++) {
 			pokemonNames[i] = values[i];
@@ -82,17 +82,7 @@ public class PokemonEvolutionLoader implements Loader {
 				final Pokemon pokeWithEvolve = thingMap.getPokemon(priorEvolve);
 				if (hasEvolution[i-1] && checkIfHasEvolution(pokeWithEvolve)) {
 					if (currPokemon.startsWith("\"")) { //if it has multiple evolutions it will be of form \"Aaa\r\nBbb\r\nCcc\r\n...\" we want to convert to [Aaa, Bbb, Ccc]
-						newEvolutions = splitUppercase(currPokemon.replace("\n", "").replace("\r", "").replace("\"", ""));
-						if (!checkAllValidThings(newEvolutions)) {
-							throw new ThingLoadException("Invalid pokemon in prior Evolutions for " + newEvolutions);
-						}
-						//accounts for two cases, one pokemon with multiple possible evolutions, or multiple with multiple possible (one for each)
-						if (priorEvolutions.length == 1)
-							pokeWithEvolve.addAttribute("next evolutions", Arrays.toString(newEvolutions));
-						else if (priorEvolutions.length == newEvolutions.length)
-							pokeWithEvolve.addAttribute("next evolutions", newEvolutions[j]);
-						else
-							throw new ThingLoadException("Unaccounted for number of evolutions listed for " + currPokemon);
+						newEvolutions = doIfMultipleEvolutions(newEvolutions, priorEvolutions, currPokemon, pokeWithEvolve, j);
 					} else {
 						pokeWithEvolve.addAttribute("next evolutions", currPokemon);
 					}
@@ -100,5 +90,20 @@ public class PokemonEvolutionLoader implements Loader {
 			}
 			priorEvolutions = newEvolutions;
 		}
+		
+	}
+	private String[] doIfMultipleEvolutions(String[] newEvolutions, final String[] priorEvolutions, final String currPokemon, final Pokemon pokeWithEvolve, final int j) {
+		newEvolutions = splitUppercase(currPokemon.replace("\n", "").replace("\r", "").replace("\"", ""));
+		if (!checkAllValidThings(newEvolutions)) {
+			throw new ThingLoadException("Invalid pokemon in prior Evolutions for " + newEvolutions);
+		}
+		//accounts for two cases, one pokemon with multiple possible evolutions, or multiple with multiple possible (one for each)
+		if (priorEvolutions.length == 1)
+			pokeWithEvolve.addAttribute("next evolutions", Arrays.toString(newEvolutions));
+		else if (priorEvolutions.length == newEvolutions.length)
+			pokeWithEvolve.addAttribute("next evolutions", newEvolutions[j]);
+		else
+			throw new ThingLoadException("Unaccounted for number of evolutions listed for " + currPokemon);
+		return newEvolutions;
 	}
 }

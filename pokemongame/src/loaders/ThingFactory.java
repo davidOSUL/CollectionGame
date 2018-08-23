@@ -1,7 +1,9 @@
 package loaders;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,6 +22,7 @@ import thingFramework.Thing;
 public final class ThingFactory {
 	private final EventBuilder eb;
 	private final ThingMap thingTemplates;
+	private final List<Loader> loaders;
 	/**
 	 * The location of the levels of evolution
 	 */
@@ -44,28 +47,34 @@ public final class ThingFactory {
 			"/InputFiles/extraAttributes - 3.csv"};
 	private static final String PATH_TO_DESCRIPTIONS = "/InputFiles/descriptionList.csv";
 	private static final ThingFactory INSTANCE = new ThingFactory(THING_LIST_LOCATIONS, PATH_TO_DESCRIPTIONS, EVENT_MAP_LOCATION, EVOLUTIONS_LOCATION, LEVELS_OF_EVOLUTION_LOCATION, EXTRA_ATTRIBUTE_LOCATIONS);
-	private ThingFactory(final String[] pathToThings, final String pathToEvents) {
+	private ThingFactory(final String pathToEvents) {
 		thingTemplates = new ThingMap();
+		loaders = new ArrayList<Loader>();
 		if (pathToEvents == null)
 			eb = new EventBuilder();
 		else
 			eb = new EventBuilder(pathToEvents);
-		new ThingLoader(this, pathToThings).load();
 	}
-	private ThingFactory(final String[] pathToThings) {
-		this(pathToThings, null);
+	private ThingFactory(final String[] pathToThings, final String pathToEvents) {
+		this(pathToEvents);
+		loaders.add(new ThingLoader(this, pathToThings));
+		loadAllLoaders();
 	}
 	private ThingFactory(final String[] pathToThings, final String pathToDescriptions, final String pathToEvents, final String pathToEvolutions, final String pathToLevelsOfEvolve, final String... pathsToExtraAttributes) {
-		this(pathToThings, pathToEvents);
-		new ExtraAttributeLoader(thingTemplates, pathsToExtraAttributes).load();
-		new PokemonEvolutionLoader(pathToEvolutions, pathToLevelsOfEvolve, thingTemplates).load();
-		new DescriptionLoader(pathToDescriptions, thingTemplates, eb).load();
+		this(pathToEvents);
+		loaders.add(new ThingLoader(this, pathToThings, new ExtraAttributeLoader(thingTemplates, pathsToExtraAttributes)));
+		loaders.add(new PokemonEvolutionLoader(pathToEvolutions, pathToLevelsOfEvolve, thingTemplates));
+		loaders.add(new DescriptionLoader(pathToDescriptions, thingTemplates, eb));
+		loadAllLoaders();
 	}
 	void addNewPokemonTemplate(final Pokemon template) {
 		thingTemplates.addPokemon(template);
 	}
 	void addNewItemTemplate(final Item template) {
 		thingTemplates.addItem(template);
+	}
+	private void loadAllLoaders() {
+		loaders.forEach(l -> l.load());
 	}
 	public static ThingFactory sharedInstance() {
 		return INSTANCE;

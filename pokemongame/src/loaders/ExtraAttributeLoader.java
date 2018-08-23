@@ -37,9 +37,9 @@ public class ExtraAttributeLoader implements Loader {
 	private void loadExtraAttributes(final String pathToExtraAttributes) {
 		try {
 			final Set<String> visitedNames = new HashSet<String>();
+			ThingType type = null;
 			for (final String[] values : CSVReader.readCSV(pathToExtraAttributes)) {
 				final String potentialInput = values[0].toUpperCase().trim();
-				ThingType type = null;
 				boolean onSignifyLine = false;
 				if (potentialInput.equalsIgnoreCase(POKEMON_SIGNIFY)) {
 					type = ThingType.POKEMON;

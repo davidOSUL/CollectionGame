@@ -4,30 +4,22 @@ import static gameutils.Constants.RAPID_SPAWN;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
 
-import attributes.ParseType;
 import effects.CustomPeriodEvent;
 import effects.Event;
 import effects.Eventful;
 import gameutils.GameUtils;
 import loaders.ThingFactory;
-import loaders.ThingType;
 import loaders.shopLoader.ShopItem;
 import modifiers.Modifier;
 import thingFramework.Item;
@@ -35,18 +27,16 @@ import thingFramework.Pokemon;
 import thingFramework.Thing;
 /**
  * The "Model" in the MVP model. Manages the game state in memory.
- * <br> NOTE: newSession should be called at the beggining of a new session. </br>
+ * <br> NOTE: newSession should be called at the beginning of a new session. </br>
  * @author David O'Sullivan
  *
  */
 public class Board implements Serializable {
-	
 	/*
 	 * Static variables:
 	 * 
 	 * 
 	 */
-	
 	private static final long serialVersionUID = 1L;
 	/**
 	 * The minimum amount of popularity a player can have
@@ -57,99 +47,18 @@ public class Board implements Serializable {
 	 */
 	private static final int MINGOLD = -9999999;
 	/**
-	 * The chance that a pokemon with a name of a pokemon already on the board will spawn
+	 * Amount of money times original cost to discount on sellback of an item
 	 */
-	private static final double PERCENT_CHANCE_DUPLICATE_SPAWNS = RAPID_SPAWN ? 100 : 5;
+	private final double sellBackPercent = .5;	
 	/**
 	 * The minimum period in minutes at which new pokemon are checked for
 	 */
 	private static final double MIN_POKEPERIOD = 1;
-	/**
-	 * The minimum percent chance that when checking for pokemon, one is found
-	 */
-	private static final double MIN_PERCENT_CHANCE_POKEMON_FOUND = 20;
-	/**
-	 * The maximum percent chance that when checking for pokemon, one is found
-	 */
-	private static final double MAX_PERCENT_CHANCE_POKEMON_FOUND = 90;
-
-	/**
-	 * The minimum percent chance that the rarity of a found pokemon will increase from a popularity boost
-	 */
-	private static final double MIN_PERCENT_CHANCE_POPULARITY_BOOSTS = 0;
-
-	/**
-	 * The maximum delta in rarity value from the calculated rarity. (for example if the rarities are:
-	 * 1,2,3,4,5), and the calculated rarity is 2, with a boost of 2, you will get a pokemon with rarity 4
-	 */
-	private static final double MAX_POPULARITY_BOOST = 10;
-	/**
-	 * The maximum percent chance that the rarity of a found pokemon will increase from a popularity boost
-	 */
-	private static final double MAX_PERCENT_CHANCE_POPULARITY_BOOSTS = 90;
-	/**
-	 * A map from the sum of the chance of a pokemon being found (out of RUNNING_TOTAL) and all chances
-	 * of pokemon loaded in before it, to the name of that pokemon. This will be in order, sorted by the sum.
-	 */
-	private static final TreeMap<Long, String> pokemonCumulativeChance = new TreeMap<Long, String>();
-	/**
-	 * A map from the RARITY (NOT CHANCE) to a list of all pokemon with that rarity, in order of rarity
-	 */
-	private static final TreeMap<Integer, List<String>> pokemonRaritiesInOrder = new TreeMap<Integer, List<String>>();
-	/**
-	 * Map from nonlegendary pokemon names to their RARITY (NOT CHANCE) value
-	 */
-	private static final Map<String, Integer> pokeRarity;
-	private static final Set<String> legendaryPokemon = ThingFactory.sharedInstance().getThingsWithAttributeVal("legendary", true, ThingType.POKEMON, ParseType.BOOLEAN);
-	private static final Set<String> nonLegendaryPokemon = ThingFactory.sharedInstance().getThingsWithAttributeVal("legendary", false, ThingType.POKEMON, ParseType.BOOLEAN);
-	private final Set<String> unFoundLegendaries = new HashSet<String>(legendaryPokemon);
-	static {
-		pokeRarity =
-				ThingFactory.sharedInstance().<Integer>mapFromSetToAttributeValue("rarity", ThingType.POKEMON, ParseType.INTEGER)
-					.entrySet().stream().filter(p -> nonLegendaryPokemon.contains(p.getKey()))
-					.collect(Collectors.toMap(p-> p.getKey(), p -> p.getValue()));
-	}
-	/**
-	 * This is the value of the total chance rarities of every pokemon. In other words,
-	 * it is the denominator for determining the percent chance that a certain pokemon
-	 * will show up (that is the probability will be: getRelativeChanceRarity(pokemon.rarity)/RUNNING_TOTAL)
-	 */
-	private static final long RUNNING_TOTAL;
-	/**
-	 * Maximum number of tries to generate a pokemon
-	 */
-	private static final int MAX_ATTEMPTS = 50;
-	/**
-	 * Amount of money times original cost to discount on sellback of an item
-	 */
-	private final double sellBackPercent = .5;
-	static {
-		long rt = 0; //running total
-
-		for (final Map.Entry<String, Integer> entry: pokeRarity.entrySet()) {
-			final int rarity = entry.getValue();
-			final String name = entry.getKey();
-			final int percentChance = getRelativeChanceRarity(rarity);
-			rt += percentChance;
-			pokemonCumulativeChance.put(rt, name);
-			if (!pokemonRaritiesInOrder.containsKey(rarity)) {
-				final List<String> list = new ArrayList<String>();
-				list.add(name);
-				pokemonRaritiesInOrder.put(rarity, list);
-			}
-			else {
-				pokemonRaritiesInOrder.get(rarity).add(name);
-			}
-		}
-		RUNNING_TOTAL = rt;
-	}
-	
 	/*
 	 * Transient instance variables:
 	 * 
 	 * 
 	 */
-	
 	/**
 	 * The event that checks for pokemon on a certain period based on popularity
 	 * Since it is static, it will be recreated on serialization, meaning it will have a new 
@@ -168,7 +77,6 @@ public class Board implements Serializable {
 	 * Non-transient instance variables:
 	 * 
 	 */
-	
 	/**
 	 * This is the currently Grabbed pokemon, it may be placed on the board and removed from foundPokemon or it may be put back
 	 */
@@ -183,8 +91,13 @@ public class Board implements Serializable {
 	 * The queue of found wild pokemon (pokemon generated from a lookForPokemon() call)
 	 */
 	private final Deque<Pokemon> foundPokemon = new LinkedList<Pokemon>();
-	
+	/**
+	 * The amount of money that the player currently posseses
+	 */
 	private volatile int gold = 0;
+	/**
+	 * The amount of popularity the player posseses
+	 */
 	private volatile int popularity = 0;
 	/**
 	 * Used to represent the state of the board. Contains all things on board.
@@ -237,7 +150,9 @@ public class Board implements Serializable {
 	 * Amount to decrease the calculated look for pokemon period by (in minutes)
 	 */
 	private double periodDecreaseMod = 0;
+	private final WildPokemonGenerator pokemonGenerator;
 	public Board() {
+		pokemonGenerator = new WildPokemonGenerator(this);
 		shop = new Shop();
 		stm = new SessionTimeManager();
 		modifierManager = new ModifierManager(this);
@@ -288,48 +203,7 @@ public class Board implements Serializable {
 		return RAPID_SPAWN ? 1.666e-5 : Math.max(0, (Math.max(MIN_POKEPERIOD, A-Math.pow(getPopularity()/B, C))-periodDecreaseMod));
 	}
 	
-	/**
-	 * helper method for lookForPokemon, for purposes of regenning if a duplicate pokemon is generated and
-	 * testPercentChance(PERCENT_CHANCE_DUPLICATE_SPAWNS) is false
-	 * @param automaticSpawn if true will automatically generate a pokemon regardless of percent chance
-	 */
-	private void lookForPokemon(final boolean automaticSpawn) {
-		//first check if a pokemon is even found
-		int attempts = 0;
-		if (!automaticSpawn && !testPercentChance(getPercentChancePokemonFound()))
-			return;
-		String name = null;
-		do {
-			attempts++;
-			name = findNextPokemon();
-			if (testPercentChance(getPercentChancePopularityModifies())) {
-				final int modifier = getPopularityModifier();
-				if (modifier !=0) {
-					final int rarity = pokeRarity.get(name);
-					//the set of all keys strictly greater than the rarity 
-					//note that iterator will still work if tailmap is empty
-					final Set<Integer> headMap = pokemonRaritiesInOrder.tailMap(rarity, false).keySet();
-					int j = 1;
-					for (final Integer rare: headMap) {
-						if (j==modifier || j==headMap.size()) { //move up from original rarity by modifier ranks in rarity
-							final List<String> pokemon = pokemonRaritiesInOrder.get(rare);
-							name = pokemon.get(ThreadLocalRandom.current().nextInt(pokemon.size()));
-							break;
-						}
-						j++;
-					}
-				}
-			}
-			if (!unFoundLegendaries.isEmpty() && testPercentChance(legendaryChance)) {
-				name = findLegendaryPokemon();
-				
-			}
-		} while(name != null && !isUniquePokemon(name) && !testPercentChance(PERCENT_CHANCE_DUPLICATE_SPAWNS) && attempts < MAX_ATTEMPTS);
-		if (name != null && (PERCENT_CHANCE_DUPLICATE_SPAWNS != 0 || isUniquePokemon(name))) {
-			addToFoundPokemon(name);
-		}
-
-	}
+	
 	/**
 	 * @param Using thing loader creates a new instance of a pokemon with the given name.
 	 * Adds the provided pokemon to the foundPokemon queue and updates the set of pokemon names in addToUniquePokemonLookup
@@ -345,44 +219,14 @@ public class Board implements Serializable {
 	private void removeFromUniquePokemonLookup(final Pokemon p) {
 		uniquePokemonLookup.compute(p.getName(), (k, v) -> (v-1 == 0) ? null : v-1);
 	}
-	private boolean isUniquePokemon(final String name) {
+	boolean isUniquePokemon(final String name) {
 		return !uniquePokemonLookup.containsKey(name);
 	}
-	/**
-     * Called by lookForPokemon(), will find the next pokemon taking into account rarity
-	 * @return
-	 */
-	private String findNextPokemon() {
-		final long randomNum = ThreadLocalRandom.current().nextLong(0, RUNNING_TOTAL);
-		//note that chance != rarity, they are inversely proportional
-		Entry<Long, String> entry = pokemonCumulativeChance.higherEntry(randomNum);
-		if (entry == null)
-			entry = pokemonCumulativeChance.ceilingEntry(randomNum);
-		if (entry == null)
-			entry = pokemonCumulativeChance.floorEntry(randomNum);
-		if (entry == null)
-			return null;
-		return entry.getValue();
-	}
-	/**
-	 * @return the found pokemon, remove it from the unFound list. Returns null if none were found
-	 */
-	private String findLegendaryPokemon() {
-		final int size = unFoundLegendaries.size();
-		if (size == 0)
-			return null;
-		final int item = ThreadLocalRandom.current().nextInt(size); 
-		int i = 0;
-		String toFind = null;
-		for(final String p : unFoundLegendaries)
-		{
-		    if (i == item)
-		        toFind = p;
-		    i++;
-		}
-		unFoundLegendaries.remove(toFind);
 	
-		return toFind;
+	private void lookForAndAddPokemon(final boolean automaticSpawn) {
+		final String newPokemon = pokemonGenerator.lookForPokemon(automaticSpawn); 
+		if (newPokemon != null)
+			addToFoundPokemon(newPokemon);
 	}
 	/**
 	 * To be called by an event on calculated period. Will check if a pokemon is even found using 
@@ -390,68 +234,13 @@ public class Board implements Serializable {
 	 * more likely
 	 */
 	private void lookForPokemon() {
-		lookForPokemon(RAPID_SPAWN ? true : false); 
+		lookForAndAddPokemon(RAPID_SPAWN ? true : false); 
 	}
 	/**
 	 * Looks for pokemon, but gurantees that one is found (as supposed to having a percent chance that none are found)
 	 */
 	private void lookForPokemonGuranteedFind() {
-		lookForPokemon(true);
-	}
-	/**
-	 * @return the percent chance that the randomNum generated by lookForPokemon will be modified 
-	 *by a value. This value increases as popularity increases. 
-	 *In particular this will return a value of the form:
-	 *<br> Aln(pop^B+C)+Dpop^E
-	 */
-	private double getPercentChancePopularityModifies() {
-		final double A = 5;
-		final double B = 1.3;
-		final double C = 1;
-		final double D = 10;
-		final double E = .25;
-		return Math.max(MIN_PERCENT_CHANCE_POPULARITY_BOOSTS, Math.min(MAX_PERCENT_CHANCE_POPULARITY_BOOSTS, A*Math.log(Math.pow(getPopularity(), B)+C)+D*Math.pow(getPopularity(), E)));
-	}
-	/**
-	 * @return The amount by which we will move up in rarity ranking for a pokemon
-	 * Will be in the form of logistic growth: MAX_MODIFIER/1+Be^-r*pop + C
-	 * C is implicitly minimum popularity boost
-	 */
-	private int getPopularityModifier() {
-		final double B = 1000;
-		final double R= .15;
-		final double C = 1;
-		return (int) Math.floor((MAX_POPULARITY_BOOST/(1+B*Math.pow(Math.E, -R*getPopularity())))+C);
-	}
-	/**
-	 * @return Percent chance that a pokemon is found. 
-	 * Will be value of the form pop*A+Gold/B+C/D*pokeMapSize+E, D!=0
-	 * range modified to [MIN_PERCENT_CHANCE, MAX_PERCENT_CHANCE]
-	 */
-	private double getPercentChancePokemonFound() {
-		final double A = 5;
-		final double B = 50;
-		final double C = 100;
-		final double D =3;
-		final double E = 1;
-		if (numPokemon <= 2)
-			return 100;
-		final double answer = Math.max(MIN_PERCENT_CHANCE_POKEMON_FOUND, Math.min(MAX_PERCENT_CHANCE_POKEMON_FOUND, (getPopularity()*A)+(getGold()/B)+(C/(D*numPokemon+E))));
-		return answer;
-	}
-	/**
-	 * @return Percent chance of a rarity out of 100 w.r.t to the other pokes
-	 */
-	private static int getRelativeChanceRarity(final int rarity) {
-		return 100-rarity;
-	}
-	/**
-	 * @param percentChance (0-100) the percent chance of an event occuring
-	 * @return whether or not that event occurs
-	 */
-	private static boolean testPercentChance(final double percentChance) {
-		return GameUtils.testPercentChance(percentChance);
-
+		lookForAndAddPokemon(true);
 	}
 	/**
 	 * @param thing the thing to add
@@ -854,7 +643,7 @@ public class Board implements Serializable {
 		sb.append("\n");
 		sb.append("Look for New Pokemon Period: " + dfDouble.format(getLookPokemonPeriod()) + " minutes");
 		sb.append("\n");
-		sb.append("Chance that on New Pokemon Period, a Pokemon is Found: " + dfDouble.format(this.getPercentChancePokemonFound()) + "%");
+		sb.append("Chance that on New Pokemon Period, a Pokemon is Found: " + dfDouble.format(pokemonGenerator.getPercentChancePokemonFound()) + "%");
 		return sb.toString();
 	}
 	/**
@@ -876,6 +665,12 @@ public class Board implements Serializable {
 			addToRemoveRequest(p);
 		}
 		return i;
+	}
+	double getLegendaryChance() {
+		return legendaryChance;
+	}
+	synchronized int getNumPokemon() {
+		return numPokemon;
 	}
 
 }

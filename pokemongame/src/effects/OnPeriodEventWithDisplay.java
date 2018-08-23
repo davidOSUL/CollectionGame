@@ -5,7 +5,7 @@ import interfaces.SerializableConsumer;
 import interfaces.SerializableTriConsumer;
 import thingFramework.Thing;
 
-public class OnPeriodEventWithDisplay<C extends Thing> extends ActOnHolderEvent<C> {
+public class OnPeriodEventWithDisplay extends ActOnHolderEvent {
 
 	/**
 	 * Creates a new "OnPeriodEventWithDisplay" event. This event has a period, and will also update a given attribute's extra description with 
@@ -15,7 +15,7 @@ public class OnPeriodEventWithDisplay<C extends Thing> extends ActOnHolderEvent<
 	 * @param attributeName the attribute to display the time to next period next to 
 	 * @param creator the holder of this event
 	 */
-	public OnPeriodEventWithDisplay(final SerializableConsumer<Board> onPeriod, final double periodInMinutes, final String attributeName, final C creator) {
+	public OnPeriodEventWithDisplay(final SerializableConsumer<Board> onPeriod, final double periodInMinutes, final String attributeName, final Thing creator) {
 		super(onPeriod, periodInMinutes, getDoOnTick(attributeName), creator);
 	}
 	/**

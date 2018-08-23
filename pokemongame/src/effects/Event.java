@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import game.Board;
 import gameutils.GameUtils;
 import interfaces.SerializableConsumer;
+import thingFramework.Thing;
 /**
  * various things may events which affect the state of the board at different times. Events have an
  * "onPlace", "onRemove" functions which happen when they are created/destroyed. Some events also have an
@@ -35,6 +36,7 @@ public class Event implements Serializable {
 	private boolean shouldBeRemoved = false;
 	private boolean shouldBeReset = false;
 	private SerializableConsumer<Board> newOnRemove = null;
+	private Thing creator;
 	public Event() {
 	}
 	public Event(final SerializableConsumer<Board> onPlace) {
@@ -263,6 +265,22 @@ public class Event implements Serializable {
 		final long periodAsMillis = GameUtils.minutesToMillis(period);
 		return GameUtils.millisecondsToTime(periodAsMillis - (timeAliveAsMillis % periodAsMillis));
 		
+	}
+	public Event makeCopy() {
+		return new Event(this);
+	}
+	public Thing getCreator() {
+		if (this.creator == null)
+			throw new IllegalStateException("Attempted to access null creator");
+		return creator;
+	}
+	public void setCreator(final Thing creator) {
+		if (onPlaceExecuted())
+			throw new IllegalStateException("Attempted to change creator after placing!");
+		this.creator = creator;
+	}
+	public boolean hasCreator() {
+		return creator != null;
 	}
 
 }
