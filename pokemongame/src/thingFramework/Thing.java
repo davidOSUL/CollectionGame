@@ -40,7 +40,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	private final AttributeManager attributes;
 	private final BoardAttributeManager boardAttributeManager;
 	private final List<Event> eventList= new ArrayList<Event>();
-	private final Set<Modifier<Thing>> thingModifiers = new HashSet<Modifier<Thing>>();
+	private final Set<Modifier> modifiers = new HashSet<Modifier>();
 	protected Thing() {
 		name = null;
 		image = null;
@@ -85,36 +85,30 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	 * events)
 	 */
 	public abstract Thing makeCopy();
-	protected static <T> boolean  addModifierIfShould(final Modifier<T> mod, final Collection<Modifier<T>> toAdd, final T t) {
-		final boolean performed = mod.performModificationIfShould(t);
-		if (performed) {
-			toAdd.add(mod);
-		}
-		return performed;
-	}
-	protected static <T>  boolean removeModifierIfPresent(final Modifier<T> mod, final Collection<Modifier<T>> toRemove, final T t) {
-		if (!toRemove.contains(mod))
-			return false;
-		mod.performReverseModification(t);
-		toRemove.remove(mod);
-		return true;
-	}
 	/**
 	 * Adds the modifier to this thing if it is able to succesfully perform the modification on this thing
 	 * (that is mod.shouldModify(this) == true)
 	 * @param mod the mod to add
 	 * @return whether or not the modifier was succesfully added
 	 */
-	public boolean addThingModifierIfShould(final Modifier<Thing> mod) {
-		return Thing.addModifierIfShould(mod, thingModifiers, this);
+	public boolean addModifierIfShould(final Modifier mod) {
+		final boolean performed = mod.performModificationIfShould(this);
+		if (performed) {
+			modifiers.add(mod);
+		}
+		return performed;
 	}
 	/**
 	 * Removes the modifier from this thing if it is present. If it is present performs mod.performReverseModification(this)
 	 * @param mod the mod to remove
 	 * @return whether or not the modifier was succesfully removed
 	 */
-	public boolean removeThingModifierIfPresent(final Modifier<Thing> mod) {
-		return Thing.removeModifierIfPresent(mod, thingModifiers, this);
+	public boolean removeModifierIfPresent(final Modifier mod) {
+		if (!modifiers.contains(mod))
+			return false;
+		mod.performReverseModification(this);
+		modifiers.remove(mod);
+		return true;
 	}
 	
 	public String getDiscardText() {

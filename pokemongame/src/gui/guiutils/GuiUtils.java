@@ -386,4 +386,13 @@ public final class GuiUtils {
 	public static String getSignedColorFormat(final boolean isPositive, final String plusChar) {
 		return isPositive ? "<font color=\"green\">" + plusChar : "<font color=\"red\">";
 	}
+	/**
+	 * Return the beginning of any attribute that should change color depending on sign, note that 
+	 * one still needs to call < /font > themselves
+	 * @param isPositive whether or not it is positive
+	 * @return "< font color=positive_color > +" if amount is positive, or "< font color = negative_color >" otherwise
+	 */
+	public static String getSignedColorFormat(final int amount) {
+		return getSignedColorFormat(amount, '+');
+	}
 }

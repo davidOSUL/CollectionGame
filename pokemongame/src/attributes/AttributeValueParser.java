@@ -5,16 +5,16 @@ import java.util.Arrays;
 import thingFramework.ExperienceGroup;
 import thingFramework.PokemonTypeSet;
 
-class AttributeValueParser {
+public class AttributeValueParser {
 	private final static AttributeValueParser INSTANCE = new AttributeValueParser();
 	
 	private AttributeValueParser() {
 		
 	}
-	static AttributeValueParser getInstance() {
+	public static AttributeValueParser getInstance() {
 		return INSTANCE;
 	}
-	<T> T parseValue(final String value, final ParseType<T> parseType) {
+	public <T> T parseValue(final String value, final ParseType<T> parseType) {
 		Object newVal = null;
 			switch (parseType.getAssociatedEnum()) {
 			case INTEGER:

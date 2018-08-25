@@ -18,6 +18,7 @@ import javax.swing.SwingUtilities;
 import effects.CustomPeriodEvent;
 import effects.Event;
 import effects.Eventful;
+import effects.GlobalModifierOption;
 import gameutils.GameUtils;
 import loaders.ThingFactory;
 import loaders.shopLoader.ShopItem;
@@ -72,7 +73,7 @@ public class Board implements Serializable {
 	 * Blank item to store the checkForPokemon event
 	 */
 	private transient static final Item checkForPokemonThing = Item.generateBlankItemWithEvents(checkForPokemon);
-	
+
 	/*
 	 * Non-transient instance variables:
 	 * 
@@ -85,8 +86,8 @@ public class Board implements Serializable {
 	 * This is the current ShopItem that may be purchased if the purchase is confirmed or it may be refunded if the purchase is canceled
 	 */
 	private ShopItem grabbedShopItem = null;
-	
-	
+
+
 	/**
 	 * The queue of found wild pokemon (pokemon generated from a lookForPokemon() call)
 	 */
@@ -202,8 +203,8 @@ public class Board implements Serializable {
 		final double C = 1.3; //steepness of drop
 		return RAPID_SPAWN ? 1.666e-5 : Math.max(0, (Math.max(MIN_POKEPERIOD, A-Math.pow(getPopularity()/B, C))-periodDecreaseMod));
 	}
-	
-	
+
+
 	/**
 	 * @param Using thing loader creates a new instance of a pokemon with the given name.
 	 * Adds the provided pokemon to the foundPokemon queue and updates the set of pokemon names in addToUniquePokemonLookup
@@ -222,7 +223,7 @@ public class Board implements Serializable {
 	boolean isUniquePokemon(final String name) {
 		return !uniquePokemonLookup.containsKey(name);
 	}
-	
+
 	private void lookForAndAddPokemon(final boolean automaticSpawn) {
 		final String newPokemon = pokemonGenerator.lookForPokemon(automaticSpawn); 
 		if (newPokemon != null)
@@ -247,7 +248,7 @@ public class Board implements Serializable {
 	 */
 	public synchronized void addThing(final Thing thing) {
 		addElementToThingMap(thing);
-		modifierManager.getThingModifiers().forEach(mod -> thing.addThingModifierIfShould(mod));
+		modifierManager.getModifiersOfOption(GlobalModifierOption.NO_PREFERENCE).forEach(mod -> thing.addModifierIfShould(mod));
 		thing.onPlace(this);
 	}
 	/**
@@ -258,7 +259,7 @@ public class Board implements Serializable {
 			throw new RuntimeException("Attempted to Remove null");
 		}
 		removeElementFromThingMap(thing);
-		modifierManager.getThingModifiers().forEach(mod -> thing.removeThingModifierIfPresent(mod));
+		modifierManager.getModifiersOfOption(GlobalModifierOption.NO_PREFERENCE).forEach(mod -> thing.removeModifierIfPresent(mod));
 		thing.onRemove(this);
 
 	}
@@ -283,7 +284,7 @@ public class Board implements Serializable {
 	}
 	public String getTimeStats() {
 		return "TotalTimeSinceStart: " + getTotalTimeSinceStart() + "\n" + " SessionGameTime: " + getSessionGameTime() + "\n TotalInGameTime: " + getTotalInGameTime();
- 	}
+	}
 	/**
 	 * Increase the % chance (0-100) of a legendary pokemon appearing
 	 * @param increase the percentage (0-100) to increase by
@@ -345,22 +346,22 @@ public class Board implements Serializable {
 		numPokemon++;
 		addToUniquePokemonLookup(p);
 		pokemonOnBoard.add(p);
-		modifierManager.getPokemonModifiers().forEach(mod -> p.addModifierIfShould(mod));
-		
+		modifierManager.getModifiersOfOption(GlobalModifierOption.ONLY_POKEMON).forEach(mod -> p.addModifierIfShould(mod));
+
 	}
 	public synchronized void notifyPokemonRemoved(final Pokemon p) {
 		numPokemon--;
 		removeFromUniquePokemonLookup(p);
 		pokemonOnBoard.remove(p);
-		modifierManager.getPokemonModifiers().forEach(mod -> p.removeModifierIfPresent(mod));
+		modifierManager.getModifiersOfOption(GlobalModifierOption.ONLY_POKEMON).forEach(mod -> p.removeModifierIfPresent(mod));
 	}
 	public synchronized void notifyItemAdded(final Item i) {
 		itemsOnBoard.add(i);
-		modifierManager.getItemModifiers().forEach(mod -> i.addModifierIfShould(mod));
+		modifierManager.getModifiersOfOption(GlobalModifierOption.ONLY_ITEMS).forEach(mod -> i.addModifierIfShould(mod));
 	}
 	public synchronized void notifyItemRemoved(final Item i) {
 		itemsOnBoard.remove(i);
-		modifierManager.getItemModifiers().forEach(mod -> i.removeModifierIfPresent(mod));
+		modifierManager.getModifiersOfOption(GlobalModifierOption.ONLY_ITEMS).forEach(mod -> i.removeModifierIfPresent(mod));
 	}
 	/**
 	 * Adds the element to the map from thing to # present, updating accordingly, and adding events if necessary. 
@@ -501,7 +502,7 @@ public class Board implements Serializable {
 			return shop.getThingCopy(item);
 		}
 		return null;
-		
+
 	}
 	/**
 	 * If have enough money, generate a new Thing corresponding to the thingName in the shop, and subtract the cost of that thing
@@ -512,7 +513,7 @@ public class Board implements Serializable {
 			return null;
 		subtractGold(grabbedShopItem.getCost());
 		return shop.purchase(grabbedShopItem);
-		
+
 	}
 	/**
 	 * Cancel the purchase attempt
@@ -553,68 +554,37 @@ public class Board implements Serializable {
 		else
 			return item.getSellBackValue();
 	}
-	
-	private void setUpModifier(final Modifier<?> mod) {
-		mod.startCount(this.getTotalInGameTime());
-	}
-	/**
-	 * Applies the given Pokemon modifier to the entire board. All currently present pokemon, as well as those added
-	 * in the future will be affected as long as the modifier remains. Also starts mod.startCount(...).
-	 * @param mod the Pokemon modifier to add
-	 */
-	public void addGlobalPokemonModifier(final Modifier<Pokemon> mod) {
-		pokemonOnBoard.forEach(p -> p.addModifierIfShould(mod));
-		modifierManager.addGlobalPokemonModifier(mod);
-		setUpModifier(mod);
 
+	public synchronized void applyGlobalModifier(final Modifier mod) {
+		applyGlobalModifier(mod, GlobalModifierOption.NO_PREFERENCE);
 	}
 	/**
-	 * Applies the given Item modifier to the entire board. All currently present Items, as well as those added
-	 * in the future will be affected as long as the modifier remains. Also starts mod.startCount(...).
-	 * @param mod the Item modifier to add
-	 */
-	public void addGlobalItemModifier(final Modifier<Item> mod) {
-		itemsOnBoard.forEach(i -> i.addModifierIfShould(mod));
-		modifierManager.addGlobalItemModifier(mod);
-		setUpModifier(mod);
-
-	}
-	/**
-	 * Applies the given modifier to every Thing. All currently present Things, as well as those added
+	 * Applies the given modifier to specified things based on options. All currently present Thing meeting those stipulations, as well as those added
 	 * in the future will be affected as long as the modifier remains. Also starts mod.startCount(...).
 	 * @param mod the Thing modifier to add
 	 */
-	public void addGlobalThingModifier(final Modifier<Thing> mod) {
-		thingsOnBoard.forEach(t -> t.addThingModifierIfShould(mod));
-		modifierManager.addGlobalThingModifier(mod);
-		setUpModifier(mod);
+	public synchronized void applyGlobalModifier(final Modifier mod, final GlobalModifierOption option) {
+		switch(option) {
+		case NO_PREFERENCE:
+			thingsOnBoard.forEach(t -> t.addModifierIfShould(mod));
+			break;
+		case ONLY_ITEMS:
+			itemsOnBoard.forEach(i -> i.addModifierIfShould(mod));
+			break;
+		case ONLY_POKEMON:
+			pokemonOnBoard.forEach(p -> p.addModifierIfShould(mod));
+			break;				
+		}
+		modifierManager.addGlobalModifier(mod, option);
+		mod.startCount(this.getTotalInGameTime());
 	}
 	/**
-	 * Removes the given Pokemon modifier from the board. All Pokemon currently affected by the modifier will have the modifier removed
-	 *@param mod the Pokemon Modifier to remove
+	 * Removes the given Modifier from the board. All Things currently affected by the modifier will have the modifier removed
+	 *@mod the Modifier to remove
 	 */
-	public synchronized void removeGlobalPokemonModifier(final Modifier<Pokemon> mod) {
-		pokemonOnBoard.forEach(p -> p.removeModifierIfPresent(mod));
-		modifierManager.removeGlobalPokemonModifier(mod);
-		
-	}
-	/**
-	 * Removes the given Item modifier from the board. All Items currently affected by the modifier will have the modifier removed
-	 *@mod the Item Modifier to remove
-	 */
-	public synchronized void removeGlobalItemModifier(final Modifier<Item> mod) {
-		itemsOnBoard.forEach(i -> i.removeModifierIfPresent(mod));
-		modifierManager.removeGlobalItemModifier(mod);
-		
-	}
-	/**
-	 * Removes the given Thing modifier from the board. All Things currently affected by the modifier will have the modifier removed
-	 *@mod the Thing Modifier to remove
-	 */
-	public synchronized void removeGlobalThingModifier(final Modifier<Thing> mod) {
-		thingsOnBoard.forEach(t -> t.removeThingModifierIfPresent(mod));
-		modifierManager.removeGlobalThingModifier(mod);
-		
+	public synchronized void removeGlobalModifier(final Modifier mod) {
+		thingsOnBoard.forEach(t -> t.removeModifierIfPresent(mod));
+		modifierManager.notifyGlobalModifierRemoved(mod);
 	}
 	/**
 	 * Add the provided thing to queue of things that the board wants to remove
@@ -672,5 +642,5 @@ public class Board implements Serializable {
 	synchronized int getNumPokemon() {
 		return numPokemon;
 	}
-
+	
 }

@@ -1,8 +1,6 @@
 package thingFramework;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 import attributes.Attribute;
@@ -13,7 +11,6 @@ import effects.Eventful;
 import game.Board;
 import gameutils.GameUtils;
 import interfaces.Imagable;
-import modifiers.Modifier;
 
 public class Pokemon extends Thing implements Serializable, Eventful, Imagable {
 	
@@ -21,7 +18,6 @@ public class Pokemon extends Thing implements Serializable, Eventful, Imagable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private final Collection<Modifier<Pokemon>> pokemonModifiers = new HashSet<Modifier<Pokemon>>(); 
 	public Pokemon(final String name, final String image) {
 		super(name, image);
 		
@@ -32,7 +28,7 @@ public class Pokemon extends Thing implements Serializable, Eventful, Imagable {
 	public Pokemon(final String name, final String image, final List<Event> events) {
 		super(name, image, events);
 	}
-	public Pokemon(final Pokemon p) {
+	private Pokemon(final Pokemon p) {
 		super(p);
 	}
 
@@ -56,13 +52,6 @@ public class Pokemon extends Thing implements Serializable, Eventful, Imagable {
 	@Override
 	public String getDiscardText() {
 		return "Set " + getName() + " free";
-	}
-	public boolean addModifierIfShould(final Modifier<Pokemon> mod) {
-		return Thing.addModifierIfShould(mod, pokemonModifiers, this);
-	}
-	
-	public boolean removeModifierIfPresent(final Modifier<Pokemon> mod) {
-		return Thing.removeModifierIfPresent(mod, pokemonModifiers, this);
 	}
 	@Override
 	protected boolean validateAttribute(final Attribute<?> attribute) {

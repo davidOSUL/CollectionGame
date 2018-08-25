@@ -5,15 +5,17 @@ import game.Board;
 import modifiers.Modifier;
 import thingFramework.Thing;
 
-public abstract class GlobalModifierEvent<M extends Thing> extends Event {
-	private final Modifier<M> mod;
+public class GlobalModifierEvent extends Event {
+	private final Modifier mod;
 	private final boolean removeCreatorWhenDone;
 	private final boolean displayCountdown;
 	private boolean sentRequest = false;
-	public GlobalModifierEvent(final Modifier<M> mod, final boolean removeCreatorWhenDone, final boolean displayCountdown) {
+	private final GlobalModifierOption option;
+	public GlobalModifierEvent(final Modifier mod, final boolean removeCreatorWhenDone, final boolean displayCountdown, final GlobalModifierOption option) {
 		this.mod = mod;
 		this.removeCreatorWhenDone = removeCreatorWhenDone;
 		this.displayCountdown = displayCountdown;
+		this.option = option;
 		setOnPlace(board -> {
 			if (getCreator() == null)
 				throw new IllegalStateException("Held event has no creator!");
@@ -33,8 +35,8 @@ public abstract class GlobalModifierEvent<M extends Thing> extends Event {
 			}
 		});
 	}
-	protected GlobalModifierEvent(final GlobalModifierEvent<M> copy) {
-		this(new Modifier<M>(copy.getMod()), copy.getRemoveCreatorWhenDone(), copy.getDisplayCountdown());
+	private GlobalModifierEvent(final GlobalModifierEvent copy) {
+		this(copy.getMod().makeCopy(), copy.getRemoveCreatorWhenDone(), copy.getDisplayCountdown(), copy.option);
 	}
 	@Override
 	public void setCreator(final Thing creator) {
@@ -43,23 +45,33 @@ public abstract class GlobalModifierEvent<M extends Thing> extends Event {
 			getCreator().addAttribute("time left");
 	}
 	@Override
-	public abstract GlobalModifierEvent makeCopy();
-	public Modifier<M> getMod() {
+	public GlobalModifierEvent makeCopy() {
+		return new GlobalModifierEvent(this);
+	}
+	public Modifier getMod() {
 		return mod;
 	}
 	/**
 	 * @return the removeCreatorWhenDone
 	 */
-	protected boolean getRemoveCreatorWhenDone() {
+	private boolean getRemoveCreatorWhenDone() {
 		return removeCreatorWhenDone;
 	}
 	/**
 	 * @return the displayCountdown
 	 */
-	protected boolean getDisplayCountdown() {
+	private boolean getDisplayCountdown() {
 		return displayCountdown;
 	}
-	public abstract void addModToBoard(Board b);
-	public abstract void removeModFromBoard(Board b);
+	private void addModToBoard(final Board b) {
+		if (option == null) {
+			b.applyGlobalModifier(mod);
+		} else {
+			b.applyGlobalModifier(mod, option);
+		}
+	}
+	private void removeModFromBoard(final Board b) { 
+		b.removeGlobalModifier(mod);
+	}
 
 }

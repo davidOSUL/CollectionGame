@@ -1,8 +1,6 @@
 package thingFramework;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 import attributes.Attribute;
@@ -13,7 +11,6 @@ import effects.Eventful;
 import game.Board;
 import gameutils.GameUtils;
 import interfaces.Imagable;
-import modifiers.Modifier;
 
 public class Item extends Thing implements Serializable, Eventful, Imagable{
 	
@@ -21,7 +18,6 @@ public class Item extends Thing implements Serializable, Eventful, Imagable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private final Collection<Modifier<Item>> itemModifiers = new HashSet<Modifier<Item>>(); 
 	protected Item() {}
 	private Item(final Event...events) {
 		super(events);
@@ -35,7 +31,7 @@ public class Item extends Thing implements Serializable, Eventful, Imagable{
 	public Item(final String name, final String image, final List<Event> events) {
 		super(name, image, events);
 	}
-	public Item(final Item i) {
+	private Item(final Item i) {
 		super(i);
 	}
 
@@ -59,14 +55,6 @@ public class Item extends Thing implements Serializable, Eventful, Imagable{
 	@Override
 	public Thing makeCopy() {
 		return new Item(this);
-	}
-	
-	public boolean addModifierIfShould(final Modifier<Item> mod) {
-		return Thing.addModifierIfShould(mod, itemModifiers, this);
-	}
-	
-	public boolean removeModifierIfPresent(final Modifier<Item> mod) {
-		return Thing.removeModifierIfPresent(mod, itemModifiers, this);
 	}
 	@Override
 	protected boolean validateAttribute(final Attribute<?> attribute) {

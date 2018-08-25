@@ -5,13 +5,14 @@ import java.io.Serializable;
 import gameutils.GameUtils;
 import interfaces.SerializableConsumer;
 import interfaces.SerializablePredicate;
+import thingFramework.Thing;
 
 /**
  * @author David O'Sullivan
  *
- * @param <T> the object that this modifies
+ * @param <Thing> the object that this modifies
  */
-public class Modifier<T> implements Serializable {
+public final class Modifier implements Serializable {
 	/**
 	 * 
 	 */
@@ -20,35 +21,35 @@ public class Modifier<T> implements Serializable {
 	 * How long should exist before going away. -1 to never go away.
 	 */
 	private final long lifeInMillis;
-	private final SerializablePredicate<T> shouldModify;
-	private final SerializableConsumer<T> modification;
-	private final SerializableConsumer<T> reverseModification;
+	private final SerializablePredicate<Thing> shouldModify;
+	private final SerializableConsumer<Thing> modification;
+	private final SerializableConsumer<Thing> reverseModification;
 	private long timeStart = System.currentTimeMillis();
-	public Modifier (final SerializableConsumer<T> modification,  final SerializableConsumer<T> reverseModification) {
+	public Modifier (final SerializableConsumer<Thing> modification,  final SerializableConsumer<Thing> reverseModification) {
 		this(-1, x -> true, modification, reverseModification);
 	}
-	public Modifier (final long lifeInMillis, final SerializableConsumer<T> modification,  final SerializableConsumer<T> reverseModification) {
+	public Modifier (final long lifeInMillis, final SerializableConsumer<Thing> modification,  final SerializableConsumer<Thing> reverseModification) {
 		this(lifeInMillis, x -> true, modification, reverseModification);
 	}
-	public Modifier (final SerializablePredicate<T> shouldModify, final SerializableConsumer<T> modification,  final SerializableConsumer<T> reverseModification) {
+	public Modifier (final SerializablePredicate<Thing> shouldModify, final SerializableConsumer<Thing> modification,  final SerializableConsumer<Thing> reverseModification) {
 		this(-1, shouldModify, modification, reverseModification);
 	}
-	public Modifier (final long lifeInMillis, final SerializablePredicate<T> shouldModify, final SerializableConsumer<T> modification, final SerializableConsumer<T> reverseModification) {
+	public Modifier (final long lifeInMillis, final SerializablePredicate<Thing> shouldModify, final SerializableConsumer<Thing> modification, final SerializableConsumer<Thing> reverseModification) {
 		this.lifeInMillis = lifeInMillis;
 		this.shouldModify = shouldModify;
 		this.modification = modification;
 		this.reverseModification = reverseModification;
 	}
-	public Modifier(final Modifier m) {
+	private Modifier(final Modifier m) {
 		this(m.lifeInMillis, m.shouldModify, m.modification, m.reverseModification);
 	}
 	public void startCount(final long startTime) {
 		timeStart = startTime;
 	}
-	public boolean shouldModify(final T t) {
+	public boolean shouldModify(final Thing t) {
 		return shouldModify.test(t);
 	}
-	public boolean performModificationIfShould(final T t) {
+	public boolean performModificationIfShould(final Thing t) {
 		if (shouldModify.test(t)) {
 			modification.accept(t);
 			return true;
@@ -59,7 +60,7 @@ public class Modifier<T> implements Serializable {
 	public boolean isDone(final long currentTime) {
 		return lifeInMillis > 0  && (currentTime - timeStart) >= lifeInMillis;
 	}
-	public void performReverseModification(final T actOn) {
+	public void performReverseModification(final Thing actOn) {
 		reverseModification.accept(actOn);
 	}
 	public String timeLeft(final long currentTime)  {
@@ -68,7 +69,9 @@ public class Modifier<T> implements Serializable {
 	public boolean hasTimeLimit() {
 		return lifeInMillis > 0;
 	}
-
+	public Modifier makeCopy() {
+		return new Modifier(this);
+	}
 	
 
 	
