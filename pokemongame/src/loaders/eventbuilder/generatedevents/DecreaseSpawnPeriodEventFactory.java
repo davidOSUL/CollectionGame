@@ -3,9 +3,9 @@ package loaders.eventbuilder.generatedevents;
 import effects.Event;
 import gameutils.GameUtils;
 
-public class DecreaseSpawnPeriod extends TypicalEventFactory {
+public class DecreaseSpawnPeriodEventFactory extends TypicalEventFactory {
 	private final long millis;
-	public DecreaseSpawnPeriod(final String[] inputs) {
+	public DecreaseSpawnPeriodEventFactory(final String[] inputs) {
 		super(inputs);
 		millis = parseLong(inputs[1]);
 	};

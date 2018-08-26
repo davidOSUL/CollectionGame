@@ -5,14 +5,14 @@ import effects.OnPeriodEventWithDisplay;
 import gameutils.GameUtils;
 import gui.guiutils.GuiUtils;
 
-public class RandomGold extends TypicalEventFactory{
+public class RandomGoldEventFactory extends TypicalEventFactory{
 	private final int percentChance;
 	private final int gold;
 	private final double periodInMinutes;
 	private static final int PERCENT_LOC = 1;
 	private static final int GOLD_LOC = 2;
 	private static final int PERIOD_LOC =3;
-	protected RandomGold(final String[] inputs) {
+	protected RandomGoldEventFactory(final String[] inputs) {
 		super(inputs);
 		percentChance = Integer.parseInt(inputs[PERCENT_LOC]);
 		gold = Integer.parseInt(inputs[GOLD_LOC]);

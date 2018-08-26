@@ -53,7 +53,7 @@ public class Item extends Thing implements Serializable, Eventful, Imagable{
 		return new Item(events);
 	}
 	@Override
-	public Thing makeCopy() {
+	public Item makeCopy() {
 		return new Item(this);
 	}
 	@Override

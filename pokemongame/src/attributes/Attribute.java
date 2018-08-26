@@ -54,6 +54,9 @@ public class Attribute<T> implements Serializable {
 	public String toString() {
 		return "Attribute Of Parse Type: " + parseType + ". [value: " + value + ", defaultvalue: " + defaultValue + ", attributeCharacteristics: " + atttributeCharacteristicSet + " extra description: " + extraDescription + "]";
 	}
+	String toReverseString() {
+		return toString();
+	}
 	public boolean isPositive() {
 		if (isPositive == null)
 			return false;

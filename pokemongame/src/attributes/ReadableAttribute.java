@@ -41,6 +41,15 @@ class ReadableAttribute<T> extends Attribute<T> {
 		if (!displayName.isEmpty())
 			sb.append(": ");
 		sb.append(getFormattedValue());
+		sb.append("</span>");
+		return sb.toString();
+	}
+	@Override
+	String toReverseString() {
+		final StringBuilder sb = new StringBuilder("<span>");
+		sb.append(getFormattedValue());
+		sb.append(displayName);
+		sb.append("</span>");
 		return sb.toString();
 	}
 	private String getFormattedValue() {
@@ -61,7 +70,6 @@ class ReadableAttribute<T> extends Attribute<T> {
 		if (settings.contains(Setting.ITALICS))
 			sb.append("</i>");
 		sb.append(getExtraDescription());
-		sb.append("</span>");
 		return sb.toString();
 	}
 	public void setDisplayFormat(final SerializableFunction<String, String> formatDisplay) {

@@ -92,11 +92,7 @@ public final class ThingFactory {
 	 */
 	public Thing generateNewThing(final String name) {
 		final Thing t = thingTemplates.get(name).makeCopy();
-		t.addToEventList(eb.getNewRegularEvents(name));
-		eb.getNewHeldEvents(name).forEach(he -> {
-			he.setCreator(t);
-			t.addToEventList(he);
-		});
+		t.addToEventList(eb.getNewEvents(name));
 		return t;
 	}
 	/**
@@ -105,12 +101,8 @@ public final class ThingFactory {
 	 * @return The new thing. Throws NullPointerException if not present
 	 */
 	public Pokemon generateNewPokemon(final String name) {
-		final Pokemon p = new Pokemon(thingTemplates.getPokemon(name));
-		p.addToEventList(eb.getNewRegularEvents(name));
-		eb.getNewHeldEvents(name).forEach(he -> {
-			he.setCreator(p);
-			p.addToEventList(he);
-		});
+		final Pokemon p = thingTemplates.getPokemon(name).makeCopy();
+		p.addToEventList(eb.getNewEvents(name));
 		return p;
 	}
 	/**
@@ -119,12 +111,8 @@ public final class ThingFactory {
 	 * @return The new thing. Throws NullPointerException if not present
 	 */
 	public Item generateNewItem(final String name) {
-		final Item i = new Item(thingTemplates.getItem(name));
-		i.addToEventList(eb.getNewRegularEvents(name));
-		eb.getNewHeldEvents(name).forEach(he -> {
-			he.setCreator(i);
-			i.addToEventList(he);
-		});
+		final Item i = thingTemplates.getItem(name).makeCopy();
+		i.addToEventList(eb.getNewEvents(name));
 		return i;
 	}
 	
@@ -132,7 +120,7 @@ public final class ThingFactory {
 	 * @param name the name of the thing to lookup
 	 * @return true if that thing was loaded in
 	 */
-	public boolean hasThing(final String name) {
+	public boolean isCreatableThing(final String name) {
 		return thingTemplates.hasThing(name);
 	}
 	

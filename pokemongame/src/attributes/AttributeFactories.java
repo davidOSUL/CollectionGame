@@ -172,7 +172,11 @@ final class AttributeFactories {
 		boolean containsAttributeForManager(final AttributeManager manager, final String name) {
 			return attributeTemplates.containsKey(name) && associatedAttributeManagers.get(manager).containsKey(name);
 		}
-		
+		void removeManager(final AttributeManager manager) {
+			associatedAttributeManagers.remove(manager);
+			doOnGenerations.remove(manager);
+			attributeWatchers.remove(manager);
+		}
 		private void throwIfInvalidTemplate(final String attributeName) {
 			if (!attributeTemplates.containsKey(attributeName))
 				throw new AttributeNotFoundException(attributeName + "is not a valid attribute");

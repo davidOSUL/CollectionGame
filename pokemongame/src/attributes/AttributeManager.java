@@ -60,7 +60,7 @@ public final class AttributeManager {
 		return type.getAssociatedFactory().getAttributeForManager(this, attributeName);
 	}
 	public String getAttributeAsString(final String attributeName) {
-		return AttributeFactories.getInstance().getCreatorFactory(attributeName).getAttributeForManager(this, attributeName).toString();
+		return getCreator(attributeName).getAttributeForManager(this, attributeName).toString();
 	}
 	public <T> T getAttributeValue(final String attributeName, final ParseType<T> type) {
 		return getAttribute(attributeName, type).getValue();
@@ -149,4 +149,12 @@ public final class AttributeManager {
 	public boolean attributeValueEqualsParse(final String attributeName, final String value) {
 		return getCreator(attributeName).getAttributeForManager(this, attributeName).valEqualsParse(value);
 	}
+	public static <T> String displayAttribute(final String attributeName, final T attributeValue, final ParseType<T> type)  {
+		final AttributeManager manager = new AttributeManager();
+		manager.generateAttribute(attributeName, attributeValue, type);
+		final String result = manager.getAttribute(attributeName, type).toReverseString();
+		type.getAssociatedFactory().removeManager(manager);
+		return result;
+	}
+	
 }

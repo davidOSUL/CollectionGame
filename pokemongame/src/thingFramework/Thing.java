@@ -248,6 +248,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 			return;
 		events.forEach(e -> {
 			eventList.add(e);
+			e.setCreator(this);
 		});
 	}
 	@Override

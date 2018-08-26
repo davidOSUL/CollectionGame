@@ -83,7 +83,7 @@ public class Event implements Serializable {
 		this(onPlace, onPeriod, onRemove, periodInMinutes);
 		this.onTick = onTick;
 	}
-	public Event(final Event e) {
+	protected Event(final Event e) {
 		this(e.onPlace, e.onPeriod, e.onRemove, e.period);
 		setOnTick(e.onTick);
 	}

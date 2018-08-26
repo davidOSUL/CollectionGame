@@ -3,10 +3,10 @@ package loaders.eventbuilder.generatedevents;
 import effects.Event;
 import gui.guiutils.GuiUtils;
 
-public class LegendaryChanceIncrease extends TypicalEventFactory{
+public class LegendaryChanceIncreaseEventFactory extends TypicalEventFactory{
 	private static final int INCREASE_LOC = 1;
 	private final int increase;
-	protected LegendaryChanceIncrease(final String[] inputs) {
+	protected LegendaryChanceIncreaseEventFactory(final String[] inputs) {
 		super(inputs);
 		increase = Integer.parseInt(inputs[INCREASE_LOC]);
 	}

@@ -88,7 +88,7 @@ public class ShopItemLoader {
 					final int[] costAndRank = GameUtils.parseAllInRangeToInt(values, COST, RANK);
 					quantityCostAndRank = new int[]{ShopItem.INFINITY, costAndRank[0], costAndRank[1]};
 				}
-				if (!ThingFactory.sharedInstance().hasThing(values[NAME])) 
+				if (!ThingFactory.sharedInstance().isCreatableThing(values[NAME])) 
 					throw new RuntimeException("attempted to parse ShopItem with Thing Name: " + values[NAME] + " which does not have a corresponding thing");
 				final boolean removeWhenDeleted = values[REMOVE_ON_DELETE].equalsIgnoreCase("yes");
 				final int maxAllowed= values[MAX_ALLOWED].equalsIgnoreCase("no limit") ? ShopItem.INFINITY :Integer.parseInt(values[MAX_ALLOWED]);
