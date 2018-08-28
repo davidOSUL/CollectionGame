@@ -81,7 +81,7 @@ public class Event implements Serializable {
 	}
 	public Event(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final SerializableConsumer<Board> onRemove, final SerializableConsumer<Board> onTick, final double periodInMinutes) {
 		this(onPlace, onPeriod, onRemove, periodInMinutes);
-		this.onTick = onTick;
+		setOnTick(onTick);
 	}
 	protected Event(final Event e) {
 		this(e.onPlace, e.onPeriod, e.onRemove, e.period);

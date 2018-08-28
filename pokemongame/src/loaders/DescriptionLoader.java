@@ -2,7 +2,6 @@ package loaders;
 
 import java.io.IOException;
 
-import loaders.eventbuilder.EventBuilder;
 import thingFramework.Thing;
 
 public class DescriptionLoader implements Loader {

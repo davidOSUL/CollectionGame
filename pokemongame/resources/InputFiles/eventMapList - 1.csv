@@ -1,20 +1,8 @@
-Pebble of Legends,legchanceincr:1,
-Stone of Legends,legchanceincr:4,
-Rock of Legends,legchanceincr:7,
-Boulder of Legends,legchanceincr:10,
-Mountain of Legends,legchanceincr:15,
-Tectonic Plate of Legends,legchanceincr:25,
-Fountain of Water,pokeofcategoryadd:type:WATER:gpm:1:-1:false:false:Water type pokemon,
-Fountain of Bugs,pokeofcategoryadd:type:BUG:gpm:1:-1:false:false:Bug type pokemon,
-Dragon Scepter,pokeofcategoryadd:type:DRAGON:gpm:1:-1:false:false:Dragon type Pokemon,
-Lawn Trimmings,pokeofcategoryadd:type:GRASS:gpm:1:-1:false:false:Grass type Pokemon,
-A *Magical* Rock,pokeofcategoryadd:type:ROCK:gpm:1:-1:false:false:Rock type Pokemon,
-Small Table,randomgold:30:5:5,
-Large Table,randomgold:50:1:1,
-Poker Table,randomgold:1:1000:60,
-Bronze Timer,allpokemult:gpm:2:600000:true:true,allpokemult:gph:2:600000:true:true
-Silver Timer,allpokemult:gpm:3:1.8e6:true:true,allpokemult:gph:3:1.8e6:true:true
-Gold Timer,allpokemult:gpm:6:3.6e6:true:true,allpokemult:gph:6:3.6e6:true:true
-Sand Clock,decrspawnperiod:1000,
-Time Bender,decrspawnperiod:10000,
-Master of Time and Space,decrspawnperiod:30000,
+legendary_chance_increase,
+Name,% increase
+Pebble of Legends,1
+Stone of Legends,4
+Rock of Legends,7
+Boulder of Legends,10
+Mountain of Legends,15
+Tectonic Plate of Legends,25

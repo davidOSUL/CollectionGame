@@ -45,24 +45,30 @@ class ReadableAttribute<T> extends Attribute<T> {
 		return sb.toString();
 	}
 	@Override
-	String toReverseString() {
+	public String getDisplayString(final EnumSet<DisplayStringSetting> displayStringSettings) {
 		final StringBuilder sb = new StringBuilder("<span>");
-		sb.append(getFormattedValue());
+		sb.append(getFormattedValue(displayStringSettings));
+		sb.append(" ");
 		sb.append(displayName);
 		sb.append("</span>");
 		return sb.toString();
 	}
-	private String getFormattedValue() {
+	private String getFormattedValue(final EnumSet<DisplayStringSetting> displayStringSettings) {
 		if (getValue() == null)
 			return "";
 		final StringBuilder sb = new StringBuilder();
 		if (settings.contains(Setting.ITALICS))
 			sb.append("<i>");
 		if (settings.contains(Setting.COLOR_BASED_ON_SIGN)) {
-			sb.append(GuiUtils.getSignedColorFormat(isPositive(), settings.contains(Setting.PLUS_FOR_POSITIVE) ? "+" : ""));
+			String plusChar = "";
+			if (settings.contains(Setting.PLUS_FOR_POSITIVE) && !displayStringSettings.contains(DisplayStringSetting.CHANGE_PLUS_TO_TIMES)) {
+					plusChar = "+";
+			}
+			sb.append(GuiUtils.getSignedColorFormat(isPositive(), plusChar));
 		}
 		sb.append(formatDisplay.apply(getValue().toString()));
-		
+		if (settings.contains(Setting.PLUS_FOR_POSITIVE) && displayStringSettings.contains(DisplayStringSetting.CHANGE_PLUS_TO_TIMES))
+			sb.append("x");
 		if (settings.contains(Setting.OUT_OF_TEN))
 			sb.append("/10");
 		if (settings.contains(Setting.COLOR_BASED_ON_SIGN))
@@ -71,6 +77,9 @@ class ReadableAttribute<T> extends Attribute<T> {
 			sb.append("</i>");
 		sb.append(getExtraDescription());
 		return sb.toString();
+	}
+	private String getFormattedValue() {
+		return getFormattedValue(EnumSet.noneOf(DisplayStringSetting.class));
 	}
 	public void setDisplayFormat(final SerializableFunction<String, String> formatDisplay) {
 		this.formatDisplay = formatDisplay;

@@ -3,7 +3,7 @@ package attributes;
 import java.io.Serializable;
 
 import interfaces.SerializableFunction;
-public class Attribute<T> implements Serializable {
+public class Attribute<T> implements Serializable, DisplayMethods {
 	private T value;
 	private  T defaultValue;
 	private AttributeCharacteristicSet atttributeCharacteristicSet;
@@ -54,20 +54,12 @@ public class Attribute<T> implements Serializable {
 	public String toString() {
 		return "Attribute Of Parse Type: " + parseType + ". [value: " + value + ", defaultvalue: " + defaultValue + ", attributeCharacteristics: " + atttributeCharacteristicSet + " extra description: " + extraDescription + "]";
 	}
-	String toReverseString() {
-		return toString();
-	}
 	public boolean isPositive() {
 		if (isPositive == null)
 			return false;
 		return isPositive.apply(getValue());
 	}
-	public boolean shouldDisplay() {
-		return false;
-	}
-	public int getDisplayRank() {
-		return -1;
-	}
+	
 	public boolean hasCharacteristic(final AttributeCharacteristic characteristic) {
 		return atttributeCharacteristicSet.containsValue(characteristic);
 	}
@@ -82,5 +74,11 @@ public class Attribute<T> implements Serializable {
 	}
 	boolean valEqualsParse(final String value) {
 		return AttributeValueParser.getInstance().parseValue(value, parseType).equals(getValue());
+	}
+	/**
+	 * Sets the value of the attribute to its default value
+	 */
+	public void setValueToDefault() {
+		setValue(defaultValue);
 	}
 }

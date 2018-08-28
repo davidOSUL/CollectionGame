@@ -3,6 +3,7 @@ package gameutils;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
  */
 public final class GameUtils {
 	private GameUtils() {
-		
+
 	}
 	/**
 	 * Returns a new array where the first index is Integer.parseInt(input[LowerIndex]), the last is Integer.parseInt(input[UpperIndex]),
@@ -37,13 +38,13 @@ public final class GameUtils {
 	 * @return whether or not that event occurs
 	 */
 	public static boolean testPercentChance(final double percentChance) {
-		
-				final double randomNum = ThreadLocalRandom.current().nextDouble(0, 100); //num between [0, 100)
-				if (randomNum >= (100-percentChance))
-					return true;
-			
-			return false;
-		
+
+		final double randomNum = ThreadLocalRandom.current().nextDouble(0, 100); //num between [0, 100)
+		if (randomNum >= (100-percentChance))
+			return true;
+
+		return false;
+
 	}
 	/**
 	 * @param list1 the first list to unionize
@@ -90,7 +91,7 @@ public final class GameUtils {
 			newList.add(t);
 		}
 		return newList;
-		
+
 	}
 	public static <T> ArrayList<T> toArrayList(final T element) {
 		final ArrayList<T> newList = new ArrayList<T>();
@@ -103,14 +104,17 @@ public final class GameUtils {
 	 * @return the Title cased string
 	 */
 	public static String toTitleCase(final String givenString) {
-	    final String[] arr = givenString.split(" ");
-	    final StringBuffer sb = new StringBuffer();
+		final String[] arr = givenString.split(" ");
+		final StringBuffer sb = new StringBuffer();
 
-	    for (final String element : arr) {
-	        sb.append(Character.toUpperCase(element.charAt(0)))
-	            .append(element.substring(1)).append(" ");
-	    }          
-	    return sb.toString().trim();
+		for (final String element : arr) {
+			if (element.length() > 0) {
+				sb.append(Character.toUpperCase(element.charAt(0)))
+				.append(element.substring(1)).append(" ");
+			}
+
+		}          
+		return sb.toString().trim();
 	}  
 	/**
 	 * Converts the given milliseconds to a display time (e.g. 3:54)
@@ -118,19 +122,19 @@ public final class GameUtils {
 	 * @return the milliseconds as a displayed string
 	 */
 	public static String millisecondsToTime(final long milliseconds) {
-	    if (milliseconds < 0)
-	    	return "0:00";
+		if (milliseconds < 0)
+			return "0:00";
 		final long minutes = (milliseconds / 1000) / 60;
-	    final long seconds = (milliseconds / 1000) % 60;
-	    final String secondsStr = Long.toString(seconds);
-	    String secs;
-	    if (secondsStr.length() >= 2) {
-	        secs = secondsStr.substring(0, 2);
-	    } else {
-	        secs = "0" + secondsStr;
-	    }
+		final long seconds = (milliseconds / 1000) % 60;
+		final String secondsStr = Long.toString(seconds);
+		String secs;
+		if (secondsStr.length() >= 2) {
+			secs = secondsStr.substring(0, 2);
+		} else {
+			secs = "0" + secondsStr;
+		}
 
-	    return minutes + ":" + secs;
+		return minutes + ":" + secs;
 	}
 	/**
 	 * returns given milliseconds to verbally described time, providing as little info as possible.
@@ -140,34 +144,34 @@ public final class GameUtils {
 	 */
 	public static String millisecondsToWrittenOutTime(final long milliseconds) {
 		if (milliseconds < 0)
-	    	return "0 minutes";
+			return "0 minutes";
 		final long minutes = (milliseconds / 1000) / 60;
-	    final long seconds = (milliseconds / 1000) % 60;
-	    final String secondsStr = Long.toString(seconds);
-	    String secs;
-	    if (secondsStr.length() >= 2) {
-	        secs = secondsStr.substring(0, 2);
-	    }
-	    else
-	    	secs = secondsStr;
-	    if (seconds == 0)
-	    	return minutes + " minutes";
-	    if (minutes == 0)
-	    	return secs + " seconds";
-	    return minutes + " minutes and " + secs + " seconds";
-	    			
+		final long seconds = (milliseconds / 1000) % 60;
+		final String secondsStr = Long.toString(seconds);
+		String secs;
+		if (secondsStr.length() >= 2) {
+			secs = secondsStr.substring(0, 2);
+		}
+		else
+			secs = secondsStr;
+		if (seconds == 0)
+			return minutes + " minutes";
+		if (minutes == 0)
+			return secs + " seconds";
+		return minutes + " minutes and " + secs + " seconds";
+
 	}
 	public static String infinitySymbol() {
 		String infinitySymbol;
 
 		try {
 
-		    infinitySymbol = new String(String.valueOf(Character.toString('\u221E')).getBytes("UTF-8"), "UTF-8");
+			infinitySymbol = new String(String.valueOf(Character.toString('\u221E')).getBytes("UTF-8"), "UTF-8");
 
 		} catch (final UnsupportedEncodingException ex) {
 
-		    infinitySymbol = "inf";
-		    //ex.printStackTrace(); //print the unsupported encoding exception.
+			infinitySymbol = "inf";
+			//ex.printStackTrace(); //print the unsupported encoding exception.
 
 		} 
 		return infinitySymbol;
@@ -190,5 +194,10 @@ public final class GameUtils {
 		y=y/60.0;
 		return y;
 	}
-	
+	public static <T extends Enum<T>> EnumSet<T> arrayToEnumSet(final T[] vals, final Class<T> clazz) {
+		final EnumSet<T> newSet = EnumSet.noneOf(clazz);
+		newSet.addAll(Arrays.asList(vals));
+		return newSet;
+	}
+
 }

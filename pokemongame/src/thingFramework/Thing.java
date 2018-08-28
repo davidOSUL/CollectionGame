@@ -179,21 +179,21 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 			attributes.setAttributeValue(attributeName, newValue, type);
 	}
 	/**
-	 * If the attribute doesn't exist, will set value to valueIfNonPresent. Otherwise sets attribute's value to action.apply(getAttributeValue()).
+	 * If the attribute doesn't exist, will set value to initialValueIfNonPresent, and then apply the modification. Otherwise sets attribute's value to action.apply(getAttributeValue()).
 	 * If shouldRemoveAfter.test(newValue), then will remove instead of setting value.
 	 * @param <T> the type of the attribute
 	 * @param attributeName the name of the attribute
 	 * @param action the action performed on the new value to determine the new value. E.g. if you wanted to add 5
 	 * to the attribute you would pass in an action equal to: x -> x+5
 	 * @param shouldRemoveAfter predicate that tests the new value, and if returns true will remove attribute instead of modifying it
-	 * @param valueIfNonPresent the value to set the attribute to if it doesn't exist
 	 * @param type the type of the attribute
 	 */
-	public final <T> void modifyOrCreateAttribute(final String attributeName, final Function<T, T> action, final Predicate<T> shouldRemoveAfter, final T valueIfNonPresent, final ParseType<T> type) {
-		if(containsAttribute(attributeName))
-			modifyAttribute(attributeName, action, shouldRemoveAfter, type);
-		else
-			addAttribute(attributeName, valueIfNonPresent, type);
+	public final <T> void modifyOrCreateAttribute(final String attributeName, final Function<T, T> action, final Predicate<T> shouldRemoveAfter, final ParseType<T> type) {
+		if(!containsAttribute(attributeName)) {
+			addAttribute(attributeName);
+		}
+		modifyAttribute(attributeName, action, shouldRemoveAfter, type);
+		
 	}
 	/**
 	 * If the attribute doesn't exist, will do nothing. Otherwise sets attribute's value to action.apply(getAttributeValue()).

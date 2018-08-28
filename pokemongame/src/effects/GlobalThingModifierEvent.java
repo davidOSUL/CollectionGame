@@ -3,15 +3,11 @@
  */
 package effects;
 
-import game.Board;
-import modifiers.Modifier;
-import thingFramework.Thing;
-
 /**
  * @author David O'Sullivan
  *
  */
-public class GlobalThingModifierEvent extends GlobalModifierEvent<Thing> {
+/*public class GlobalThingModifierEvent extends GlobalModifierEvent<Thing> {
 
 	public GlobalThingModifierEvent(final Modifier<Thing> mod, final boolean removeWhenDone, final boolean displayCountdown) {
 		super(mod, removeWhenDone, displayCountdown);
@@ -32,4 +28,4 @@ public class GlobalThingModifierEvent extends GlobalModifierEvent<Thing> {
 		return new GlobalThingModifierEvent(this);
 	}
 
-}
+}*/

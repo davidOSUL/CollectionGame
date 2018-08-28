@@ -17,9 +17,11 @@ class ModifierManager implements Serializable{
 	private final Board b;
 	public ModifierManager(final Board b) {
 		this.b = b;
+		for (final GlobalModifierOption option: GlobalModifierOption.values())
+			modifiers.put(option, new HashSet<Modifier>());
 	}
 	void addGlobalModifier(final Modifier mod, final GlobalModifierOption option) {
-		modifiers.computeIfAbsent(option, k -> new HashSet<Modifier>()).add(mod);
+		modifiers.get(option).add(mod);
 		modifierToOption.put(mod, option);
 	}
 	void notifyGlobalModifierRemoved(final Modifier mod) {

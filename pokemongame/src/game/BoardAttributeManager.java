@@ -1,4 +1,5 @@
 package game;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,15 +12,7 @@ import thingFramework.Thing;
  * Manages all the Board Attributes (attributes of the board as a whole rather than to a specific Thing)
  * @author David O'Sullivan
  */
-public final class BoardAttributeManager implements AttributeManagerWatcher<Integer> {
-	/*private static final SerializableTriConsumer<Thing, Event, Board> UPDATE_GPH = (t, e, b) -> {
-		t.getAttribute("gph").setExtraDescription(" (" + e.getTimeToNextPeriod(b) + ")");
-		t.updateDescription();
-	};
-	private static final SerializableTriConsumer<Thing, Event, Board> UPDATE_GPM = (t, e, b) -> {
-		t.getAttribute("gpm").setExtraDescription(" (" + e.getTimeToNextPeriod(b) + ")");
-		t.updateDescription();
-	};*/
+public final class BoardAttributeManager implements AttributeManagerWatcher<Integer>, Serializable {
 	private final Thing holder;
 	private final Map<Attribute<?>, Event> addedEvents = new HashMap<Attribute<?>, Event>();
 	public BoardAttributeManager(final Thing holder) {
@@ -87,7 +80,6 @@ public final class BoardAttributeManager implements AttributeManagerWatcher<Inte
 		return events;
 	}
 	*/
-	
 	@Override
 	public void onAttributeGenerated(final Attribute<Integer> addedAttribute) {
 		final Event e = eventBuilder(addedAttribute.getName(), addedAttribute.getValue() == null ? 0 : addedAttribute.getValue());

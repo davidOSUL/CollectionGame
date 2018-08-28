@@ -72,6 +72,9 @@ public final class Modifier implements Serializable {
 	public Modifier makeCopy() {
 		return new Modifier(this);
 	}
+	public long getLifetimeInMillis() {
+		return lifeInMillis;
+	}
 
 	
 }

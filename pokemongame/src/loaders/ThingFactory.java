@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import attributes.ParseType;
-import loaders.eventbuilder.EventBuilder;
 import thingFramework.Item;
 import thingFramework.Pokemon;
 import thingFramework.Thing;
@@ -37,31 +36,43 @@ public final class ThingFactory {
 	private static final String[] THING_LIST_LOCATIONS = {"/InputFiles/pokemonList.csv", "/InputFiles/itemList - 1.csv"};
 	/**
 	 * The location of all pregenerated "basic" events to load into the game. I.E.
-	 * items that have events that can be described by methods in the ThingLoader class
+	 * items that have events that can be described by methods in the ThingLoader class. 
+	 * Every event map has a format of EVENT_MAP_HEADER +  - n.csv, where n is a number.
 	 */
-	private static final String EVENT_MAP_LOCATION = "/InputFiles/eventMapList - 1.csv";
+	private static final String EVENT_MAP_HEADER = "/InputFiles/eventMapList";
+	/**
+	 * the event maps are split into multiple different files, and there are NUMBER_OF_EVENT_MAP_LISTS of each of them
+	 */
+	private static final int NUMBER_OF_EVENT_MAP_LISTS = 4;
 	/**
 	 * Location of csv containing extra attributes for things. Format as specified in thingloader
 	 */
 	private static final String[] EXTRA_ATTRIBUTE_LOCATIONS = {"/InputFiles/extraAttributes - 1.csv", "/InputFiles/extraAttributes - 2.csv",
 			"/InputFiles/extraAttributes - 3.csv"};
 	private static final String PATH_TO_DESCRIPTIONS = "/InputFiles/descriptionList.csv";
-	private static final ThingFactory INSTANCE = new ThingFactory(THING_LIST_LOCATIONS, PATH_TO_DESCRIPTIONS, EVENT_MAP_LOCATION, EVOLUTIONS_LOCATION, LEVELS_OF_EVOLUTION_LOCATION, EXTRA_ATTRIBUTE_LOCATIONS);
-	private ThingFactory(final String pathToEvents) {
+	private static final ThingFactory INSTANCE = new ThingFactory(THING_LIST_LOCATIONS, PATH_TO_DESCRIPTIONS, EVENT_MAP_HEADER, NUMBER_OF_EVENT_MAP_LISTS, EVOLUTIONS_LOCATION, LEVELS_OF_EVOLUTION_LOCATION, EXTRA_ATTRIBUTE_LOCATIONS);
+	private ThingFactory(final String pathToEventsHeader, final int numberOfEventLists) {
 		thingTemplates = new ThingMap();
 		loaders = new ArrayList<Loader>();
-		if (pathToEvents == null)
+		if (pathToEventsHeader == null || numberOfEventLists == 0) {
 			eb = new EventBuilder();
-		else
-			eb = new EventBuilder(pathToEvents);
+		}
+		else {
+			final String[] eventMaps = new String[numberOfEventLists];
+			for (int i =1 ; i <= numberOfEventLists; i++) {
+				eventMaps[i-1] = pathToEventsHeader + " - " + i + ".csv";
+			}
+			eb = new EventBuilder(eventMaps);
+		}
+			
 	}
-	private ThingFactory(final String[] pathToThings, final String pathToEvents) {
-		this(pathToEvents);
+	private ThingFactory(final String[] pathToThings, final String pathToEventsHeader, final int numberOfEventLists) {
+		this(pathToEventsHeader, numberOfEventLists);
 		loaders.add(new ThingLoader(this, pathToThings));
 		loadAllLoaders();
 	}
-	private ThingFactory(final String[] pathToThings, final String pathToDescriptions, final String pathToEvents, final String pathToEvolutions, final String pathToLevelsOfEvolve, final String... pathsToExtraAttributes) {
-		this(pathToEvents);
+	private ThingFactory(final String[] pathToThings, final String pathToDescriptions, final String pathToEventsHeader,final int numberOfEventLists, final String pathToEvolutions, final String pathToLevelsOfEvolve, final String... pathsToExtraAttributes) {
+		this(pathToEventsHeader, numberOfEventLists);
 		loaders.add(new ThingLoader(this, pathToThings, new ExtraAttributeLoader(thingTemplates, pathsToExtraAttributes)));
 		loaders.add(new PokemonEvolutionLoader(pathToEvolutions, pathToLevelsOfEvolve, thingTemplates));
 		loaders.add(new DescriptionLoader(pathToDescriptions, thingTemplates, eb));

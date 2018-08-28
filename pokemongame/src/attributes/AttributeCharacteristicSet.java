@@ -20,6 +20,14 @@ public class AttributeCharacteristicSet extends EnumSetHolder<AttributeCharacter
 	public Class<AttributeCharacteristic> getEnumClass() {
 		return AttributeCharacteristic.class;
 	}
+	@Override
+	public boolean containsValueParse(final String value) {
+		return containsValue(AttributeCharacteristic.valueOf(value));
+	}
+	@Override
+	protected AttributeCharacteristic parseValue(final String value) {
+		return AttributeCharacteristic.valueOf(value.toUpperCase().trim());
+	}
 
 	
 	

@@ -1,10 +1,6 @@
 package effects;
 
-import game.Board;
-import modifiers.Modifier;
-import thingFramework.Pokemon;
-
-public class GlobalPokemonModifierEvent extends GlobalModifierEvent<Pokemon> {
+/*public class GlobalPokemonModifierEvent extends GlobalModifierEvent<Pokemon> {
 
 	public GlobalPokemonModifierEvent(final Modifier<Pokemon> mod, final boolean removeWhenDone, final boolean displayCountdown) {
 		super(mod, removeWhenDone, displayCountdown);
@@ -28,4 +24,4 @@ public class GlobalPokemonModifierEvent extends GlobalModifierEvent<Pokemon> {
 		return new GlobalPokemonModifierEvent(this);
 	}
 
-}
+}*/

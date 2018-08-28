@@ -1,6 +1,9 @@
 package gameRunner;
 
 import static gameutils.Constants.CHEAT_MODE;
+import static gameutils.Constants.CHEAT_MODE_VALUE;
+import static gameutils.Constants.STARTING_GOLD;
+import static gameutils.Constants.STARTING_POP;
 import static gui.guiutils.GUIConstants.SKIP_LOAD_SCREEN;
 
 import java.awt.HeadlessException;
@@ -88,9 +91,9 @@ public class Runner  {
 		}
 		exitStartWindow();
 		if (CHEAT_MODE)
-			board = new Board(100000000, 100000000);
+			board = new Board(CHEAT_MODE_VALUE, CHEAT_MODE_VALUE);
 		else
-			board = new Board(100, 0);
+			board = new Board(STARTING_GOLD, STARTING_POP);
 		p = new Presenter(board, title, saver);
 		displayPrimaryGameWindow();
 		new Thread(() -> startPresenterUpdate()).start();

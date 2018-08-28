@@ -2,6 +2,7 @@ package game;
 
 import static gameutils.Constants.RAPID_SPAWN;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -17,7 +18,7 @@ import gameutils.GameUtils;
 import loaders.ThingFactory;
 import loaders.ThingType;
 
-class WildPokemonGenerator {
+class WildPokemonGenerator implements Serializable{
 	/**
 	 * The chance that a pokemon with a name of a pokemon already on the board will spawn
 	 */

@@ -1,8 +1,5 @@
 package effects;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import game.Board;
 import gameutils.GameUtils;
 import interfaces.SerializableConsumer;
@@ -24,15 +21,19 @@ public class CustomPeriodEvent extends Event {
 	private volatile long timeOfLastChange;
 	private volatile double currentPeriodVal = -1;
 	private static final double MIN_PERIOD = .01;
-	public CustomPeriodEvent(SerializableConsumer<Board> onPeriod, SerializableFunction<Board, Double> generatePeriod) {
+	public CustomPeriodEvent(final SerializableConsumer<Board> onPeriod, final SerializableFunction<Board, Double> generatePeriod) {
 		super(onPeriod, Integer.MAX_VALUE);
 		this.generatePeriod = generatePeriod;
 	}
-	public CustomPeriodEvent(SerializableConsumer<Board> onPlace, SerializableConsumer<Board> onPeriod, SerializableFunction<Board, Double> generatePeriod) {
+	public CustomPeriodEvent(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final SerializableFunction<Board, Double> generatePeriod) {
 		super(onPlace, onPeriod, Integer.MAX_VALUE);
 		this.generatePeriod = generatePeriod;
 	}
-	private synchronized void executeIfTime(Board b) {
+	private CustomPeriodEvent(final CustomPeriodEvent event) {
+		super(event);
+		this.generatePeriod = event.generatePeriod;
+	}
+	private synchronized void executeIfTime(final Board b) {
 		double period = generatePeriod.apply(b);
 		if (period <0)
 			return;
@@ -59,8 +60,9 @@ public class CustomPeriodEvent extends Event {
 	}
 
 	@Override
-	public Runnable executePeriod(Board b) {
+	public Runnable executePeriod(final Board b) {
 		return new Runnable() {
+			@Override
 			public void run() {
 				executeIfTime(b);
 			}
@@ -68,5 +70,9 @@ public class CustomPeriodEvent extends Event {
 	}
 	public long numCurrentPeriodsElapsed() {
 		return numCurrentPeriodsElapsed;
+	}
+	@Override
+	public CustomPeriodEvent makeCopy() {
+		return new CustomPeriodEvent(this);
 	}
 }

@@ -1,6 +1,7 @@
 package attributes;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -14,7 +15,7 @@ import interfaces.SerializableFunction;
 import loaders.CSVReader;
 import thingFramework.ExperienceGroup;
 import thingFramework.PokemonTypeSet;
-final class AttributeFactories {
+final class AttributeFactories implements Serializable {
 	private static final String ATTRIBUTE_LIST_PATH = "/InputFiles/attributeList - 1.csv";
 	private static final String ATTRIBUTE_TYPES_DELIM = ":";
 	private static final String DISPLAY_SETTINGS_DELIM = ":";
@@ -82,7 +83,7 @@ final class AttributeFactories {
 	AttributeFactory<?> getCreatorFactory(final String attributeName) {
 		return factoryMapByNameOfAttributeTemplate.get(attributeName);
 	}
-	final class AttributeFactory<T> {
+	final class AttributeFactory<T> implements Serializable{
 		private final ParseType<T> parseType;
 		private final Map<String, Attribute<T>> attributeTemplates = new HashMap<String, Attribute<T>>();
 		private final Map<AttributeManager, Map<String, Attribute<T>>> associatedAttributeManagers = new HashMap<AttributeManager, Map<String, Attribute<T>>>();
@@ -122,21 +123,13 @@ final class AttributeFactories {
 			if (associatedAttributeManagers.get(manager).containsKey(name))
 				throw new IllegalArgumentException(name + "attribute already exists for manager:" + manager);
 			final Attribute<T> attribute = attributeTemplates.get(name).makeCopy();
+			attribute.setValueToDefault();
 			addAttributeForManager(manager, name, attribute);
 			return attribute;
 		}
 		private void addAttributeForManager(final AttributeManager manager, final String name, final Attribute<T> attribute) {
 			associatedAttributeManagers.get(manager).put(name, attribute);
 			attributeWatchers.get(manager).forEach(amw -> amw.onAttributeGenerated(attribute));
-		}
-		Attribute<T> generateAttributeForManager(final AttributeManager manager, final String name, final T value) {
-			throwIfInvalidTemplate(name);
-			final Attribute<T> attribute = attributeTemplates.get(name).makeCopy();
-			if (associatedAttributeManagers.get(manager).containsKey(name))
-				throw new IllegalArgumentException(name + "attribute already exists for manager:" + manager);
-			associatedAttributeManagers.get(manager).put(name, attribute);
-			attributeWatchers.get(manager).forEach(amw -> amw.onAttributeGenerated(attribute));
-			return attribute;
 		}
 		Attribute<T> getAttributeForManager(final AttributeManager manager, final String name) {
 			throwIfInvalidTemplate(name);
@@ -187,28 +180,28 @@ final class AttributeFactories {
 		private void createNewAttributeTemplate(final String name, final String[] values) {
 			final Attribute<T> attribute;
 			if (values[IS_READABLE_LOC].equalsIgnoreCase("yes")) {
-				attribute = generateReadableAttribute(values);
+				attribute = generateReadableAttributeTemplate(values);
 			}
 			else {
-				attribute = generateBasicAttribute(values);
+				attribute = generateBasicAttributeTemplate(values);
 			}
 			attribute.setName(name);
 			attributeTemplates.put(name, attribute);
 			factoryMapByNameOfAttributeTemplate.put(name, this);
 		}
 		
-		private Attribute<T> generateBasicAttribute(final String[] values) {
+		private Attribute<T> generateBasicAttributeTemplate(final String[] values) {
 			final Attribute<T> attribute = new Attribute<T>(parseType);
-			addBasicAttributeDetails(values, attribute);
+			addBasicAttributeTemplateDetails(values, attribute);
 			return attribute;
 		}
-		private ReadableAttribute<T> generateReadableAttribute(final String[] values) {
+		private ReadableAttribute<T> generateReadableAttributeTemplate(final String[] values) {
 			final ReadableAttribute<T> attribute = new ReadableAttribute<T>(parseType);
-			addBasicAttributeDetails(values, attribute);
-			addReadableAttributeDetails(values, attribute);
+			addBasicAttributeTemplateDetails(values, attribute);
+			addReadableAttributeTemplateDetails(values, attribute);
 			return attribute;
 		}
-		private void addBasicAttributeDetails(final String[] values, final Attribute<T> attribute) {
+		private void addBasicAttributeTemplateDetails(final String[] values, final Attribute<T> attribute) {
 			attribute.setDefaultValue(AttributeValueParser.getInstance().parseValue(values[DEF_VAL_LOC], parseType));
 			attribute.setIsPositiveFunction(isPositive);
 			if (!arrayContainsValue(values, ATTRIBUTE_TYPES_LOC)) {
@@ -218,7 +211,7 @@ final class AttributeFactories {
 				attribute.setAttributeTypeSet(AttributeValueParser.getInstance().parseAttributeTypeSet(values[ATTRIBUTE_TYPES_LOC], ATTRIBUTE_TYPES_DELIM));
 			}
 		}
-		private void addReadableAttributeDetails(final String[] values, final ReadableAttribute<T> attribute) {
+		private void addReadableAttributeTemplateDetails(final String[] values, final ReadableAttribute<T> attribute) {
 			if (arrayContainsValue(values, DISPLAY_SETTINGS_LOC)) {
 				attribute.parseAndSetSettings(values[DISPLAY_SETTINGS_LOC], DISPLAY_SETTINGS_DELIM);
 			}

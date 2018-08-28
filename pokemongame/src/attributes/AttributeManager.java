@@ -1,13 +1,15 @@
 package attributes;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
 import attributes.AttributeFactories.AttributeFactory;
+import gameutils.GameUtils;
 import interfaces.SerializablePredicate;
 
-public final class AttributeManager {
+public final class AttributeManager implements Serializable {
 	private SerializablePredicate<Attribute<?>> validate = x -> true;
 	private String currentDescription = "";
 	public AttributeManager() {
@@ -31,7 +33,7 @@ public final class AttributeManager {
 		if (containsAttribute(attributeName))
 			throw new IllegalArgumentException("Attribute " + attributeName + "already exists");
 		if (validate.test(creator.getAttributeTemplate(attributeName))) {
-			final Attribute<?> generatedAttribute = AttributeFactories.getInstance().getCreatorFactory(attributeName).generateAttributeForManager(this, attributeName);
+			AttributeFactories.getInstance().getCreatorFactory(attributeName).generateAttributeForManager(this, attributeName);
 		}
 		else
 			throw new IllegalArgumentException("Attribute " + attributeName + " failed attribute validation");
@@ -149,10 +151,10 @@ public final class AttributeManager {
 	public boolean attributeValueEqualsParse(final String attributeName, final String value) {
 		return getCreator(attributeName).getAttributeForManager(this, attributeName).valEqualsParse(value);
 	}
-	public static <T> String displayAttribute(final String attributeName, final T attributeValue, final ParseType<T> type)  {
+	public static <T> String displayAttribute(final String attributeName, final T attributeValue, final ParseType<T> type,  final DisplayStringSetting... displayStringSettings)  {
 		final AttributeManager manager = new AttributeManager();
 		manager.generateAttribute(attributeName, attributeValue, type);
-		final String result = manager.getAttribute(attributeName, type).toReverseString();
+		final String result = manager.getAttribute(attributeName, type).getDisplayString(GameUtils.arrayToEnumSet(displayStringSettings, DisplayStringSetting.class));
 		type.getAssociatedFactory().removeManager(manager);
 		return result;
 	}

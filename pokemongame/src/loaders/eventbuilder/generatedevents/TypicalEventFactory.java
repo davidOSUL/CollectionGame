@@ -9,12 +9,11 @@ public abstract class TypicalEventFactory {
 	public abstract Event generateEvent();
 	public abstract String getDescription();
 	private final String[] inputs;
-	private final static int EVENTTYPE_LOC = 0;
 	protected TypicalEventFactory(final String[] inputs) {
 		this.inputs = inputs;
 	}
-	public static TypicalEventFactory getTypicalEventFactory(final String[] inputs) {
-		final EventType eventType = EventType.valueOf(inputs[EVENTTYPE_LOC].toUpperCase().trim());
+	public static TypicalEventFactory getTypicalEventFactory(final String eventTypeName, final String[] inputs) {
+		final EventType eventType = EventType.valueOf(eventTypeName.toUpperCase().trim());
 		switch(eventType) {
 		case DECREASE_SPAWN_PERIOD:
 			return new DecreaseSpawnPeriodEventFactory(inputs);
@@ -47,7 +46,7 @@ public abstract class TypicalEventFactory {
 		return Double.valueOf(myLong).longValue();
 	}
 	enum EventType {
-		RANDOM_GOLD, //of the format randomgold:x:y:z, so x (the first) will be at 1 and y (the last) will be at 3
+		RANDOM_GOLD, 
 		LEGENDARY_CHANCE_INCREASE,
 		DECREASE_SPAWN_PERIOD,
 		GLOBAL_MODIFIER;

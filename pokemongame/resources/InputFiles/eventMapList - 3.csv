@@ -1,0 +1,5 @@
+Decrease_Spawn_Period,
+Name,Amount to decrease by (millis)
+Sand Clock,1000
+Time Bender,10000
+Master of Time and Space,30000

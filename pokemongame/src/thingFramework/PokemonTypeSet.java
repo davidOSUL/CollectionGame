@@ -26,6 +26,11 @@ public class PokemonTypeSet extends EnumSetHolder<PokemonType>{
 	protected Class<PokemonType> getEnumClass() {
 		return PokemonType.class;
 	}
+	@Override
+	protected PokemonType parseValue(final String value) {
+		return PokemonType.valueOf(value.toUpperCase().trim());
+	}
+
 
 
 	

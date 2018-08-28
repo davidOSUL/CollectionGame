@@ -36,6 +36,10 @@ public abstract class EnumSetHolder<T extends Enum<T>> implements Serializable {
 	public boolean containsValue(final T value) {
 		return typeMap.contains(value);
 	}
+	public boolean containsValueParse(final String value) {
+		return containsValue(parseValue(value));
+	}
+	protected abstract T parseValue(final String value);
 	public boolean addValue(final T value) {
 		return typeMap.add(value);
 	}

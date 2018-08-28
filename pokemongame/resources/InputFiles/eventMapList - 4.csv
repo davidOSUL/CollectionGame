@@ -1,0 +1,5 @@
+Random_Gold,,,
+Name,% chance that money is generated,Amount of gold to generate,How often to try to generate (in minutes)
+Small Table,30,5,5
+Large Table,50,1,1
+Poker Table,1,1000,60

@@ -9,8 +9,8 @@ level,Integer,1,Pokeonly,yes,Level,,-1,6
 rarity10,Integer,1,Pokeonly,yes,Rarity,out_of_ten,-1,7
 legendary,Boolean,FALSE,Pokeonly,yes,Legendary,color_based_on_sign,FALSE,8
 event description,String,,,yes,,,,9
-additional description,String,,,yes,,,,END
-time left,String,Infinite,,yes,Time left,,,10
+additional description,String,,,yes,,,,10
+time left,String,Infinite,,yes,Time left,,,END
 catch rate,Integer,3,Pokeonly,no,,,,
 rarity,Integer,1,Pokeonly,no,,,,
 experience group,Experience_Group,slow,Pokeonly,no,,,,
