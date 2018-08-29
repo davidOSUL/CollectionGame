@@ -1,13 +1,12 @@
 package attributes;
 
-import java.io.Serializable;
 import java.util.List;
 
 import attributes.AttributeFactories.AttributeFactory;
 import thingFramework.ExperienceGroup;
 import thingFramework.PokemonTypeSet;
 
-public final class ParseType<T> implements Serializable {
+public final class ParseType<T> {
 	
 	public static final ParseType<Integer> INTEGER = new ParseType<Integer>(ParseTypeEnum.INTEGER);
 	public static final ParseType<Double> DOUBLE = new ParseType<Double>(ParseTypeEnum.DOUBLE);

@@ -20,7 +20,6 @@ import effects.Event;
 import effects.Eventful;
 import game.Board;
 import game.BoardAttributeManager;
-import gameutils.GameUtils;
 import interfaces.Imagable;
 import modifiers.Modifier;
 
@@ -60,13 +59,19 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 		boardAttributeManager = new BoardAttributeManager(this);
 		attributes.addWatcher(boardAttributeManager, ParseType.INTEGER);
 	}
-	public Thing(final String name, final String image, final Event...events ) {
-		this(name, image, GameUtils.toArrayList(events));
-	}
-	public Thing(final String name, final String image, final List<Event> events) {
-		this(name, image);
-		if (events != null)
-			addToEventList(events);
+	public Thing(final String name, final String image, final boolean haveBoardAttributes) {
+		this.name = name;
+		this.image = image;
+		attributes = new AttributeManager();
+		attributes.setAttributeValidation(at -> validateAttribute(at));
+		if (haveBoardAttributes) {
+			boardAttributeManager = new BoardAttributeManager(this);
+			attributes.addWatcher(boardAttributeManager, ParseType.INTEGER);
+		}
+		else {
+			boardAttributeManager = null;
+		}
+		
 	}
 	protected Thing(final Thing t) {
 		this.name = t.name;
@@ -138,6 +143,9 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	}
 	public final <T> void addAttributes(final String[] attributeNames, final T[] values, final ParseType<T> type) {
 		attributes.generateAttributes(attributeNames, values, type);
+	}
+	public final void addAttributes(final String[] attributeNames, final String[] values) {
+		attributes.generateAttributes(attributeNames, values);
 	}
 	public final void removeAttribute(final String attributeName) {
 		attributes.removeAttribute(attributeName);

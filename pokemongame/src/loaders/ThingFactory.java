@@ -58,12 +58,9 @@ public final class ThingFactory {
 			eb = new EventBuilder();
 		}
 		else {
-			final String[] eventMaps = new String[numberOfEventLists];
-			for (int i =1 ; i <= numberOfEventLists; i++) {
-				eventMaps[i-1] = pathToEventsHeader + " - " + i + ".csv";
-			}
-			eb = new EventBuilder(eventMaps);
+			eb = new EventBuilder(getEventMaps(numberOfEventLists, pathToEventsHeader));
 		}
+		loaders.add(eb);
 			
 	}
 	private ThingFactory(final String[] pathToThings, final String pathToEventsHeader, final int numberOfEventLists) {
@@ -77,6 +74,13 @@ public final class ThingFactory {
 		loaders.add(new PokemonEvolutionLoader(pathToEvolutions, pathToLevelsOfEvolve, thingTemplates));
 		loaders.add(new DescriptionLoader(pathToDescriptions, thingTemplates, eb));
 		loadAllLoaders();
+	}
+	private String[] getEventMaps(final int numberOfEventLists, final String pathToEventsHeader) {
+		final String[] eventMaps = new String[numberOfEventLists];
+		for (int i =1 ; i <= numberOfEventLists; i++) {
+			eventMaps[i-1] = pathToEventsHeader + " - " + i + ".csv";
+		}
+		return eventMaps;
 	}
 	void addNewPokemonTemplate(final Pokemon template) {
 		thingTemplates.addPokemon(template);

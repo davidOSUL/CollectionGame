@@ -1,7 +1,6 @@
 package attributes;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,7 +14,7 @@ import interfaces.SerializableFunction;
 import loaders.CSVReader;
 import thingFramework.ExperienceGroup;
 import thingFramework.PokemonTypeSet;
-final class AttributeFactories implements Serializable {
+final class AttributeFactories {
 	private static final String ATTRIBUTE_LIST_PATH = "/InputFiles/attributeList - 1.csv";
 	private static final String ATTRIBUTE_TYPES_DELIM = ":";
 	private static final String DISPLAY_SETTINGS_DELIM = ":";
@@ -83,7 +82,7 @@ final class AttributeFactories implements Serializable {
 	AttributeFactory<?> getCreatorFactory(final String attributeName) {
 		return factoryMapByNameOfAttributeTemplate.get(attributeName);
 	}
-	final class AttributeFactory<T> implements Serializable{
+	final class AttributeFactory<T> {
 		private final ParseType<T> parseType;
 		private final Map<String, Attribute<T>> attributeTemplates = new HashMap<String, Attribute<T>>();
 		private final Map<AttributeManager, Map<String, Attribute<T>>> associatedAttributeManagers = new HashMap<AttributeManager, Map<String, Attribute<T>>>();
