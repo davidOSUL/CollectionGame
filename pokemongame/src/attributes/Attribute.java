@@ -7,7 +7,7 @@ public class Attribute<T> implements Serializable, DisplayMethods {
 	private T value;
 	private  T defaultValue;
 	private AttributeCharacteristicSet atttributeCharacteristicSet;
-	private final ParseType<T> parseType;
+	private transient ParseType<T> parseType;
 	private SerializableFunction<T, Boolean> isPositive;
 	private String name;
 	/**
@@ -80,5 +80,11 @@ public class Attribute<T> implements Serializable, DisplayMethods {
 	 */
 	public void setValueToDefault() {
 		setValue(defaultValue);
+	}
+	void setParseType(final ParseType<T> parseType) {
+		if (this.parseType != null)
+			throw new UnsupportedOperationException("Attribute already has an associated Parse Type: " + parseType);
+		else
+			this.parseType = parseType;
 	}
 }

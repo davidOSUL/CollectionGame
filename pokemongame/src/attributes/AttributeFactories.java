@@ -1,6 +1,8 @@
 package attributes;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -89,6 +91,21 @@ final class AttributeFactories {
 		private final Map<AttributeManager, SerializableConsumer<Attribute<T>>> doOnGenerations = new HashMap<AttributeManager, SerializableConsumer<Attribute<T>>>();
 		private final Map<AttributeManager, List<AttributeManagerWatcher<T>>> attributeWatchers = new HashMap<AttributeManager, List<AttributeManagerWatcher<T>>>();
 		private SerializableFunction<T, Boolean> isPositive = x -> false;
+		void writeObjectForManager(final AttributeManager manager, final ObjectOutputStream oos) throws IOException {
+			oos.writeObject(associatedAttributeManagers.get(manager));
+			oos.writeObject(doOnGenerations.get(manager));
+			oos.writeObject(attributeWatchers.get(manager));
+			
+		}
+		@SuppressWarnings("unchecked")
+		void readObjectForManager(final AttributeManager manager, final ObjectInputStream ois) throws ClassNotFoundException, IOException {
+			associatedAttributeManagers.put(manager, (Map<String, Attribute<T>>) ois.readObject());
+			for (final Attribute<T> attribute : associatedAttributeManagers.get(manager).values()) {
+				attribute.setParseType(parseType);
+			}
+			doOnGenerations.put(manager, (SerializableConsumer<Attribute<T>>) ois.readObject());
+			attributeWatchers.put(manager,  (List<AttributeManagerWatcher<T>>) ois.readObject());
+		}
 		private AttributeFactory(final ParseType<T> parseType) {
 			this.parseType = parseType;
 			parseType.setAssociatedFactory(this);
@@ -169,6 +186,7 @@ final class AttributeFactories {
 			doOnGenerations.remove(manager);
 			attributeWatchers.remove(manager);
 		}
+		
 		private void throwIfInvalidTemplate(final String attributeName) {
 			if (!attributeTemplates.containsKey(attributeName))
 				throw new AttributeNotFoundException(attributeName + "is not a valid attribute");

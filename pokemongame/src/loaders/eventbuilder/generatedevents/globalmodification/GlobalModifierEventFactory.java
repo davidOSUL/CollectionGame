@@ -1,6 +1,8 @@
 package loaders.eventbuilder.generatedevents.globalmodification;
 
-import java.util.function.BiFunction;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.function.Predicate;
 
 import attributes.AttributeManager;
@@ -10,6 +12,7 @@ import attributes.ParseType;
 import effects.Event;
 import effects.GlobalModifierEvent;
 import effects.GlobalModifierOption;
+import interfaces.SerializableBiFunction;
 import interfaces.SerializableConsumer;
 import interfaces.SerializablePredicate;
 import loaders.eventbuilder.generatedevents.TypicalEventFactory;
@@ -18,12 +21,12 @@ import thingFramework.Thing;
 
 public class GlobalModifierEventFactory<T> extends TypicalEventFactory {
 
-	private final ParseType<T> parseType;
-	private final BiFunction<T, T, T> action;
-	private final Predicate<T> shouldRemoveAfter;
+	private transient ParseType<T> parseType;
+	private final SerializableBiFunction<T, T, T> action;
+	private final SerializablePredicate<T> shouldRemoveAfter;
 	
-	private final BiFunction<T, T, T> reverseAction;
-	private final Predicate<T> shouldRemoveReverseAfter;
+	private final SerializableBiFunction<T, T, T> reverseAction;
+	private final SerializablePredicate<T> shouldRemoveReverseAfter;
 	
 	private final String[] attributesToModify;
 	private final T amount;
@@ -46,9 +49,9 @@ public class GlobalModifierEventFactory<T> extends TypicalEventFactory {
 	private static final int DISPLAY_COUNTDOWN_LOC = 7;
 	private static final int SPECIFY_FOR_ATTRIBUTE_VALUE_LOC= 8;
 	private static final String MULTIPLE_ATTRIBUTE_DELIMITER = ":";
-	GlobalModifierEventFactory(final String[] inputs, final BiFunction<T, T, T> action, 
-			final Predicate<T> shouldRemoveAfter, final BiFunction<T, T, T> reverseAction, 
-			final Predicate<T> shouldRemoveReverseAfter, final ParseType<T> parseType, final DisplayStringSetting...displayStringSettings) {
+	GlobalModifierEventFactory(final String[] inputs, final SerializableBiFunction<T, T, T> action, 
+			final SerializablePredicate<T> shouldRemoveAfter, final SerializableBiFunction<T, T, T> reverseAction, 
+			final SerializablePredicate<T> shouldRemoveReverseAfter, final ParseType<T> parseType, final DisplayStringSetting...displayStringSettings) {
 		super(inputs);
 		this.action = action;
 		this.parseType = parseType;
@@ -66,8 +69,8 @@ public class GlobalModifierEventFactory<T> extends TypicalEventFactory {
 		
 		this.displayStringSettings = displayStringSettings;
 	}
-	GlobalModifierEventFactory(final String[] inputs, final BiFunction<T, T, T> action, 
-			final Predicate<T> shouldRemoveAfter, final BiFunction<T, T, T> reverseAction, final ParseType<T> parseType, final DisplayStringSetting...displayStringSettings) {
+	GlobalModifierEventFactory(final String[] inputs, final SerializableBiFunction<T, T, T> action, 
+			final SerializablePredicate<T> shouldRemoveAfter, final SerializableBiFunction<T, T, T> reverseAction, final ParseType<T> parseType, final DisplayStringSetting...displayStringSettings) {
 		this(inputs, action, shouldRemoveAfter, reverseAction, shouldRemoveAfter, parseType, displayStringSettings);
 	}
 	GlobalModifierEventFactory(final GlobalModifierEventFactory template) {
@@ -98,16 +101,22 @@ public class GlobalModifierEventFactory<T> extends TypicalEventFactory {
 		final Modifier[] modifiers = new Modifier[attributesToModify.length];
 		for (int i = 0; i < attributesToModify.length; i++) {
 			final String attributeToModify = attributesToModify[i];
-			final SerializableConsumer<Thing> modification = t -> {
-				t.modifyOrCreateAttribute(attributeToModify, val -> action.apply(val, amount), shouldRemoveAfter, parseType);
-			};
-			final SerializableConsumer<Thing> reverseModification =  t -> {
-				t.modifyOrCreateAttribute(attributeToModify, val -> reverseAction.apply(val, amount), shouldRemoveReverseAfter, parseType);
-			};
+			final SerializableConsumer<Thing> modification = createModification(attributeToModify, shouldRemoveAfter);
+			final SerializableConsumer<Thing> reverseModification =  createModification(attributeToModify, shouldRemoveReverseAfter);
+				
 			modifiers[i] = new Modifier(timeToExist, shouldModify, modification, reverseModification);
 		}
 		return modifiers;
 		
+	}
+	private SerializableConsumer<Thing> createModification(final String attributeToModify, final Predicate<T> shouldRemoveAfter) {
+		final SerializableConsumer<Thing> modification = t -> {
+			t.modifyOrCreateAttribute(attributeToModify, val -> action.apply(val, amount), shouldRemoveAfter, getParseType());
+		};
+		return modification;
+	}
+	private ParseType<T> getParseType() {
+		return parseType;
 	}
 	private void setGlobalModificationType(final ModificationType type) {
 		this.globalModificationType = type;
@@ -161,5 +170,18 @@ public class GlobalModifierEventFactory<T> extends TypicalEventFactory {
 	 */
 	public enum ModificationType {
 		ADD_TO_ATTRIBUTE, MULTIPLY_ATTRIBUTE
+	}
+	/*
+	 * The reason for bothering with all of this serialization stuff is so that I can define lambdas within the class as supposed to allocating
+	 * them to another class like Thing
+	 */
+	private void writeObject(final ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+		parseType.saveParseType(oos);
+	}
+
+	private void readObject(final ObjectInputStream ois) throws ClassNotFoundException, IOException  {
+		ois.defaultReadObject();
+		parseType = ParseType.loadParseType(ois);
 	}
 }

@@ -21,6 +21,7 @@ import effects.Eventful;
 import game.Board;
 import game.BoardAttributeManager;
 import interfaces.Imagable;
+import interfaces.SerializablePredicate;
 import modifiers.Modifier;
 
 /**
@@ -55,7 +56,12 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 		this.name = name;
 		this.image = image;
 		attributes = new AttributeManager();
-		attributes.setAttributeValidation(at -> validateAttribute(at));
+		attributes.setAttributeValidation(new SerializablePredicate<Attribute<?>>() {
+			@Override
+			public boolean test(final Attribute<?> at) {
+				return validateAttribute(at);
+			}		
+		});
 		boardAttributeManager = new BoardAttributeManager(this);
 		attributes.addWatcher(boardAttributeManager, ParseType.INTEGER);
 	}

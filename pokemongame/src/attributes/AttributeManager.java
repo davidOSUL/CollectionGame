@@ -1,24 +1,31 @@
 package attributes;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 
 import attributes.AttributeFactories.AttributeFactory;
 import gameutils.GameUtils;
 import interfaces.SerializablePredicate;
 
 public final class AttributeManager implements Serializable {
-	private SerializablePredicate<Attribute<?>> validate = x -> true;
+	private SerializablePredicate<Attribute<?>> validate = new SerializablePredicate<Attribute<?>>() {
+		@Override
+		public boolean test(final Attribute<?> t) {
+			return true;
+		}	
+	};
 	private String currentDescription = "";
 	public AttributeManager() {
-		for (final AttributeFactory<?> factory: AttributeFactories.getInstance().getFactoryList())
-			factory.addNewManager(this);
+		performOnAllFactories(f -> f.addNewManager(this));
 	}
 	public void copyOverFromOldManager(final AttributeManager old) {
-		for (final AttributeFactory<?> factory: AttributeFactories.getInstance().getFactoryList())
-			factory.copyManagerToNewManager(old, this);
+		performOnAllFactories(f -> f.copyManagerToNewManager(old, this));
 		this.validate = old.validate;
 		this.currentDescription = old.currentDescription;
 	}
@@ -101,7 +108,7 @@ public final class AttributeManager implements Serializable {
 	}
 	public Set<Attribute<?>> getAttributesOfCharacteristic(final AttributeCharacteristic characteristic) {
 		final Set<Attribute<?>> validAttributes = new HashSet<Attribute<?>>();
-		AttributeFactories.getInstance().getFactoryList().forEach(factory -> {
+		performOnAllFactories(factory -> {
 			factory.getAllAttributesForManager(this).forEach(at -> {
 				if (at.hasCharacteristic(characteristic))
 					validAttributes.add(at);
@@ -125,8 +132,7 @@ public final class AttributeManager implements Serializable {
 			else
 				return Integer.compare(a1.getDisplayRank(), a2.getDisplayRank());
 		});
-		for (final AttributeFactory<?> factory: AttributeFactories.getInstance().getFactoryList())
-			allAttributes.addAll(factory.getAllAttributesForManager(this));
+		performOnAllFactories(factory -> allAttributes.addAll(factory.getAllAttributesForManager(this)));
 		return allAttributes;
 	}
 	@Override
@@ -157,6 +163,33 @@ public final class AttributeManager implements Serializable {
 		final String result = manager.getAttribute(attributeName, type).getDisplayString(GameUtils.arrayToEnumSet(displayStringSettings, DisplayStringSetting.class));
 		type.getAssociatedFactory().removeManager(manager);
 		return result;
+	}
+	private void writeObject(final ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+		performOnAllFactories(f -> {
+			try {
+				f.writeObjectForManager(this, oos);
+			} catch (final IOException e) {
+				e.printStackTrace();
+			}
+		});
+	}
+
+	private void readObject(final ObjectInputStream ois) throws ClassNotFoundException, IOException {
+		ois.defaultReadObject(); 
+		performOnAllFactories(f -> {
+			try {
+				f.readObjectForManager(this, ois);
+			} catch (ClassNotFoundException | IOException e) {
+				e.printStackTrace();
+			}
+		});
+		
+
+	}
+	private void performOnAllFactories(final Consumer<AttributeFactory<?>> consumer) {
+		for (final AttributeFactory<?> factory: AttributeFactories.getInstance().getFactoryList())
+			consumer.accept(factory);
 	}
 	
 }

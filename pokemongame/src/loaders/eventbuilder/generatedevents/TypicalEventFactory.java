@@ -1,11 +1,13 @@
 package loaders.eventbuilder.generatedevents;
 
+import java.io.Serializable;
+
 import effects.Event;
 import gameutils.GameUtils;
 import loaders.ThingLoadException;
 import loaders.eventbuilder.generatedevents.globalmodification.GlobalModifierEventFactory;
 
-public abstract class TypicalEventFactory {
+public abstract class TypicalEventFactory implements Serializable { //have to implement serializable so can use lambdas in events
 	public abstract Event generateEvent();
 	public abstract String getDescription();
 	private final String[] inputs;

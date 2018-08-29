@@ -360,7 +360,7 @@ public class Presenter implements Serializable {
 				toBeDeleted.add(toDelete[0]);
 			});	
 		}
-		if (DEBUG || PRINT_BOARD) {
+		if (PRINT_BOARD) {
 			newString = board.toString();
 			if (!newString.equals(oldString)) {
 				System.out.println("\n---IN GAME TIME---: "+ board.getTotalInGameTime() + "\n" + board +   "\n-------");

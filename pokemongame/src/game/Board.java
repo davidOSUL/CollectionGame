@@ -69,7 +69,7 @@ public class Board implements Serializable {
 	 * Since it is static, it will be recreated on serialization, meaning it will have a new 
 	 * time created, and the pokemon will not be spawning while it is offline.
 	 * The transient keyword, though unnecessary, is included to remind of this feature.
-	 * Also, this is probably redundant because keeptrackwhileoff for events is by default set to false.
+	 * Also, this is (as of now) redundant because keeptrackwhileoff for events is by default set to false.
 	 * But regardless, making it static makes sense.
 	 */
 	private transient static final Event checkForPokemon = checkForPokemonEvent(); 
