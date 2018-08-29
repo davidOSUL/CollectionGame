@@ -58,19 +58,20 @@ public final class ThingFactory {
 			eb = new EventBuilder();
 		}
 		else {
-			eb = new EventBuilder(getEventMaps(numberOfEventLists, pathToEventsHeader));
+			eb = new EventBuilder(thingTemplates, getEventMaps(numberOfEventLists, pathToEventsHeader));
 		}
-		loaders.add(eb);
 			
 	}
 	private ThingFactory(final String[] pathToThings, final String pathToEventsHeader, final int numberOfEventLists) {
 		this(pathToEventsHeader, numberOfEventLists);
 		loaders.add(new ThingLoader(this, pathToThings));
+		loaders.add(eb);
 		loadAllLoaders();
 	}
 	private ThingFactory(final String[] pathToThings, final String pathToDescriptions, final String pathToEventsHeader,final int numberOfEventLists, final String pathToEvolutions, final String pathToLevelsOfEvolve, final String... pathsToExtraAttributes) {
 		this(pathToEventsHeader, numberOfEventLists);
 		loaders.add(new ThingLoader(this, pathToThings, new ExtraAttributeLoader(thingTemplates, pathsToExtraAttributes)));
+		loaders.add(eb);
 		loaders.add(new PokemonEvolutionLoader(pathToEvolutions, pathToLevelsOfEvolve, thingTemplates));
 		loaders.add(new DescriptionLoader(pathToDescriptions, thingTemplates, eb));
 		loadAllLoaders();

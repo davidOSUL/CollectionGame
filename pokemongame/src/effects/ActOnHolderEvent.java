@@ -15,7 +15,7 @@ import thingFramework.Thing;
 public class ActOnHolderEvent extends Event {
 	private SerializableTriConsumer<Thing, Event, Board> doOnTickToCreator = (x, y, z) -> {};
 	private SerializableTriConsumer<Thing, Event, Board> doOnPlaceToCreator = (x, y, z) -> {};
-	private SerializableConsumer<Board> regularOnPlace; //the "default" on place for this event
+	private SerializableConsumer<Board> regularOnPlace = x -> {}; //the "default" on place for this event
 	public ActOnHolderEvent(final SerializableConsumer<Board> onPeriod, final double periodInMinutes, final SerializableTriConsumer<Thing, Event, Board> doOnTickToCreator) {
 		super(onPeriod, periodInMinutes);
 		setOnTickToCreator(doOnTickToCreator);
@@ -24,22 +24,10 @@ public class ActOnHolderEvent extends Event {
 		this(onPeriod, periodInMinutes, doOnTickToCreator);
 		setCreator(creator);
 	}
-	public ActOnHolderEvent(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onRemove, final SerializableTriConsumer<Thing, Event, Board> doOnTickToCreator) {
-		super(onPlace, onRemove);
-		setOnTickToCreator(doOnTickToCreator);
-		
-	}
 	public ActOnHolderEvent(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onRemove, final SerializableTriConsumer<Thing, Event, Board> doOnTickToCreator, final SerializableTriConsumer<Thing, Event, Board> doOnPlaceToCreator) {
 		setOnTickToCreator(doOnTickToCreator);
 		setDoOnPlaceToCreator(onPlace, doOnPlaceToCreator);
 		setOnRemove(onRemove);
-		
-	}
-	public ActOnHolderEvent(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final SerializableConsumer<Board> onRemove,final SerializableTriConsumer<Thing, Event, Board> doOnTickToCreator, final SerializableTriConsumer<Thing, Event, Board> doOnPlaceToCreator, final double periodInMinutes) {
-		this(onPlace, onRemove, doOnTickToCreator, doOnPlaceToCreator);
-		setOnPeriod(onPeriod);
-		setPeriod(periodInMinutes);
-		
 	}
 	private void setDoOnPlaceToCreator(final SerializableConsumer<Board> onPlace, final SerializableTriConsumer<Thing, Event, Board> doOnPlaceToCreator) {
 		this.doOnPlaceToCreator = doOnPlaceToCreator;
@@ -50,9 +38,9 @@ public class ActOnHolderEvent extends Event {
 		});
 	}
 	private ActOnHolderEvent(final ActOnHolderEvent event) {
-		this(event.regularOnPlace, event.getOnPeriod(), event.getOnRemove(), event.doOnTickToCreator, event.doOnPlaceToCreator, event.getPeriodInMinutes());
-		if (event.hasCreator())
-			setCreator(event.getCreator());
+		super(event);
+		setDoOnPlaceToCreator(event.regularOnPlace, event.doOnPlaceToCreator);
+		setOnTickToCreator(event.doOnTickToCreator);
 	}
 	private void setOnTickToCreator(final SerializableTriConsumer<Thing, Event, Board> doOnTickToCreator) {
 		this.doOnTickToCreator = doOnTickToCreator;
@@ -64,4 +52,5 @@ public class ActOnHolderEvent extends Event {
 	public ActOnHolderEvent makeCopy() {
 		return new ActOnHolderEvent(this);
 	}
+	
 }

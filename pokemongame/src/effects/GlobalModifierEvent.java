@@ -3,7 +3,6 @@ package effects;
 import attributes.ParseType;
 import game.Board;
 import modifiers.Modifier;
-import thingFramework.Thing;
 
 public class GlobalModifierEvent extends Event {
 	private final Modifier firstModifier;
@@ -22,6 +21,8 @@ public class GlobalModifierEvent extends Event {
 		setOnPlace(board -> {
 			if (getCreator() == null)
 				throw new IllegalStateException("Held event has no creator!");
+			if (displayCountdown && !getCreator().containsAttribute("time left"))
+				getCreator().addAttribute("time left");
 			addModsToBoard(board); //will add the mod to board, board will also start mod.startCount(...)
 		});
 		setOnRemove(board -> {
@@ -45,12 +46,6 @@ public class GlobalModifierEvent extends Event {
 		this(modCopys, copy.getRemoveCreatorWhenDone(), copy.getDisplayCountdown(), copy.option);
 	}
 
-	@Override
-	public void setCreator(final Thing creator) {
-		super.setCreator(creator);
-		if (displayCountdown && !getCreator().containsAttribute("time left"))
-			getCreator().addAttribute("time left");
-	}
 	@Override
 	public GlobalModifierEvent makeCopy() {
 		final Modifier[] copyMods = new Modifier[mods.length];

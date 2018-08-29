@@ -55,6 +55,10 @@ public class Board implements Serializable {
 	 * The minimum period in minutes at which new pokemon are checked for
 	 */
 	private static final double MIN_POKEPERIOD = 1;
+	/**
+	 * The maximum number of pokemon that can be in the dequeue at a time
+	 */
+	private static final int MAX_POKEMON_IN_QUEUE = 100;
 	/*
 	 * Transient instance variables:
 	 * 
@@ -210,6 +214,8 @@ public class Board implements Serializable {
 	 * Adds the provided pokemon to the foundPokemon queue and updates the set of pokemon names in addToUniquePokemonLookup
 	 */
 	private void addToFoundPokemon(final String name) {
+		if (foundPokemon.size() >= MAX_POKEMON_IN_QUEUE)
+			return;
 		final Pokemon p = ThingFactory.sharedInstance().generateNewPokemon(name);
 		foundPokemon.addLast(p);
 		addToUniquePokemonLookup(p);

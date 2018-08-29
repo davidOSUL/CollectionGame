@@ -16,7 +16,7 @@ import loaders.eventbuilder.generatedevents.TypicalEventFactory;
  * Generates Events by taking in a path to a file where Thing names are mapped to events that correspond to them
  * @author David O'Sullivan
  */
-public class EventBuilder  {
+public class EventBuilder implements Loader  {
 
 	/**
 	 * The Map between the name of the Thing and all the non-held events associated with it
@@ -29,25 +29,36 @@ public class EventBuilder  {
 	/**
 	 * Creates a new EventBuilder and places all default items to corresponding events
 	 */
+	private final String[] paths;
+	private final ThingMap thingMap;
 	private static final int EVENT_NAME_LOC = 0;
 	private static final int START_OF_EVENTS_LOC = 2;
 	
 	private static final int THING_NAME_LOC = 0;
 	public EventBuilder() {
-	//Put "Special Items" (items that are one-ofs and can't be described by generator functions) here
-		placeExplosionEvent();
-		
+		placeSpecialEvents();
+		paths = new String[] {};
+		thingMap = null;
 	}
 	/**
 	 * Creates a new EventBuilder, creates "default items" and creates events for items in .csv file located at path
 	 * @param path
 	 */
-	public EventBuilder(final String... paths) {
-		this();
+	public EventBuilder(final ThingMap thingMap, final String... paths) {
+		placeSpecialEvents()	;
+		this.paths = paths;
+		this.thingMap = thingMap;
+	}
+	@Override
+	public void load() {
 		for (final String path : paths)
 			loadEventsFromPath(path);
 	}
-//	/**
+	private void placeSpecialEvents() {
+		//Put "Special Items" (items that are one-ofs and can't be described by generator functions) here
+				placeExplosionEvent();
+	}
+ //	/**
 //	 * Loads all the events at the provided path
 //	 * @param p the path of the eventMapList.csv file
 //	 */
@@ -110,6 +121,8 @@ public class EventBuilder  {
 		}
 		return newEvents;
 	}
+	/**
+
 	/**
 	 * Get the verbal description of all events built for the specified thing
 	 * @param thingName the Name of thing to get description for

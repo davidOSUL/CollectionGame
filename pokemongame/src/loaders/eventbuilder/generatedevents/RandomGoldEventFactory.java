@@ -31,7 +31,7 @@ public class RandomGoldEventFactory extends TypicalEventFactory{
 
 	@Override
 	public String getDescription() {
-		return "Has a " + percentChance + "% Chance of Generating " + getRandomGoldString(gold) + " every " + periodInMinutes + " Minutes";
+		return "Has a " + percentChance + "% Chance of Generating " + getRandomGoldString(gold) + " every " + GameUtils.minutesToWrittenOutTime(periodInMinutes);
 	}
 	private static String getRandomGoldString(final int amountOfGold) {
 		return  GuiUtils.getSignedColorFormat(amountOfGold, '+') + GuiUtils.getMoneySymbol() + amountOfGold + "</font>";

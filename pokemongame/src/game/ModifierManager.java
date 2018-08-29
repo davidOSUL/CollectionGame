@@ -25,7 +25,8 @@ class ModifierManager implements Serializable{
 		modifierToOption.put(mod, option);
 	}
 	void notifyGlobalModifierRemoved(final Modifier mod) {
-		modifiers.get(modifierToOption.remove(mod)).remove(mod);
+		if (modifierToOption.containsKey(mod))
+			modifiers.get(modifierToOption.remove(mod)).remove(mod);
 	}
 	void update() {
 		final List<Modifier> modifiersToRemove = new ArrayList<Modifier>();

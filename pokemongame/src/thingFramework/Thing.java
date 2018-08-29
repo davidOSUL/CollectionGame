@@ -251,17 +251,9 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 		return image;
 	}
 	@Override
-	public void addToEventList(final Collection<Event> events) {
-		if (events == null)
-			return;
-		events.forEach(e -> {
-			eventList.add(e);
-			e.setCreator(this);
-		});
-	}
-	@Override
 	public void addToEventList(final Event e) {
-		addToEventList(Arrays.asList(e));
+		eventList.add(e);
+		e.setCreator(this);
 	}
 	public void setExtraDescription(final String attributeName, final String extraDescription) {
 		attributes.setAttributeExtraDescription(attributeName, extraDescription);

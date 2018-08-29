@@ -40,52 +40,46 @@ public class Event implements Serializable {
 	public Event() {
 	}
 	public Event(final SerializableConsumer<Board> onPlace) {
-		this.onPlace = onPlace;
+		setOnPlace(onPlace);
 	}
 	public Event(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onRemove) {
 		this(onPlace);
-		this.onRemove = onRemove;
+		setOnRemove(onRemove);
 	}
 	public Event(final SerializableConsumer<Board> onPeriod, final int periodInMinutes) {
-		this.onPeriod = onPeriod;
-		this.period = periodInMinutes;
-		isPeriodic = periodInMinutes > 0L;
-
-
+		setOnPeriod(onPeriod);
+		setPeriod(periodInMinutes);
 	}
 	public Event(final SerializableConsumer<Board> onPeriod, final double periodInMinutes) {
-		this.onPeriod = onPeriod;
-		this.period = periodInMinutes;
-		isPeriodic = periodInMinutes > 0.0;
-		if (isPeriodic)
-			this.period = Math.max(periodInMinutes, MIN_PERIOD);
+		setOnPeriod(onPeriod);
+		setPeriod(periodInMinutes);
+		
 
 	}
 	public Event(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final int periodInMinutes) {
 		this(onPeriod, periodInMinutes);
-		this.onPlace = onPlace;
+		setOnPlace(onPlace);
 	}
 	public Event(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final SerializableConsumer<Board> onRemove, final int periodInMinutes) {
 		this(onPeriod, periodInMinutes);
-		this.onPlace = onPlace;
-		this.onRemove = onRemove;
+		setOnPlace(onPlace);
+		setOnRemove(onRemove);
 	}
 	public Event(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final double periodInMinutes) {
 		this(onPeriod, periodInMinutes);
-		this.onPlace = onPlace;
+		setOnPlace(onPlace);
 	}
 	public Event(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final SerializableConsumer<Board> onRemove, final double periodInMinutes) {
 		this(onPeriod, periodInMinutes);
-		this.onPlace = onPlace;
-		this.onRemove = onRemove;
+		setOnPlace(onPlace);
+		setOnRemove(onRemove);
 	}
 	public Event(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final SerializableConsumer<Board> onRemove, final SerializableConsumer<Board> onTick, final double periodInMinutes) {
 		this(onPlace, onPeriod, onRemove, periodInMinutes);
 		setOnTick(onTick);
 	}
 	protected Event(final Event e) {
-		this(e.onPlace, e.onPeriod, e.onRemove, e.period);
-		setOnTick(e.onTick);
+		this(e.onPlace, e.onPeriod, e.onRemove, e.onTick, e.period);
 	}
 	private synchronized void runOnPlace(final Board b) {
 		if (!onPlaceExecuted()) {
@@ -176,8 +170,11 @@ public class Event implements Serializable {
 	public synchronized double getPeriodInMinutes() {
 		return this.period;
 	}
-	public synchronized void setPeriod(final double period) {
-		this.period = period;
+	public synchronized void setPeriod(final double periodInMinutes) {
+		this.period = periodInMinutes;
+		isPeriodic = period > 0;
+		if (isPeriodic)
+			this.period = Math.max(periodInMinutes, MIN_PERIOD);
 	}
 	public synchronized void setOnPeriod(final SerializableConsumer<Board> onPeriod, final double newPeriod) {
 		setOnPeriod(onPeriod);
