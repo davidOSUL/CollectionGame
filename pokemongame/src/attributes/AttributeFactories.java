@@ -1,17 +1,12 @@
 package attributes;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import gameutils.GameUtils;
-import interfaces.SerializableConsumer;
 import interfaces.SerializableFunction;
 import loaders.CSVReader;
 import thingFramework.ExperienceGroup;
@@ -87,25 +82,26 @@ final class AttributeFactories {
 	final class AttributeFactory<T> {
 		private final ParseType<T> parseType;
 		private final Map<String, Attribute<T>> attributeTemplates = new HashMap<String, Attribute<T>>();
-		private final Map<AttributeManager, Map<String, Attribute<T>>> associatedAttributeManagers = new HashMap<AttributeManager, Map<String, Attribute<T>>>();
-		private final Map<AttributeManager, SerializableConsumer<Attribute<T>>> doOnGenerations = new HashMap<AttributeManager, SerializableConsumer<Attribute<T>>>();
-		private final Map<AttributeManager, List<AttributeManagerWatcher<T>>> attributeWatchers = new HashMap<AttributeManager, List<AttributeManagerWatcher<T>>>();
+		//private final Map<AttributeManager, Map<String, Attribute<T>>> associatedAttributeManagers = new HashMap<AttributeManager, Map<String, Attribute<T>>>();
+		//private final Map<AttributeManager, SerializableConsumer<Attribute<T>>> doOnGenerations = new HashMap<AttributeManager, SerializableConsumer<Attribute<T>>>();
+		//private final Map<AttributeManager, List<AttributeManagerWatcher<T>>> attributeWatchers = new HashMap<AttributeManager, List<AttributeManagerWatcher<T>>>();
+		private final Map<AttributeManager, AttributeManagerHelperInterface<T>> attributeManagerMap = new HashMap<AttributeManager, AttributeManagerHelperInterface<T>>();
 		private SerializableFunction<T, Boolean> isPositive = x -> false;
-		void writeObjectForManager(final AttributeManager manager, final ObjectOutputStream oos) throws IOException {
-			oos.writeObject(associatedAttributeManagers.get(manager));
-			oos.writeObject(doOnGenerations.get(manager));
-			oos.writeObject(attributeWatchers.get(manager));
-			
+		void addNewManager2(final AttributeManager manager) {
+			attributeManagerMap.put(manager, new AttributeManagerHelper<T>(manager, parseType, attributeTemplates));
 		}
-		@SuppressWarnings("unchecked")
-		void readObjectForManager(final AttributeManager manager, final ObjectInputStream ois) throws ClassNotFoundException, IOException {
-			associatedAttributeManagers.put(manager, (Map<String, Attribute<T>>) ois.readObject());
-			for (final Attribute<T> attribute : associatedAttributeManagers.get(manager).values()) {
-				attribute.setParseType(parseType);
-			}
-			doOnGenerations.put(manager, (SerializableConsumer<Attribute<T>>) ois.readObject());
-			attributeWatchers.put(manager,  (List<AttributeManagerWatcher<T>>) ois.readObject());
+		AttributeManagerHelperInterface<T> getHelper(final AttributeManager manager) {
+			if (!attributeManagerMap.containsKey(manager))
+				throw new IllegalArgumentException("Manager not present for factory: " + this);
+			return attributeManagerMap.get(manager);
 		}
+		void copyManagerToNewManager(final AttributeManager oldManager, final AttributeManager newManager) {
+			attributeManagerMap.get(oldManager).copyToNewHelper(attributeManagerMap.get(newManager));
+			/*for (final Map.Entry<String, Attribute<T>> entry : associatedAttributeManagers.get(oldManager).entrySet()) {
+				addAttributeForManager(newManager, entry.getKey(), entry.getValue().makeCopy());
+			}*/
+		}
+		
 		private AttributeFactory(final ParseType<T> parseType) {
 			this.parseType = parseType;
 			parseType.setAssociatedFactory(this);
@@ -121,16 +117,26 @@ final class AttributeFactories {
 			throwIfInvalidTemplate(attributeName);
 			return attributeTemplates.get(attributeName);
 		}
-		
+		/*void writeObjectForManager(final AttributeManager manager, final ObjectOutputStream oos) throws IOException {
+			oos.writeObject(associatedAttributeManagers.get(manager));
+			oos.writeObject(doOnGenerations.get(manager));
+			oos.writeObject(attributeWatchers.get(manager));
+			
+		}
+		@SuppressWarnings("unchecked")
+		void readObjectForManager(final AttributeManager manager, final ObjectInputStream ois) throws ClassNotFoundException, IOException {
+			associatedAttributeManagers.put(manager, (Map<String, Attribute<T>>) ois.readObject());
+			for (final Attribute<T> attribute : associatedAttributeManagers.get(manager).values()) {
+				attribute.setParseType(parseType);
+			}
+			doOnGenerations.put(manager, (SerializableConsumer<Attribute<T>>) ois.readObject());
+			attributeWatchers.put(manager,  (List<AttributeManagerWatcher<T>>) ois.readObject());
+		}
 		void addNewManager(final AttributeManager manager) {
 			associatedAttributeManagers.put(manager, new HashMap<String, Attribute<T>>());
 			attributeWatchers.put(manager, new ArrayList<AttributeManagerWatcher<T>>());
 		}
-		void copyManagerToNewManager(final AttributeManager oldManager, final AttributeManager newManager) {
-			for (final Map.Entry<String, Attribute<T>> entry : associatedAttributeManagers.get(oldManager).entrySet()) {
-				addAttributeForManager(newManager, entry.getKey(), entry.getValue().makeCopy());
-			}
-		}
+		
 		void addNewWatcherForManager(final AttributeManager manager, final AttributeManagerWatcher<T> watcher) {
 			attributeWatchers.get(manager).add(watcher);
 		}
@@ -180,11 +186,12 @@ final class AttributeFactories {
 		}
 		boolean containsAttributeForManager(final AttributeManager manager, final String name) {
 			return attributeTemplates.containsKey(name) && associatedAttributeManagers.get(manager).containsKey(name);
-		}
+		}*/
 		void removeManager(final AttributeManager manager) {
-			associatedAttributeManagers.remove(manager);
+			/*associatedAttributeManagers.remove(manager);
 			doOnGenerations.remove(manager);
-			attributeWatchers.remove(manager);
+			attributeWatchers.remove(manager);*/
+			attributeManagerMap.remove(manager);
 		}
 		
 		private void throwIfInvalidTemplate(final String attributeName) {

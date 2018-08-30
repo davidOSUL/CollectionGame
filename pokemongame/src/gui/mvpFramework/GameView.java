@@ -13,8 +13,8 @@ import gui.gameComponents.GameSpace;
 import gui.gameComponents.grid.GridSpace;
 import gui.gameComponents.grid.GridSpace.GridSpaceData;
 import gui.guiutils.GuiUtils;
+import gui.mvpFramework.presenter.AddType;
 import gui.mvpFramework.presenter.Presenter;
-import gui.mvpFramework.presenter.Presenter.AddType;
 
 /**
  * The JFrame which houses the game
@@ -137,9 +137,6 @@ public class GameView extends JFrame {
 	 */
 	public void setEnabledForButtons(final boolean enabled) {
 		mainGamePanel.setEnabledForButtons(enabled);
-	}
-	public void setInShop(final boolean inShop) {
-		mainGamePanel.setInShop(inShop);
 	}
 	/**
 	 * Adds a GridSpace that was previously on the board and was saved away using the specified data. Note that this is only a UI change. (doesn't notify presenter)

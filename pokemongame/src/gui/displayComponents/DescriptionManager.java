@@ -86,6 +86,13 @@ public final class DescriptionManager {
 	public void setBackgroundColor(final Color c) {
 		UIManager.put("ToolTip.background", c);
 	}
+	/**
+	 * disables then re-enables tooltips
+	 */
+	public void flashTooltips() {
+		setEnabled(false); 
+		setEnabled(true);
+	}
 	
 
 }

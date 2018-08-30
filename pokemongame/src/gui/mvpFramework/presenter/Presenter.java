@@ -16,12 +16,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
-import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -114,7 +112,6 @@ public class Presenter implements Serializable {
 	 * When in a delete attempt, this is the GameSpace that the user wants to delete
 	 */
 	private transient GridSpace gridSpaceToDelete = null;
-
 	/*
 	 * Non-transient Instance Variables:
 	 * 
@@ -123,9 +120,9 @@ public class Presenter implements Serializable {
 
 
 	/**
-	 * The gameSaver to use to save the game
+	 * The Saver to use to save the game
 	 */
-	private final GameSaver gameSaver;
+	private final CurrentGamestateSaver gameStateSaver;
 	/**
 	 * The "Model" of this presenter. Manages the game in memory
 	 */
@@ -161,7 +158,7 @@ public class Presenter implements Serializable {
 	 * @param gameSaver the gamesaver to use for saving
 	 */
 	public Presenter(final Board b, final String gameViewTitle, final GameSaver gameSaver) {
-		this.gameSaver = gameSaver;
+		this.gameStateSaver = new CurrentGamestateSaver(gameSaver);
 		allThings = new HashMap<GridSpace, Thing>();
 		soldThings = new HashMap<GridSpace, ShopItem>();
 		title = gameViewTitle;
@@ -179,30 +176,7 @@ public class Presenter implements Serializable {
 			JOptionPane.showMessageDialog(gameView, "Sorry! You can't save while holding onto something!");
 			return false;
 		}
-		try {
-			if (!gameSaver.hasSave())
-				gameSaver.createSaveFile();
-			gameSaver.save(this);
-			saveSuccessDialog();
-			return true;
-		} catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-
-		}
-	}
-	private void saveSuccessDialog() {
-		// Replace JOptionPane.showXxxx(args) with new JOptionPane(args)
-		final JOptionPane pane = new JOptionPane("Game Saved!", JOptionPane.INFORMATION_MESSAGE);
-		final JDialog dialog = pane.createDialog(gameView, "Success!");	
-		SwingUtilities.invokeLater( () -> {
-			final Timer timer = new Timer(500, e -> dialog.dispose());
-			timer.setRepeats(false);
-			timer.start();
-			dialog.setVisible(true);
-		});
-
+		return gameStateSaver.saveGame(this, gameView);
 	}
 	/**
 	 * Sets the board for this presenter
@@ -335,11 +309,6 @@ public class Presenter implements Serializable {
 		timer.start();
 
 	}
-	private String generateRandomGoodbyeMessage() {
-		//TODO: MOVE
-		final String[] messages = {"Goodbye!", "And we only just met too..", "Bye bye!", "Leaving so soon?", "The Pokemon will miss you...", "Farewell friend!", "Adios Amigo!", "Leaving?!  What do you mean \"Real Life Responibilites\"?!  Who needs any of those?!!", "Well, I guess this is goodbye..", "Please don't forget about us! \n Love, \n Your Pokemon"};
-		return messages[new Random().nextInt(messages.length)];
-	}
 	/**
 	 * To be called whenever the notification button is clicked. Displays the PopUp JPanel with the next pokemon in the wild pokemon queue in the board
 	 *@sets CurrentState.NOTIFICATION_WINDOW
@@ -385,7 +354,7 @@ public class Presenter implements Serializable {
 	 * @param state The new state of the game
 	 */
 	private void setState(final CurrentState state) {
-		flashTooltips(); //"flashes" the tooltips to prevent them from getting stuck when the state changes
+		DescriptionManager.getInstance().flashTooltips(); //"flashes" the tooltips to prevent them from getting stuck when the state changes
 		if (state != CurrentState.GAMEPLAY) {
 			if (state == CurrentState.ADVANCED_STATS_WINDOW || state == CurrentState.PLACING_SPACE)
 				DescriptionManager.getInstance().setEnabled(false);
@@ -408,13 +377,7 @@ public class Presenter implements Serializable {
 
 
 	}
-	/**
-	 * disables then re-enables tooltips
-	 */
-	private void flashTooltips() {
-		DescriptionManager.getInstance().setEnabled(false); 
-		DescriptionManager.getInstance().setEnabled(true);
-	}
+	
 	public String getDiscardText(final GameSpace gs) {
 		return allThings.get(gs).getDiscardText();
 	}
@@ -645,7 +608,6 @@ public class Presenter implements Serializable {
 		setState(CurrentState.IN_SHOP);
 		final JComponent cards = shopWindow.getShopWindowAsCardLayout();
 		setCurrentWindow(cards);
-		gameView.setInShop(true);
 
 
 	}
@@ -670,7 +632,6 @@ public class Presenter implements Serializable {
 	public void closeShop() {
 		if (state != CurrentState.IN_SHOP)
 			throw new RuntimeException("not in shop!");
-		gameView.setInShop(false);
 		setState(CurrentState.GAMEPLAY);
 	}
 	/**
@@ -796,28 +757,6 @@ public class Presenter implements Serializable {
 		setCurrentWindow(windowFactory.advancedStatsWindow());
 	}
 	/**
-	 * The CurrentState of GamePlay
-	 * @author David O'Sullivan
-	 *
-	 */
-	private enum CurrentState {
-		GAMEPLAY, NOTIFICATION_WINDOW, PLACING_SPACE, DELETE_CONFIRM_WINDOW, IN_SHOP, PURCHASE_CONFIRM_WINDOW, SELL_BACK_CONFIRM_WINDOW, ADVANCED_STATS_WINDOW
-	}
-	/**
-	 * The context of the Add Attempt
-	 * POKE_FROM_QUEUE == notifcation butotn was pressed
-	 * PRIOR_ON_BOARD == moving around a thing that was already placed
-	 * @author David O'Sullivan
-	 *
-	 */
-	public enum AddType{
-		POKE_FROM_QUEUE(true), PRIOR_ON_BOARD(false), ITEM_FROM_SHOP(true);
-		private boolean isNewThing;
-		private AddType(final boolean newThing) {
-			this.isNewThing = newThing;
-		}
-	}
-	/**
 	 * A mapping between a thing and a GridSpace
 	 * @author David O'Sullivan
 	 *
@@ -907,7 +846,7 @@ public class Presenter implements Serializable {
 		}
 		board.onStartUp();
 		shopWindow.updateItems(board.getItemsInShop());
-		goodbyeMessage = generateRandomGoodbyeMessage();
+		goodbyeMessage = new GoodbyeMessageCreator().getMessage();
 		switch(state) {
 		case DELETE_CONFIRM_WINDOW:
 		case NOTIFICATION_WINDOW: 

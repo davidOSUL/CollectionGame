@@ -13,7 +13,7 @@ import attributes.AttributeFactories.AttributeFactory;
 import gameutils.GameUtils;
 import interfaces.SerializablePredicate;
 
-public final class AttributeManager implements Serializable {
+public class AttributeManager implements Serializable {
 	private SerializablePredicate<Attribute<?>> validate = new SerializablePredicate<Attribute<?>>() {
 		@Override
 		public boolean test(final Attribute<?> t) {
@@ -22,7 +22,8 @@ public final class AttributeManager implements Serializable {
 	};
 	private String currentDescription = "";
 	public AttributeManager() {
-		performOnAllFactories(f -> f.addNewManager(this));
+		//performOnAllFactories(f -> f.addNewManager(this));
+		performOnAllFactories(f -> f.addNewManager2(this));
 	}
 	public void copyOverFromOldManager(final AttributeManager old) {
 		performOnAllFactories(f -> f.copyManagerToNewManager(old, this));
@@ -33,10 +34,11 @@ public final class AttributeManager implements Serializable {
 		this.validate = validate;
 	}
 	public <T> void addWatcher(final AttributeManagerWatcher<T> watcher, final ParseType<T> type) {
-		type.getAssociatedFactory().addNewWatcherForManager(this, watcher);
+		//type.getAssociatedFactory().addNewWatcherForManager(this, watcher);
+		getHelper(type).addNewWatcher(watcher);
 	}
 	public void generateAttribute(final String attributeName) {
-		final AttributeFactory<?> creator = getCreator(attributeName);
+		/*final AttributeFactory<?> creator = getCreator(attributeName);
 		if (containsAttribute(attributeName))
 			throw new IllegalArgumentException("Attribute " + attributeName + "already exists");
 		if (validate.test(creator.getAttributeTemplate(attributeName))) {
@@ -44,14 +46,26 @@ public final class AttributeManager implements Serializable {
 		}
 		else
 			throw new IllegalArgumentException("Attribute " + attributeName + " failed attribute validation");
+		updateDescription();*/
+		if (containsAttribute(attributeName))
+			throw new IllegalArgumentException("Attribute " + attributeName + "already exists");
+		if (validate.test(getHelper(attributeName).getAttributeTemplate(attributeName))) {
+			getHelper(attributeName).generateAttribute(attributeName);
+		}
+		else
+			throw new IllegalArgumentException("Attribute " + attributeName + " failed attribute validation");
 		updateDescription();
 
 	}
 	public void removeAttribute(final String attributeName) {
-		final AttributeFactory<?> creator = getCreator(attributeName);
+		/*final AttributeFactory<?> creator = getCreator(attributeName);
 		if (!containsAttribute(attributeName))
 			throw new IllegalArgumentException("Attribute " + attributeName + " not present");
 		creator.removeAttributeForManager(this, attributeName);
+		updateDescription();*/
+		if (!containsAttribute(attributeName))
+			throw new IllegalArgumentException("Attribute " + attributeName + " not present");
+		getHelper(attributeName).removeAttribute(attributeName);
 		updateDescription();
 
 
@@ -66,20 +80,24 @@ public final class AttributeManager implements Serializable {
 		setAttributeValue(attributeName, value);
 	}
 	private <T> Attribute<T> getAttribute(final String attributeName, final ParseType<T> type) {
-		return type.getAssociatedFactory().getAttributeForManager(this, attributeName);
+		//return type.getAssociatedFactory().getAttributeForManager(this, attributeName);
+		return getHelper(type).getAttribute(attributeName);
 	}
 	public String getAttributeAsString(final String attributeName) {
-		return getCreator(attributeName).getAttributeForManager(this, attributeName).toString();
+		//return getCreator(attributeName).getAttributeForManager(this, attributeName).toString();
+		return getHelper(attributeName).getAttribute(attributeName).toString();
 	}
 	public <T> T getAttributeValue(final String attributeName, final ParseType<T> type) {
 		return getAttribute(attributeName, type).getValue();
 	}
 	public <T> void setAttributeValue(final String attributeName, final T value, final ParseType<T> type) {
-		type.getAssociatedFactory().setAttributeValueForManager(this, attributeName, value);
+		//type.getAssociatedFactory().setAttributeValueForManager(this, attributeName, value);
+		getHelper(type).setAttributeValue(attributeName, value);
 		updateDescription();
 	}
     public void setAttributeValue(final String attributeName, final String value) {
-    		getCreator(attributeName).setAttributeValueForManager(this, attributeName, value);
+    		//getCreator(attributeName).setAttributeValueForManager(this, attributeName, value);
+    		getHelper(attributeName).setAttributeValue(attributeName, value);
     		updateDescription();
 	}
 	public void generateAttributes(final String[] names, final String[] values) {
@@ -100,7 +118,11 @@ public final class AttributeManager implements Serializable {
 	}
 	public <T> Set<Attribute<T>> getAttributesOfCharacteristic(final AttributeCharacteristic characteristic, final ParseType<T> type) {
 		final Set<Attribute<T>> validAttributes = new HashSet<Attribute<T>>();
-		type.getAssociatedFactory().getAllAttributesForManager(this).forEach(at -> {
+		/*type.getAssociatedFactory().getAllAttributesForManager(this).forEach(at -> {
+			if (at.hasCharacteristic(characteristic))
+				validAttributes.add(at);
+		});*/
+		getHelper(type).getAllAttributes().forEach(at -> {
 			if (at.hasCharacteristic(characteristic))
 				validAttributes.add(at);
 		});
@@ -109,7 +131,7 @@ public final class AttributeManager implements Serializable {
 	public Set<Attribute<?>> getAttributesOfCharacteristic(final AttributeCharacteristic characteristic) {
 		final Set<Attribute<?>> validAttributes = new HashSet<Attribute<?>>();
 		performOnAllFactories(factory -> {
-			factory.getAllAttributesForManager(this).forEach(at -> {
+			getHelper(factory).getAllAttributes().forEach(at -> {
 				if (at.hasCharacteristic(characteristic))
 					validAttributes.add(at);
 			});
@@ -117,14 +139,15 @@ public final class AttributeManager implements Serializable {
 		return validAttributes;
 	}
 	public boolean containsAttribute(final String attributeName) {
-		return getCreator(attributeName).containsAttributeForManager(this, attributeName);
+		//return getCreator(attributeName).containsAttributeForManager(this, attributeName);
+		return getHelper(attributeName).containsAttribute(attributeName);
 	}
-	private AttributeFactory<?> getCreator(final String attributeName) {
+	/*private AttributeFactory<?> getCreator(final String attributeName) {
 		final AttributeFactory<?> creator = AttributeFactories.getInstance().getCreatorFactory(attributeName);
 		if (creator == null)
 			throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
 		return creator;
-	}
+	}*/
 	private Set<Attribute<?>> getAllAttributesInOrder() {
 		final Set<Attribute<?>> allAttributes = new TreeSet<Attribute<?>>((a1, a2) -> {
 			if (a1.getDisplayRank() == a2.getDisplayRank())
@@ -132,7 +155,7 @@ public final class AttributeManager implements Serializable {
 			else
 				return Integer.compare(a1.getDisplayRank(), a2.getDisplayRank());
 		});
-		performOnAllFactories(factory -> allAttributes.addAll(factory.getAllAttributesForManager(this)));
+		performOnAllFactories(factory -> allAttributes.addAll(getHelper(factory).getAllAttributes()));
 		return allAttributes;
 	}
 	@Override
@@ -151,11 +174,13 @@ public final class AttributeManager implements Serializable {
 		currentDescription =  result.toString();
 	}
 	public void setAttributeExtraDescription(final String attributeName, final String extraDescription) {
-		getCreator(attributeName).getAttributeForManager(this, attributeName).setExtraDescription(extraDescription);
+		//getCreator(attributeName).getAttributeForManager(this, attributeName).setExtraDescription(extraDescription);
+		getAttribute(attributeName).setExtraDescription(extraDescription);
 		updateDescription();
 	}
 	public boolean attributeValueEqualsParse(final String attributeName, final String value) {
-		return getCreator(attributeName).getAttributeForManager(this, attributeName).valEqualsParse(value);
+		//return getCreator(attributeName).getAttributeForManager(this, attributeName).valEqualsParse(value);
+		return getAttribute(attributeName).valEqualsParse(value); 
 	}
 	public static <T> String displayAttribute(final String attributeName, final T attributeValue, final ParseType<T> type,  final DisplayStringSetting... displayStringSettings)  {
 		final AttributeManager manager = new AttributeManager();
@@ -168,7 +193,7 @@ public final class AttributeManager implements Serializable {
 		oos.defaultWriteObject();
 		performOnAllFactories(f -> {
 			try {
-				f.writeObjectForManager(this, oos);
+				getHelper(f).writeObject(oos);
 			} catch (final IOException e) {
 				e.printStackTrace();
 			}
@@ -178,8 +203,9 @@ public final class AttributeManager implements Serializable {
 	private void readObject(final ObjectInputStream ois) throws ClassNotFoundException, IOException {
 		ois.defaultReadObject(); 
 		performOnAllFactories(f -> {
+			f.addNewManager2(this);
 			try {
-				f.readObjectForManager(this, ois);
+				getHelper(f).readObject(ois);
 			} catch (ClassNotFoundException | IOException e) {
 				e.printStackTrace();
 			}
@@ -190,6 +216,18 @@ public final class AttributeManager implements Serializable {
 	private void performOnAllFactories(final Consumer<AttributeFactory<?>> consumer) {
 		for (final AttributeFactory<?> factory: AttributeFactories.getInstance().getFactoryList())
 			consumer.accept(factory);
+	}
+	private <T> AttributeManagerHelperInterface<T> getHelper(final ParseType<T> type) {
+		return type.getAssociatedFactory().getHelper(this);
+	}
+	private AttributeManagerHelperInterface<?> getHelper(final String attributeName) {
+		return AttributeFactories.getInstance().getCreatorFactory(attributeName).getHelper(this);
+	}
+	private <T> AttributeManagerHelperInterface<T> getHelper(final AttributeFactory<T> factory) {
+		return factory.getHelper(this);
+	}
+	private Attribute<?> getAttribute(final String attributeName) {
+		return getHelper(attributeName).getAttribute(attributeName);
 	}
 	
 }

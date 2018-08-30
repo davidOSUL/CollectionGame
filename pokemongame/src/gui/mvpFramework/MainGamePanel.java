@@ -28,10 +28,10 @@ import gui.gameComponents.grid.GridSpace.GridSpaceData;
 import gui.guiutils.GuiUtils;
 import gui.guiutils.KeyBindingManager;
 import gui.mouseAdapters.MouseClickWithThreshold;
-import gui.mvpFramework.presenter.Presenter.AddType;
+import gui.mvpFramework.presenter.AddType;
 
 /**
- * where most of the front end component lie. This is within the GameView
+ * Where most of the front end components lie. This is within the GameView
  * @author David O'Sullivan
  *
  */
@@ -486,8 +486,6 @@ public class MainGamePanel extends JPanel{
 				}
 			});
 		}
-	}
-	public void setInShop(final boolean inShop) {
 	}
 	/**
 	 * Adds the gamespace to the specified grid. This is all UI (aka, doesn't notify board!)

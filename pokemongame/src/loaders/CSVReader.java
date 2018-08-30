@@ -14,7 +14,7 @@ import gui.guiutils.GuiUtils;
 
 /**
  * Used for reading in CSV files and returning the values within
- * Replaces '|' with ',' '^' with '\n', and 'MONEY_SYMBOL' with GuiUtils.getMoneySymbol()
+ * Replaces '|' with ',' '^' with '\n', '&lt;q&gt;' with '"' and 'MONEY_SYMBOL' with GuiUtils.getMoneySymbol()
  * @author David O'Sullivan
  *
  */
@@ -118,7 +118,7 @@ public final class CSVReader {
 			final String line = modifyLineBy.apply(lines.get(i));
 			valueList.add(line.split(splitBy, splitLimit));
 			for (int k =0; k < valueList.get(j).length; k++) {
-				valueList.get(j)[k] = valueList.get(j)[k].replace('|', ',').replace('^', '\n').replace("MONEY_SYMBOL", GuiUtils.getMoneySymbol());
+				valueList.get(j)[k] = valueList.get(j)[k].replace('|', ',').replace('^', '\n').replace("<q>", "\"").replace("MONEY_SYMBOL", GuiUtils.getMoneySymbol());
 			}
 			j++;
 		}
