@@ -13,7 +13,8 @@ import gui.gameComponents.GameSpace;
 import gui.gameComponents.grid.GridSpace;
 import gui.gameComponents.grid.GridSpace.GridSpaceData;
 import gui.guiutils.GuiUtils;
-import gui.mvpFramework.Presenter.AddType;
+import gui.mvpFramework.presenter.Presenter;
+import gui.mvpFramework.presenter.Presenter.AddType;
 
 /**
  * The JFrame which houses the game

@@ -28,7 +28,7 @@ import gui.gameComponents.grid.GridSpace.GridSpaceData;
 import gui.guiutils.GuiUtils;
 import gui.guiutils.KeyBindingManager;
 import gui.mouseAdapters.MouseClickWithThreshold;
-import gui.mvpFramework.Presenter.AddType;
+import gui.mvpFramework.presenter.Presenter.AddType;
 
 /**
  * where most of the front end component lie. This is within the GameView

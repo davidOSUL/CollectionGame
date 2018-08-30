@@ -1,9 +1,11 @@
-package gui.mvpFramework;
+package gui.mvpFramework.presenter;
 import static gameutils.Constants.DEBUG;
 import static gameutils.Constants.PRINT_BOARD;
 import static gui.guiutils.GUIConstants.SHOW_CONFIRM_ON_CLOSE;
 
 import java.awt.Image;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -22,22 +24,19 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import attributes.ParseType;
 import game.Board;
 import gui.displayComponents.DescriptionManager;
-import gui.displayComponents.InfoWindowBuilder;
 import gui.displayComponents.ShopWindow;
 import gui.gameComponents.GameSpace;
 import gui.gameComponents.grid.GridSpace;
 import gui.gameComponents.grid.GridSpace.GridSpaceData;
 import gui.guiutils.GuiUtils;
+import gui.mvpFramework.GameView;
 import loaders.shopLoader.ShopItem;
-import thingFramework.Pokemon;
 import thingFramework.Thing;
 import userIO.GameSaver;
 
@@ -64,10 +63,8 @@ public class Presenter implements Serializable {
 	/**
 	 * the Consumer that is triggered when the user clicks the notification button and decides to let the pokemon go
 	 */
-	private final static Consumer<Presenter> LET_POKE_GO = p -> p.board.confirmGrab();	/**
-	 * The background of the JPanel that pops up when the notification button is pressed
-	 */
-	private final static Image INFO_WINDOW_BACKGROUND =GuiUtils.changeOpacity(GuiUtils.readImage("/sprites/ui/pikabackground.jpg"), .5f);
+	private final static Consumer<Presenter> LET_POKE_GO = p -> p.board.confirmGrab();	
+	
 
 
 	/*
@@ -139,7 +136,7 @@ public class Presenter implements Serializable {
 	 */
 	private CurrentState state = CurrentState.GAMEPLAY;
 
-
+	private final PresenterWindowFactory windowFactory;
 	private volatile boolean toolTipsEnabled = true;
 	private volatile boolean popupMenusEnabled = true;
 	private final String title;
@@ -147,78 +144,8 @@ public class Presenter implements Serializable {
 	private final Queue<GridSpace> toBeDeleted = new ConcurrentLinkedQueue<GridSpace>();
 	private boolean suggestShopUpdate = false;
 	private int amountOfLastGold = -1;
-	private void writeObject(final ObjectOutputStream oos) throws IOException {
-		oos.defaultWriteObject();
-		final Map<GridSpaceData, Thing> allThingsData = new LinkedHashMap<GridSpaceData, Thing>();
-		final Map<Integer, ShopItem> soldThingsData = new LinkedHashMap<Integer, ShopItem>();
-		final Iterator<Entry<GridSpace, Thing>> it = allThings.entrySet().iterator();
-		int i = 0;
-		while (it.hasNext()) {
-			final Map.Entry<GridSpace, Thing> pair = it.next();
-			final GridSpace gs = pair.getKey();
-			final Thing t = pair.getValue();
-			if (soldThings.containsKey(gs)) {
-				soldThingsData.put(i, soldThings.get(gs));
-			}
-			allThingsData.put(gs.getData(), t);
-			i++;
-		}
-		oos.writeObject(allThingsData);
-		oos.writeObject(soldThingsData);
-		if (DEBUG || PRINT_BOARD)
-			System.out.println(board.getTimeStats());
-	}
-
-	/**
-	 * Read from save. Will also call board.onStartUp()
-	 */
-	@SuppressWarnings("unchecked")
-	private void readObject(final ObjectInputStream ois) throws ClassNotFoundException, IOException {
-		ois.defaultReadObject(); //will read in board, title, allThings, soldThings
-		allThings = new HashMap<GridSpace, Thing>();
-		soldThings = new HashMap<GridSpace, ShopItem>();
-		final Map<GridSpaceData, Thing> allThingsData = (Map<GridSpaceData, Thing>) ois.readObject();
-		final Map<Integer, ShopItem> soldThingsData = (Map<Integer, ShopItem>) ois.readObject();
-		setGameView(title); //set up the game view as well as the shopwindow
-		final Iterator<Entry<GridSpaceData, Thing>> it = allThingsData.entrySet().iterator();
-		int i = 0;
-		while (it.hasNext()) {
-			final Map.Entry<GridSpaceData, Thing> pair = it.next();
-			final GridSpaceData data = pair.getKey();
-			final Thing thing = pair.getValue();
-			it.remove(); 
-			final GridSpace gridSpace = gameView.addNewGridSpaceFromSave(generateGameSpaceFromThing(thing), data);
-			allThings.put(gridSpace, thing);
-			if (soldThingsData.containsKey(i))
-				soldThings.put(gridSpace, soldThingsData.get(i));
-			updateListener(gridSpace);
-			i++;
-		}
-		board.onStartUp();
-		shopWindow.updateItems(board.getItemsInShop());
-		goodbyeMessage = generateRandomGoodbyeMessage();
-		switch(state) {
-		case DELETE_CONFIRM_WINDOW:
-		case NOTIFICATION_WINDOW: 
-		case SELL_BACK_CONFIRM_WINDOW:
-		case ADVANCED_STATS_WINDOW:
-			Canceled();
-			break;
-		case PURCHASE_CONFIRM_WINDOW:
-			Canceled(); //close purchase confirm
-			Canceled(); //close shop
-			break;
-		case PLACING_SPACE:
-			GuiUtils.displayError(new IllegalStateException("Should not have been able to save while placing"), gameView);
-			break;
-		default:
-			setState(CurrentState.GAMEPLAY);
-			break;
-		}
-		if (DEBUG || PRINT_BOARD)
-			System.out.println(board.getTimeStats());
-
-	}
+	
+	
 
 	/**
 	 * Get the GameView associated with this Presenter
@@ -240,6 +167,8 @@ public class Presenter implements Serializable {
 		title = gameViewTitle;
 		setBoard(b);
 		setGameView(gameViewTitle);
+		windowFactory = new PresenterWindowFactory(this, board);
+
 	}
 	/**
 	 * save the current game
@@ -381,10 +310,10 @@ public class Presenter implements Serializable {
 		shopWindow.updateItems(board.getItemsInShop());
 		if (SHOW_CONFIRM_ON_CLOSE) {
 			gameView.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-			gameView.addWindowListener(new java.awt.event.WindowAdapter() {
+			gameView.addWindowListener(new WindowAdapter() { //TODO: Move?
 				Object[] options = {"Save And Quit", "Quit Without Saving", "Cancel"};
 				@Override
-				public void windowClosing(final java.awt.event.WindowEvent windowEvent) {
+				public void windowClosing(final WindowEvent windowEvent) {
 					stopToolTips();
 					final int n = JOptionPane.showOptionDialog(gameView, goodbyeMessage, "", 
 							JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
@@ -407,6 +336,7 @@ public class Presenter implements Serializable {
 
 	}
 	private String generateRandomGoodbyeMessage() {
+		//TODO: MOVE
 		final String[] messages = {"Goodbye!", "And we only just met too..", "Bye bye!", "Leaving so soon?", "The Pokemon will miss you...", "Farewell friend!", "Adios Amigo!", "Leaving?!  What do you mean \"Real Life Responibilites\"?!  Who needs any of those?!!", "Well, I guess this is goodbye..", "Please don't forget about us! \n Love, \n Your Pokemon"};
 		return messages[new Random().nextInt(messages.length)];
 	}
@@ -418,7 +348,7 @@ public class Presenter implements Serializable {
 		if (!board.wildPokemonPresent() || state != CurrentState.GAMEPLAY)
 			return;
 		setState( CurrentState.NOTIFICATION_WINDOW);
-		setCurrentWindow(wildPokemonWindow(board.grabWildPokemon()));									
+		setCurrentWindow(windowFactory.wildPokemonWindow(board.grabWildPokemon(), LET_POKE_GO));									
 	}
 
 
@@ -455,8 +385,7 @@ public class Presenter implements Serializable {
 	 * @param state The new state of the game
 	 */
 	private void setState(final CurrentState state) {
-		DescriptionManager.getInstance().setEnabled(false); //"flashes" the tooltips to prevent them from getting stuck when the state changes
-		DescriptionManager.getInstance().setEnabled(true);
+		flashTooltips(); //"flashes" the tooltips to prevent them from getting stuck when the state changes
 		if (state != CurrentState.GAMEPLAY) {
 			if (state == CurrentState.ADVANCED_STATS_WINDOW || state == CurrentState.PLACING_SPACE)
 				DescriptionManager.getInstance().setEnabled(false);
@@ -467,7 +396,7 @@ public class Presenter implements Serializable {
 			gameView.setEnabledForButtons(false);
 
 		}
-		if (state == CurrentState.GAMEPLAY) {
+		else if (state == CurrentState.GAMEPLAY) {
 			DescriptionManager.getInstance().setEnabled(true);
 			if (!toolTipsEnabled)
 				resumeToolTips();
@@ -478,6 +407,13 @@ public class Presenter implements Serializable {
 		this.state = state;
 
 
+	}
+	/**
+	 * disables then re-enables tooltips
+	 */
+	private void flashTooltips() {
+		DescriptionManager.getInstance().setEnabled(false); 
+		DescriptionManager.getInstance().setEnabled(true);
 	}
 	public String getDiscardText(final GameSpace gs) {
 		return allThings.get(gs).getDiscardText();
@@ -612,7 +548,7 @@ public class Presenter implements Serializable {
 			return false;
 		setState(CurrentState.DELETE_CONFIRM_WINDOW);
 		final Thing thingToDelete = allThings.get(gs);
-		setCurrentWindow(attemptToDeleteWindow(thingToDelete));
+		setCurrentWindow(windowFactory.attemptToDeleteWindow(thingToDelete));
 		gridSpaceToDelete = gs;
 		return true;
 
@@ -660,7 +596,7 @@ public class Presenter implements Serializable {
 			return false;
 		setState(CurrentState.SELL_BACK_CONFIRM_WINDOW);
 		itemToSellBack = soldThings.get(gs);
-		setCurrentWindow(attemptToSellBackWindow(gs, itemToSellBack));
+		setCurrentWindow(windowFactory.attemptToSellBackWindow(gs, itemToSellBack));
 		gridSpaceToDelete = gs;
 		return true;
 
@@ -718,7 +654,7 @@ public class Presenter implements Serializable {
 			return;
 		closeShop();
 		setState(CurrentState.PURCHASE_CONFIRM_WINDOW);
-		setCurrentWindow(confirmPurchaseWindow(item));
+		setCurrentWindow(windowFactory.confirmPurchaseWindow(item));
 		itemToPurchase = item;
 	}
 	/**
@@ -849,23 +785,7 @@ public class Presenter implements Serializable {
 	public void Finish() {
 		setState(CurrentState.GAMEPLAY);
 	}
-	/**
-	 * Generates a new JPanel corresponding to the next pokemon in the queue, and giving the user the option to add it, set it free or cancel the request and place it back in the queue
-	 * @param p the next pokemon in the queue
-	 * @return the JPanel
-	 */
-	private JComponent wildPokemonWindow(final Pokemon p) {
-		return  new InfoWindowBuilder()
-				.setPresenter(this)
-				.setInfo("A wild " + p.getName() + " appeared!")
-				.setImagable(p)
-				.addEnterButton("Place")
-				.addButton("Set Free", LET_POKE_GO, true, false, true)
-				.addCancelButton()
-				.setBackgroundImage(INFO_WINDOW_BACKGROUND)
-				.createWindow();
-
-	}
+	
 	/**
 	 * Displays the advanced stat window for this board
 	 */
@@ -873,59 +793,7 @@ public class Presenter implements Serializable {
 		if (state != CurrentState.GAMEPLAY)
 			return;
 		setState(CurrentState.ADVANCED_STATS_WINDOW);
-		setCurrentWindow(advancedStatsWindow());
-	}
-	/**
-	 * Generates a new JPanel confirming if the user actually wants to delete the passed in thing
-	 * @param t The thing that the user needs to confirm deletion of
-	 * @return the created JPanel
-	 */
-	private JComponent attemptToDeleteWindow(final Thing t) {
-		return new InfoWindowBuilder()
-				.setPresenter(this)
-				.setInfo("Are you sure you want to \n" + GuiUtils.decapitalize(t.getDiscardText()) + "?")
-				.setImagable(t)
-				.setScale(96, 96)
-				.addEnterButton("Yes")
-				.addCancelButton()
-				.setBackgroundImage(INFO_WINDOW_BACKGROUND)
-				.createWindow();
-
-	}
-	private JComponent confirmPurchaseWindow(final ShopItem item) {
-		return new InfoWindowBuilder()
-				.setPresenter(this)
-				.setInfo("Are you sure you want to purchase \n" + item.getThingName() + "\nfor " + item.getCost() + GuiUtils.getMoneySymbol() + "?")
-				.setImagable(item)
-				.setScale(96, 96)
-				.addEnterButton("Yes")
-				.addCancelButton()
-				.setBackgroundImage(INFO_WINDOW_BACKGROUND)
-				.createWindow();
-	}
-	private JComponent attemptToSellBackWindow(final GridSpace gs, final ShopItem item) {
-		final StringBuilder info = new StringBuilder("Are you sure you want to " + getSellBackString(gs) + "?");
-		if (!board.canAddBackToShopStock(item))
-			info.append("WARNING: this item is no longer available for sale in the shop. \n It will not be added back to the shop stock after selling");
-		return new InfoWindowBuilder()
-				.setPresenter(this)
-				.setInfo(info.toString())
-				.setImagable(item)
-				.setScale(96, 96)
-				.addEnterButton("Yes")
-				.addCancelButton()
-				.setBackgroundImage(INFO_WINDOW_BACKGROUND)
-				.createWindow();
-	}
-	private JComponent advancedStatsWindow() {
-		final JPanel panel = new JPanel();
-		final JTextArea area = new JTextArea(board.getAdvancedStats());
-
-		area.setEditable(false);
-		panel.setSize(area.getPreferredSize().width+20, area.getPreferredSize().height+20);
-		panel.add(area);
-		return panel;
-
+		setCurrentWindow(windowFactory.advancedStatsWindow());
 	}
 	/**
 	 * The CurrentState of GamePlay
@@ -989,6 +857,78 @@ public class Presenter implements Serializable {
 			sellBackString = "Pay " + GuiUtils.getMoneySymbol() + Math.abs(sellBackValue) +  " to return\n" + gs.getName() + " to the shop";
 		}
 		return sellBackString;
+	}
+	private void writeObject(final ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+		final Map<GridSpaceData, Thing> allThingsData = new LinkedHashMap<GridSpaceData, Thing>();
+		final Map<Integer, ShopItem> soldThingsData = new LinkedHashMap<Integer, ShopItem>();
+		final Iterator<Entry<GridSpace, Thing>> it = allThings.entrySet().iterator();
+		int i = 0;
+		while (it.hasNext()) {
+			final Map.Entry<GridSpace, Thing> pair = it.next();
+			final GridSpace gs = pair.getKey();
+			final Thing t = pair.getValue();
+			if (soldThings.containsKey(gs)) {
+				soldThingsData.put(i, soldThings.get(gs));
+			}
+			allThingsData.put(gs.getData(), t);
+			i++;
+		}
+		oos.writeObject(allThingsData);
+		oos.writeObject(soldThingsData);
+		if (DEBUG || PRINT_BOARD)
+			System.out.println(board.getTimeStats());
+	}
+
+	/**
+	 * Read from save. Will also call board.onStartUp()
+	 */
+	@SuppressWarnings("unchecked")
+	private void readObject(final ObjectInputStream ois) throws ClassNotFoundException, IOException {
+		ois.defaultReadObject(); //will read in board, title, allThings, soldThings
+		allThings = new HashMap<GridSpace, Thing>();
+		soldThings = new HashMap<GridSpace, ShopItem>();
+		final Map<GridSpaceData, Thing> allThingsData = (Map<GridSpaceData, Thing>) ois.readObject();
+		final Map<Integer, ShopItem> soldThingsData = (Map<Integer, ShopItem>) ois.readObject();
+		setGameView(title); //set up the game view as well as the shopwindow
+		final Iterator<Entry<GridSpaceData, Thing>> it = allThingsData.entrySet().iterator();
+		int i = 0;
+		while (it.hasNext()) {
+			final Map.Entry<GridSpaceData, Thing> pair = it.next();
+			final GridSpaceData data = pair.getKey();
+			final Thing thing = pair.getValue();
+			it.remove(); 
+			final GridSpace gridSpace = gameView.addNewGridSpaceFromSave(generateGameSpaceFromThing(thing), data);
+			allThings.put(gridSpace, thing);
+			if (soldThingsData.containsKey(i))
+				soldThings.put(gridSpace, soldThingsData.get(i));
+			updateListener(gridSpace);
+			i++;
+		}
+		board.onStartUp();
+		shopWindow.updateItems(board.getItemsInShop());
+		goodbyeMessage = generateRandomGoodbyeMessage();
+		switch(state) {
+		case DELETE_CONFIRM_WINDOW:
+		case NOTIFICATION_WINDOW: 
+		case SELL_BACK_CONFIRM_WINDOW:
+		case ADVANCED_STATS_WINDOW:
+			Canceled();
+			break;
+		case PURCHASE_CONFIRM_WINDOW:
+			Canceled(); //close purchase confirm
+			Canceled(); //close shop
+			break;
+		case PLACING_SPACE:
+			GuiUtils.displayError(new IllegalStateException("Should not have been able to save while placing"), gameView);
+			break;
+		default:
+			setState(CurrentState.GAMEPLAY);
+			break;
+		}
+		if (DEBUG || PRINT_BOARD)
+			System.out.println(board.getTimeStats());
+
 	}
 
 }

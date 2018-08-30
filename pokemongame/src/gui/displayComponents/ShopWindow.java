@@ -22,7 +22,7 @@ import gui.gameComponents.GameSpace;
 import gui.gameComponents.PictureButton;
 import gui.guiutils.GuiUtils;
 import gui.mvpFramework.GameView;
-import gui.mvpFramework.Presenter;
+import gui.mvpFramework.presenter.Presenter;
 import loaders.shopLoader.ShopItem;
 
 /**

@@ -22,7 +22,7 @@ import javax.swing.Timer;
 import game.Board;
 import gui.displayComponents.StartScreenBuilder;
 import gui.guiutils.GuiUtils;
-import gui.mvpFramework.Presenter;
+import gui.mvpFramework.presenter.Presenter;
 import userIO.GameSaver;
 
 /**

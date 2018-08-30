@@ -20,7 +20,7 @@ import javax.swing.JPanel;
 import gui.gameComponents.GameSpace;
 import gui.guiutils.GuiUtils;
 import gui.mouseAdapters.MouseClickWithThreshold;
-import gui.mvpFramework.Presenter;
+import gui.mvpFramework.presenter.Presenter;
 import interfaces.Imagable;
 import sas.swing.MultiLineLabel;
 
