@@ -23,10 +23,10 @@ public class AttributeManager implements Serializable {
 	private String currentDescription = "";
 	public AttributeManager() {
 		//performOnAllFactories(f -> f.addNewManager(this));
-		performOnAllFactories(f -> f.addNewManager2(this));
+		performOnAllFactories(f -> f.getHelperMap().addNewManager(this));
 	}
 	public void copyOverFromOldManager(final AttributeManager old) {
-		performOnAllFactories(f -> f.copyManagerToNewManager(old, this));
+		performOnAllFactories(f -> f.getHelperMap().copyManagerToNewManager(old, this));
 		this.validate = old.validate;
 		this.currentDescription = old.currentDescription;
 	}
@@ -186,7 +186,7 @@ public class AttributeManager implements Serializable {
 		final AttributeManager manager = new AttributeManager();
 		manager.generateAttribute(attributeName, attributeValue, type);
 		final String result = manager.getAttribute(attributeName, type).getDisplayString(GameUtils.arrayToEnumSet(displayStringSettings, DisplayStringSetting.class));
-		type.getAssociatedFactory().removeManager(manager);
+		type.getAssociatedFactory().getHelperMap().removeManager(manager);
 		return result;
 	}
 	private void writeObject(final ObjectOutputStream oos) throws IOException {
@@ -203,7 +203,7 @@ public class AttributeManager implements Serializable {
 	private void readObject(final ObjectInputStream ois) throws ClassNotFoundException, IOException {
 		ois.defaultReadObject(); 
 		performOnAllFactories(f -> {
-			f.addNewManager2(this);
+			f.getHelperMap().addNewManager(this);
 			try {
 				getHelper(f).readObject(ois);
 			} catch (ClassNotFoundException | IOException e) {
@@ -218,13 +218,13 @@ public class AttributeManager implements Serializable {
 			consumer.accept(factory);
 	}
 	private <T> AttributeManagerHelperInterface<T> getHelper(final ParseType<T> type) {
-		return type.getAssociatedFactory().getHelper(this);
+		return type.getAssociatedFactory().getHelperMap().getHelper(this);
 	}
 	private AttributeManagerHelperInterface<?> getHelper(final String attributeName) {
-		return AttributeFactories.getInstance().getCreatorFactory(attributeName).getHelper(this);
+		return AttributeFactories.getInstance().getCreatorFactory(attributeName).getHelperMap().getHelper(this);
 	}
 	private <T> AttributeManagerHelperInterface<T> getHelper(final AttributeFactory<T> factory) {
-		return factory.getHelper(this);
+		return factory.getHelperMap().getHelper(this);
 	}
 	private Attribute<?> getAttribute(final String attributeName) {
 		return getHelper(attributeName).getAttribute(attributeName);

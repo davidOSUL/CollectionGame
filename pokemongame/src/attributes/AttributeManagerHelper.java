@@ -10,34 +10,35 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import attributes.AttributeFactories.AttributeFactory;
 import interfaces.SerializableConsumer;
 
 public class AttributeManagerHelper<T> implements AttributeManagerHelperInterface<T> {
 	private final AttributeManager manager;
 	private transient final ParseType<T> parseType;
-	private final Map<String, Attribute<T>> attributeTemplates;
-	private  Map<String, Attribute<T>> associatedAttributeManagers = new HashMap<String, Attribute<T>>();
-	private SerializableConsumer<Attribute<T>> doOnGenerations;
+	private final AttributeFactory<T> factory;
+	private  Map<String, Attribute<T>> attributes = new HashMap<String, Attribute<T>>();
+	private SerializableConsumer<Attribute<T>> doOnGeneration;
 	private List<AttributeManagerWatcher<T>> attributeWatchers = new ArrayList<AttributeManagerWatcher<T>>();
-	public AttributeManagerHelper(final AttributeManager manager, final ParseType<T> parseType, final Map<String, Attribute<T>> attributeTemplates) {
+	public AttributeManagerHelper(final AttributeManager manager, final ParseType<T> parseType, final AttributeFactory<T> factory) {
 		this.manager = manager;
 		this.parseType = parseType;
-		this.attributeTemplates = attributeTemplates;
+		this.factory = factory;
 	}
 	@Override
 	public void writeObject(final ObjectOutputStream oos) throws IOException {
-		oos.writeObject(associatedAttributeManagers);
-		oos.writeObject(doOnGenerations);
+		oos.writeObject(attributes);
+		oos.writeObject(doOnGeneration);
 		oos.writeObject(attributeWatchers);
 	}
 
 	@Override
 	public void readObject(final ObjectInputStream ois) throws ClassNotFoundException, IOException {
-		associatedAttributeManagers = (Map<String, Attribute<T>>) ois.readObject();
-		for (final Attribute<T> attribute : associatedAttributeManagers.values()) {
+		attributes = (Map<String, Attribute<T>>) ois.readObject();
+		for (final Attribute<T> attribute : attributes.values()) {
 			attribute.setParseType(parseType);
 		}
-		doOnGenerations = (SerializableConsumer<Attribute<T>>) ois.readObject();
+		doOnGeneration = (SerializableConsumer<Attribute<T>>) ois.readObject();
 		attributeWatchers =   (List<AttributeManagerWatcher<T>>) ois.readObject();
 		
 	}
@@ -47,15 +48,15 @@ public class AttributeManagerHelper<T> implements AttributeManagerHelperInterfac
 		attributeWatchers.add(watcher);	
 	}
 	private void addAttribute(final String name, final Attribute<T> attribute) {
-		associatedAttributeManagers.put(name, attribute);
+		attributes.put(name, attribute);
 		attributeWatchers.forEach(amw -> amw.onAttributeGenerated(attribute));
 	}
 	@Override
 	public Attribute<T> generateAttribute(final String name) {
 		throwIfInvalidTemplate(name);
-		if (associatedAttributeManagers.containsKey(name))
+		if (attributes.containsKey(name))
 			throw new IllegalArgumentException(name + "attribute already exists for manager:" + manager);
-		final Attribute<T> attribute = attributeTemplates.get(name).makeCopy();
+		final Attribute<T> attribute = factory.getAttributeTemplate(name).makeCopy();
 		attribute.setValueToDefault();
 		addAttribute(name, attribute);
 		return attribute;
@@ -64,19 +65,19 @@ public class AttributeManagerHelper<T> implements AttributeManagerHelperInterfac
 	@Override
 	public Attribute<T> getAttribute(final String name) {
 		throwIfInvalidTemplate(name);
-		if (!associatedAttributeManagers.containsKey(name)) {
+		if (!attributes.containsKey(name)) {
 			throw new AttributeNotFoundException(name + " is a valid attribute, however it has not been generated for this manager (" + manager + ")");
 		}
-		return associatedAttributeManagers.get(name);
+		return attributes.get(name);
 	}
 
 	@Override
 	public void removeAttribute(final String name) {
 		throwIfInvalidTemplate(name);
-		if (!associatedAttributeManagers.containsKey(name)) {
+		if (!attributes.containsKey(name)) {
 			throw new AttributeNotFoundException(name + " is a valid attribute, however it has not been generated for this manager (" + manager + ")");
 		}
-		final Attribute<T> removedAttribute = associatedAttributeManagers.remove(name);
+		final Attribute<T> removedAttribute = attributes.remove(name);
 		attributeWatchers.forEach(amw -> amw.onAttributeRemoved(removedAttribute));
 		
 	}
@@ -98,27 +99,27 @@ public class AttributeManagerHelper<T> implements AttributeManagerHelperInterfac
 
 	@Override
 	public void setDoOnGeneration(final SerializableConsumer<Attribute<T>> consumer) {
-		doOnGenerations =  consumer;
+		doOnGeneration =  consumer;
 		
 	}
 
 	@Override
 	public Collection<Attribute<T>> getAllAttributes() {
-		return Collections.unmodifiableCollection(associatedAttributeManagers.values());
+		return Collections.unmodifiableCollection(attributes.values());
 	}
 
 	@Override
 	public boolean containsAttribute(final String name) {
-		return attributeTemplates.containsKey(name) && associatedAttributeManagers.containsKey(name);
+		return factory.containsAttributeTemplate(name) && attributes.containsKey(name);
 
 	}
 	private void throwIfInvalidTemplate(final String attributeName) {
-		if (!attributeTemplates.containsKey(attributeName))
+		if (!factory.containsAttributeTemplate(attributeName))
 			throw new AttributeNotFoundException(attributeName + "is not a valid attribute");
 	}
 	@Override
 	public void copyToNewHelper(final AttributeManagerHelperInterface<T> helper) {
-		for (final Map.Entry<String, Attribute<T>> entry: associatedAttributeManagers.entrySet()) {
+		for (final Map.Entry<String, Attribute<T>> entry: attributes.entrySet()) {
 			helper.generateAttribute(entry.getKey());
 			helper.setAttributeValue(entry.getKey(), entry.getValue().getValue());
 		}
@@ -126,7 +127,8 @@ public class AttributeManagerHelper<T> implements AttributeManagerHelperInterfac
 	}
 	@Override
 	public Attribute<T> getAttributeTemplate(final String attributeName) {
-		return attributeTemplates.get(attributeName);
+		return factory.getAttributeTemplate(attributeName);
 	}
+	
 
 }

@@ -2,6 +2,7 @@ package attributes;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,24 +83,10 @@ final class AttributeFactories {
 	final class AttributeFactory<T> {
 		private final ParseType<T> parseType;
 		private final Map<String, Attribute<T>> attributeTemplates = new HashMap<String, Attribute<T>>();
-		//private final Map<AttributeManager, Map<String, Attribute<T>>> associatedAttributeManagers = new HashMap<AttributeManager, Map<String, Attribute<T>>>();
-		//private final Map<AttributeManager, SerializableConsumer<Attribute<T>>> doOnGenerations = new HashMap<AttributeManager, SerializableConsumer<Attribute<T>>>();
-		//private final Map<AttributeManager, List<AttributeManagerWatcher<T>>> attributeWatchers = new HashMap<AttributeManager, List<AttributeManagerWatcher<T>>>();
-		private final Map<AttributeManager, AttributeManagerHelperInterface<T>> attributeManagerMap = new HashMap<AttributeManager, AttributeManagerHelperInterface<T>>();
+		private final AttributeManagerHelperMap<T> attributeManagerMap;
 		private SerializableFunction<T, Boolean> isPositive = x -> false;
-		void addNewManager2(final AttributeManager manager) {
-			attributeManagerMap.put(manager, new AttributeManagerHelper<T>(manager, parseType, attributeTemplates));
-		}
-		AttributeManagerHelperInterface<T> getHelper(final AttributeManager manager) {
-			if (!attributeManagerMap.containsKey(manager))
-				throw new IllegalArgumentException("Manager not present for factory: " + this);
-			return attributeManagerMap.get(manager);
-		}
-		void copyManagerToNewManager(final AttributeManager oldManager, final AttributeManager newManager) {
-			attributeManagerMap.get(oldManager).copyToNewHelper(attributeManagerMap.get(newManager));
-			/*for (final Map.Entry<String, Attribute<T>> entry : associatedAttributeManagers.get(oldManager).entrySet()) {
-				addAttributeForManager(newManager, entry.getKey(), entry.getValue().makeCopy());
-			}*/
+		AttributeManagerHelperMap<T> getHelperMap() {
+			return attributeManagerMap;
 		}
 		
 		private AttributeFactory(final ParseType<T> parseType) {
@@ -107,6 +94,7 @@ final class AttributeFactories {
 			parseType.setAssociatedFactory(this);
 			factoryMapByParseType.put(parseType.getAssociatedEnum().toString().toLowerCase(), this);
 			factoryList.add(this);
+			attributeManagerMap = new AttributeManagerHelperMap<T>(parseType, this);
 		}	
 		private AttributeFactory(final ParseType<T> parseType, final SerializableFunction<T, Boolean> isPositive) {
 			this(parseType);
@@ -117,83 +105,13 @@ final class AttributeFactories {
 			throwIfInvalidTemplate(attributeName);
 			return attributeTemplates.get(attributeName);
 		}
-		/*void writeObjectForManager(final AttributeManager manager, final ObjectOutputStream oos) throws IOException {
-			oos.writeObject(associatedAttributeManagers.get(manager));
-			oos.writeObject(doOnGenerations.get(manager));
-			oos.writeObject(attributeWatchers.get(manager));
-			
+		Map<String, Attribute<T>> getAttributeTemplates(final String attributeName) {
+			return Collections.unmodifiableMap(attributeTemplates);
 		}
-		@SuppressWarnings("unchecked")
-		void readObjectForManager(final AttributeManager manager, final ObjectInputStream ois) throws ClassNotFoundException, IOException {
-			associatedAttributeManagers.put(manager, (Map<String, Attribute<T>>) ois.readObject());
-			for (final Attribute<T> attribute : associatedAttributeManagers.get(manager).values()) {
-				attribute.setParseType(parseType);
-			}
-			doOnGenerations.put(manager, (SerializableConsumer<Attribute<T>>) ois.readObject());
-			attributeWatchers.put(manager,  (List<AttributeManagerWatcher<T>>) ois.readObject());
+		boolean containsAttributeTemplate(final String attributeName) {
+			return attributeTemplates.containsKey(attributeName);
 		}
-		void addNewManager(final AttributeManager manager) {
-			associatedAttributeManagers.put(manager, new HashMap<String, Attribute<T>>());
-			attributeWatchers.put(manager, new ArrayList<AttributeManagerWatcher<T>>());
-		}
-		
-		void addNewWatcherForManager(final AttributeManager manager, final AttributeManagerWatcher<T> watcher) {
-			attributeWatchers.get(manager).add(watcher);
-		}
-		Attribute<T> generateAttributeForManager(final AttributeManager manager, final String name) {
-			throwIfInvalidTemplate(name);
-			if (associatedAttributeManagers.get(manager).containsKey(name))
-				throw new IllegalArgumentException(name + "attribute already exists for manager:" + manager);
-			final Attribute<T> attribute = attributeTemplates.get(name).makeCopy();
-			attribute.setValueToDefault();
-			addAttributeForManager(manager, name, attribute);
-			return attribute;
-		}
-		private void addAttributeForManager(final AttributeManager manager, final String name, final Attribute<T> attribute) {
-			associatedAttributeManagers.get(manager).put(name, attribute);
-			attributeWatchers.get(manager).forEach(amw -> amw.onAttributeGenerated(attribute));
-		}
-		Attribute<T> getAttributeForManager(final AttributeManager manager, final String name) {
-			throwIfInvalidTemplate(name);
-			if (!associatedAttributeManagers.get(manager).containsKey(name)) {
-				throw new AttributeNotFoundException(name + " is a valid attribute, however it has not been generated for this manager (" + manager + ")");
-			}
-			return associatedAttributeManagers.get(manager).get(name);
-		}
-		void removeAttributeForManager(final AttributeManager manager, final String name) {
-			throwIfInvalidTemplate(name);
-			if (!associatedAttributeManagers.get(manager).containsKey(name)) {
-				throw new AttributeNotFoundException(name + " is a valid attribute, however it has not been generated for this manager (" + manager + ")");
-			}
-			final Attribute<T> removedAttribute = associatedAttributeManagers.get(manager).remove(name);
-			attributeWatchers.get(manager).forEach(amw -> amw.onAttributeRemoved(removedAttribute));
-		}
-		void setAttributeValueForManager(final AttributeManager manager, final String name, final T value) {
-			final Attribute<T> attribute = getAttributeForManager(manager, name);
-			attribute.setValue(value);
-			attributeWatchers.get(manager).forEach(amw -> amw.onAttributeModified(attribute));
-		}
-		void setAttributeValueForManager(final AttributeManager manager, final String name, final String value) {
-			final Attribute<T> attribute = getAttributeForManager(manager, name);
-			attribute.setValueParse(value);
-			attributeWatchers.get(manager).forEach(amw -> amw.onAttributeModified(attribute));
-		}
-		void setDoOnGenerationForManager(final AttributeManager manager, final SerializableConsumer<Attribute<T>> consumer) {
-			doOnGenerations.put(manager, consumer);
-		}
-		Collection<Attribute<T>> getAllAttributesForManager(final AttributeManager manager) {
-			return Collections.unmodifiableCollection(associatedAttributeManagers.get(manager).values());
-		}
-		boolean containsAttributeForManager(final AttributeManager manager, final String name) {
-			return attributeTemplates.containsKey(name) && associatedAttributeManagers.get(manager).containsKey(name);
-		}*/
-		void removeManager(final AttributeManager manager) {
-			/*associatedAttributeManagers.remove(manager);
-			doOnGenerations.remove(manager);
-			attributeWatchers.remove(manager);*/
-			attributeManagerMap.remove(manager);
-		}
-		
+
 		private void throwIfInvalidTemplate(final String attributeName) {
 			if (!attributeTemplates.containsKey(attributeName))
 				throw new AttributeNotFoundException(attributeName + "is not a valid attribute");
