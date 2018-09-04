@@ -2,7 +2,7 @@ package game;
 
 import java.io.IOException;
 
-import thingFramework.Pokemon;
+import thingFramework.Creature;
 
 public class TimeTest {
 
@@ -18,7 +18,7 @@ public class TimeTest {
 //			Thread.sleep(10);
 //			System.out.println(b.getGold() + " " + b.getPopularity() + " " + b.getTotalGameTime());
 //		}
-		b.addThing(b.getPokemon("Charmander"));
+		b.addThing(b.getCreature("Charmander"));
 		b.addGold(10);
 		b.addPopularity(10000);
 		int i = 1;
@@ -27,8 +27,8 @@ public class TimeTest {
 		System.out.println(newString);
 		b.update();
 		while (true) {
-			if (b.wildPokemonPresent()) {
-				Pokemon p = b.grabAndConfirm();
+			if (b.wildCreaturePresent()) {
+				Creature p = b.grabAndConfirm();
 				b.addThing(p);
 			}
 			b.update();

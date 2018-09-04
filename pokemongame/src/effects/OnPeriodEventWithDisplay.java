@@ -5,8 +5,18 @@ import interfaces.SerializableConsumer;
 import interfaces.SerializableTriConsumer;
 import thingFramework.Thing;
 
-public class OnPeriodEventWithDisplay extends ActOnHolderEvent {
+/**
+ * An event that has an onPeriod consumer, and which also updates the extra description of a provided attribute name for 
+ * the creator this event with the time until the next period of this event.
+ * @author David O'Sullivan
+ *
+ */
+public class OnPeriodEventWithDisplay extends ActOnCreatorEvent {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/**
 	 * Creates a new "OnPeriodEventWithDisplay" event. This event has a period, and will also update a given attribute's extra description with 
 	 * the time to next period

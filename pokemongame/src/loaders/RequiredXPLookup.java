@@ -8,7 +8,7 @@ import java.util.TreeMap;
 import thingFramework.ExperienceGroup;
 
 /**
- * Used as a way to lookup pokemon XP
+ * Used as a way to lookup Creature XP
  * @author David O'Sullivan
  *
  */
@@ -22,24 +22,32 @@ public final class RequiredXPLookup {
 	 * Map from the ExperienceGroup (as an ordinal) to a Map mapping XP to level
 	 */
 	private final Map<Integer, TreeMap<Integer, Integer>> xpToLevels = new HashMap<Integer, TreeMap<Integer, Integer>>();
-	public static final RequiredXPLookup INSTANCE = new RequiredXPLookup();
+	private static final RequiredXPLookup INSTANCE = new RequiredXPLookup();
 	private static final int LAST_LEVEL = 100;
 	/**
 	 * The location in the csv of the level itself
 	 */
 	private static final int LEVEL_LOC = 6;
+	/**
+	 * @return the RequiredXPLookup instance 
+	 */
 	public static RequiredXPLookup getInstance() {
 		return INSTANCE;
 	}
 	/**
-	 *
+	 * Return the minimum amount of xp to be considered a member of the given level
+	 * @param eg the ExperienceGroup
+	 * @param level the level 
 	 * @return the minimum amount of xp to be considered a member of the given level
 	 */
 	public int getMinXPAtLevel(final ExperienceGroup eg, final int level) {
 		return levelToXP.get(level)[eg.ordinal()];
 	}
 	/**
-	 * 
+	 * Returns the amount of XP required to advance to the next level, given the current level and the current TOTAL Xp
+	 * @param eg the ExperienceGroup
+	 * @param level the level to advance to 
+	 * @param currentTotalXP the current total XP
 	 * @return the amount of XP required to advance to the next level, given the current level and the current TOTAL Xp
 	 */
 	public  int getAmountOfXPToNextLevel(final ExperienceGroup eg, final int level, final int currentTotalXP) {
@@ -54,23 +62,29 @@ public final class RequiredXPLookup {
 
 	}
 	/**
-	 *
-	 * @return the minimum XP required to be at the pokemon's current level, which is calculated from value currentTotalXP
+	 * Returns the minimum XP required to be at the Creature's current level, which is calculated from value currentTotalXP
+	 * @param eg the ExperienceGroup
+	 * @param currentTotalXP the current total experience
+	 * @return the minimum XP required to be at the Creature's current level, which is calculated from value currentTotalXP
 	 */
 	public  int getMinXPAtLevelGivenXP(final ExperienceGroup eg, final int currentTotalXP) {
 		return getMinXPAtLevel(eg, getLevelFromCurrentXP(eg, currentTotalXP));
 	}
 	/**
-
-	 * @return the amount of XP required to advance to the next level given the pokemon's current TOTAL XP
+	 * Returns the amount of XP required to advance to the next level given the Creature's current TOTAL XP
+	 * @param eg the Experience Group
+	 * @param currentTotalXP the current total experience
+	 * @return the amount of XP required to advance to the next level given the Creature's current TOTAL XP
 	 */
 	public  int getAmountOfXPToNextLevel(final ExperienceGroup eg, final int currentTotalXP) {
 		return getAmountOfXPToNextLevel(eg, getLevelFromCurrentXP(eg, currentTotalXP), currentTotalXP);
 	}
 
 	/**
-
-	 * @return The current level of the pokemon given it's current TOTAL xp
+	 * Returns The current level of the Creature given it's current TOTAL xp
+	 * @param eg the ExperienceGroup
+	 * @param currentTotalXP the current total xp of the creature
+	 * @return The current level of the Creature given it's current TOTAL xp
 	 */
 	public  int getLevelFromCurrentXP(final ExperienceGroup eg, final int currentTotalXP) {
 		if (xpToLevels.get(eg.ordinal()).containsKey(currentTotalXP))
@@ -78,7 +92,10 @@ public final class RequiredXPLookup {
 		else return xpToLevels.get(eg.ordinal()).lowerEntry(currentTotalXP).getValue();
 	}
 	/**
-
+	 * Returns the amount of xp required to advance to the level after the given level assuming the current XP 
+	 * is at the bare minimum for the given level
+	 * @param eg the ExperienceGroup
+	 * @param level the current level
 	 * @return the amount of xp required to advance to the level after the given level assuming the current XP 
 	 * is at the bare minimum for the given level
 	 */
@@ -88,7 +105,9 @@ public final class RequiredXPLookup {
 		else return levelToXP.get(level)[eg.ordinal()+7];
 	}
 	/**
-	 * @return aka the experience level at level 100 (the maximum amount of experience a pokemon can have)
+	 * Returns the experience level at level 100 (the maximum amount of experience a Creature can have)
+	 * @param eg the ExperienceGroup
+	 * @return the experience level at level 100 (the maximum amount of experience a Creature can have)
 	 */
 	public  int getLevel100XP(final ExperienceGroup eg) {
 		return getMinXPAtLevel(eg, 100);

@@ -64,7 +64,7 @@ public class MainGamePanel extends JPanel{
 	private boolean addingSomething = false;
 	
 	/**
-	 * The context of the current add (e.g. pokemon from queue, moving an existing GridSpace, etc.)
+	 * The context of the current add (e.g. Creature from queue, moving an existing GridSpace, etc.)
 	 */
 	private AddType typeOfAdd;
 	/**
@@ -104,22 +104,17 @@ public class MainGamePanel extends JPanel{
 	private boolean setHighlight = false;
 	
 	/**
-	 * The Image corresponding to the new wild pokemon NotificationButton
+	 * The Image corresponding to the new wild Creature NotificationButton
 	 */
 	private static final Image NOTIFICATION_LOGO = GuiUtils.getScaledImage(GuiUtils.readImage("/sprites/ui/pokeball.png"), 50, 50);
 	/**
-	 * The Location of the new wild pokemon NotificationButton
+	 * The Location of the new wild Creature NotificationButton
 	 */
 	private static final Point NOTIFICATION_LOCATION = new Point(627,44);
 	/**
-	 * the new wild pokemon NotificationButton
+	 * the new wild Creature NotificationButton
 	 */
 	private final NotificationButton notifications;
-	
-	/**
-	 * Image for shop button
-	 */
-	private static final Image SHOP_BUTTON_LOGO = GuiUtils.getScaledImage(GuiUtils.readImage("/sprites/ui/pokemart.jpeg"), 50, 50);
 	/**
 	 * Location of the shop button
 	 */
@@ -133,10 +128,6 @@ public class MainGamePanel extends JPanel{
 	 * Button that user can press to save an item
 	 */
 	private final PictureButton<GameView> saveButton;
-	/**
-	 * Image for the save button
-	 */
-	private static final Image SAVE_BUTTON_LOGO = GuiUtils.getScaledImage(GuiUtils.readImage("/sprites/ui/save_icon.png"), 50, 50);
 	/**
 	 * Location of the save button
 	 */
@@ -206,7 +197,6 @@ public class MainGamePanel extends JPanel{
 	 * Creates a new MainGamePanel
 	 * @param gv the GameView that houses this panel
 	 */
-	//TODO: Pokemon get stuck moving around Grid when object is in the way
 	
 	public MainGamePanel(final GameView gv) {
 		this.gv = gv;
@@ -282,6 +272,11 @@ public class MainGamePanel extends JPanel{
 	public void updateNotifications(final int num) {
 		notifications.setNumNotifications(num);
 	}
+	/**
+	 * Creates a new GridSpace whose parent grid is the DEFAULT_GRID
+	 * @param gs the GameSpace to generate a GridSpace with
+	 * @return a new GridSpace whose parent grid is the DEFAULT_GRID
+	 */
 	public GridSpace generateGridSpaceWithDefaultGrid(final GameSpace gs) {
 		return grids[DEFAULT_GRID].generateGridSpace(gs);
 	}
@@ -435,7 +430,7 @@ public class MainGamePanel extends JPanel{
 				 public void mouseMoved(final MouseEvent e) { //set highlights when mouse is moved
 					if (addingSomething) {
 						if (!setHighlight) {
-							activeGrid = currGrid; //TODO: Fix this because setHighlight could be set even if currGrid doesn't if there isn't space
+							activeGrid = currGrid; 
 							currGrid.setHighlight(currentMoving);
 							setHighlight = true;
 						}
@@ -498,6 +493,7 @@ public class MainGamePanel extends JPanel{
 	}
 	/**
 	 * enables/Disables the shop/save/notification button
+	 * @param enabled true to enable buttons, false to disable
 	 */
 	public void setEnabledForButtons(final boolean enabled) {
 		shopButton.setEnabled(enabled);

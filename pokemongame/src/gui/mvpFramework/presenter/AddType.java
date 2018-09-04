@@ -1,15 +1,27 @@
 package gui.mvpFramework.presenter;
 
 /**
- * The context of the Add Attempt
- * POKE_FROM_QUEUE == notifcation butotn was pressed
- * PRIOR_ON_BOARD == moving around a thing that was already placed
+ * The type of the Add Attempt
  * @author David O'Sullivan
  *
  */
 public enum AddType{
-	POKE_FROM_QUEUE(true), PRIOR_ON_BOARD(false), ITEM_FROM_SHOP(true);
-	boolean isNewThing;
+	/**
+	 * Notification button was pressed
+	 */
+	POKE_FROM_QUEUE(true), 
+	/**
+	 * moving around a thing that was already placed
+	 */
+	PRIOR_ON_BOARD(false), 
+	/**
+	 * purchasing an item from the shop
+	 */
+	ITEM_FROM_SHOP(true);
+	/**
+	 * true if the thing being added is new (was not previously generated and added to the board)
+	 */
+	final boolean isNewThing;
 	private AddType(final boolean newThing) {
 		this.isNewThing = newThing;
 	}

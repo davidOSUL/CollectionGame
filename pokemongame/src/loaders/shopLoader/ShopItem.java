@@ -24,7 +24,14 @@ public class ShopItem implements Serializable, Imagable{
 	private String image;
 	private String description;
 	private final int sellBackValue;
+	/**
+	 * The value representing an infinite quantity of the item
+	 */
 	public static final int INFINITY = -1;
+	/**
+	 * If sellBackValue is equal to DEFAULT then there is no custom sellBackValue, and board should determine
+	 * sellBackValue itself
+	 */
 	public static final int DEFAULT = -1;
 	/**
 	 * if the user removes this item (doesn't sell it back), should it be sent back to the shop
@@ -104,29 +111,37 @@ public class ShopItem implements Serializable, Imagable{
 	public int getQuantity() {
 		return quantity;
 	}
+	/**
+	 * Return the string representing the quantity of this item
+	 * @return the string representing the quantity of this item
+	 */
 	public String getDisplayQuantity() {
 		return quantity == INFINITY ? GameUtils.infinitySymbol() : Integer.toString(quantity);
 	}
 	/**
-	 * @param sets the quantity of this shopitem. If the shop items current quantity == INFINITY, then no change occurs
+	 * Sets the quantity of this ShopItem. If the shop items current quantity == INFINITY, then no change occurs
+	 * @param quantity the quantity to set
 	 */
 	public void setQuantity(final int quantity) {
 		if (this.quantity != INFINITY)
 			this.quantity = quantity;
 	}
 	/**
+	 * Returns the displayRank
 	 * @return the displayRank
 	 */
 	public int getDisplayRank() {
 		return displayRank;
 	}
 	/**
+	 * Sets the displayRank
 	 * @param displayRank the displayRank to set
 	 */
 	public void setDisplayRank(final int displayRank) {
 		this.displayRank = displayRank;
 	}
 	/**
+	 * Returns the image
 	 * @return the image
 	 */
 	@Override
@@ -134,10 +149,11 @@ public class ShopItem implements Serializable, Imagable{
 		return image;
 	}
 	/**
+	 * Sets the image
 	 * @param image the image to set
 	 */
 	private void setImage() {
-		this.image = ThingFactory.sharedInstance().getThingImage(thingName);
+		this.image = ThingFactory.getInstance().getThingImage(thingName);
 	}
 	/**
 	 * Increases the quantity of this shop item by one (if it is infinite, will stay at infinite)
@@ -154,19 +170,21 @@ public class ShopItem implements Serializable, Imagable{
 		return getDescription();
 	}
 	/**
-	 * @return name/description of the associated thing;
+	 * Returns the description of the associated thing
+	 * @return the description of the associated thing;
 	 */
 	public String getDescription() {
 		return description;
 	}
 	/**
-	 * @param description the description to set
+	 * Sets the description using the description of the associated thing
 	 */
 	private void setDescription() {
-		this.description = ThingFactory.sharedInstance().getThingDescription(thingName);
+		this.description = ThingFactory.getInstance().getThingDescription(thingName);
 	}
 	/**
-	 * @return the sendBackToShopWhenRemoved
+	 * Return true if when this item is removed it should be sent back to the shop
+	 * @return true if when this item is removed it should be sent back to the shop
 	 */
 	public boolean shouldSendBackToShopWhenRemoved() {
 		return sendBackToShopWhenRemoved;
@@ -179,6 +197,10 @@ public class ShopItem implements Serializable, Imagable{
 	public boolean allowedToPlaceAnother(final int currentPresent) {
 		return maxAllowed == INFINITY || currentPresent < maxAllowed; 
 	}
+	/**
+	 * Returns the maximum amount of these items that can be on the board at a time
+	 * @return the maximum amount of these items that can be on the board at a time
+	 */
 	private int getMaxAllowed() {
 		return maxAllowed;
 	}

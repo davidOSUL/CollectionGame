@@ -102,10 +102,20 @@ public class SelectionWindowBuilder<T> {
 		menu.add(item);
 		return this;
 	}
+	/**
+	 * Sets a procedure that should occur when the menu becomes visible
+	 * @param onMenuVisible the new procedure that should occur when the menu becomes visible
+	 * @return this
+	 */
 	public SelectionWindowBuilder<T> addDoOnMenuVisible(final Procedure onMenuVisible) {
 		this.onMenuVisible = onMenuVisible;
 		return this;
 	}
+	/**
+	 * Sets a procedure that should occur when the menu is closed
+	 * @param onMenuClose the new procedure that should occur when the menu closes
+	 * @return this
+	 */
 	public SelectionWindowBuilder<T> addDoOnMenuClose(final Procedure onMenuClose) {
 		this.onMenuClose = onMenuClose;
 		return this;
@@ -125,11 +135,13 @@ public class SelectionWindowBuilder<T> {
 		/**
 		 * Creates a new PopupClickListener with the specified allowableDistance, and what should happen when the popup is triggered
 		 * @param allowableDistance the maximum allowableDistance (pixels) from the location of mouse being pressed to location of mouse release to count as a press
+		 * @param popupMenu the popupmenu to create the listener for
+		 * @param onMenuVisible what should happen when the menu is visible
+		 * @param onMenuClose what should happen when the menu is closed
 		 * @param function the effect that the mouse should have when clicked. 
 		 * @param actOn what will be passed into function when it is called
 		 */
-		private final JPopupMenu popupMenu;
-		public PopupClickListener(final int allowableDistance, final JPopupMenu popupMenu, final Procedure onMenuVisible, final Procedure onMenuClose) {
+		private PopupClickListener(final int allowableDistance, final JPopupMenu popupMenu, final Procedure onMenuVisible, final Procedure onMenuClose) {
 			super(allowableDistance, (pop, e) -> {
 				pop.show(e.getComponent(), e.getX(), e.getY());
 			}, popupMenu, false, ClickType.RIGHT);
@@ -151,7 +163,6 @@ public class SelectionWindowBuilder<T> {
 				}
 				
 			});
-			this.popupMenu = popupMenu;
 		}
 	}
 	

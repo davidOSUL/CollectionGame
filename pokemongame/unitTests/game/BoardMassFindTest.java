@@ -1,15 +1,15 @@
 package game;
 
 import attributes.ParseType;
-import thingFramework.Pokemon;
+import thingFramework.Creature;
 
 public class BoardMassFindTest {
 
 	public static void main (final String...strings) {
 		/*Board b = new Board();
 		for (int i =0; i < 100000; i++) {
-			b.lookForPokemon(true);
-			if (b.wildPokemonPresent())
+			b.lookForCreature(true);
+			if (b.wildCreaturePresent())
 				b.addThing(b.grabAndConfirm());
 		}
 		System.out.println("hi");*/
@@ -23,11 +23,11 @@ public class BoardMassFindTest {
 			e1.printStackTrace();
 		}
 		b.update();
-		while (b.wildPokemonPresent()) {
-			Pokemon p = null;
+		while (b.wildCreaturePresent()) {
+			Creature p = null;
 			while (p == null) {
 			b.update();
-			p = b.grabWildPokemon();
+			p = b.grabWildCreature();
 			}
 			b.confirmGrab();
 			popVal+= p.getAttributeValue("popularity boost", ParseType.INTEGER);

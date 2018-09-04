@@ -9,5 +9,8 @@ import java.io.Serializable;
  */
 @FunctionalInterface
 public interface Procedure extends Serializable {
+/**
+ * invoke the Procedure
+ */
 public void invoke();
 }

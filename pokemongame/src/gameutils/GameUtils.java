@@ -47,6 +47,7 @@ public final class GameUtils {
 
 	}
 	/**
+	 * @param <E> the type of the list
 	 * @param list1 the first list to unionize
 	 * @param list2 the second list to unionize
 	 * @return the union (that is the concatenation) of the two lists
@@ -66,6 +67,7 @@ public final class GameUtils {
 	}
 	/**
 	 * Returns a new set consisting of the passed in list with all the duplicates removed (i.e. {a,a,b,b,c,c,c,d} -> {a,b,c,d})
+	 * @param <T> the type of the list
 	 * @param list the list to remove duplicates from
 	 * @return the new list
 	 */
@@ -75,6 +77,7 @@ public final class GameUtils {
 	/**
 	 * Removes one occurence of each uniqiue element in the list (i.e. {a,a,b,b,c,c,c,d} -> {a,b,c,c}, and then returns
 	 * the set of unique elements (the items that were removed) (in this case {a,b,c,d})
+	 * @param <T> the type of the list
 	 * @param list the list to remove items from.
 	 * @return Returns the list of items that was removed
 	 */
@@ -85,6 +88,12 @@ public final class GameUtils {
 		}
 		return uniqueList;
 	}
+	/**
+	 * Converts an array to a mutable array list
+	 * @param <T> the type of the array
+	 * @param elements the array
+	 * @return the new ArrayList with the provided elements
+	 */
 	public static <T> ArrayList<T> toArrayList(final T[] elements) {
 		final ArrayList<T> newList = new ArrayList<T>();
 		for (final T t: elements) {
@@ -93,6 +102,12 @@ public final class GameUtils {
 		return newList;
 
 	}
+	/**
+	 * Converts the provided element to a mutable array list
+	 * @param <T> the type of the array
+	 * @param element the element to populate the array list with
+	 * @return a new array list with the provided element
+	 */
 	public static <T> ArrayList<T> toArrayList(final T element) {
 		final ArrayList<T> newList = new ArrayList<T>();
 		newList.add(element);
@@ -166,12 +181,20 @@ public final class GameUtils {
 	/**
 	 * returns given minutes to verbally described time, providing as little info as possible.
 	 * (e.g. 1:30 is "1 minute and 30 seconds". :34 is "34 seconds" and 3:00 is "3 minutes"
-	 * @param milliseconds
+	 * @param minutes the amount of minutes
+	 * @return the formatted string
+	 */
+	/**
+	 * @param minutes
 	 * @return
 	 */
 	public static String minutesToWrittenOutTime(final double minutes) {
 		return millisecondsToWrittenOutTime(minutesToMillis(minutes));
 	}
+	/**
+	 * Returns the unicode infinity symbol if the computer supports it, "inf" otherwise
+	 * @return the infinity symbol
+	 */
 	public static String infinitySymbol() {
 		String infinitySymbol;
 
@@ -182,7 +205,6 @@ public final class GameUtils {
 		} catch (final UnsupportedEncodingException ex) {
 
 			infinitySymbol = "inf";
-			//ex.printStackTrace(); //print the unsupported encoding exception.
 
 		} 
 		return infinitySymbol;
@@ -205,6 +227,13 @@ public final class GameUtils {
 		y=y/60.0;
 		return y;
 	}
+	/**
+	 * Converts an array of enums to a an enumset of those enums
+	 * @param <T> the type of the enum
+	 * @param vals the enum array
+	 * @param clazz the class of the enum
+	 * @return the EnumSet of that array
+	 */
 	public static <T extends Enum<T>> EnumSet<T> arrayToEnumSet(final T[] vals, final Class<T> clazz) {
 		final EnumSet<T> newSet = EnumSet.noneOf(clazz);
 		newSet.addAll(Arrays.asList(vals));

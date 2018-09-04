@@ -59,9 +59,9 @@ public class Presenter implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	/**
-	 * the Consumer that is triggered when the user clicks the notification button and decides to let the pokemon go
+	 * the Consumer that is triggered when the user clicks the notification button and decides to let the creature go
 	 */
-	private final static Consumer<Presenter> LET_POKE_GO = p -> p.board.confirmGrab();	
+	private final static Consumer<Presenter> LET_CREATURE_GO = p -> p.board.confirmGrab();	
 	
 
 
@@ -215,7 +215,7 @@ public class Presenter implements Serializable {
 	public void updateGUI() {
 		if (board == null || gameView == null)
 			return;
-		gameView.setWildPokemonCount(board.numPokemonWaiting());
+		gameView.setWildCreatureCount(board.numCreaturesWaiting());
 		if (board.getGold() != amountOfLastGold) {
 			amountOfLastGold = board.getGold();
 			if (state == CurrentState.IN_SHOP)
@@ -275,6 +275,7 @@ public class Presenter implements Serializable {
 
 	/**
 	 * Sets the GameView of this Presenter, initializes shopWindow
+	 * @param title the Title of the GameView
 	 * @param gv the GameView to set
 	 */
 	public void setGameView(final String title) {
@@ -310,14 +311,14 @@ public class Presenter implements Serializable {
 
 	}
 	/**
-	 * To be called whenever the notification button is clicked. Displays the PopUp JPanel with the next pokemon in the wild pokemon queue in the board
+	 * To be called whenever the notification button is clicked. Displays the PopUp JPanel with the next Creature in the wild Creature queue in the board
 	 *@sets CurrentState.NOTIFICATION_WINDOW
 	 */
 	public void NotificationClicked() {
-		if (!board.wildPokemonPresent() || state != CurrentState.GAMEPLAY)
+		if (!board.wildCreaturePresent() || state != CurrentState.GAMEPLAY)
 			return;
 		setState( CurrentState.NOTIFICATION_WINDOW);
-		setCurrentWindow(windowFactory.wildPokemonWindow(board.grabWildPokemon(), LET_POKE_GO));									
+		setCurrentWindow(windowFactory.wildCreatureWindow(board.grabWildCreature(), LET_CREATURE_GO));									
 	}
 
 
@@ -378,6 +379,12 @@ public class Presenter implements Serializable {
 
 	}
 	
+	/**
+	 * Get the text that should display in the popup menu for this GridSpace on the button that allows the user
+	 * to delete a GridSpace
+	 * @param gs the GridSpace to get the discard text for
+	 * @return the discard text
+	 */
 	public String getDiscardText(final GameSpace gs) {
 		return allThings.get(gs).getDiscardText();
 	}
@@ -412,6 +419,8 @@ public class Presenter implements Serializable {
 			thingToAdd = board.confirmPurchase();
 			updateShop();
 			break;
+		default:
+			break;
 		}
 		if (type.isNewThing)
 			addGridSpace(gs, type);
@@ -431,7 +440,7 @@ public class Presenter implements Serializable {
 
 	/**
 	 * To be called when the provided GridSpace was being added, but the user decided to cancel the add (hit escape).
-	 * If this was a AddType.POKE_FROM_QUEUE, will place the pokemon back in the queue. This is NOT called when a move is canceled, as there is
+	 * If this was a AddType.POKE_FROM_QUEUE, will place the Creature back in the queue. This is NOT called when a move is canceled, as there is
 	 * no need to update the game state
 	 * @param gs the GridSpace that was being added 
 	 * @param type
@@ -443,6 +452,8 @@ public class Presenter implements Serializable {
 			break;
 		case ITEM_FROM_SHOP:
 			board.cancelPurchase();
+			break;
+		default:
 			break;
 		}
 		finishAddAttempt();
@@ -582,6 +593,11 @@ public class Presenter implements Serializable {
 		finishDeleteAttempt();
 
 	}
+	/**
+	 * Returns the amount of money that the Thing that the provided GridSpace represents could be sold back to the shop for
+	 * @param gs the GridSpace to get the sell back value for
+	 * @return the amount of money that the Thing that the provided GridSpace represents could be sold back to the shop for
+	 */
 	public int getGridSpaceSellBackValue(final GridSpace gs) {
 		return board.getSellBackValue(soldThings.get(gs));
 	}
@@ -611,8 +627,12 @@ public class Presenter implements Serializable {
 
 
 	}
-	public void attemptPurchaseThing(final ShopItem item) {
-		if (!board.canPurchase(item) || !item.allowedToPlaceAnother(numOfItemOnBoard(item)))
+	/**
+	 * To be called when the user attempts to purchase a ShopItem from the SHop
+	 * @param item the ShopItem that the user is attempting to purchase
+	 */
+	public void notifyAttemptPurchaseThing(final ShopItem item) {
+		if (!board.canPurchase(item) || !item.allowedToPlaceAnother(numOfShopItemOnBoard(item)))
 			return;
 		closeShop();
 		setState(CurrentState.PURCHASE_CONFIRM_WINDOW);
@@ -657,7 +677,12 @@ public class Presenter implements Serializable {
 	private void suggestShopUpdate() {
 		suggestShopUpdate = true;
 	}
-	public int numOfItemOnBoard(final ShopItem item) {
+	/**
+	 * Returns the number of ShopItems on the board that are the provided ShopItem
+	 * @param item the ShopItem
+	 * @return the number of that ShopItem currently on board
+	 */
+	public int numOfShopItemOnBoard(final ShopItem item) {
 		int count = 0;
 		for (final Map.Entry<GridSpace, ShopItem> entry : soldThings.entrySet()) {
 			if (entry.getValue() == item)
@@ -770,18 +795,29 @@ public class Presenter implements Serializable {
 		}
 	}
 
+	/**
+	 * To be called when a GridSpace is right clicked. Disables tooltips
+	 */
 	public void notifyRightClickedGridSpace() {
 		DescriptionManager.getInstance().setEnabled(false);
 	}
+	/**
+	 * To be called when a GridSpace is no longer being right clicked. Enables tooltips.
+	 */
 	public void notifyDoneWithRightClick() {
 		DescriptionManager.getInstance().setEnabled(true);
 
 	}
+	/**
+	 * Returns true if the provided ShopItem should be greyed out
+	 * @param item the shop item
+	 * @return true if the shop Item should be greyed out
+	 */
 	public boolean shouldGreyOut(final ShopItem item) {
-		return (!item.allowedToPlaceAnother(numOfItemOnBoard(item)) || !board.canPurchase(item));
+		return (!item.allowedToPlaceAnother(numOfShopItemOnBoard(item)) || !board.canPurchase(item));
 	}
 	/**
-	 * 
+	 * returns the String that should be displayed on the popup menu on the button to sell back this GridSpace
 	 * @param gs the gridspace of interest
 	 * @return the string that should be displayed to sell this gridspace back
 	 */
@@ -797,6 +833,7 @@ public class Presenter implements Serializable {
 		}
 		return sellBackString;
 	}
+	@SuppressWarnings("unused")
 	private void writeObject(final ObjectOutputStream oos) throws IOException {
 		oos.defaultWriteObject();
 		final Map<GridSpaceData, Thing> allThingsData = new LinkedHashMap<GridSpaceData, Thing>();
@@ -822,7 +859,7 @@ public class Presenter implements Serializable {
 	/**
 	 * Read from save. Will also call board.onStartUp()
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "unused" })
 	private void readObject(final ObjectInputStream ois) throws ClassNotFoundException, IOException {
 		ois.defaultReadObject(); //will read in board, title, allThings, soldThings
 		allThings = new HashMap<GridSpace, Thing>();

@@ -18,13 +18,14 @@ import gameutils.GameUtils;
 import gui.gameComponents.GameSpace;
 import gui.gameComponents.grid.Grid.GridData;
 import gui.gameComponents.grid.Grid.GridPoint;
+import gui.guiutils.GUIConstants;
 import gui.guiutils.GuiUtils;
 import gui.mouseAdapters.DoubleClickWithThreshold;
 import gui.mouseAdapters.SelectionWindowBuilder;
 import gui.mvpFramework.GameView;
 
 /**
- * A GameSpace aligned to a Grid
+ * A GameSpace aligned ("snapped") to space(s) on a Grid
  * @author David O'Sullivan
  */
 public class GridSpace extends GameSpace implements Comparable<GridSpace>{
@@ -34,36 +35,19 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	private GridPoint p_g;
 	private Grid grid;
 	private int num90Rotations = 0;
+	private static final int CLICK_DIST_THRESH = GUIConstants.CLICK_DIST_THRESH;
 	private final List<MouseListener> listeners = new ArrayList<MouseListener>();
 	/**
-	 * Creates a new GridSpace at a specified GridPoint and with specified dimensions.
-	 * @param x_g the x GridPoint coordinate
-	 * @param y_g the y GridPoint coordinate
-	 * @param numCols the number of columns (in spots) starting at the provided coordinate
-	 * @param numRows the number of rows (in spots) starting at the provided coordinate
+	 * Returns a GridSpaceData instance containing data necessary to serialize/deserialize this GridSpace
+	 * @return Returns a GridSpaceData instance containing data necessary to serialize/deserialize this GridSpace 
 	 */
-	private GridSpace(final Grid grid, final int x_g, final int y_g, final int numCols, final int numRows) {
-		super(x_g*grid.getSubX(),y_g*grid.getSubY(),numCols*grid.getSubX(),numRows*grid.getSubY());
-		numColumns = numCols;
-		this.numRows = numRows;
-		setGridAndGridPoint(grid, new GridPoint(x_g, y_g));
-		
-	}
 	public GridSpaceData getData() {
 		return new GridSpaceData(numColumns, numRows, p_g, num90Rotations, grid.getData());
 	}
 	/**
-	 * Creates a new GridSpace at a specified GridPoint and with specified dimensions.
-	 * @param p_g the GridPoint
-	 * @param numCols the number of columns (in spots) starting at the provided coordinate
-	 * @param numRows the number of rows (in spots) starting at the provided coordinate
-	 */
-	private GridSpace(final Grid grid, final GridPoint p_g, final int numCols, final int numRows) {
-		this(grid, p_g.x, p_g.y, numCols, numRows);
-	}
-	/**
 	 * Creates a new GridSpace at the specified location, copying size/image from the provided gameSpace (and snapping to this grid accordingly).
 	 * This will be "formatted" to the grid. Note that this does NOT add the Grid to the GridSpace
+	 * @param grid the grid that this GridSpace is within
 	 * @param g the GameSpace reference
 	 * @param x_g the x coordinate of the GridPoint 
 	 * @param y_g the ycoordinate of the GridPoint
@@ -79,6 +63,7 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	/**
 	 * Creates a new GridSpace at the specified location, copying size/image from the provided gameSpace (and snapping to this grid accordingly).
 	 * This will be "formatted" to the grid. Note that this does NOT add the Grid to the GridSpace
+	 * @param grid the grid that this GridSpace is within
 	 * @param g the GameSpace reference
 	 * @param p_g the location of the GridSpace
 	 */
@@ -102,21 +87,6 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	private void updateDimension() {
 		numColumns = getWidth() / grid.getSubX();
 		numRows = getHeight() / grid.getSubY();
-	}
-	/**
-	 * Creates a new GridSpace at the specified location, copying size/image from the provided gameSpace (and snapping to this grid accordingly)
-	 * @param g the GameSpace reference
-	 * @param p_g the GridPoint
-	 */
-	private GridSpace(final GridSpace g, final GridPoint p_g) {
-		this(g.getGrid(), g, p_g.x, p_g.y);
-	}
-	/**
-	 * Creates a new GridSpace at location p_g = (0,0) copying size/image from the provided gameSpace (and snapping to this grid accordingly)
-	 * @param g
-	 */
-	private GridSpace(final GridSpace g) {
-		this(g.getGrid(), g,0,0);
 	}
 	/**
 	 * @return the area of this GridSpace
@@ -143,14 +113,6 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 		this.setBorder(BorderFactory.createLineBorder(Color.black));
 	}
 	/**
-	 * Checks if the provided GridPoint is in this GridSpace
-	 * @param testp_g
-	 * @return true if the grid point resides within this GridSpace
-	 */
-	private boolean containsGridPoint(final GridPoint testp_g) {
-		return (testp_g.x >= p_g.x && testp_g.x < p_g.x+numColumns) && (testp_g.y >= p_g.y && testp_g.y < p_g.y+numRows);
-	}
-	/**
 	 * Assigns the location of this GridSpace to the provided GridPoint (i.e. updates p_g and its location)
 	 * @param p_g the GridPoint to change the location to
 	 */
@@ -158,12 +120,24 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 		this.p_g = p_g;
 		this.setLocation(p_g.x*grid.getSubX(), p_g.y*grid.getSubY());
 	}
+	/**
+	 * Return the number of columns that this GridSpace occupies
+	 * @return
+	 */
 	protected int getNumColumns() {
 		return numColumns;
 	}
+	/**
+	 * Return the number of rows that this GridSpace occupies
+	 * @return
+	 */
 	protected int getNumRows() {
 		return numRows;
 	}
+	/**
+	 * Return the upper left hand GridPoint of this GridSpace
+	 * @return  the upper left hand GridPoint of this GridSpace
+	 */
 	protected GridPoint getGridPoint() {
 		return p_g;
 	}
@@ -174,7 +148,7 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 			gv.getPresenter().attemptMoveGridSpace(this);
 		};
 		
-		final MouseListener dubClickListener = new DoubleClickWithThreshold<GameView>(Grid.CLICK_DIST_THRESH, onDoubleClick, grid.getGameView());
+		final MouseListener dubClickListener = new DoubleClickWithThreshold<GameView>(CLICK_DIST_THRESH, onDoubleClick, grid.getGameView());
 		addMouseListener(dubClickListener);
 		listeners.add(dubClickListener);
 		
@@ -184,7 +158,7 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 		
 	}
 	private MouseListener getDefaultPopupListener(final boolean hasSellBackOption, final boolean canRemove, final boolean canSellBack) {
-		final SelectionWindowBuilder<GameView> swb = new SelectionWindowBuilder<GameView>(Grid.CLICK_DIST_THRESH, "Options");
+		final SelectionWindowBuilder<GameView> swb = new SelectionWindowBuilder<GameView>(CLICK_DIST_THRESH, "Options");
 		final BiConsumer<GameView, MouseEvent> onClickDelete = (gv, e) -> {			
 			gv.getPresenter().attemptDeleteGridSpace(this);
 		};
@@ -192,7 +166,7 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 			gv.getPresenter().attemptSellBackGridSpace(this);
 		};
 		if (hasSellBackOption) {
-			String sellBackString = grid.getGameView().getPresenter().getSellBackString(this);
+			final String sellBackString = grid.getGameView().getPresenter().getSellBackString(this);
 			swb.addOption(sellBackString,
 					onClickSellBack, grid.getGameView(), canSellBack);
 		}
@@ -216,6 +190,8 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	/**
 	 * Updates the listeners
 	 * @param hasSellBackOption if set to true will add option to sell back to shop
+	 * @param canRemove whether or not the user should have the ability to remove this GridSpace
+	 * @param canSellBack whether or not the user should have the ability to sell this GridSpace back to the shop
 	 */
 	public void updateListeners(final boolean hasSellBackOption, final boolean canRemove, final boolean canSellBack) {
 		addListeners(hasSellBackOption, canRemove, canSellBack);
@@ -259,17 +235,45 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 		super.setImage(newImage);
 		updateDimension();
 	}
+	/**
+	 * Used to store the data necessary to serialize and deserialize a GridSpace
+	 * @author David O'Sullivan
+	 *
+	 */
 	public static class GridSpaceData implements Serializable{
 		/**
 		 * 
 		 */
 		public static final long serialVersionUID = 1L;
+		/**
+		 * The number of columns this GridSpace occupies
+		 */
 		public final int numColumns;
+		/**
+		 * The number of rows this GridSpace occupies
+		 */
 		public final int numRows;
+		/**
+		 * The upper left hand GridPoint of this GridSpace
+		 */
 		public final GridPoint p_g;
+		/**
+		 * The number of 90 degree rotations that this GridSpace has undergone
+		 */
 		public final int num90Rotations;
+		/**
+		 * The GridData for the Grid that this GridSpace is within
+		 */
 		public final GridData gridData;
-		public GridSpaceData(final int numColumns, final int numRows, final GridPoint p_g, final int num90Rotations, final GridData gridData) {
+		/**
+		 * Creates a new GridSpaceData 
+		 * @param numColumns the number of columns this GridSpace occupies
+		 * @param numRows the number of rows this GridSpace occupies
+		 * @param p_g the upper left hand GridPoint of this GridSpace
+		 * @param num90Rotations the number of 90 degree rotations that this GridSpace has undergone
+		 * @param gridData the GridData for the Grid that this GridSpace is within
+		 */
+		private GridSpaceData(final int numColumns, final int numRows, final GridPoint p_g, final int num90Rotations, final GridData gridData) {
 			this.numColumns = numColumns;
 			this.numRows = numRows;
 			this.p_g = p_g;

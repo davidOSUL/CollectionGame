@@ -46,23 +46,52 @@ public class ShopItemLoader {
 		shopItems = Collections.unmodifiableSet(shopItems);
 		initialShopItems = Collections.unmodifiableSet(initialShopItems);
 	}
+	/**
+	 * Returns the ShopItemLoader instance
+	 * @return  the ShopItemLoader instance
+	 */
 	public static ShopItemLoader sharedInstance() {
 		return INSTANCE;
 	}
+	/**
+	 * Generates a ShopItem of the specified name
+	 * @param name the name of the ShopItem
+	 * @return the generated ShopItem
+	 */
 	public ShopItem generateShopItem(final String name) {
 		return new ShopItem(shopItemMap.get(name));
 	}
+	/**
+	 * Generates a new Thing of the specified name (uses {@link loaders.ThingFactory#generateNewThing(String)}) 
+	 * @param name the name of the thing to generate
+	 * @return the generated thing
+	 * @throws IllegalArgumentException if the thing is not associated with a valid shop item
+	 */
 	public Thing generateNewThing(final String name) {
 		if (!hasShopItem(name))
 			throw new IllegalArgumentException(name + " not a valid shop item");
-		return ThingFactory.sharedInstance().generateNewThing(name);
+		return ThingFactory.getInstance().generateNewThing(name);
 	}
+	/**
+	 * Return true if the provided name is a ShopItem that can be generated
+	 * @param name the name of the shop item
+	 * @return true if the provided name is a ShopItem that can be generated
+	 */
 	public boolean hasShopItem(final String name) {
 		return shopItemMap.containsKey(name);
 	}
+	/**
+	 * Return true if the provided ShopItem is a ShopItem that can be generated
+	 * @param item the item 
+	 * @return true if the provided ShopItem is a ShopItem that can be generated
+	 */
 	public boolean hasShopItem(final ShopItem item) {
 		return shopItems.contains(item);
 	}
+	/**
+	 * Generates the set of new ShopItems that a Shop should start with
+	 * @return a Set of generated ShopItems 
+	 */
 	public Set<ShopItem> generateInitialShopItems() {
 		final Set<ShopItem> generatedItems = new HashSet<ShopItem>();
 		initialShopItems.forEach(x -> generatedItems.add(generateShopItem(x.getThingName())));
@@ -88,7 +117,7 @@ public class ShopItemLoader {
 					final int[] costAndRank = GameUtils.parseAllInRangeToInt(values, COST, RANK);
 					quantityCostAndRank = new int[]{ShopItem.INFINITY, costAndRank[0], costAndRank[1]};
 				}
-				if (!ThingFactory.sharedInstance().isCreatableThing(values[NAME])) 
+				if (!ThingFactory.getInstance().isCreatableThing(values[NAME])) 
 					throw new RuntimeException("attempted to parse ShopItem with Thing Name: " + values[NAME] + " which does not have a corresponding thing");
 				final boolean removeWhenDeleted = values[REMOVE_ON_DELETE].equalsIgnoreCase("yes");
 				final int maxAllowed= values[MAX_ALLOWED].equalsIgnoreCase("no limit") ? ShopItem.INFINITY :Integer.parseInt(values[MAX_ALLOWED]);

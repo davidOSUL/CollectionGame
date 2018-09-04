@@ -18,6 +18,7 @@ import gui.mouseAdapters.MouseClickWithThreshold;
 /**
  * Essentially A gamespace with a mouselistener
  * @author David O'Sullivan
+ * @param <T> the type of object that this PictureButton should act upon when pressed
  *
  */
 public class PictureButton<T> extends BackgroundWithText {
@@ -60,6 +61,7 @@ public class PictureButton<T> extends BackgroundWithText {
 	 * @param img the image to set the notification button as
 	 * @param location the location of the button
 	 * @param onClick the effect on the presenter of gv 
+	 * @param actOn the object to act on
 	 * @param gv the GameView that houses this button
 	 */
 	public PictureButton(final Image img, final Point location, final Consumer<T> onClick, final T actOn) {
@@ -115,6 +117,9 @@ public class PictureButton<T> extends BackgroundWithText {
 		});
 
 	}
+	/** 
+	 * @see javax.swing.JComponent#addNotify()
+	 */
 	@Override 
 	public void addNotify() {
 		super.addNotify();
@@ -125,6 +130,7 @@ public class PictureButton<T> extends BackgroundWithText {
 	 * It will have the effect onClick on the presenter of the passed in GameView
 	 * @param img the image to set the notification button as
 	 * @param onClick the effect on the presenter of gv 
+	 * @param actOn the object to act on
 	 * @param gv the GameView that houses this button
 	 */
 	public PictureButton(final Image img, final Consumer<T> onClick, final T actOn) {

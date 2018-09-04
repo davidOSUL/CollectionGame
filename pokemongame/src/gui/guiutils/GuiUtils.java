@@ -17,6 +17,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -25,12 +26,26 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 
+import loaders.CSVReader;
+
 /**
- * Set of Useful functions for GUI purposes (generally only used by frontend)
+ * Set of Useful functions for GUI/display purposes 
  * @author David O'Sullivan
  */
 public final class GuiUtils {
-	private static String pokeCash = "<html><FONT COLOR=RED>Red</FONT> and <FONT COLOR=BLUE>Blue</FONT> Text</html>";
+	private static String cashSymbol = "$"; //"<html><FONT COLOR=RED>Red</FONT> and <FONT COLOR=BLUE>Blue</FONT> Text</html>";
+	private static final String PATH_TO_CREATURE_NAME = "/InputFiles/creatureName - 1.csv";
+	private static String creatureName = "Creature"; 
+	private static String pluralCreatureName = "Creatures";
+	static {
+		try {
+			final List<String[]> names = CSVReader.readCSV(PATH_TO_CREATURE_NAME, true);
+			creatureName = names.get(0)[0];
+			pluralCreatureName = names.get(0)[1];
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
+	}
 	private GuiUtils() {}
 	/**
 	 * Checks if two Rectangles overlap with each other
@@ -53,6 +68,14 @@ public final class GuiUtils {
 
 		return true;
 	}
+	/**
+	 * Overlays text on an image
+	 * @param image the image to overlay text on
+	 * @param text the text to over
+	 * @param p the point on the image to overlay it
+	 * @param f the font to use
+	 * @return the new Image
+	 */
 	public static BufferedImage overlayText(final Image image, final String text, final Point p, final Font f) {
 		final BufferedImage input = newBufferedImage(image);
 		final Graphics2D g2d = input.createGraphics();
@@ -61,6 +84,13 @@ public final class GuiUtils {
 		g2d.drawString(text, p.x, p.y);
 		return input;
 	}
+	/**
+	 * Overlays an image on another image
+	 * @param image the image to overlay an image on
+	 * @param overlay the image to use as the overlay
+	 * @param p the point on the first image to overlay the second image
+	 * @return the new image
+	 */
 	public static BufferedImage overlayImage(final Image image, final Image overlay, final Point p) {
 		final BufferedImage input =  newBufferedImage(image);
 		final Graphics2D g2d = input.createGraphics();
@@ -68,10 +98,18 @@ public final class GuiUtils {
 		return input;
 
 	}
+	/**
+	 * Returns the symbol that should be used to represent money in text
+	 * @return the symbol that should be used to represent money in text
+	 */
 	public static String getMoneySymbol() {
-		//return pokeCash;
-		return "$";
+		return cashSymbol;
 	}
+	/**
+	 * Displays an error message on a Pane with the provided component as the parent
+	 * @param e the error
+	 * @param parent the parent to overlay the message on
+	 */
 	public static void displayError(final Throwable e, final Component parent) {
 		final StringWriter sw = new StringWriter();
 		final PrintWriter pw = new PrintWriter(sw);
@@ -79,9 +117,14 @@ public final class GuiUtils {
 		final String sStackTrace = sw.toString(); // stack trace as a string
 		displayError(sStackTrace, parent);
 	}
+	/**
+	 * Displays an error message on a Pane with the provided component as the paret
+	 * @param message the error message
+	 * @param parent the parent
+	 */
 	public static void displayError(final String message, final Component parent) {
 		final Object[] options = {"OK"};
-		final int n = JOptionPane.showOptionDialog(parent, message, "RUNTIME ERROR", 
+		JOptionPane.showOptionDialog(parent, message, "RUNTIME ERROR", 
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
 		System.err.print(message);
 		System.exit(-1);
@@ -101,6 +144,7 @@ public final class GuiUtils {
 	/**
 	 * Returns a new BufferedImage which is the passed in image with all of space of the given rgb values gotten rid of
 	 * @param image the buffered image to trim
+	 * @param rgbToTrim the rgb values that should be trimmed
 	 * @return the trimmed image
 	 */
 	public static BufferedImage trimImage(final BufferedImage image, final int...rgbToTrim) {
@@ -177,7 +221,7 @@ public final class GuiUtils {
 	}
 	/**
 	 * Returns a new image with the width/height of the srcImage to the passed in dimension, scaling down the image 
-	 * @param srcImg the original image
+	 * @param srcImage the original image
 	 * @param d the dimension to scale to 
 	 * @return the new image
 	 */
@@ -211,9 +255,23 @@ public final class GuiUtils {
 			return null;
 		}
 	}
+	/**
+	 * Reads an image from a file, and then scales it
+	 * @param input the location of the image
+	 * @param w the width to scale to
+	 * @param h the height to scale to 
+	 * @return the new image
+	 */
 	public static BufferedImage readAndScaleImage(final String input, final int w, final int h) {
 		return getScaledImage(readImage(input),w,h);
 	}
+	/**
+	 * Reads an image from a file and then trims and scales it
+	 * @param input the location of the image
+	 * @param w the width to scale to 
+	 * @param h the height to scale to
+	 * @return the new image
+	 */
 	public static BufferedImage readTrimAndScaleImage(final String input, final int w, final int h) {
 		return getScaledImage(readAndTrimImage(input),w ,h);
 	}
@@ -273,6 +331,7 @@ public final class GuiUtils {
 	 * @param text The String to draw.
 	 * @param rect The Rectangle to center the text in.
 	 * @param c The color of the font (will be set back to default color after)
+	 * @param font the font to use for the string
 	 */
 	public static void drawCenteredString(final Graphics g, final String text, final Rectangle rect, final Font font, final Color c) {
 		// Get the FontMetrics
@@ -346,6 +405,11 @@ public final class GuiUtils {
 	public static String[] splitByLines(final String description) {
 		return description.split("\n");
 	}
+	/**
+	 * Adds a border to a component 
+	 * @param component the component to add the border to 
+	 * @return a new component which is the provided component placed on a panel with a border
+	 */
 	public static JComponent componentWithBorder(final JComponent component) {
 		final JComponent panel = new JPanel();
 		panel.setLayout(new GridBagLayout());//center it
@@ -389,10 +453,23 @@ public final class GuiUtils {
 	/**
 	 * Return the beginning of any attribute that should change color depending on sign, note that 
 	 * one still needs to call < /font > themselves
-	 * @param isPositive whether or not it is positive
+	 * @param amount the value 
 	 * @return "< font color=positive_color > +" if amount is positive, or "< font color = negative_color >" otherwise
 	 */
 	public static String getSignedColorFormat(final int amount) {
 		return getSignedColorFormat(amount, '+');
+	}
+	
+	/**
+	 * @return the name of creatures for display purposes.
+	 */
+	public static String getCreatureName() {
+		return creatureName;
+	}
+	/**
+	 * @return the plural name of creatures for display purposes
+	 */
+	public static String getPluralCreatureName() {
+		return pluralCreatureName;
 	}
 }

@@ -15,12 +15,11 @@ import java.util.Set;
 
 import gui.gameComponents.GameSpace;
 import gui.gameComponents.grid.GridSpace.GridSpaceData;
-import gui.guiutils.GUIConstants;
 import gui.guiutils.GuiUtils;
 import gui.mvpFramework.GameView;
 
 /**
- * Grid for things, pokemon, etc. to live on. Is made up of "Spots" which are the individual squares of the grid, and GridSpaces which are 
+ * Grid for things, creatures, etc. to live on. Is made up of "Spots" which are the individual squares of the grid, and GridSpaces which are 
  * objects that live on this grid and have sizes such that they "snap" to the proportions of this grid 
  * @author David O'Sullivan
  */
@@ -61,7 +60,7 @@ public final class Grid extends GameSpace {
 	 */
 	private final GameView gv;
 
-	protected static final int CLICK_DIST_THRESH = GUIConstants.CLICK_DIST_THRESH;
+	
 	/**
 	 * Creates a new Grid with specified subDimensions, location, and width/height
 	 * @param x x location of grid
@@ -70,6 +69,7 @@ public final class Grid extends GameSpace {
 	 * @param subX width of grid elements
 	 * @param subY height of grid elements
 	 * @param gv the GameView that houses this Grid
+	 * @param gridID an integer identification for this grid
 	 */
 	public Grid(final int x, final int y, final Dimension dimension, final int subX, final int subY, final GameView gv, final int gridID) {
 		super(x,y, dimension);
@@ -92,7 +92,8 @@ public final class Grid extends GameSpace {
 	 * @param r The rectangle representing this grids location, width/height
 	 * @param subX width of grid elements
 	 * @param subY height of grid elements
-	 *  @param gv the GameView that houses this Grid
+	 * @param gv the GameView that houses this Grid
+	 * @param gridID an integer identification for this grid
 	 */
 	public Grid(final Rectangle r, final int subX, final int subY, final GameView gv, final int gridID) {
 		this(r.x, r.y, new Dimension((int)r.getWidth(), (int)r.getHeight()), subX, subY, gv, gridID);
@@ -168,6 +169,9 @@ public final class Grid extends GameSpace {
 		}
 	
 	}
+	/** 
+	 * @see gui.gameComponents.GameSpace#paintComponent(java.awt.Graphics)
+	 */
 	@Override
 	protected void paintComponent(final Graphics g) {
 		super.paintComponent(g);
@@ -343,6 +347,10 @@ public final class Grid extends GameSpace {
 		}
 		
 	}
+	/**
+	 * Returns the gridData for this grid. This is Serializable data that can be used to load the grid later
+	 * @return the GridData for this grid
+	 */
 	public GridData getData() {
 		return new GridData(subX, subY, numColumns, numRows, gridID);
 	}
@@ -368,12 +376,24 @@ public final class Grid extends GameSpace {
 		addAndSplit(grid.get(data.p_g), gs);
 		return gs;
 	}
+	/**
+	 * Returns the length of a square on this grid in the x dimension
+	 * @return the length of a square on this grid in the x dimension
+	 */
 	public int getSubX() {
 		return subX;
 	}
+	/**
+	 * Returns the length of a square on this grid in the y dimension
+	 * @return the length a square on this grid in the y dimension
+	 */
 	public int getSubY() {
 		return subY;
 	}
+	/**
+	 * Returns the GameView that houses this grid
+	 * @return
+	 */
 	protected GameView getGameView() {
 		return gv;
 	}
@@ -389,6 +409,11 @@ public final class Grid extends GameSpace {
 		 */
 		private static final long serialVersionUID = 1L;
 
+		/**
+		 * Constructs a new GridPoint
+		 * @param x the x coordinate of the GridPoint
+		 * @param y the y coordinate of the GridPoint
+		 */
 		protected GridPoint(final int x, final int y) {super(x,y);}
 	}
 	/**
@@ -454,37 +479,50 @@ public final class Grid extends GameSpace {
 	        return it;
 		}
 	}
+	/**
+	 * Used to store the data necessary to serialize and deserialize a grid
+	 * @author David O'Sullivan
+	 *
+	 */
 	public final static class GridData implements Serializable{
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
+		/**
+		 * The subX of the grid
+		 */
 		public final int subX;
+		/**
+		 * the subY of the grid
+		 */
 		public final int subY;
+		/**
+		 * the number of columns in the grid
+		 */
 		public final int numColumns;
+		/**
+		 * the number of rows in the grid
+		 */
 		public final int numRows;
+		/**
+		 * the grid's identification number
+		 */
 		public final int gridID;
-		public GridData(final int subX, final int subY, final int numColumns, final int numRows, final int gridID) {
+		/**
+		 * Creates a new GrdData
+		 * @param subX The subX of the grid
+		 * @param subY The subX of the grid
+		 * @param numColumns the number of columns in the grid
+		 * @param numRows the number of rows in the grid
+		 * @param gridID the grid's identification number
+		 */
+		private GridData(final int subX, final int subY, final int numColumns, final int numRows, final int gridID) {
 			this.subX = subX;
 			this.subY = subY;
 			this.numColumns = numColumns;
 			this.numRows = numRows;
 			this.gridID = gridID;
-		}
-		public int getSubX() {
-			return subX;
-		}
-		public int getSubY() {
-			return subY;
-		}
-		public int getNumColumns() {
-			return numColumns;
-		}
-		public int getNumRows() {
-			return numRows;
-		}
-		public int getGridID() {
-			return gridID;
 		}
 	}
 }

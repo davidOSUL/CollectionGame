@@ -1,17 +1,6 @@
 package game;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import gui.gameComponents.grid.GridSpace;
-import gui.gameComponents.grid.GridSpace.GridSpaceData;
-import loaders.shopLoader.ShopItem;
-import thingFramework.Thing;
 
 /**
  * Manages the Game Time
@@ -62,6 +51,9 @@ public class SessionTimeManager implements Serializable{
 	 * Create a new Time Manager with 0 already elapsed time. Should be called at the beginning of a new game. 
 	 */
 	private long totalInGameTimeOnStart = 0;
+	/**
+	 * Creates a new SessionTimeManager, starting a new session
+	 */
 	public SessionTimeManager() {
 		signifyNewSession();
 	}
@@ -75,7 +67,7 @@ public class SessionTimeManager implements Serializable{
 		totalInGameTimeOnStart = totalInGameTime;
 	}
 	/**
-	 * @return The total time since the beggining of this game, both on and off screen
+	 * @return The total time since the beginning of this game, both on and off screen
 	 */
 	public long getTotalTimeSinceStart() {
 		return totalTimeSinceStart;
@@ -88,6 +80,7 @@ public class SessionTimeManager implements Serializable{
 	}
 	/**
 	 * Return the total time that was elapsed throughout all sessions
+	 * @return the total time that was elapsed throughout all sessions
 	 */
 	public long getTotalInGameTime() {
 		return totalInGameTime;

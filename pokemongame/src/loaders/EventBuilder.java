@@ -6,10 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import effects.ActOnHolderEvent;
 import effects.Event;
 import gameutils.GameUtils;
-import gui.guiutils.GuiUtils;
 import loaders.eventbuilder.generatedevents.TypicalEventFactory;
 
 /**
@@ -30,62 +28,31 @@ public class EventBuilder implements Loader  {
 	 * Creates a new EventBuilder and places all default items to corresponding events
 	 */
 	private final String[] paths;
-	private final ThingMap thingMap;
 	private static final int EVENT_NAME_LOC = 0;
 	private static final int START_OF_EVENTS_LOC = 2;
 	
 	private static final int THING_NAME_LOC = 0;
+	/**
+	 * Constructs a new EventBuilder with no paths and no thingMap
+	 */
 	public EventBuilder() {
-		placeSpecialEvents();
 		paths = new String[] {};
-		thingMap = null;
 	}
 	/**
 	 * Creates a new EventBuilder, creates "default items" and creates events for items in .csv file located at path
-	 * @param path
+	 * @param paths the paths to get the events from
 	 */
-	public EventBuilder(final ThingMap thingMap, final String... paths) {
-		placeSpecialEvents()	;
+	public EventBuilder(final String... paths) {
 		this.paths = paths;
-		this.thingMap = thingMap;
 	}
+	/** 
+	 * @see loaders.Loader#load()
+	 */
 	@Override
 	public void load() {
 		for (final String path : paths)
 			loadEventsFromPath(path);
 	}
-	private void placeSpecialEvents() {
-		//Put "Special Items" (items that are one-ofs and can't be described by generator functions) here
-				placeExplosionEvent();
-	}
- //	/**
-//	 * Loads all the events at the provided path
-//	 * @param p the path of the eventMapList.csv file
-//	 */
-//	private void loadEventsFromPath(final String path) {			
-//		try {
-//			for (final String[] vals: CSVReader.readCSV(path)) {
-//				final StringBuilder description = new StringBuilder();
-//				String newline = "";
-//				final String name=vals[0]; //e.g. smalltable
-//				final List<Event> events = new ArrayList<Event>();
-//				for (int i = 1; i < vals.length; i++) {
-//					description.append(newline);
-//					final String[] inputs = vals[i].split(":"); //e.g. randomgold:3:4:5, where 3,4,5 are the inputs to the generate function
-//					final TypicalEventFactory eventFactory = TypicalEventFactory.getTypicalEventFactory(inputs);
-//					events.add(eventFactory.generateEvent());
-//					description.append(eventFactory.getDescription());
-//					newline = "\n";
-//				} 
-//				mapEvents.put(name, events); //place the created event
-//				eventNameToDescription.put(name, description.toString());
-//			}
-//		} catch (final IOException  e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//
-//	}
 	private void loadEventsFromPath(final String path) {
 		List<String[]> CSV = null;
 		try {
@@ -130,21 +97,6 @@ public class EventBuilder implements Loader  {
 	 */
 	public String getEventDescription(final String thingName) {
 		return eventNameToDescription.get(thingName);
-	}
-	private void placeExplosionEvent() {
-		final Event explosivesEvent = new ActOnHolderEvent(
-				board -> {
-					final int i = board.removeAllPokemon(); //remove all pokemon
-					board.addGold(i*100); //add 100 for all pokemon removed
-				}, 
-				x->{}, 
-				(t, e, b) -> {},
-				(t, e, b) -> {
-					b.addToRemoveRequest(t); //request to remove this object
-				});
-		mapEvents.put("Explosives", GameUtils.toArrayList((explosivesEvent)));
-		eventNameToDescription.put("Explosives", "Permanently Removes all Pokemon on the board.\n"
-				+ "For each pokemon removed this way you get <font color=\"green\">+" + GuiUtils.getMoneySymbol() + 100 );
 	}
 
 }

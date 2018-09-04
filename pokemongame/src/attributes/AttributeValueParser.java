@@ -2,18 +2,35 @@ package attributes;
 
 import java.util.Arrays;
 
+import thingFramework.CreatureTypeSet;
 import thingFramework.ExperienceGroup;
-import thingFramework.PokemonTypeSet;
 
+/**
+ * Singleton class used to parse values for attributes
+ * @author David O'Sullivan
+ *
+ */
 public class AttributeValueParser {
 	private final static AttributeValueParser INSTANCE = new AttributeValueParser();
 	
 	private AttributeValueParser() {
 		
 	}
+	/**
+	 * Returns the single instance of AttributeValueParser
+	 * @return The single instance of AttributeValueParser
+	 */
 	public static AttributeValueParser getInstance() {
 		return INSTANCE;
 	}
+	/**
+	 * Parses the provided string to the appropriate type of object given the ParseType
+	 * @param <T> the return type
+	 * @param value the String representation of the value
+	 * @param parseType the associated ParseType
+	 * @return the parsed value
+	 */
+	@SuppressWarnings("unchecked") //type safety provided by parseType
 	public <T> T parseValue(final String value, final ParseType<T> parseType) {
 		Object newVal = null;
 			switch (parseType.getAssociatedEnum()) {
@@ -38,12 +55,18 @@ public class AttributeValueParser {
 				else
 					newVal = Arrays.asList(value);
 				break;
-			case POKEMON_TYPES:
-				newVal = new PokemonTypeSet(value.split(" "));
+			case CREATURE_TYPES:
+				newVal = new CreatureTypeSet(value.split(" "));
 				break;
 			}
 			return (T) newVal;
 	}
+	/**
+	 * Creates a new AttributeCharacteristicSet by parsing in from an input
+	 * @param value the String representation of the AttributeCharacteristicSet
+	 * @param delimiter the delimiter between elements of the AttributeCharacteristicSet
+	 * @return the parsed AttributeCharacteristicSet
+	 */
 	AttributeCharacteristicSet parseAttributeTypeSet(final String value, final String delimiter) {
 		final String[] types = value.split(delimiter);
 		final AttributeCharacteristicSet atTypes = new AttributeCharacteristicSet();

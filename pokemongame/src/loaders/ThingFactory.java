@@ -9,8 +9,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import attributes.ParseType;
+import thingFramework.Creature;
 import thingFramework.Item;
-import thingFramework.Pokemon;
 import thingFramework.Thing;
 
 /**
@@ -27,13 +27,13 @@ public final class ThingFactory {
 	 */
 	private static final String LEVELS_OF_EVOLUTION_LOCATION = "/InputFiles/levelsOfEvolve.csv";
 	/**
-	 * Location of which pokemon evolve to what
+	 * Location of which Creatures evolve to what
 	 */
 	private static final String EVOLUTIONS_LOCATION = "/InputFiles/evolutions.csv";
 	/**
 	 * The location of the csv of all the thing to import into the game
 	 */
-	private static final String[] THING_LIST_LOCATIONS = {"/InputFiles/pokemonList.csv", "/InputFiles/itemList - 1.csv"};
+	private static final String[] THING_LIST_LOCATIONS = {"/InputFiles/creatureList.csv", "/InputFiles/itemList - 1.csv"};
 	/**
 	 * The location of all pregenerated "basic" events to load into the game. I.E.
 	 * items that have events that can be described by methods in the ThingLoader class. 
@@ -43,14 +43,21 @@ public final class ThingFactory {
 	/**
 	 * the event maps are split into multiple different files, and there are NUMBER_OF_EVENT_MAP_LISTS of each of them
 	 */
-	private static final int NUMBER_OF_EVENT_MAP_LISTS = 4;
+	private static final int NUMBER_OF_EVENT_MAP_LISTS = 5;
 	/**
 	 * Location of csv containing extra attributes for things. Format as specified in thingloader
 	 */
-	private static final String[] EXTRA_ATTRIBUTE_LOCATIONS = {"/InputFiles/extraAttributes - 1.csv", "/InputFiles/extraAttributes - 2.csv",
-			"/InputFiles/extraAttributes - 3.csv"};
+	private static final String EXTRA_ATTRIBUTE_HEADER = "/InputFiles/extraAttributes";
+	/**
+	 * the extra attribuets are split into different files, and there are NUMBER_OF_EXTRA_ATTRIBUTE_LISTS 
+	 */
+	private static final int NUMBER_OF_EXTRA_ATTRIBUTE_LISTS = 3;
+	/**
+	 * The path to the descriptions of things
+	 */
 	private static final String PATH_TO_DESCRIPTIONS = "/InputFiles/descriptionList.csv";
-	private static final ThingFactory INSTANCE = new ThingFactory(THING_LIST_LOCATIONS, PATH_TO_DESCRIPTIONS, EVENT_MAP_HEADER, NUMBER_OF_EVENT_MAP_LISTS, EVOLUTIONS_LOCATION, LEVELS_OF_EVOLUTION_LOCATION, EXTRA_ATTRIBUTE_LOCATIONS);
+	
+	private static final ThingFactory INSTANCE = new ThingFactory(THING_LIST_LOCATIONS, PATH_TO_DESCRIPTIONS, EVENT_MAP_HEADER, NUMBER_OF_EVENT_MAP_LISTS, EVOLUTIONS_LOCATION, LEVELS_OF_EVOLUTION_LOCATION, getInputFileSeries(NUMBER_OF_EXTRA_ATTRIBUTE_LISTS, EXTRA_ATTRIBUTE_HEADER));
 	private ThingFactory(final String pathToEventsHeader, final int numberOfEventLists) {
 		thingTemplates = new ThingMap();
 		loaders = new ArrayList<Loader>();
@@ -58,7 +65,7 @@ public final class ThingFactory {
 			eb = new EventBuilder();
 		}
 		else {
-			eb = new EventBuilder(thingTemplates, getEventMaps(numberOfEventLists, pathToEventsHeader));
+			eb = new EventBuilder(getInputFileSeries(numberOfEventLists, pathToEventsHeader));
 		}
 			
 	}
@@ -72,52 +79,74 @@ public final class ThingFactory {
 		this(pathToEventsHeader, numberOfEventLists);
 		loaders.add(new ThingLoader(this, pathToThings, new ExtraAttributeLoader(thingTemplates, pathsToExtraAttributes)));
 		loaders.add(eb);
-		loaders.add(new PokemonEvolutionLoader(pathToEvolutions, pathToLevelsOfEvolve, thingTemplates));
+		loaders.add(new CreatureEvolutionLoader(pathToEvolutions, pathToLevelsOfEvolve, thingTemplates));
 		loaders.add(new DescriptionLoader(pathToDescriptions, thingTemplates, eb));
 		loadAllLoaders();
 	}
-	private String[] getEventMaps(final int numberOfEventLists, final String pathToEventsHeader) {
-		final String[] eventMaps = new String[numberOfEventLists];
-		for (int i =1 ; i <= numberOfEventLists; i++) {
-			eventMaps[i-1] = pathToEventsHeader + " - " + i + ".csv";
+	private static String[] getInputFileSeries(final int numberOfFiles, final String header) {
+		final String[] eventMaps = new String[numberOfFiles];
+		for (int i =1 ; i <= numberOfFiles; i++) {
+			eventMaps[i-1] = header + " - " + i + ".csv";
 		}
 		return eventMaps;
 	}
-	void addNewPokemonTemplate(final Pokemon template) {
-		thingTemplates.addPokemon(template);
+	/**
+	 * Adds a new Creature Template to this factory's template map
+	 * @param template the Creature Template to add
+	 */
+	void addNewCreatureTemplate(final Creature template) {
+		thingTemplates.addCreature(template);
 	}
+	/**
+	 * Adds a new Item Template to this factory's tempalte map
+	 * @param template
+	 */
 	void addNewItemTemplate(final Item template) {
 		thingTemplates.addItem(template);
 	}
 	private void loadAllLoaders() {
 		loaders.forEach(l -> l.load());
 	}
-	public static ThingFactory sharedInstance() {
+	/**
+	 * Returns the instance of ThingFactory
+	 * @return the instance of ThingFactory
+	 */
+	public static ThingFactory getInstance() {
 		return INSTANCE;
 	}
+	/**
+	 * Returns the description of the provided thing
+	 * @param thingName the name of the thing
+	 * @return that thing's toString() method
+	 */
 	public String getThingDescription(final String thingName) {
-		return thingTemplates.get(thingName).toString();
-	}
-	public String getThingImage(final String thingName) {
-		return thingTemplates.get(thingName).getImage();
+		return thingTemplates.getThing(thingName).toString();
 	}
 	/**
-	 * Creates a new instance of the thing with the given name with all the characterstics that were loaded in on the game start
+	 * Returns the image of the provided thing
+	 * @param thingName the name of the thing
+	 * @return the path to that things Image
+	 */
+	public String getThingImage(final String thingName) {
+		return thingTemplates.getThing(thingName).getImage();
+	}
+	/**
+	 * Creates a new instance of the thing with the given name with all the characteristics that were loaded in on the game start
 	 * @param name the name of thing 
 	 * @return The new thing. Throws NullPointerException if not present
 	 */
 	public Thing generateNewThing(final String name) {
-		final Thing t = thingTemplates.get(name).makeCopy();
+		final Thing t = thingTemplates.getThing(name).makeCopy();
 		t.addToEventList(eb.getNewEvents(name));
 		return t;
 	}
 	/**
-	 * Creates a new instance of the Pokemon with the given name with all the characterstics that were loaded in on the game start
-	 * @param name the name of pokemon
+	 * Creates a new instance of the Creature with the given name with all the characteristics that were loaded in on the game start
+	 * @param name the name of the Creature
 	 * @return The new thing. Throws NullPointerException if not present
 	 */
-	public Pokemon generateNewPokemon(final String name) {
-		final Pokemon p = thingTemplates.getPokemon(name).makeCopy();
+	public Creature generateNewCreature(final String name) {
+		final Creature p = thingTemplates.getCreature(name).makeCopy();
 		p.addToEventList(eb.getNewEvents(name));
 		return p;
 	}
@@ -142,8 +171,9 @@ public final class ThingFactory {
 	
 	/**
 	 * Returns a map from the names of things to the values of their attributes of the provided name
-	 * @param <T> the ParseType of the attribute
+	 * @param <T> the type of the attribute
 	 * @param attributeName the name of the attribute to get the values for
+	 * @param type the associated ParseTYpe
 	 * @return the map from names to attribute value for the provided attribute type
 	 */
 	public final <T> Map<String, T> mapFromSetToAttributeValue(final String attributeName, final ParseType<T> type) {
@@ -161,8 +191,10 @@ public final class ThingFactory {
 	}
 	/**
 	 * Returns a map from the names of things of the given type to the values of their attributes of the provided name
-	 * @param <T> the ParseType of the attribute
+	 * @param <T> the type of the attribute
 	 * @param attributeName the name of the attribute to get the values for
+	 * @param thingType of the type of thing to get
+	 * @param parseType the associated ParseType
 	 * @return the map from names to attribute value for the provided attribute type
 	 */
 	public final <T> Map<String, T> mapFromSetToAttributeValue(final String attributeName, final ThingType thingType, final ParseType<T> parseType) {
@@ -175,8 +207,10 @@ public final class ThingFactory {
 	}
 	/**
 	 * Returns the set of things with the desired attribute value
+	 * @param <T> the type of the attribute
 	 * @param attributeName the name of the attribute
 	 * @param desiredValue the desired value for the attribute
+	 * @param parseType the associated ParseType
 	 * @return the set of all things that have that attribute and have the desired value for that attribute
 	 */
 	public final <T> Set<String> getThingsWithAttributeVal(final String attributeName, final T desiredValue, final ParseType<T> parseType) {
@@ -184,8 +218,11 @@ public final class ThingFactory {
 	}
 	/**
 	 * Returns the set of things of the given type with the desired attribute value
+	 * @param <T> the type of the attribute
 	 * @param attributeName the name of the attribute
 	 * @param desiredValue the desired value for the attribute
+	 * @param parseType the associated ParseType
+	 * @param type the type of thing to get
 	 * @return the set of all things that have that attribute and have the desired value for that attribute
 	 */
 	public final <T> Set<String> getThingsWithAttributeVal(final String attributeName, final T desiredValue, final ThingType type, final ParseType<T> parseType) {

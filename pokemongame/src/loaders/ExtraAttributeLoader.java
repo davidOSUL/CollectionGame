@@ -6,16 +6,29 @@ import java.util.Set;
 
 import thingFramework.Thing;
 
+/**
+ * Loads in additional ("extra") attributes
+ * @author David O'Sullivan
+ *
+ */
 public class ExtraAttributeLoader implements Loader {
 	private final ThingMap thingMap;
 	private final String[] pathsToExtraAttributes;
-	private static final String POKEMON_SIGNIFY = "POKEMON";
+	private static final String CREATURE_SIGNIFY = "CREATURE";
 	private static final String ITEM_SIGNIFY = "ITEM";
 	private static final String ADD_FOR_REST_SIGNIFY = "ALL OTHERS";
+	/**
+	 * Creates a new ExtraAttributeLoader
+	 * @param thingMap the thingMap to add extrattributes to
+	 * @param pathsToExtraAttributes the CSV file with the extra attributes
+	 */
 	ExtraAttributeLoader(final ThingMap thingMap, final String[] pathsToExtraAttributes) {
 		this.thingMap = thingMap;
 		this.pathsToExtraAttributes = pathsToExtraAttributes;
 	}
+	/** 
+	 * @see loaders.Loader#load()
+	 */
 	@Override
 	public void load() {
 		for (final String path: pathsToExtraAttributes) {
@@ -24,7 +37,7 @@ public class ExtraAttributeLoader implements Loader {
 	}
 	/**
 	 * <br> Assumes sheets of the form:</br>
-	 * <br>POKEMON</br>
+	 * <br>CREATURE</br>
 	 * <br>Name attribute val attribute val ...</br>
 	 * <br>Name attribute val attribute val ...</br>
 	 * <br>...</br>
@@ -41,8 +54,8 @@ public class ExtraAttributeLoader implements Loader {
 			for (final String[] values : CSVReader.readCSV(pathToExtraAttributes)) {
 				final String potentialInput = values[0].toUpperCase().trim();
 				boolean onSignifyLine = false;
-				if (potentialInput.equalsIgnoreCase(POKEMON_SIGNIFY)) {
-					type = ThingType.POKEMON;
+				if (potentialInput.equalsIgnoreCase(CREATURE_SIGNIFY)) {
+					type = ThingType.CREATURE;
 					onSignifyLine = true;
 				}
 				if (potentialInput.equalsIgnoreCase(ITEM_SIGNIFY)) {
@@ -71,7 +84,7 @@ public class ExtraAttributeLoader implements Loader {
 			final String attribute = values[i];
 			final String value = values[i+1];
 			if (thingMap.viewMap().containsKey(name))
-				thingMap.get(name).addAttribute(attribute, value);
+				thingMap.getThing(name).addAttribute(attribute, value);
 		}
 	}
 	private void loadAttributesForAllOthers(final String[] values, final Set<String> visitedNames, final ThingType type) {

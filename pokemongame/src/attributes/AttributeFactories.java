@@ -2,7 +2,6 @@ package attributes;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,13 +9,31 @@ import java.util.Map;
 import gameutils.GameUtils;
 import interfaces.SerializableFunction;
 import loaders.CSVReader;
+import thingFramework.CreatureTypeSet;
 import thingFramework.ExperienceGroup;
-import thingFramework.PokemonTypeSet;
+/**
+ * Singleton class which houses all the AttributeFactories. These have public interfaces as AttributeCreator and ManagerMapCreator
+ * @author David O'Sullivan
+ *
+ */
+@SuppressWarnings("unused") 
 final class AttributeFactories {
+	/**
+	 * the CSV file which contains all the types of attributes that can be created
+	 */
 	private static final String ATTRIBUTE_LIST_PATH = "/InputFiles/attributeList - 1.csv";
+	/**
+	 * The delimiter used between multiple Attribute Characteristics a particular attribute
+	 */
 	private static final String ATTRIBUTE_TYPES_DELIM = ":";
+	/**
+	 * The delimiter used between multiple Display Settings for a particular attribute
+	 */
 	private static final String DISPLAY_SETTINGS_DELIM = ":";
 	
+	/*
+	 * The location of the various attribute values that will be loaded in from the CSV:
+	 */
 	private static final int NAME_LOC = 0;
 	private static final int TYPE_LOC = 1;
 	private static final int DEF_VAL_LOC = 2;
@@ -27,35 +44,53 @@ final class AttributeFactories {
 	private static final int IGNORE_VALUE_LOC = 7;
 	private static final int DISPLAY_RANK_LOC = 8;
 	
+	/**
+	 * Every attribute has a displayRank, marking an attribute's displayRank as FINAL_DISPLAY_RANK will 
+	 * gurantee  its display rank is lower than any other
+	 */
 	private static final String FINAL_DISPLAY_RANK = "END";
 	private static final AttributeFactories INSTANCE = new AttributeFactories();
-	
- 	private final AttributeFactory<Integer> INTEGER_FACTORY;
+	/*
+	 * The various AttributeFactories  that this class houses
+	 */
+	private final AttributeFactory<Integer> INTEGER_FACTORY;
 	private final AttributeFactory<Double> DOUBLE_FACTORY;
 	private final AttributeFactory<String> STRING_FACTORY;
 	private final AttributeFactory<Boolean> BOOLEAN_FACTORY;
-	private final AttributeFactory<PokemonTypeSet> POKEMON_TYPES_FACTORY;
+	private final AttributeFactory<CreatureTypeSet> CREATURE_TYPES_FACTORY;
 	private final AttributeFactory<ExperienceGroup> EXPERIENCE_GROUP_FACTORY;
 	private final AttributeFactory<List<?>> LIST_FACTORY;
 
+	/**
+	 * Map between the name of a parse type, and the factory that uses it
+	 */
 	private final Map<String, AttributeFactory<?>> factoryMapByParseType;
-	private final Map<String, AttributeFactory<?>> factoryMapByNameOfAttributeTemplate;
-	private final List<AttributeFactory<?>> factoryList;
+	/**
+	 *Map between the name of an attribute, and the factory that created it
+	 */
+	private final Map<String, ManagerMapCreator<?>> factoryMapByNameOfAttributeTemplate;
+	/**
+	 * List of all factories
+	 */
+	private final List<ManagerMapCreator<?>> factoryList;
 	private AttributeFactories() {
 		factoryMapByParseType = new HashMap<String, AttributeFactory<?>>();
-		factoryList = new ArrayList<AttributeFactory<?>>();
-		factoryMapByNameOfAttributeTemplate = new HashMap<String, AttributeFactory<?>>();
+		factoryList = new ArrayList<ManagerMapCreator<?>>();
+		factoryMapByNameOfAttributeTemplate = new HashMap<String, ManagerMapCreator<?>>();
 		
 		INTEGER_FACTORY = new AttributeFactory<Integer>(ParseType.INTEGER, x -> x >= 0);
 		DOUBLE_FACTORY = new AttributeFactory<Double>(ParseType.DOUBLE, x -> x >= 0);
 		STRING_FACTORY = new AttributeFactory<String>(ParseType.STRING);
 		BOOLEAN_FACTORY = new AttributeFactory<Boolean>(ParseType.BOOLEAN, x -> x);
-		POKEMON_TYPES_FACTORY = new AttributeFactory<PokemonTypeSet>(ParseType.POKEMON_TYPES);
+		CREATURE_TYPES_FACTORY = new AttributeFactory<CreatureTypeSet>(ParseType.CREATURE_TYPES);
 		EXPERIENCE_GROUP_FACTORY = new AttributeFactory<ExperienceGroup>(ParseType.EXPERIENCE_GROUP);
 		LIST_FACTORY = new AttributeFactory<List<?>>(ParseType.LIST);
 		loadAttributeTemplates();
 	}
 	
+	/**
+	 * @return the AttributeFactories instance.
+	 */
 	static AttributeFactories getInstance() {
  		return INSTANCE;
 	}
@@ -74,50 +109,91 @@ final class AttributeFactories {
 			factoryMapByParseType.get(values[TYPE_LOC].trim().toLowerCase()).createNewAttributeTemplate(name, values);
 		}
 	}
-	List<AttributeFactory<?>> getFactoryList() {
+	/**
+	 * Get the List of all ManagerMapCreators.
+	 * @return the list of all ManagerMapCreators.
+	 */
+	List<ManagerMapCreator<?>> getManagerMapCreatorList() {
 		return factoryList;
 	}
-	AttributeFactory<?> getCreatorFactory(final String attributeName) {
+	/**
+	 * Returns the ManagerMapCreator that has attributes of the type of the specified attributeName
+	 * @param attributeName the name of the attribute 
+	 * @return the ManagerMapCreator that can contain an attribute of the specified attributeName
+	 */
+	ManagerMapCreator<?> getManagerMapCreatorOfAttribute(final String attributeName) {
 		return factoryMapByNameOfAttributeTemplate.get(attributeName);
 	}
-	final class AttributeFactory<T> {
+	private void finishFactorySetup(final AttributeFactory<?> factory) {
+		factoryMapByParseType.put(factory.parseType.getAssociatedEnum().toString().toLowerCase(), factory);
+		factoryList.add(factory);
+	}
+	/**
+	 * A parameterized class that serves both to create new attribute templates (AttributeCreator<T>), and also to 
+	 * create a AttributeManagerMap<T> of the specified type (ManagerMapCreator<T>). 
+	 * This doubling up of uses isn't great, however the alternative led to a lack of type-safety, so I elected for
+	 * this instead.
+	 * @author David O'Sullivan
+	 *
+	 * @param <T> the type of the attributes of this AtttributeFactory<T>
+	 */
+	private final class AttributeFactory<T> implements AttributeCreator<T>, ManagerMapCreator<T> {
 		private final ParseType<T> parseType;
 		private final Map<String, Attribute<T>> attributeTemplates = new HashMap<String, Attribute<T>>();
-		private final AttributeManagerHelperMap<T> attributeManagerMap;
+		private final AttributeManagerMap<T> attributeManagerMap;
 		private SerializableFunction<T, Boolean> isPositive = x -> false;
-		AttributeManagerHelperMap<T> getHelperMap() {
-			return attributeManagerMap;
-		}
 		
 		private AttributeFactory(final ParseType<T> parseType) {
 			this.parseType = parseType;
-			parseType.setAssociatedFactory(this);
-			factoryMapByParseType.put(parseType.getAssociatedEnum().toString().toLowerCase(), this);
-			factoryList.add(this);
-			attributeManagerMap = new AttributeManagerHelperMap<T>(parseType, this);
+			parseType.setAssociatedMapCreator(this);
+			attributeManagerMap = new AttributeManagerMap<T>(parseType, this);
+			finishFactorySetup(this);
 		}	
 		private AttributeFactory(final ParseType<T> parseType, final SerializableFunction<T, Boolean> isPositive) {
 			this(parseType);
 			this.isPositive = isPositive;
 			
 		}
-		Attribute<T> getAttributeTemplate(final String attributeName) {
+		
+		@Override
+		public String toString() {
+			return "The Attribute Factory For: " + parseType.getAssociatedEnum().toString();
+		}
+		
+		/*
+		 * Interface methods
+		 */
+		
+		/** 
+		 * @see attributes.ManagerMapCreator#getManagerMap()
+		 */
+		@Override
+		public AttributeManagerMap<T> getManagerMap() {
+			return attributeManagerMap;
+		}
+		/** 
+		 * @see attributes.AttributeCreator#getAttributeTemplate(java.lang.String)
+		 */
+		@Override
+		public AttributeTemplate<T> getAttributeTemplate(final String attributeName) {
 			throwIfInvalidTemplate(attributeName);
-			return attributeTemplates.get(attributeName);
+			return AttributeTemplate.generateTemplate(attributeTemplates.get(attributeName));
 		}
-		Map<String, Attribute<T>> getAttributeTemplates(final String attributeName) {
-			return Collections.unmodifiableMap(attributeTemplates);
-		}
-		boolean containsAttributeTemplate(final String attributeName) {
+		/** 
+		 * @see attributes.AttributeCreator#containsAttributeTemplate(java.lang.String)
+		 */
+		@Override
+		public boolean containsAttributeTemplate(final String attributeName) {
 			return attributeTemplates.containsKey(attributeName);
 		}
-
+		
+		/*
+		 * Private methods
+		 */
+		
 		private void throwIfInvalidTemplate(final String attributeName) {
 			if (!attributeTemplates.containsKey(attributeName))
 				throw new AttributeNotFoundException(attributeName + "is not a valid attribute");
-		}
-		ParseType<T> getParseType() {
-			return parseType;
 		}
 		private void createNewAttributeTemplate(final String name, final String[] values) {
 			final Attribute<T> attribute;
@@ -177,17 +253,14 @@ final class AttributeFactories {
 			case BOOLEAN:
 				attribute.setDisplayFormat(s -> s.equalsIgnoreCase("true") ? "yes" : "no");
 				break;
-			case POKEMON_TYPES:
+			case CREATURE_TYPES:
 				attribute.setDisplayFormat(s -> GameUtils.toTitleCase(s.replace("[", "").replace("]", "").toLowerCase()));
 				break;
 			default:
 				break;
 			}
 		}
-		@Override
-		public String toString() {
-			return "The Attribute Factory For: " + parseType.getAssociatedEnum().toString();
-		}
+		
 
 	}
 	

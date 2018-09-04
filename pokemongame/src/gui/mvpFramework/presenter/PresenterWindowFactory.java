@@ -13,10 +13,19 @@ import gui.displayComponents.InfoWindowBuilder;
 import gui.gameComponents.grid.GridSpace;
 import gui.guiutils.GuiUtils;
 import loaders.shopLoader.ShopItem;
-import thingFramework.Pokemon;
+import thingFramework.Creature;
 import thingFramework.Thing;
 
+/**
+ * Used to create common windows that popup for display
+ * @author David O'Sullivan
+ *
+ */
 public class PresenterWindowFactory implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private final Presenter presenter;
 	private final Board board;
 	
@@ -24,6 +33,11 @@ public class PresenterWindowFactory implements Serializable {
 	 * The background of the JPanel that pops up when the notification button is pressed
 	 */
 	private final static Image INFO_WINDOW_BACKGROUND =GuiUtils.changeOpacity(GuiUtils.readImage("/sprites/ui/pikabackground.jpg"), .5f);
+	/**
+	 * Creates a new PresenterWindowFactory
+	 * @param presenter the presenter of the current game
+	 * @param board the board of the current game
+	 */
 	public PresenterWindowFactory(final Presenter presenter, final Board board) {
 		this.presenter = presenter;
 		this.board = board;
@@ -45,6 +59,11 @@ public class PresenterWindowFactory implements Serializable {
 				.createWindow();
 
 	}
+	/**
+	 * The window that should appear when the user wants to purchase an item
+	 * @param item the item that the user is attempting to purchase
+	 * @return a confirmation window to purchase the provided item
+	 */
 	public JComponent confirmPurchaseWindow(final ShopItem item) {
 		return new InfoWindowBuilder()
 				.setPresenter(presenter)
@@ -56,6 +75,12 @@ public class PresenterWindowFactory implements Serializable {
 				.setBackgroundImage(INFO_WINDOW_BACKGROUND)
 				.createWindow();
 	}
+	/**
+	 * The window that should appear when the user attempts to sell back an item
+	 * @param gs the GridSpace containing the item the user is selling back
+	 * @param item the ShopItem the user is selling back
+	 * @return the window that should appear when the user attempts to sell back an item
+	 */
 	public JComponent attemptToSellBackWindow(final GridSpace gs, final ShopItem item) {
 		final StringBuilder info = new StringBuilder("Are you sure you want to " + presenter.getSellBackString(gs) + "?");
 		if (!board.canAddBackToShopStock(item))
@@ -70,6 +95,10 @@ public class PresenterWindowFactory implements Serializable {
 				.setBackgroundImage(INFO_WINDOW_BACKGROUND)
 				.createWindow();
 	}
+	/**
+	 * Returns a window showing the boards advanced stats
+	 * @return a window showing the boards advanced stats
+	 */
 	public JComponent advancedStatsWindow() {
 		final JPanel panel = new JPanel();
 		final JTextArea area = new JTextArea(board.getAdvancedStats());
@@ -81,17 +110,18 @@ public class PresenterWindowFactory implements Serializable {
 
 	}
 	/**
-	 * Generates a new JPanel corresponding to the next pokemon in the queue, and giving the user the option to add it, set it free or cancel the request and place it back in the queue
-	 * @param p the next pokemon in the queue
+	 * Generates a new JPanel corresponding to the next Creature in the queue, and giving the user the option to add it, set it free or cancel the request and place it back in the queue
+	 * @param p the next Creature in the queue
+	 * @param letCreatureGo what should happen if the user wants to let the found creature go
 	 * @return the JPanel
 	 */
-	public JComponent wildPokemonWindow(final Pokemon p, final Consumer<Presenter> letPokeGo) {
+	public JComponent wildCreatureWindow(final Creature p, final Consumer<Presenter> letCreatureGo) {
 		return  new InfoWindowBuilder()
 				.setPresenter(presenter)
 				.setInfo("A wild " + p.getName() + " appeared!")
 				.setImagable(p)
 				.addEnterButton("Place")
-				.addButton("Set Free", letPokeGo, true, false, true)
+				.addButton("Set Free", letCreatureGo, true, false, true)
 				.addCancelButton()
 				.setBackgroundImage(INFO_WINDOW_BACKGROUND)
 				.createWindow();

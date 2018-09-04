@@ -6,7 +6,7 @@ import interfaces.SerializableConsumer;
 import interfaces.SerializableFunction;
 
 /**
- * Event whose period changes
+ * Event whose period can change over time
  * @author David O'Sullivan
  *
  */
@@ -21,14 +21,28 @@ public class CustomPeriodEvent extends Event {
 	private volatile long timeOfLastChange;
 	private volatile double currentPeriodVal = -1;
 	private static final double MIN_PERIOD = .01;
+	/**
+	 * Creates a new CustomPeriodEvent
+	 * @param onPeriod what should happen every period
+	 * @param generatePeriod the function that, given the state of the board, determines this Event's current period
+	 */
 	public CustomPeriodEvent(final SerializableConsumer<Board> onPeriod, final SerializableFunction<Board, Double> generatePeriod) {
 		super(onPeriod, Integer.MAX_VALUE);
 		this.generatePeriod = generatePeriod;
 	}
+	/**
+	 * Creates a new CustomperiodEvent
+	 * @param onPlace what should happen when this event is placed
+	 * @param onPeriod what should happen every period
+	 * @param generatePeriod the function that, given the state of the board, determines this Event's current period
+	 */
 	public CustomPeriodEvent(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final SerializableFunction<Board, Double> generatePeriod) {
 		super(onPlace, onPeriod, Integer.MAX_VALUE);
 		this.generatePeriod = generatePeriod;
 	}
+	/**
+	 * Copy constructor
+	 */
 	private CustomPeriodEvent(final CustomPeriodEvent event) {
 		super(event);
 		this.generatePeriod = event.generatePeriod;
@@ -59,6 +73,9 @@ public class CustomPeriodEvent extends Event {
 		}
 	}
 
+	/** 
+	 * @see effects.Event#executePeriod(game.Board)
+	 */
 	@Override
 	public Runnable executePeriod(final Board b) {
 		return new Runnable() {
@@ -68,9 +85,9 @@ public class CustomPeriodEvent extends Event {
 			}
 		};
 	}
-	public long numCurrentPeriodsElapsed() {
-		return numCurrentPeriodsElapsed;
-	}
+	/** 
+	 * @see effects.Event#makeCopy()
+	 */
 	@Override
 	public CustomPeriodEvent makeCopy() {
 		return new CustomPeriodEvent(this);

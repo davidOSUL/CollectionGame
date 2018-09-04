@@ -4,13 +4,29 @@ import attributes.ParseType;
 import game.Board;
 import modifiers.Modifier;
 
+/**
+ * An event that applies a modifier to all Things (or all of a particular type of thing) present on the board
+ * @author David O'Sullivan
+ *
+ */
 public class GlobalModifierEvent extends Event {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private final Modifier firstModifier;
 	private final Modifier[] mods;
 	private final boolean removeCreatorWhenDone;
 	private final boolean displayCountdown;
 	private boolean sentRequest = false;
 	private final GlobalModifierOption option;
+	/**
+	 * Creates a new GlobalModifierEvent
+	 * @param mods the modifiers to apply to the board (they all must have the same life time)
+	 * @param removeCreatorWhenDone whether or not the creator of this event should be removed from the board once the lifetime of this modifier is completed
+	 * @param displayCountdown whether or not a countdown should be displayed showing the time left for this modifiers
+	 * @param option an option that specifies what types of Things the modifiers should be applied to
+	 */
 	public GlobalModifierEvent(final Modifier[] mods, final boolean removeCreatorWhenDone, final boolean displayCountdown, final GlobalModifierOption option) {
 		this.mods = mods;
 		this.firstModifier = mods[0];
@@ -39,6 +55,13 @@ public class GlobalModifierEvent extends Event {
 			}
 		});
 	}
+	/**
+	 * Creates a new GlobalModifierEvent
+	 * @param mod the modifier to apply to the board (they all must have the same life time)
+	 * @param removeCreatorWhenDone whether or not the creator of this event should be removed from the board once the lifetime of this modifier is completed
+	 * @param displayCountdown whether or not a countdown should be displayed showing the time left for this modifiers
+	 * @param option an option that specifies what types of Things the modifiers should be applied to
+	 */
 	public GlobalModifierEvent(final Modifier mod, final boolean removeCreatorWhenDone, final boolean displayCountdown, final GlobalModifierOption option) {
 		this(new Modifier[] {mod}, removeCreatorWhenDone, displayCountdown, option);
 	}
@@ -46,15 +69,15 @@ public class GlobalModifierEvent extends Event {
 		this(modCopys, copy.getRemoveCreatorWhenDone(), copy.getDisplayCountdown(), copy.option);
 	}
 
+	/** 
+	 * @see effects.Event#makeCopy()
+	 */
 	@Override
 	public GlobalModifierEvent makeCopy() {
 		final Modifier[] copyMods = new Modifier[mods.length];
 		for (int i = 0; i < mods.length; i++)
 			copyMods[i] = mods[i];
 		return new GlobalModifierEvent(copyMods, this);
-	}
-	public Modifier[] getMods() {
-		return mods;
 	}
 	/**
 	 * @return the removeCreatorWhenDone
@@ -81,6 +104,9 @@ public class GlobalModifierEvent extends Event {
 		for (final Modifier mod : mods)
 			b.removeGlobalModifier(mod);
 	}
+	/**
+	 * ensures that all modifiers have the same lifetime
+	 */
 	private void verifyLifetimes() {
 		final long targetLifeTime = firstModifier.getLifetimeInMillis();
 		for (final Modifier m : mods) {

@@ -26,7 +26,13 @@ public class GameView extends JFrame {
 	 */
 	private static final long serialVersionUID = 1L;
 	private final MainGamePanel mainGamePanel;
+	/**
+	 * The width of the JFrame
+	 */
 	protected static final int WIDTH = 843;
+	/**
+	 * The height of the JFrame
+	 */
 	protected static final int HEIGHT = 549;
 	private static final Image background = GuiUtils.readImage("/sprites/ui/background.png");
 	private Presenter p;
@@ -77,6 +83,9 @@ public class GameView extends JFrame {
 		final Point viewCenter = new Point(WIDTH/2, HEIGHT/2);
 		return new Point(viewCenter.x-myCenter.x, viewCenter.y-myCenter.y);
 	}
+	/**
+	 * Undo the adding of a gridspace
+	 */
 	public void cancelGridSpaceAdd() {
 		mainGamePanel.cancelGridSpaceAdd();
 	}
@@ -101,7 +110,7 @@ public class GameView extends JFrame {
 	 * Starts the process of attempting to add the newly created provided GameSpace to the maingamePanel.
 	 * Converts the GameSpace to a gridSpace on the default grid and then adds. 
 	 * @param gs the GameSpace to add
-	 * @param type the context of the add (e.g. pokemon from queue, moving an existing GameSpace, etc.)
+	 * @param type the context of the add (e.g. Creature from queue, moving an existing GameSpace, etc.)
 	 */
 	public void attemptNewGridSpaceAdd(final GameSpace gs, final AddType type) {
 		mainGamePanel.gridSpaceAdd(mainGamePanel.generateGridSpaceWithDefaultGrid(gs), type);
@@ -109,7 +118,7 @@ public class GameView extends JFrame {
 	/**
 	 * Starts the process of attempting to add the existing GridSpace to the maingamePanel
 	 * @param gs the GameSpace to add
-	 * @param type the context of the add (e.g. pokemon from queue, moving an existing GameSpace, etc.)
+	 * @param type the context of the add (e.g. Creature from queue, moving an existing GameSpace, etc.)
 	 */
 	public void attemptExistingGridSpaceAdd(final GridSpace gs, final AddType type) {
 		mainGamePanel.gridSpaceAdd(gs, type);
@@ -118,9 +127,14 @@ public class GameView extends JFrame {
 	 * Sets the value of the notification button
 	 * @param num the number to set the notification button to
 	 */
-	public  void setWildPokemonCount(final int num) {
+	public  void setWildCreatureCount(final int num) {
 		mainGamePanel.updateNotifications(num);
 	}
+	/**
+	 * Updates the GUI display of the gold and popularity of the board
+	 * @param gold the new gold of the board
+	 * @param popularity the new popularity of the board
+	 */
 	public void setBoardAttributes(final int gold, final int popularity) {
 		mainGamePanel.updateDisplayedAttributes(gold, popularity);
 	}

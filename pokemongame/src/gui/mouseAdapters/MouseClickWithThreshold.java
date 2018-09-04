@@ -70,18 +70,24 @@ public class MouseClickWithThreshold<T> extends MouseAdapter {
 	}
 	/**
 	 * Add an additional action to occur when the mouse is pressed
-	 * @param onMouseRelease what should happen when the mouse is pressed in addition to the click action if applicable
+	 * @param onMousePressed what should happen when the mouse is pressed in addition to the click action if applicable
 	 * @return this
 	 */
 	public MouseClickWithThreshold<T> doOnPress(final Procedure onMousePressed) {
 		this.onMousePressed = onMousePressed;
 		return this;
 	}
+	/** 
+	 * @see java.awt.event.MouseAdapter#mousePressed(java.awt.event.MouseEvent)
+	 */
 	@Override
 	public void mousePressed(final MouseEvent e) {
 		currentPoint = e.getPoint();
 		onMousePressed.invoke();
 	}
+	/** 
+	 * @see java.awt.event.MouseAdapter#mouseReleased(java.awt.event.MouseEvent)
+	 */
 	@Override
 	public void mouseReleased(final MouseEvent e) {
 		if (currentPoint.distance(e.getPoint()) < allowableDistance && (allowNonPrimaryClick || isPrimaryClick(e))) {
@@ -89,10 +95,22 @@ public class MouseClickWithThreshold<T> extends MouseAdapter {
 		}
 		onMouseRelease.invoke();
 	}
+	/**
+	 * The type of click to register as primary click
+	 * @author David O'Sullivan
+	 *
+	 */
 	public enum ClickType{
-		LEFT, RIGHT
+		/**
+		 *The left mouse button 
+		 */
+		LEFT, 
+		/**
+		 * The right mouse button
+		 */
+		RIGHT;
 	}
-	public boolean isPrimaryClick(final MouseEvent e) {
+	private boolean isPrimaryClick(final MouseEvent e) {
 		switch(type) {
 		case LEFT:
 			return SwingUtilities.isLeftMouseButton(e);

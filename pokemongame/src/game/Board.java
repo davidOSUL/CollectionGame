@@ -17,14 +17,17 @@ import javax.swing.SwingUtilities;
 
 import effects.CustomPeriodEvent;
 import effects.Event;
+import effects.EventManager;
 import effects.Eventful;
 import effects.GlobalModifierOption;
 import gameutils.GameUtils;
+import gui.guiutils.GuiUtils;
 import loaders.ThingFactory;
 import loaders.shopLoader.ShopItem;
 import modifiers.Modifier;
+import modifiers.ModifierManager;
+import thingFramework.Creature;
 import thingFramework.Item;
-import thingFramework.Pokemon;
 import thingFramework.Thing;
 /**
  * The "Model" in the MVP model. Manages the game state in memory.
@@ -52,40 +55,40 @@ public class Board implements Serializable {
 	 */
 	private final double sellBackPercent = .5;	
 	/**
-	 * The minimum period in minutes at which new pokemon are checked for
+	 * The minimum period in minutes at which new creatures are checked for
 	 */
 	private static final double MIN_POKEPERIOD = 1;
 	/**
-	 * The maximum number of pokemon that can be in the dequeue at a time
+	 * The maximum number of creatures that can be in the dequeue at a time
 	 */
-	private static final int MAX_POKEMON_IN_QUEUE = 100;
+	private static final int MAX_CREATURES_IN_QUEUE = 100;
 	/*
 	 * Transient instance variables:
 	 * 
 	 * 
 	 */
 	/**
-	 * The event that checks for pokemon on a certain period based on popularity
+	 * The event that checks for creatures on a certain period based on popularity
 	 * Since it is static, it will be recreated on serialization, meaning it will have a new 
-	 * time created, and the pokemon will not be spawning while it is offline.
+	 * time created, and the creatures will not be spawning while it is offline.
 	 * The transient keyword, though unnecessary, is included to remind of this feature.
 	 * Also, this is (as of now) redundant because keeptrackwhileoff for events is by default set to false.
 	 * But regardless, making it static makes sense.
 	 */
-	private transient static final Event checkForPokemon = checkForPokemonEvent(); 
+	private transient static final Event checkForCreatures = checkForCreaturesEvent(); 
 	/**
-	 * Blank item to store the checkForPokemon event
+	 * Blank item to store the checkForCreatures event
 	 */
-	private transient static final Item checkForPokemonThing = Item.generateBlankItemWithEvents(checkForPokemon);
+	private transient static final Item checkForCreaturesThing = Item.generateBlankItemWithEvents(checkForCreatures);
 
 	/*
 	 * Non-transient instance variables:
 	 * 
 	 */
 	/**
-	 * This is the currently Grabbed pokemon, it may be placed on the board and removed from foundPokemon or it may be put back
+	 * This is the currently Grabbed creature, it may be placed on the board and removed from foundCreatures or it may be put back
 	 */
-	private Pokemon grabbedPokemon = null;
+	private Creature grabbedCreature = null;
 	/**
 	 * This is the current ShopItem that may be purchased if the purchase is confirmed or it may be refunded if the purchase is canceled
 	 */
@@ -93,9 +96,9 @@ public class Board implements Serializable {
 
 
 	/**
-	 * The queue of found wild pokemon (pokemon generated from a lookForPokemon() call)
+	 * The queue of found wild creatures (creatures generated from a lookForCreature() call)
 	 */
-	private final Deque<Pokemon> foundPokemon = new LinkedList<Pokemon>();
+	private final Deque<Creature> foundCreatures = new LinkedList<Creature>();
 	/**
 	 * The amount of money that the player currently posseses
 	 */
@@ -109,22 +112,22 @@ public class Board implements Serializable {
 	 */
 	private final Set<Thing> thingsOnBoard = new LinkedHashSet<Thing>();
 	/**
-	 * Set of all pokemon on board. This is a subset of thingsOnBoard
+	 * Set of all creatures on board. This is a subset of thingsOnBoard
 	 */
-	private final Set<Pokemon> pokemonOnBoard = new HashSet<Pokemon>();
+	private final Set<Creature> creaturesOnBoard = new HashSet<Creature>();
 	/**
 	 * Set of all items on board. This is a subset of thingsOnBoard
 	 */
 	private final Set<Item> itemsOnBoard = new HashSet<Item>();
 	/**
-	 * The number of pokemon currently on the board
+	 * The number of creatures currently on the board
 	 */
-	private volatile int numPokemon = 0;
+	private volatile int numCreatures = 0; 
 	/**
-	 * The pokemon on the board or in the queue used so that duplicate pokemon are
-	 * signifigantly less likely to show up. Map from the name of the pokemon to the # present
+	 * The creatures on the board or in the queue used so that duplicate creatures are
+	 * signifigantly less likely to show up. Map from the name of the creature to the # present
 	 */
-	private volatile Map<String, Integer> uniquePokemonLookup = new HashMap<String, Integer>();
+	private volatile Map<String, Integer> uniqueCreatureLookup = new HashMap<String, Integer>();
 	/**
 	 * the shop associated with this board
 	 */
@@ -138,7 +141,6 @@ public class Board implements Serializable {
 	 * update this when a new session is started.
 	 */
 	private final SessionTimeManager stm;
-	//TODO: Put all possible things with their associated events in a manager of its own, should be able to grab events with quantity > 0 
 	/**
 	 * Used for managing all the global modifiers on the board
 	 */
@@ -148,22 +150,33 @@ public class Board implements Serializable {
 	 */
 	private final Queue<Thing> removeRequests = new LinkedList<Thing>();
 	/**
-	 * % chance that a legendary pokemon spawns
+	 * % chance that a legendary creature spawns
 	 */
 	private double legendaryChance = 0;
 	/**
-	 * Amount to decrease the calculated look for pokemon period by (in minutes)
+	 * Amount to decrease the calculated look for creatures period by (in minutes)
 	 */
 	private double periodDecreaseMod = 0;
-	private final WildPokemonGenerator pokemonGenerator;
+	/**
+	 * Used to generate new Creatures periodically
+	 */
+	private final WildCreatureGenerator creatureGenerator;
+	/**
+	 * Creates a new board
+	 */
 	public Board() {
-		pokemonGenerator = new WildPokemonGenerator(this);
+		creatureGenerator = new WildCreatureGenerator(this);
 		shop = new Shop();
 		stm = new SessionTimeManager();
 		modifierManager = new ModifierManager(this);
 		events = new EventManager(this);
-		events.addThing(checkForPokemonThing);
+		events.notifyEventfulAdded(checkForCreaturesThing);
 	}
+	/**
+	 * Creates a new board starting with the provided gold/popularity
+	 * @param gold the starting gold
+	 * @param popularity the starting popularity
+	 */
 	public Board(final int gold, final int popularity) {
 		this();
 		this.setGold(gold);
@@ -188,20 +201,20 @@ public class Board implements Serializable {
 		events.runEvents();
 	}
 	/**
-	 * @return the "default" event that will check for new wild pokemon
+	 * @return the "default" event that will check for new wild creatures
 	 */
-	private static Event checkForPokemonEvent() {
-		return new CustomPeriodEvent(board -> board.lookForPokemonGuranteedFind(), board -> {
-			board.lookForPokemon();
+	private static Event checkForCreaturesEvent() {
+		return new CustomPeriodEvent(board -> board.lookForCreatureGuranteedFind(), board -> {
+			board.lookForCreature();
 		}, board -> {
-			return board.getLookPokemonPeriod();
+			return board.getLookForCreaturesPeriod();
 		});
 	}
 	/**
-	 * @return The period at which the game checks for new pokemon.
+	 * @return The period at which the game checks for new creatures.
 	 *  value of the form A-(pop/B)^C, minimum of MIN_POKEPERIOD
 	 */
-	private double getLookPokemonPeriod() {
+	private double getLookForCreaturesPeriod() {
 		final double A=  4; //max value+1
 		final double B = 60; //"length" of near-constant values
 		final double C = 1.3; //steepness of drop
@@ -210,44 +223,62 @@ public class Board implements Serializable {
 
 
 	/**
-	 * @param Using thing loader creates a new instance of a pokemon with the given name.
-	 * Adds the provided pokemon to the foundPokemon queue and updates the set of pokemon names in addToUniquePokemonLookup
+	 * @param Using thing loader creates a new instance of a creature with the given name.
+	 * Adds the provided creature to the foundCreatures queue and updates the set of creature names in addToUniqueCreaturesLookup
 	 */
-	private void addToFoundPokemon(final String name) {
-		if (foundPokemon.size() >= MAX_POKEMON_IN_QUEUE)
+	private void addToFoundCreatures(final String name) {
+		if (foundCreatures.size() >= MAX_CREATURES_IN_QUEUE)
 			return;
-		final Pokemon p = ThingFactory.sharedInstance().generateNewPokemon(name);
-		foundPokemon.addLast(p);
-		addToUniquePokemonLookup(p);
+		final Creature p = ThingFactory.getInstance().generateNewCreature(name);
+		foundCreatures.addLast(p);
+		addToUniqueCreaturesLookup(p);
 	}
-	private void addToUniquePokemonLookup(final Pokemon p) {
-		uniquePokemonLookup.merge(p.getName(), 1, (old, v) -> old+1);
+	/**
+	 * Adds the provided creature to the unique creature lookup. Should be called when a creature is placed on the board
+	 * or put into the foundCreatures queue. 
+	 * @param p the creature to add 
+	 */
+	private void addToUniqueCreaturesLookup(final Creature p) {
+		uniqueCreatureLookup.merge(p.getName(), 1, (old, v) -> old+1);
 	}
-	private void removeFromUniquePokemonLookup(final Pokemon p) {
-		uniquePokemonLookup.compute(p.getName(), (k, v) -> (v-1 == 0) ? null : v-1);
+	/**
+	 * Should be called when a  creature is removed from the foundCreature queue or the board.
+	 * @param p the creature that was removed
+	 */
+	private void removeFromUniqueCreaturesLookup(final Creature p) {
+		uniqueCreatureLookup.compute(p.getName(), (k, v) -> (v-1 == 0) ? null : v-1);
 	}
-	boolean isUniquePokemon(final String name) {
-		return !uniquePokemonLookup.containsKey(name);
+	/**
+	 * Returns true if the creature with the provided name is not currently in the foundCreature queue nor on the board
+	 * @param name the name of the creature
+	 * @return true if the creature with the provided name is not currently in the foundCreature queue nor on the board
+	 */
+	boolean isUniqueCreature(final String name) { 
+		return !uniqueCreatureLookup.containsKey(name);
 	}
 
-	private void lookForAndAddPokemon(final boolean automaticSpawn) {
-		final String newPokemon = pokemonGenerator.lookForPokemon(automaticSpawn); 
-		if (newPokemon != null)
-			addToFoundPokemon(newPokemon);
+	/**
+	 * Looks for a creature from the creatureGenerator, and if one is found, adds it the foundCreatures queue
+	 * @param automaticSpawn whether or not the creatureGenerator should automatically try to spawn a creature
+	 */
+	private void lookForAndAddCreature(final boolean automaticSpawn) {
+		final String newCreature = creatureGenerator.lookForCreature(automaticSpawn); 
+		if (newCreature != null)
+			addToFoundCreatures(newCreature);
 	}
 	/**
-	 * To be called by an event on calculated period. Will check if a pokemon is even found using 
-	 * getPercentChancePokemonFound(), and if it is, will find a pokemon, with lower rarity pokemons being
+	 * To be called by an event on calculated period. Will check if a creature is even found using 
+	 * getPercentChanceCreatureFound(), and if it is, will find a creature, with lower rarity creatures being
 	 * more likely
 	 */
-	private void lookForPokemon() {
-		lookForAndAddPokemon(RAPID_SPAWN ? true : false); 
+	private void lookForCreature() {
+		lookForAndAddCreature(RAPID_SPAWN ? true : false); 
 	}
 	/**
-	 * Looks for pokemon, but gurantees that one is found (as supposed to having a percent chance that none are found)
+	 * Looks for a creature, but gurantees that one is found (as supposed to having a percent chance that none are found)
 	 */
-	private void lookForPokemonGuranteedFind() {
-		lookForAndAddPokemon(true);
+	private void lookForCreatureGuranteedFind() {
+		lookForAndAddCreature(true);
 	}
 	/**
 	 * @param thing the thing to add
@@ -288,18 +319,22 @@ public class Board implements Serializable {
 	public void unPause() {
 		stm.unPause();
 	}
+	/**
+	 * Returns the time since start, the time of the current session, and the total in game time as a formatted string
+	 * @return the time since start, the time of the current session, and the total in game time as a formatted string
+	 */
 	public String getTimeStats() {
 		return "TotalTimeSinceStart: " + getTotalTimeSinceStart() + "\n" + " SessionGameTime: " + getSessionGameTime() + "\n TotalInGameTime: " + getTotalInGameTime();
 	}
 	/**
-	 * Increase the % chance (0-100) of a legendary pokemon appearing
+	 * Increase the % chance (0-100) of a legendary creature appearing
 	 * @param increase the percentage (0-100) to increase by
 	 */
 	public synchronized void increaseLegendaryChance(final int increase) {
 		legendaryChance = Math.min(100, Math.max(0, legendaryChance + increase));
 	}
 	/**
-	 * Decrease the % chance (0-100) of a legendary pokemon appearing
+	 * Decrease the % chance (0-100) of a legendary creature  appearing
 	 * @param decrease the percentage (0-100) to decrease by
 	 */
 	public synchronized void decreaseLegendaryChance(final int decrease) {
@@ -324,47 +359,96 @@ public class Board implements Serializable {
 		return stm.getTotalInGameTime();
 	}
 
+	/**
+	 * Returns the amount of gold that the board has
+	 * @return the amount of gold that the board has
+	 */
 	public synchronized int getGold() {
 		return gold;
 	}
+	/**
+	 * Sets the amount of gold that the board has
+	 * @param gold the new amount of gold
+	 */
 	public synchronized void setGold(final int gold) {
-		this.gold = gold;
+		this.gold = Math.max(MINGOLD, gold);
 	}
+	/**
+	 * Returns the amount of popularity that the board has
+	 * @return the amount of popularity that the board has
+	 */
 	public synchronized int getPopularity() {
 		return popularity;
 	}
+	/**
+	 * Sets the amount of popularity that the board has
+	 * @param popularity the new amount of popularity
+	 */
 	public synchronized void setPopularity(final int popularity) {
-		this.popularity = popularity;
+		this.popularity = Math.max(MINPOP, popularity);
 	}
+	/**
+	 * Adds the amount of gold provided to the total amount of gold on the board
+	 * @param gold the amount to add
+	 */
 	public synchronized void addGold(final int gold) {
-		setGold(Math.max(MINGOLD, getGold()+gold));
+		setGold(getGold()+gold);
 	}
+	/**
+	 * Subtracts the amount of gold provided to the total amount of gold on the board. Equivalent to addGold(-gold)
+	 * @param gold the amount to subtract
+	 */
 	public synchronized void subtractGold(final int gold) {
 		addGold(-gold);
 	}
+	/**
+	 * Adds the amount of popularity to the total amount of popularity on the board
+	 * @param popularity the amount of popularity to add
+	 */
 	public synchronized void addPopularity(final int popularity) {
-		setPopularity(Math.max(MINPOP, getPopularity()+popularity));
+		setPopularity(getPopularity()+popularity);
 	}
+	/**
+	 * Subtracts the amount of popularity provided to the total amount of popularity on the board. Equivalent to addPopularity(-popularity)
+	 * @param popularity the amount of popularity to subtract
+	 */
 	public synchronized void subtractPopularity(final int popularity) {
 		addPopularity(-popularity);
 	}
-	public synchronized void notifyPokemonAdded(final Pokemon p) {
-		numPokemon++;
-		addToUniquePokemonLookup(p);
-		pokemonOnBoard.add(p);
-		modifierManager.getModifiersOfOption(GlobalModifierOption.ONLY_POKEMON).forEach(mod -> p.addModifierIfShould(mod));
+	/**
+	 * To be called whenever a creature is added to the board. Should be called by {@link Creature#onPlace(Board)}
+	 * @param p the creature that was added
+	 * 
+	 */
+	public synchronized void notifyCreatureAdded(final Creature p) {
+		numCreatures++;
+		addToUniqueCreaturesLookup(p);
+		creaturesOnBoard.add(p);
+		modifierManager.getModifiersOfOption(GlobalModifierOption.ONLY_CREATURES).forEach(mod -> p.addModifierIfShould(mod));
 
 	}
-	public synchronized void notifyPokemonRemoved(final Pokemon p) {
-		numPokemon--;
-		removeFromUniquePokemonLookup(p);
-		pokemonOnBoard.remove(p);
-		modifierManager.getModifiersOfOption(GlobalModifierOption.ONLY_POKEMON).forEach(mod -> p.removeModifierIfPresent(mod));
+	/**
+	 * To be called whenever a creature is removed from the board. Should be called by {@link Creature#onRemove(Board)}
+	 * @param p the creature that was removed
+	 */
+	public synchronized void notifyCreatureRemoved(final Creature p) {
+		numCreatures--;
+		removeFromUniqueCreaturesLookup(p);
+		creaturesOnBoard.remove(p);
+		modifierManager.getModifiersOfOption(GlobalModifierOption.ONLY_CREATURES).forEach(mod -> p.removeModifierIfPresent(mod));
 	}
+	/**
+	 * To be called whenever an Item is added to the board. Should be called by {@link Item#onPlace(Board)}
+	 * @param i the item that was added
+	 */
 	public synchronized void notifyItemAdded(final Item i) {
 		itemsOnBoard.add(i);
 		modifierManager.getModifiersOfOption(GlobalModifierOption.ONLY_ITEMS).forEach(mod -> i.addModifierIfShould(mod));
 	}
+	/**
+	 * To be called whenever an Item is removed from the board. Should be called by {@link Item#onRemove(Board)}
+	 * @param i the item that was removed
+	 */
 	public synchronized void notifyItemRemoved(final Item i) {
 		itemsOnBoard.remove(i);
 		modifierManager.getModifiersOfOption(GlobalModifierOption.ONLY_ITEMS).forEach(mod -> i.removeModifierIfPresent(mod));
@@ -393,7 +477,7 @@ public class Board implements Serializable {
 	 * @param eventful The eventful to get the events for
 	 */
 	private void addAssociatedEvents(final Eventful eventful) {
-		events.addThing(eventful);
+		events.notifyEventfulAdded(eventful);
 	}
 	/**
 	 * calls executeOnRemove for all associated events. Permanetly removes events from event set if none left
@@ -401,25 +485,28 @@ public class Board implements Serializable {
 	 * @param permanentlyRemove if true will also remove those events from the set
 	 */
 	private void removeAssociatedEvents(final Eventful eventful) {
-		events.removeThing(eventful);
+		events.notifyEventfulRemoved(eventful);
 	}
 	/**
-	 * @return true if there is a pokemon in the foundPokemon Queue (that is, a wild pokemon spawned)
+	 * @return true if there is a creature in the foundCreatures Queue (that is, a wild creature spawned)
 	 */
-	public boolean wildPokemonPresent() {
-		return !foundPokemon.isEmpty();
+	public boolean wildCreaturePresent() {
+		return !foundCreatures.isEmpty();
 	}
 	/**
-	 * For debugging purposes only. Gets the pokemon with the given name
-	 * @param name the name of the pokemon
-	 * @return the new pokemon
+	 * For debugging purposes only. Gets the creature with the given name
+	 * @param name the name of the creature
+	 * @return the new creature
 	 */
-	public Pokemon getPokemon(final String name) {
+	public Creature getCreature(final String name) {
 		if (DEBUG)
-			return ThingFactory.sharedInstance().generateNewPokemon(name);
+			return ThingFactory.getInstance().generateNewCreature(name);
 		else
 			throw new RuntimeException("Method should not be called when not debugging");
 	}
+	/** 
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		final StringBuilder s = new StringBuilder();
@@ -429,60 +516,60 @@ public class Board implements Serializable {
 		return s.append("GOLD: " + getGold() + "\nPOP:" +getPopularity()).toString();
 	}
 	/**
-	 * @return the next wild pokemon in the queue, null if there is none, temporarily removes from queue. Call undoGrab() to place back and confirmGrab() to confirm removal
+	 * @return the next wild creature in the queue, null if there is none, temporarily removes from queue. Call undoGrab() to place back and confirmGrab() to confirm removal
 	 */
-	public Pokemon grabWildPokemon() {
-		if (grabbedPokemon != null)
+	public Creature grabWildCreature() {
+		if (grabbedCreature != null)
 			throw new RuntimeException("Previous Grab Unconfirmed");
-		final Pokemon grabbed = foundPokemon.poll();
-		grabbedPokemon = grabbed;
+		final Creature grabbed = foundCreatures.poll();
+		grabbedCreature = grabbed;
 		return grabbed;
 	}
 	/**
-	 * Undo the effects of grabWildPokemon() and place grabbed pokemon back at front of queue
+	 * Undo the effects of grabWildCreature() and place grabbed creature back at front of queue
 	 */
 	public void undoGrab() {
-		if (grabbedPokemon == null) {
-			throw new RuntimeException("No Pokemon Grabbed");
+		if (grabbedCreature == null) {
+			throw new RuntimeException("No Creature Grabbed");
 		}
-		foundPokemon.addFirst(grabbedPokemon);
-		grabbedPokemon = null;
+		foundCreatures.addFirst(grabbedCreature);
+		grabbedCreature = null;
 	}
 	/**
-	 * Confirm removal of pokemon from queue
-	 * @return The Pokemon that was confirmed to be grabbed
+	 * Confirm removal of creature from queue
+	 * @return The Creature that was confirmed to be grabbed
 	 */
-	public Pokemon confirmGrab() {
-		if (grabbedPokemon == null) {
-			throw new RuntimeException("No Pokemon Grabbed");
+	public Creature confirmGrab() {
+		if (grabbedCreature == null) {
+			throw new RuntimeException("No Creature Grabbed");
 		}
-		final Pokemon p = grabbedPokemon;
-		grabbedPokemon = null;
-		removeFromUniquePokemonLookup(p);
+		final Creature p = grabbedCreature;
+		grabbedCreature = null;
+		removeFromUniqueCreaturesLookup(p);
 		return p;
 	}
 	/**
-	 * @return the currently Grabbed Pokemon
+	 * @return the currently Grabbed Creature
 	 */
-	public Pokemon getGrabbed() {
-		if (grabbedPokemon == null) {
-			throw new RuntimeException("No Pokemon Grabbed");
+	public Creature getGrabbed() {
+		if (grabbedCreature == null) {
+			throw new RuntimeException("No Creature Grabbed");
 		}
-		return grabbedPokemon;
+		return grabbedCreature;
 	}
 	/**
-	 * Instantally gets and removes pokemon from queue
-	 * @return The next pokemon in the queue
+	 * Gets and removes creature from queue
+	 * @return The next creature in the queue
 	 */
-	public Pokemon grabAndConfirm() {
-		grabWildPokemon();
+	public Creature grabAndConfirm() {
+		grabWildCreature();
 		return confirmGrab();
 	}
 	/**
-	 * @return the number of pokemon waiting the queue
+	 * @return the number of creatures waiting the queue
 	 */
-	public int numPokemonWaiting() {
-		return foundPokemon.size();
+	public int numCreaturesWaiting() {
+		return foundCreatures.size();
 	}
 	/**
 	 * @return a queue (sorted by display rank) of all the items presently in the shop
@@ -505,7 +592,7 @@ public class Board implements Serializable {
 	public Thing startPurchase(final ShopItem item) {
 		if (canPurchase(item)) {
 			grabbedShopItem = item;
-			return shop.getThingCopy(item);
+			return Shop.getThingCopy(item);
 		}
 		return null;
 
@@ -555,12 +642,17 @@ public class Board implements Serializable {
 	 * @return how much it would be sold back for
 	 */
 	public int getSellBackValue(final ShopItem item) {
-		if (item.getSellBackValue() == item.DEFAULT)
+		if (item.getSellBackValue() == ShopItem.DEFAULT)
 			return Math.max(1 , (int)(item.getCost()*sellBackPercent));
 		else
 			return item.getSellBackValue();
 	}
 
+	/**
+	 * Applies the given modifier to all things. All things added
+	 * in the future will be affected as long as the modifier remains. Also starts mod.startCount(...).
+	 * @param mod the Thing modifier to add
+	 */
 	public synchronized void applyGlobalModifier(final Modifier mod) {
 		applyGlobalModifier(mod, GlobalModifierOption.NO_PREFERENCE);
 	}
@@ -568,6 +660,7 @@ public class Board implements Serializable {
 	 * Applies the given modifier to specified things based on options. All currently present Thing meeting those stipulations, as well as those added
 	 * in the future will be affected as long as the modifier remains. Also starts mod.startCount(...).
 	 * @param mod the Thing modifier to add
+	 * @param option the preference for what types of Things should be affected by this modifier
 	 */
 	public synchronized void applyGlobalModifier(final Modifier mod, final GlobalModifierOption option) {
 		switch(option) {
@@ -577,8 +670,8 @@ public class Board implements Serializable {
 		case ONLY_ITEMS:
 			itemsOnBoard.forEach(i -> i.addModifierIfShould(mod));
 			break;
-		case ONLY_POKEMON:
-			pokemonOnBoard.forEach(p -> p.addModifierIfShould(mod));
+		case ONLY_CREATURES:
+			creaturesOnBoard.forEach(p -> p.addModifierIfShould(mod));
 			break;				
 		}
 		modifierManager.addGlobalModifier(mod, option);
@@ -586,7 +679,7 @@ public class Board implements Serializable {
 	}
 	/**
 	 * Removes the given Modifier from the board. All Things currently affected by the modifier will have the modifier removed
-	 *@mod the Modifier to remove
+	 *@param mod the Modifier to remove
 	 */
 	public synchronized void removeGlobalModifier(final Modifier mod) {
 		thingsOnBoard.forEach(t -> t.removeModifierIfPresent(mod));
@@ -612,41 +705,53 @@ public class Board implements Serializable {
 	public synchronized Thing getNextRemoveRequest() {
 		return removeRequests.poll();
 	}
+	/**
+	 * Returns a formatted string representation of the legendary percent chance, look for new creature period, chance that on a new creature period a creature is found
+	 * @return the formatted string showing advanced board stats
+	 */
 	public String getAdvancedStats() {
 		final StringBuilder sb = new StringBuilder("Advanced Stats:\n");
 		final DecimalFormat dfDouble = new DecimalFormat("0.00"); 
 		sb.append("Legendary Percent Chance: " + dfDouble.format(legendaryChance) + "%");
 		sb.append("\n");
-		sb.append("Look for New Pokemon Period: " + dfDouble.format(getLookPokemonPeriod()) + " minutes");
+		sb.append("Look for New " + GuiUtils.getCreatureName() + " Period: " + dfDouble.format(getLookForCreaturesPeriod()) + " minutes");
 		sb.append("\n");
-		sb.append("Chance that on New Pokemon Period, a Pokemon is Found: " + dfDouble.format(pokemonGenerator.getPercentChancePokemonFound()) + "%");
+		sb.append("Chance that on New " + GuiUtils.getCreatureName() + " Period, a " + GuiUtils.getCreatureName() + " is Found: " + dfDouble.format(creatureGenerator.getPercentChanceCreatureFound()) + "%");
 		return sb.toString();
 	}
 	/**
-	 * Adds to the total amount that whatever the calculated pokemon period is, it is decreased by that amount.
+	 * Adds to the total amount that whatever the calculated creature period is, it is decreased by that amount.
 	 * In other words. if the period is currently 1 minute, calling amountToDecrease(1000) will make it 59 seconds, 
 	 * whereas calling amountToDecrease(-1000) will make it 61 seconds. 
-	 * @param amountToDecrease in milliseconds
+	 * @param amountToDecreaseMillis the amount to decrease the look for new creature period by
 	 */
 	public void addToPeriodDecrease(final long amountToDecreaseMillis) {
 		periodDecreaseMod += GameUtils.millisAsMinutes(amountToDecreaseMillis);
 	}
 	/**
-	 * Removes all pokemon currently on the board
-	 * @return the number of pokemon removed this way
+	 * Removes all creatures currently on the board
+	 * @return the number of creatures removed this way
 	 */
-	public int removeAllPokemon() {
-		final int i = pokemonOnBoard.size();
-		for (final Pokemon p : pokemonOnBoard) {
+	public int removeAllCreatures() {
+		final int i = creaturesOnBoard.size();
+		for (final Creature p : creaturesOnBoard) {
 			addToRemoveRequest(p);
 		}
 		return i;
 	}
+	/**
+	 * gets the percent chance that legendary creature will spawn
+	 * @return
+	 */
 	double getLegendaryChance() {
 		return legendaryChance;
 	}
-	synchronized int getNumPokemon() {
-		return numPokemon;
+	/**
+	 * Returns the total number of creatures on the board
+	 * @return the total number of creatures on the board
+	 */
+	synchronized int getNumCreatures() {
+		return numCreatures;
 	}
 	
 }

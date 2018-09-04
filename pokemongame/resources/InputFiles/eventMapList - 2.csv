@@ -1,10 +1,10 @@
 Global_Modifier,,,,,,,,,,,
 Name,Modification Type,Attribute(s) To Modify,Amount to modify by,Time to Exist (minutes) (-1 for inf),Global Modifier Option,Remove when done?,Display Countdown?,Only apply to things with certain attribute value?,Verbal description of what this should apply to,The Name of the attribute ,Acceptable value(s) for attribute
-Fountain of Water,add_to_attribute,gpm,1,-1,only_pokemon,FALSE,FALSE,TRUE,Water type,type,water
-Fountain of Bugs,add_to_attribute,gpm,1,-1,only_pokemon,FALSE,FALSE,TRUE,Bug type,type,bug
-Dragon Scepter,add_to_attribute,gpm,1,-1,only_pokemon,FALSE,FALSE,TRUE,Dragon type,type,dragon
-Lawn Trimmings,add_to_attribute,gpm,1,-1,only_pokemon,FALSE,FALSE,TRUE,Grass type,type,grass
-A *Magical* Rock,add_to_attribute,gpm,1,-1,only_pokemon,FALSE,FALSE,TRUE,Rock type,type,rock
-Bronze Timer,multiply_attribute,gpm:gph,2,600000,only_pokemon,TRUE,TRUE,FALSE,,,
-Silver Timer,multiply_attribute,gpm:gph,3,1.80E+06,only_pokemon,TRUE,TRUE,FALSE,,,
-Gold Timer,multiply_attribute,gpm:gph,6,3.60E+06,only_pokemon,TRUE,TRUE,FALSE,,,
+Fountain of Water,add_to_attribute,gpm,1,-1,only_creatures,FALSE,FALSE,TRUE,Water type,type,water
+Fountain of Bugs,add_to_attribute,gpm,1,-1,only_creatures,FALSE,FALSE,TRUE,Bug type,type,bug
+Dragon Scepter,add_to_attribute,gpm,1,-1,only_creatures,FALSE,FALSE,TRUE,Dragon type,type,dragon
+Lawn Trimmings,add_to_attribute,gpm,1,-1,only_creatures,FALSE,FALSE,TRUE,Grass type,type,grass
+A *Magical* Rock,add_to_attribute,gpm,1,-1,only_creatures,FALSE,FALSE,TRUE,Rock type,type,rock
+Bronze Timer,multiply_attribute,gpm:gph,2,600000,only_creatures,TRUE,TRUE,FALSE,,,
+Silver Timer,multiply_attribute,gpm:gph,3,1.80E+06,only_creatures,TRUE,TRUE,FALSE,,,
+Gold Timer,multiply_attribute,gpm:gph,6,3.60E+06,only_creatures,TRUE,TRUE,FALSE,,,

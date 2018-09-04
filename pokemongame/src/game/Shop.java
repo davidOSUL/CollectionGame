@@ -96,7 +96,7 @@ public class Shop implements Serializable{
 	 */
 	public void addToShopStock(final String name) {
 		if (!isValidShopItem(name))
-			throw new IllegalArgumentException(name + " is not a valid shop item"); //TODO: add warning that they won't be able to repurchase
+			throw new IllegalArgumentException(name + " is not a valid shop item"); 
 		if (itemsInShop.containsKey(name)) {
 			itemsInShop.get(name).increaseQuantity();
 			return;
@@ -137,14 +137,29 @@ public class Shop implements Serializable{
 		removeOne(name);
 		return thing;
 	}
+	/**
+	 * returns the thing associated with the provided ShopItem, and reduces the quantity of that item in the shop
+	 * @param item the ShopItem to purchase
+	 * @return the Thing to purchase
+	 */
 	public Thing purchase(final ShopItem item) {
 		if (!itemsInOrder.contains(item))
 			throw new IllegalArgumentException(item.getThingName() + " is not currently in the shop");
 		return purchase(item.getThingName());
 	}
-	public Thing getThingCopy(final ShopItem item) {
+	/**
+	 * Returns a copy of the thing of the provided ShopItem
+	 * @param item the ShopItem to copy
+	 * @return the Thing to copy
+	 */
+	public static Thing getThingCopy(final ShopItem item) {
 		return ShopItemLoader.sharedInstance().generateNewThing(item.getThingName());
 	}
+	/**
+	 * Returns the cost of the ShopItem with the provided name
+	 * @param name the name of the shop item
+	 * @return the cost of the ShopItem
+	 */
 	public int getCost(final String name) {
 		throwIfNotPresent(name);
 		return itemsInShop.get(name).getCost();

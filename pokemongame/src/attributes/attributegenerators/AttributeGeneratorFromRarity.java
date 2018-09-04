@@ -3,27 +3,40 @@ package attributes.attributegenerators;
 import attributes.AttributeNotFoundException;
 import attributes.ParseType;
 import gameutils.GameUtils;
+import thingFramework.Creature;
 import thingFramework.Item;
-import thingFramework.Pokemon;
 
+/**
+ * Generates new Attributes for creatures based on rarities. Does not add any attributes to items
+ * @author David O'Sullivan
+ *
+ */
 class AttributeGeneratorFromRarity implements AttributeGenerator{
 
+	/** 
+	 * Sets the gpm, gph, popularity, and happiness using functions based solely on this creature's rarity
+	 * @see attributes.attributegenerators.AttributeGenerator#addAttributes(thingFramework.Creature)
+	 */
 	@Override
-	public void addAttributes(final Pokemon p) {
-			if (!p.containsAttribute("rarity"))
-				throw new IllegalArgumentException("Pokemon " + p +  "does not have a metric for rarity");
+	public void addAttributes(final Creature c) {
+			if (!c.containsAttribute("rarity"))
+				throw new IllegalArgumentException("Creature " + c +  "does not have a metric for rarity");
 			int rarity = 0;
 			try {
-				rarity = p.getAttributeValue("rarity", ParseType.INTEGER);
+				rarity = c.getAttributeValue("rarity", ParseType.INTEGER);
 			} catch (final AttributeNotFoundException e) {
 				e.printStackTrace();
 			}
 			final String[] attributes = {"gpm", "gph", "popularity boost", "happiness"};
 			final Integer[] values = {calcGPM(rarity), calcGPH(rarity),calcPopularity(rarity), calcHappiness(rarity)};
-			p.addAttributes(attributes, values, ParseType.INTEGER);
+			c.addAttributes(attributes, values, ParseType.INTEGER);
 		
 	}
 
+	/** 
+	 * Does not add any attributes
+	 * @see attributes.attributegenerators.AttributeGenerator#addAttributes(thingFramework.Item)
+	 */
 	@Override
 	public void addAttributes(final Item i) {
 		//Nothing

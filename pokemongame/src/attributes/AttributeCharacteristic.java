@@ -7,9 +7,9 @@ package attributes;
  */
 public enum AttributeCharacteristic {
 	/**
-	 * To be used by pokemon only
+	 * To be used by creatures only
 	 */
-	POKEONLY,
+	CREATUREONLY,
 	/**
 	 * To be used by items only
 	 */

@@ -70,6 +70,7 @@ public class BackgroundWithText extends GameSpace{
 	 * @param background the image for the background
 	 * @param texts the texts to display
 	 * @param points the location of the texts
+	 * @param font the font to use
 	 */
 	public BackgroundWithText(final Image background, final String[] texts, final Point[] points, final Font font) {
 		super(background);
@@ -84,6 +85,7 @@ public class BackgroundWithText extends GameSpace{
 	 * @param texts the texts to display
 	 * @param points the location of the texts
 	 * @param preset how to arrange the text, default is NO_PRESET
+	 * @param font the font to use 
 	 */
 	public BackgroundWithText(final Image background, final String[] texts, final Point[] points, final Font font, final TextPreset preset) {
 		super(background);
@@ -148,11 +150,17 @@ public class BackgroundWithText extends GameSpace{
 	public void setPreset(final TextPreset preset) {
 		this.preset = preset;
 	}
+	/** 
+	 * @see javax.swing.JComponent#setFont(java.awt.Font)
+	 */
 	@Override
 	public void setFont(final Font font) {
 		final Font f = (font == null) ? DEFAULT_FONT : font;
 		super.setFont(f);
 	}
+	/** 
+	 * @see gui.gameComponents.GameSpace#paintComponent(java.awt.Graphics)
+	 */
 	@Override
 	protected void paintComponent(final Graphics g) {
 		super.paintComponent(g);

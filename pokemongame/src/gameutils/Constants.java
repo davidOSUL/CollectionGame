@@ -14,7 +14,7 @@ public final class Constants {
 	 */
 	public final static boolean PRINT_BOARD = false;
 	/**
-	 * Change duplicate percentage to 100% and make Pokemon spawn automatically and rapidly
+	 * Change duplicate percentage to 100% and make Creature spawn automatically and rapidly
 	 */
 	public final static boolean RAPID_SPAWN = true;
 	/**
@@ -33,8 +33,6 @@ public final class Constants {
 	 * The amount of popularity to start the game with
 	 */
 	public final static int STARTING_POP = 0;
-	private Constants() {
-		// TODO Auto-generated constructor stub
-	}
+	private Constants() {}
 
 }

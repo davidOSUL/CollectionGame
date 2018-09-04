@@ -30,7 +30,7 @@ import userIO.GameSaver;
  * @author David O'Sullivan
  */
 public class Runner  {
-	private static final String title = "Pokemon Collection Game V. Alpha";
+	private static final String title = "Creature Collection Game V. Alpha";
 	private final GameSaver saver;
 	private JFrame startScreen;
 	private final Timer updateStartPanel;
@@ -41,7 +41,6 @@ public class Runner  {
 		try {
 			startScreen = StartScreenBuilder.getFrame(title, saver.hasSave(), x-> x.notifyPressedNewGame(), x-> x.notifyPressedContinueGame(), this );
 		} catch (final IOException e) {
-			//TODO
 			e.printStackTrace();
 		}
 		final ActionListener updateStartScreen = evt -> {
@@ -50,6 +49,10 @@ public class Runner  {
 		};
 		updateStartPanel = new Timer(10, updateStartScreen);
 	}
+	/**
+	 * Starts the game up, displaying the main screen to start a new game or continue a game
+	 * @param args don't do anything
+	 */
 	public static void main(final String... args) {
 		System.setProperty("apple.eawt.quitStrategy", "CLOSE_ALL_WINDOWS");
 		SwingUtilities.invokeLater(() -> {
@@ -71,6 +74,9 @@ public class Runner  {
 		startScreen.dispose();
 		updateStartPanel.stop();
 	}
+	/**
+	 * To be called when the user has pressed the newGame button
+	 */
 	public synchronized void notifyPressedNewGame() {
 		if (!SwingUtilities.isEventDispatchThread())
 			setUpError("Should be on the the EDT");
@@ -124,6 +130,9 @@ public class Runner  {
 			}
 		}, 0, 10, TimeUnit.MILLISECONDS);
 	}
+	/**
+	 * To be called when the user has pressed the continue game button
+	 */
 	public synchronized void notifyPressedContinueGame() {
 		if (!SwingUtilities.isEventDispatchThread())
 			setUpError("Should be on the the EDT");

@@ -4,6 +4,11 @@ import java.io.IOException;
 
 import thingFramework.Thing;
 
+/**
+ * Loads in all the Descriptions of Things
+ * @author David O'Sullivan
+ *
+ */
 public class DescriptionLoader implements Loader {
 	
 		private final String pathToDescriptions;
@@ -12,6 +17,12 @@ public class DescriptionLoader implements Loader {
 		private static final int DESC_INPUT_LENGTH = 2;
 		private static final int NAME_LOC = 0;
 		private static final int DESC_LOC = 1;
+		/**
+		 * Creates a new Description Loader
+		 * @param pathToDescriptions the path to the CSV with descriptions
+		 * @param thingMap the thingMap to add description attributes to 
+		 * @param eventBuilder the eventBuilder to get event descriptions from 
+		 */
 		public DescriptionLoader(final String pathToDescriptions,final ThingMap thingMap, final EventBuilder eventBuilder) {
 			this.pathToDescriptions = pathToDescriptions;
 			this.thingMap = thingMap;

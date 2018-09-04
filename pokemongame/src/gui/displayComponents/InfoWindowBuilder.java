@@ -78,6 +78,12 @@ public class InfoWindowBuilder {
 		this.imagable = i;
 		return this;
 	}
+	/**
+	 * Sets the scale values for this InfoWindow. The Image will be scaled down to these values
+	 * @param width the width to scale down to
+	 * @param height the height to scale down to
+	 * @return the new InfoWindow
+	 */
 	public InfoWindowBuilder setScale(final int width, final int height) {
 		setScale = true;
 		scaleWidth = width;

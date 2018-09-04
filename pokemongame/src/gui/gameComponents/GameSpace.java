@@ -5,12 +5,9 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseListener;
 
 import javax.swing.JComponent;
-import javax.swing.JToolTip;
 
-import gui.gameComponents.grid.GridSpace;
 import gui.guiutils.GuiUtils;
 
 
@@ -35,7 +32,7 @@ public class GameSpace extends JComponent {
 	 * Creates a new empty GameSpace with location = (0,0) and specified dimension
 	 * @param dimension the size of the GameSpace
 	 */
-	public GameSpace(Dimension dimension) {
+	public GameSpace(final Dimension dimension) {
 		this(0, 0, dimension);
 	}
 	/**
@@ -43,21 +40,21 @@ public class GameSpace extends JComponent {
 	 * @param x the x coordinate of the GameSpace's location
 	 * @param y the y coordinate of the GameSpace's location
 	 */
-	public GameSpace(int x, int y) {
+	public GameSpace(final int x, final int y) {
 		this.setBounds(x,y, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	}
 	/**
 	 * Createsa new empty GameSpace with default width and height, and at the specified location
 	 * @param p The GameSpace's Location
 	 */
-	public GameSpace(Point p) {
+	public GameSpace(final Point p) {
 		this(p.x, p.y);
 	}
 	/**
 	 * Creates a new GameSpace at location (0,0) and set with the specified image. As required by GameSpace, the size of the GameSpace will be set to the size of the image
 	 * @param imageAtSpace The Image to set the GameSpace to 
 	 */
-	public GameSpace(Image imageAtSpace) {
+	public GameSpace(final Image imageAtSpace) {
 		this(imageAtSpace, new Point(0,0));
 	}
 	/**
@@ -66,7 +63,7 @@ public class GameSpace extends JComponent {
 	 * @param imageAtSpace The Image to set the GameSpace to 
 	 * @param resizeImage if true will resize image as gamespace changes size
 	 */
-	public GameSpace(Image imageAtSpace, boolean resizeImage) {
+	public GameSpace(final Image imageAtSpace, final boolean resizeImage) {
 		this(imageAtSpace, new Point(0,0));
 		this.resizeImage = resizeImage;
 	}
@@ -75,7 +72,7 @@ public class GameSpace extends JComponent {
 	 * @param imageAtSpace The Image to set the GameSpace to 
 	 * @param name The name of the GameSpace
 	 */
-	public GameSpace(Image imageAtSpace, String name) {
+	public GameSpace(final Image imageAtSpace, final String name) {
 		this(imageAtSpace, new Point(0,0));
 		setName(name);
 	}
@@ -84,7 +81,7 @@ public class GameSpace extends JComponent {
 	 * @param imageAtSpace The image to set the GameSpace to
 	 * @param p The location of the GameSpace
 	 */
-	public GameSpace(Image imageAtSpace, Point p) {
+	public GameSpace(final Image imageAtSpace, final Point p) {
 		this(p.x, p.y);
 		this.setImage(imageAtSpace);
 	}
@@ -94,7 +91,7 @@ public class GameSpace extends JComponent {
 	 * @param y the y coordinate of the GameSpace's location
 	 * @param imageAtSpace The image to set the GameSpace to
 	 */
-	public GameSpace(int x, int y, Image imageAtSpace) {
+	public GameSpace(final int x, final int y, final Image imageAtSpace) {
 		this(x,y);
 		setImage(imageAtSpace);
 	}
@@ -104,7 +101,7 @@ public class GameSpace extends JComponent {
 	 * @param y the y coordinate of the GameSpace's location
 	 * @param dimension the size of the GameSpace
 	 */
-	public GameSpace(int x, int y, Dimension dimension) {
+	public GameSpace(final int x, final int y, final Dimension dimension) {
 		this(x,y);
 		emptyDimension = dimension;
 		setSize(dimension);
@@ -116,14 +113,14 @@ public class GameSpace extends JComponent {
 	 * @param width The width of the GameSpace
 	 * @param height The height of the GameSpace
 	 */
-	public GameSpace(int x, int y, int width, int height) {
+	public GameSpace(final int x, final int y, final int width, final int height) {
 		this(x,y,new Dimension(width, height));
 	}
 	/**
 	 * Creates a new Empty GameSpace with location and dimension given by the inputed rectangle
 	 * @param r The rectangle representing the location/size of the gameSpace
 	 */
-	public GameSpace(Rectangle r) {
+	public GameSpace(final Rectangle r) {
 		this((int)r.getX(), (int)r.getY(), (int)r.getWidth(), (int)r.getHeight());
 	}
 	/**
@@ -132,7 +129,7 @@ public class GameSpace extends JComponent {
 	 * @param x the x coordinate of the GameSpace's location
 	 * @param y the y coordinate of the GameSpace's location
 	 */
-	public GameSpace(GameSpace g, int x, int y) {
+	public GameSpace(final GameSpace g, final int x, final int y) {
 		this.setBounds(g.getBounds());
 		this.setLocation(x,y);
 		this.setImage(g.imageAtSpace);
@@ -141,7 +138,7 @@ public class GameSpace extends JComponent {
 	 * @param image image to set space to
 	 * Changes Image of box AND updates the size
 	 */
-	public void setImage(Image image) {
+	public void setImage(final Image image) {
 		if (image == null) {
 			removeImage();
 			return;
@@ -156,12 +153,19 @@ public class GameSpace extends JComponent {
 		this.setSize(emptyDimension);
 		this.imageAtSpace = null;
 	}
+	/**
+	 * returns the image on this gamespace
+	 * @return  the image on this gamespace
+	 */
 	public Image getImage() {
 		return imageAtSpace;
 	}
 
+	/** 
+	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+	 */
 	@Override
-	protected void paintComponent(Graphics g) {
+	protected void paintComponent(final Graphics g) {
 		super.paintComponent(g);
 		if (!isEmpty())  {
 			if (resizeImage)
@@ -176,13 +180,19 @@ public class GameSpace extends JComponent {
 	public boolean isEmpty() {
 		return imageAtSpace == null;
 	}
+	/** 
+	 * @see java.awt.Component#setSize(java.awt.Dimension)
+	 */
 	@Override
-	public void setSize(Dimension d) {
+	public void setSize(final Dimension d) {
 		super.setSize(d);
 		super.setPreferredSize(d);
 	}
+	/** 
+	 * @see java.awt.Component#setSize(int, int)
+	 */
 	@Override
-	public void setSize(int x, int y) {
+	public void setSize(final int x, final int y) {
 		super.setSize(x,y);
 		super.setPreferredSize(new Dimension(x, y));
 		

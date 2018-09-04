@@ -33,6 +33,10 @@ public final class DescriptionManager {
 		UIManager.put("ToolTip.background", Color.WHITE);
 		UIManager.put("ToolTip.font", new Font("TimesRoman", Font.PLAIN, 16));
 	}
+	/**
+	 * Enables or disables tooltips
+	 * @param enabled true to enable tooltips, false to disable
+	 */
 	public void setEnabled(final boolean enabled) {
 		ToolTipManager.sharedInstance().setEnabled(enabled);
 	}

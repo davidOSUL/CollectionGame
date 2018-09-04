@@ -4,17 +4,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 import attributes.Attribute;
-import attributes.AttributeManagerWatcher;
+import attributes.AttributeManagerObserver;
 import effects.Event;
 import effects.OnPeriodEventWithDisplay;
 import thingFramework.Thing;
 /**
- * Manages all the Board Attributes (attributes of the board as a whole rather than to a specific Thing)
+ * Implementation of an AttributeManagerObserver, whenever a thing gets a gph, gpm, or popularity attribute
+ * the BaordAttributeManager creates or updates an event to affect the stats of the board appropriately. 
  * @author David O'Sullivan
  */
-public final class BoardAttributeManager implements AttributeManagerWatcher<Integer>, Serializable {
+public final class BoardAttributeManager implements AttributeManagerObserver<Integer>, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private final Thing holder;
 	private final Map<Attribute<?>, Event> addedEvents = new HashMap<Attribute<?>, Event>();
+	/**
+	 * Creates a new BoardAttributeManager
+	 * @param holder the Thing that has this BoardAttributeManager
+	 */
 	public BoardAttributeManager(final Thing holder) {
 		this.holder = holder;
 	}
@@ -62,24 +71,11 @@ public final class BoardAttributeManager implements AttributeManagerWatcher<Inte
 
 	}
 	
-	/*
-	 * 
-	 
 	
-	 * Takes in a set of Attributes that effect the state of the board and generates the associated events for them. Creates new instances of the events. 
-	 * @param boardAttributes A Set of Attributes that modify the state of the board. 
-	 * Specifically, must be set of attributes that contain AttributeType Thing.BOARDTYPE
-	 * @param the holder of these attributes
-	 * @return The List of generated events
-
-	public static Map<Attribute, Event> getEvents(final Set<Attribute> boardAttributes, final Thing creator) {
-		final Map<Attribute, Event> events = new HashMap<Attribute, Event>(boardAttributes.size());
-		for (final Attribute at: boardAttributes) {
-			events.put(at, eventBuilder(at.getName(), at.getValue(), creator));
-		}
-		return events;
-	}
-	*/
+	/** 
+	 * If the attribute generated was gpm, gph, or popularity, will add the appropriate event to the holder of this BoardAttributeManager
+	 * @see attributes.AttributeManagerObserver#onAttributeGenerated(attributes.Attribute)
+	 */
 	@Override
 	public void onAttributeGenerated(final Attribute<Integer> addedAttribute) {
 		final Event e = eventBuilder(addedAttribute.getName(), addedAttribute.getValue() == null ? 0 : addedAttribute.getValue());
@@ -89,6 +85,10 @@ public final class BoardAttributeManager implements AttributeManagerWatcher<Inte
 		}
 		
 	}
+	/** 
+	 * If the attribute removed was gpm, gph, or popularity, will marks the appropriate event for removals
+	 * @see attributes.AttributeManagerObserver#onAttributeRemoved(attributes.Attribute)
+	 */
 	@Override
 	public void onAttributeRemoved(final Attribute<Integer> removedAttribute) {
 		if (addedEvents.containsKey(removedAttribute)) {
@@ -96,8 +96,12 @@ public final class BoardAttributeManager implements AttributeManagerWatcher<Inte
 		}
 		
 	}
+	/** 
+	 * If the attribute whose value was changed was gpm, gph, or popularity, will add/reset the appropriate event(s) to the holder of this BoardAttributeManager
+	 * @see attributes.AttributeManagerObserver#onAttributeValueChanged(attributes.Attribute)
+	 */
 	@Override
-	public void onAttributeModified(final Attribute<Integer> modifiedAttribute) {
+	public void onAttributeValueChanged(final Attribute<Integer> modifiedAttribute) {
 		if (addedEvents.containsKey(modifiedAttribute)) {
 			modifyBoardEvent(modifiedAttribute.getName(), addedEvents.get(modifiedAttribute), modifiedAttribute.getValue());
 		}

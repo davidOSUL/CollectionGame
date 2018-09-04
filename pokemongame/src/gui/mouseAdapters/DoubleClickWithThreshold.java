@@ -16,12 +16,15 @@ public class DoubleClickWithThreshold<T> extends MouseClickWithThreshold<T> {
 	 * @param function the effect that the mouse should have when double clicked. 
 	 * @param actOn what will be passed into function when it is called
 	 */
-	public DoubleClickWithThreshold(int allowableDistance, BiConsumer<T, MouseEvent> function, T actOn) {
+	public DoubleClickWithThreshold(final int allowableDistance, final BiConsumer<T, MouseEvent> function, final T actOn) {
 		super(allowableDistance, function, actOn);
 	}
 
+	/** 
+	 * @see gui.mouseAdapters.MouseClickWithThreshold#mouseReleased(java.awt.event.MouseEvent)
+	 */
 	@Override
-	public void mouseReleased(MouseEvent e) {
+	public void mouseReleased(final MouseEvent e) {
 		if (e.getClickCount() == 2)
 			super.mouseReleased(e);
 	}

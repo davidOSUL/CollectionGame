@@ -11,13 +11,28 @@ import javax.swing.Timer;
 
 import userIO.GameSaver;
 
+/**
+ * Uses GameSaver to save the current state of the game
+ * @author David O'Sullivan
+ *
+ */
 class CurrentGamestateSaver implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private final GameSaver gameSaver;
+	/**
+	 * Creates a new CurrentGamestateSaver
+	 * @param gameSaver the GameSaver to use to save the game
+	 */
 	CurrentGamestateSaver(final GameSaver gameSaver) {
 		this.gameSaver = gameSaver;
 	}
 	/**
-	 * save the current game
+	 * saves the current game
+	 * @param toSave the presenter to save
+	 * @param showDisplayOn the parent for the save success dialog
 	 * @return true if was able to save
 	 */
 	boolean saveGame(final Presenter toSave, final JFrame showDisplayOn) {
