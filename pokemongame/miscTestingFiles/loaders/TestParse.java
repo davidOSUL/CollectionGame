@@ -5,12 +5,6 @@ import thingFramework.ExperienceGroup;
 public class TestParse {
 
 	public static void main(final String[] args) {
-//		String s = "\"Hitmonlee\r\n" + 
-//				"Hitmonchan\r\n" + 
-//				"Hitmontop\"";
-//		s = s.replace("\n", "").replace("\r", "").replace("\"", "");
-//		String[] r = s.split("(?=\\p{Lu})");
-//		System.out.println(Arrays.toString(r));
 		System.out.println(RequiredXPLookup.getInstance().getAmountOfXPToNextLevel(ExperienceGroup.FLUCTUATING, 500));
 		System.out.println(RequiredXPLookup.getInstance().getAmountOfXPToNextLevel(ExperienceGroup.FLUCTUATING, 9, 500));
 		System.out.println(RequiredXPLookup.getInstance().getAmountOfXPToNextLevelFromBase(ExperienceGroup.FLUCTUATING, 9));

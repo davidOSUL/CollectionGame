@@ -1,7 +1,7 @@
 package attributes;
 
 /**
- * Represents the different types of possible attributes
+ * Different characteristics that Attributes could potentially have
  * 
  * @author David O'Sullivan
  */

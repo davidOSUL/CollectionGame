@@ -24,15 +24,15 @@ public class BoardMassFindTest {
 		}
 		b.update();
 		while (b.wildCreaturePresent()) {
-			Creature p = null;
-			while (p == null) {
+			Creature creature = null;
+			while (creature == null) {
 			b.update();
-			p = b.grabWildCreature();
+			creature = b.grabWildCreature();
 			}
 			b.confirmGrab();
-			popVal+= p.getAttributeValue("popularity boost", ParseType.INTEGER);
+			popVal+= creature.getAttributeValue("popularity boost", ParseType.INTEGER);
 			System.out.println(popVal);
-			b.addThing(p);
+			b.addThing(creature);
 			b.update();
 			if (popVal != b.getPopularity())
 				System.out.println("WHAT");

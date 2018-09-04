@@ -77,7 +77,7 @@ class WildCreatureGenerator implements Serializable{
 	/**
 	 * Map from nonlegendary creature names to their RARITY (NOT CHANCE) value
 	 */
-	private final Map<String, Integer> pokeRarity;
+	private final Map<String, Integer> creatureRarity;
 	/**
 	 * Legendaries that haven't been generated yet
 	 */
@@ -95,16 +95,16 @@ class WildCreatureGenerator implements Serializable{
 	 */
 	public WildCreatureGenerator(final Board b) { 
 		this.holder = b;
-		pokeRarity =
+		creatureRarity =
 				ThingFactory.getInstance().<Integer>mapFromSetToAttributeValue("rarity", ThingType.CREATURE, ParseType.INTEGER)
-				.entrySet().stream().filter(p -> nonLegendaryCreatures.contains(p.getKey()))
-				.collect(Collectors.toMap(p-> p.getKey(), p -> p.getValue()));
+				.entrySet().stream().filter(c -> nonLegendaryCreatures.contains(c.getKey()))
+				.collect(Collectors.toMap(c-> c.getKey(), c-> c.getValue()));
 		RUNNING_TOTAL = calcRunningTotal();
 	}
 	private long calcRunningTotal() {
 		long runningTotal = 0; //running total
 
-		for (final Map.Entry<String, Integer> entry: pokeRarity.entrySet()) {
+		for (final Map.Entry<String, Integer> entry: creatureRarity.entrySet()) {
 			final int rarity = entry.getValue();
 			final String name = entry.getKey();
 			final int percentChance = getRelativeChanceRarity(rarity);
@@ -154,7 +154,7 @@ class WildCreatureGenerator implements Serializable{
 		if (GameUtils.testPercentChance(getPercentChancePopularityModifies())) {
 			final int modifier = getPopularityModifier();
 			if (modifier !=0) {
-				final String modifiedCreature = getModifiedCreature(pokeRarity.get(name), modifier);
+				final String modifiedCreature = getModifiedCreature(creatureRarity.get(name), modifier);
 				name = returnSameIfNull(name, modifiedCreature);
 			}
 		}
@@ -205,10 +205,10 @@ class WildCreatureGenerator implements Serializable{
 		final int item = ThreadLocalRandom.current().nextInt(size); 
 		int i = 0;
 		String toFind = null;
-		for(final String p : unFoundLegendaries)
+		for(final String creatureString : unFoundLegendaries)
 		{
 			if (i == item)
-				toFind = p;
+				toFind = creatureString;
 			i++;
 		}
 		unFoundLegendaries.remove(toFind);
@@ -242,7 +242,7 @@ class WildCreatureGenerator implements Serializable{
 	}
 	/**
 	 * @return Percent chance that a creature is found. 
-	 * Will be value of the form pop*A+Gold/B+C/D*pokeMapSize+E, D!=0
+	 * Will be value of the form pop*A+Gold/B+C/D*creatureMapSize+E, D!=0
 	 * range modified to [MIN_PERCENT_CHANCE, MAX_PERCENT_CHANCE]
 	 */
 	double getPercentChanceCreatureFound() {
@@ -257,7 +257,7 @@ class WildCreatureGenerator implements Serializable{
 		return answer;
 	}
 	/**
-	 * @return Percent chance of a rarity out of 100 w.r.t to the other pokes
+	 * @return Percent chance of a rarity out of 100 w.r.t to the other creaturess
 	 */
 	private static int getRelativeChanceRarity(final int rarity) {
 		return 100-rarity;

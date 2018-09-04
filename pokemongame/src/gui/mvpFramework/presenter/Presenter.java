@@ -411,7 +411,7 @@ public class Presenter implements Serializable {
 			return;
 		}
 		switch(type) {
-		case POKE_FROM_QUEUE:
+		case CREATURE_FROM_QUEUE:
 			board.confirmGrab();
 			break;
 		case ITEM_FROM_SHOP:
@@ -440,14 +440,14 @@ public class Presenter implements Serializable {
 
 	/**
 	 * To be called when the provided GridSpace was being added, but the user decided to cancel the add (hit escape).
-	 * If this was a AddType.POKE_FROM_QUEUE, will place the Creature back in the queue. This is NOT called when a move is canceled, as there is
+	 * If this was a AddType.CREATURE_FROM_QUEUE, will place the Creature back in the queue. This is NOT called when a move is canceled, as there is
 	 * no need to update the game state
 	 * @param gs the GridSpace that was being added 
 	 * @param type
 	 */
 	public void notifyAddCanceled(final GridSpace gs, final AddType type) {
 		switch (type) {
-		case POKE_FROM_QUEUE:
+		case CREATURE_FROM_QUEUE:
 			board.undoGrab();
 			break;
 		case ITEM_FROM_SHOP:
@@ -698,7 +698,7 @@ public class Presenter implements Serializable {
 		switch(state) {
 		case NOTIFICATION_WINDOW:
 			CleanUp();
-			attemptAddThing(board.getGrabbed(), AddType.POKE_FROM_QUEUE);	
+			attemptAddThing(board.getGrabbed(), AddType.CREATURE_FROM_QUEUE);	
 			break;
 		case DELETE_CONFIRM_WINDOW:
 			CleanUp();

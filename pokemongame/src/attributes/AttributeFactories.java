@@ -19,7 +19,7 @@ import thingFramework.ExperienceGroup;
 @SuppressWarnings("unused") 
 final class AttributeFactories {
 	/**
-	 * the CSV file which contains all the types of attributes that can be created
+	 * the CSV file which contains all the types of Attributes that can be created
 	 */
 	private static final String ATTRIBUTE_LIST_PATH = "/InputFiles/attributeList - 1.csv";
 	/**
@@ -32,7 +32,7 @@ final class AttributeFactories {
 	private static final String DISPLAY_SETTINGS_DELIM = ":";
 	
 	/*
-	 * The location of the various attribute values that will be loaded in from the CSV:
+	 * The location of the various Attribute values that will be loaded in from the CSV:
 	 */
 	private static final int NAME_LOC = 0;
 	private static final int TYPE_LOC = 1;
@@ -45,7 +45,7 @@ final class AttributeFactories {
 	private static final int DISPLAY_RANK_LOC = 8;
 	
 	/**
-	 * Every attribute has a displayRank, marking an attribute's displayRank as FINAL_DISPLAY_RANK will 
+	 * Every Attribute has a displayRank, marking an Attribute's displayRank as FINAL_DISPLAY_RANK will 
 	 * gurantee  its display rank is lower than any other
 	 */
 	private static final String FINAL_DISPLAY_RANK = "END";
@@ -66,7 +66,7 @@ final class AttributeFactories {
 	 */
 	private final Map<String, AttributeFactory<?>> factoryMapByParseType;
 	/**
-	 *Map between the name of an attribute, and the factory that created it
+	 *Map between the name of an Attribute, and the factory that created it
 	 */
 	private final Map<String, ManagerMapCreator<?>> factoryMapByNameOfAttributeTemplate;
 	/**
@@ -118,8 +118,8 @@ final class AttributeFactories {
 	}
 	/**
 	 * Returns the ManagerMapCreator that has attributes of the type of the specified attributeName
-	 * @param attributeName the name of the attribute 
-	 * @return the ManagerMapCreator that can contain an attribute of the specified attributeName
+	 * @param attributeName the name of the Attribute 
+	 * @return the ManagerMapCreator that can contain an Attribute of the specified attributeName
 	 */
 	ManagerMapCreator<?> getManagerMapCreatorOfAttribute(final String attributeName) {
 		return factoryMapByNameOfAttributeTemplate.get(attributeName);
@@ -129,7 +129,7 @@ final class AttributeFactories {
 		factoryList.add(factory);
 	}
 	/**
-	 * A parameterized class that serves both to create new attribute templates (AttributeCreator<T>), and also to 
+	 * A parameterized class that serves both to create new Attribute templates (AttributeCreator<T>), and also to 
 	 * create a AttributeManagerMap<T> of the specified type (ManagerMapCreator<T>). 
 	 * This doubling up of uses isn't great, however the alternative led to a lack of type-safety, so I elected for
 	 * this instead.
@@ -193,7 +193,7 @@ final class AttributeFactories {
 		
 		private void throwIfInvalidTemplate(final String attributeName) {
 			if (!attributeTemplates.containsKey(attributeName))
-				throw new AttributeNotFoundException(attributeName + "is not a valid attribute");
+				throw new AttributeNotFoundException(attributeName + "is not a valid Attribute");
 		}
 		private void createNewAttributeTemplate(final String name, final String[] values) {
 			final Attribute<T> attribute;

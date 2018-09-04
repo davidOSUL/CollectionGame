@@ -9,7 +9,7 @@ public enum AddType{
 	/**
 	 * Notification button was pressed
 	 */
-	POKE_FROM_QUEUE(true), 
+	CREATURE_FROM_QUEUE(true), 
 	/**
 	 * moving around a thing that was already placed
 	 */

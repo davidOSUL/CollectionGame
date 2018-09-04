@@ -6,8 +6,8 @@ import thingFramework.Creature;
 
 public class TimeTest {
 
-	public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
-		Board b = new Board();
+	public static void main(final String[] args) throws IOException, ClassNotFoundException, InterruptedException {
+		final Board b = new Board();
 //		b.addThing(1, new EventfulItem("test", "test", new HashSet<Attribute>(), EventBuilder.generateRandomGoldEvent(100, 5, .5)));
 //		b.addThing(2, new EventfulItem("test2", "test2", new HashSet<Attribute>(), new CustomPeriodEvent(((Board board) -> { board.addPopularity(1);}),
 //		board -> {return 1.0-board.getPopularity()/2.0;})));
@@ -21,15 +21,15 @@ public class TimeTest {
 		b.addThing(b.getCreature("Charmander"));
 		b.addGold(10);
 		b.addPopularity(10000);
-		int i = 1;
+		final int i = 1;
 		String oldString = b.toString();
 		String newString = b.toString();
 		System.out.println(newString);
 		b.update();
 		while (true) {
 			if (b.wildCreaturePresent()) {
-				Creature p = b.grabAndConfirm();
-				b.addThing(p);
+				final Creature creature = b.grabAndConfirm();
+				b.addThing(creature);
 			}
 			b.update();
 			//System.out.println(b.getGold() + " " + b.getTotalGameTime());

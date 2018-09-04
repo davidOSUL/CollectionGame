@@ -146,9 +146,9 @@ public final class ThingFactory {
 	 * @return The new thing. Throws NullPointerException if not present
 	 */
 	public Creature generateNewCreature(final String name) {
-		final Creature p = thingTemplates.getCreature(name).makeCopy();
-		p.addToEventList(eb.getNewEvents(name));
-		return p;
+		final Creature creature = thingTemplates.getCreature(name).makeCopy();
+		creature.addToEventList(eb.getNewEvents(name));
+		return creature;
 	}
 	/**
 	 * Creates a new instance of the item with the given name with all the characterstics that were loaded in on the game start
@@ -202,8 +202,8 @@ public final class ThingFactory {
 	}
 	private final <T> Set<String> getThingsWithAttributeVal(final String attributeName, final T desiredValue, final Collection<? extends Thing> collectionToIterate, final ParseType<T> parseType) {
 		return mapFromSetToAttributeValue(attributeName, collectionToIterate, parseType).entrySet().stream()
-				.filter(p -> p.getValue().equals(desiredValue)).
-				collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue())).keySet();
+				.filter(val -> val.getValue().equals(desiredValue)).
+				collect(Collectors.toMap(val -> val.getKey(), val -> val.getValue())).keySet();
 	}
 	/**
 	 * Returns the set of things with the desired attribute value

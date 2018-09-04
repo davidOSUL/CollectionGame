@@ -11,7 +11,7 @@ import interfaces.Imagable;
 
 /**
  * A Creature is one of the two types of Things. They generally are found from spawning on the board, though it 
- * couldbe posssible to set them up as a ShopItem
+ * could be possible to set them up as a purchasable Thing in the shop as well
  * @author David O'Sullivan
  *
  */
@@ -39,8 +39,8 @@ public class Creature extends Thing implements Serializable, Eventful, Imagable 
 	public Creature(final String name, final String image, final boolean haveBoardAttributes) {
 		super(name, image, haveBoardAttributes);
 	}
-	private Creature(final Creature p) {
-		super(p);
+	private Creature(final Creature creature) {
+		super(creature);
 	}
 
 

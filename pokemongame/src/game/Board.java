@@ -57,7 +57,7 @@ public class Board implements Serializable {
 	/**
 	 * The minimum period in minutes at which new creatures are checked for
 	 */
-	private static final double MIN_POKEPERIOD = 1;
+	private static final double MIN_CREATURE_PERIOD = 1;
 	/**
 	 * The maximum number of creatures that can be in the dequeue at a time
 	 */
@@ -212,13 +212,13 @@ public class Board implements Serializable {
 	}
 	/**
 	 * @return The period at which the game checks for new creatures.
-	 *  value of the form A-(pop/B)^C, minimum of MIN_POKEPERIOD
+	 *  value of the form A-(pop/B)^C, minimum of MIN_CREATURE_PERIOD
 	 */
 	private double getLookForCreaturesPeriod() {
 		final double A=  4; //max value+1
 		final double B = 60; //"length" of near-constant values
 		final double C = 1.3; //steepness of drop
-		return RAPID_SPAWN ? 1.666e-5 : Math.max(0, (Math.max(MIN_POKEPERIOD, A-Math.pow(getPopularity()/B, C))-periodDecreaseMod));
+		return RAPID_SPAWN ? 1.666e-5 : Math.max(0, (Math.max(MIN_CREATURE_PERIOD, A-Math.pow(getPopularity()/B, C))-periodDecreaseMod));
 	}
 
 
@@ -229,24 +229,24 @@ public class Board implements Serializable {
 	private void addToFoundCreatures(final String name) {
 		if (foundCreatures.size() >= MAX_CREATURES_IN_QUEUE)
 			return;
-		final Creature p = ThingFactory.getInstance().generateNewCreature(name);
-		foundCreatures.addLast(p);
-		addToUniqueCreaturesLookup(p);
+		final Creature creature = ThingFactory.getInstance().generateNewCreature(name);
+		foundCreatures.addLast(creature);
+		addToUniqueCreaturesLookup(creature);
 	}
 	/**
 	 * Adds the provided creature to the unique creature lookup. Should be called when a creature is placed on the board
 	 * or put into the foundCreatures queue. 
-	 * @param p the creature to add 
+	 * @param creature the creature to add 
 	 */
-	private void addToUniqueCreaturesLookup(final Creature p) {
-		uniqueCreatureLookup.merge(p.getName(), 1, (old, v) -> old+1);
+	private void addToUniqueCreaturesLookup(final Creature creature) {
+		uniqueCreatureLookup.merge(creature.getName(), 1, (old, v) -> old+1);
 	}
 	/**
 	 * Should be called when a  creature is removed from the foundCreature queue or the board.
-	 * @param p the creature that was removed
+	 * @param creature the creature that was removed
 	 */
-	private void removeFromUniqueCreaturesLookup(final Creature p) {
-		uniqueCreatureLookup.compute(p.getName(), (k, v) -> (v-1 == 0) ? null : v-1);
+	private void removeFromUniqueCreaturesLookup(final Creature creature) {
+		uniqueCreatureLookup.compute(creature.getName(), (k, v) -> (v-1 == 0) ? null : v-1);
 	}
 	/**
 	 * Returns true if the creature with the provided name is not currently in the foundCreature queue nor on the board
@@ -417,25 +417,25 @@ public class Board implements Serializable {
 	}
 	/**
 	 * To be called whenever a creature is added to the board. Should be called by {@link Creature#onPlace(Board)}
-	 * @param p the creature that was added
+	 * @param creature the creature that was added
 	 * 
 	 */
-	public synchronized void notifyCreatureAdded(final Creature p) {
+	public synchronized void notifyCreatureAdded(final Creature creature) {
 		numCreatures++;
-		addToUniqueCreaturesLookup(p);
-		creaturesOnBoard.add(p);
-		modifierManager.getModifiersOfOption(GlobalModifierOption.ONLY_CREATURES).forEach(mod -> p.addModifierIfShould(mod));
+		addToUniqueCreaturesLookup(creature);
+		creaturesOnBoard.add(creature);
+		modifierManager.getModifiersOfOption(GlobalModifierOption.ONLY_CREATURES).forEach(mod -> creature.addModifierIfShould(mod));
 
 	}
 	/**
 	 * To be called whenever a creature is removed from the board. Should be called by {@link Creature#onRemove(Board)}
-	 * @param p the creature that was removed
+	 * @param creature the creature that was removed
 	 */
-	public synchronized void notifyCreatureRemoved(final Creature p) {
+	public synchronized void notifyCreatureRemoved(final Creature creature) {
 		numCreatures--;
-		removeFromUniqueCreaturesLookup(p);
-		creaturesOnBoard.remove(p);
-		modifierManager.getModifiersOfOption(GlobalModifierOption.ONLY_CREATURES).forEach(mod -> p.removeModifierIfPresent(mod));
+		removeFromUniqueCreaturesLookup(creature);
+		creaturesOnBoard.remove(creature);
+		modifierManager.getModifiersOfOption(GlobalModifierOption.ONLY_CREATURES).forEach(mod -> creature.removeModifierIfPresent(mod));
 	}
 	/**
 	 * To be called whenever an Item is added to the board. Should be called by {@link Item#onPlace(Board)}
@@ -543,10 +543,10 @@ public class Board implements Serializable {
 		if (grabbedCreature == null) {
 			throw new RuntimeException("No Creature Grabbed");
 		}
-		final Creature p = grabbedCreature;
+		final Creature creature = grabbedCreature;
 		grabbedCreature = null;
-		removeFromUniqueCreaturesLookup(p);
-		return p;
+		removeFromUniqueCreaturesLookup(creature);
+		return creature;
 	}
 	/**
 	 * @return the currently Grabbed Creature
@@ -671,7 +671,7 @@ public class Board implements Serializable {
 			itemsOnBoard.forEach(i -> i.addModifierIfShould(mod));
 			break;
 		case ONLY_CREATURES:
-			creaturesOnBoard.forEach(p -> p.addModifierIfShould(mod));
+			creaturesOnBoard.forEach(c -> c.addModifierIfShould(mod));
 			break;				
 		}
 		modifierManager.addGlobalModifier(mod, option);
@@ -734,8 +734,8 @@ public class Board implements Serializable {
 	 */
 	public int removeAllCreatures() {
 		final int i = creaturesOnBoard.size();
-		for (final Creature p : creaturesOnBoard) {
-			addToRemoveRequest(p);
+		for (final Creature c : creaturesOnBoard) {
+			addToRemoveRequest(c);
 		}
 		return i;
 	}

@@ -111,15 +111,15 @@ public class PresenterWindowFactory implements Serializable {
 	}
 	/**
 	 * Generates a new JPanel corresponding to the next Creature in the queue, and giving the user the option to add it, set it free or cancel the request and place it back in the queue
-	 * @param p the next Creature in the queue
+	 * @param creature the next Creature in the queue
 	 * @param letCreatureGo what should happen if the user wants to let the found creature go
 	 * @return the JPanel
 	 */
-	public JComponent wildCreatureWindow(final Creature p, final Consumer<Presenter> letCreatureGo) {
+	public JComponent wildCreatureWindow(final Creature creature, final Consumer<Presenter> letCreatureGo) {
 		return  new InfoWindowBuilder()
 				.setPresenter(presenter)
-				.setInfo("A wild " + p.getName() + " appeared!")
-				.setImagable(p)
+				.setInfo("A wild " + creature.getName() + " appeared!")
+				.setImagable(creature)
 				.addEnterButton("Place")
 				.addButton("Set Free", letCreatureGo, true, false, true)
 				.addCancelButton()

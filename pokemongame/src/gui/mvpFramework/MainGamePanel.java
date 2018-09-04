@@ -185,9 +185,9 @@ public class MainGamePanel extends JPanel{
 	 */
 	private static final Image ATTRIBUTES_BACKGROUND_IMAGE = GuiUtils.readImage("/sprites/ui/attributelabel.png");
 	/**
-	 * the location of the pokecash attribute text
+	 * the location of the money text
 	 */
-	private static final Point POKECASH_ATTRIBUTE_LOCATION = new Point(70, 29);
+	private static final Point CASH_ATTRIBUTE_LOCATION = new Point(70, 29);
 	/**
 	 * the location of the popularity attribute text
 	 */
@@ -221,7 +221,7 @@ public class MainGamePanel extends JPanel{
 		saveButton.setLocation(SAVE_BUTTON_LOCATION);
 		add(saveButton);
 		
-		boardAttributesDisplay = new BackgroundWithText(ATTRIBUTES_BACKGROUND_IMAGE, new Point[] {POKECASH_ATTRIBUTE_LOCATION, POPULARITY_ATTRIBUTE_LOCATION});
+		boardAttributesDisplay = new BackgroundWithText(ATTRIBUTES_BACKGROUND_IMAGE, new Point[] {CASH_ATTRIBUTE_LOCATION, POPULARITY_ATTRIBUTE_LOCATION});
 		boardAttributesDisplay.setBounds(ATTRIBUTE_LABEL_LOCATION);
 		add(boardAttributesDisplay);
 		
@@ -389,7 +389,7 @@ public class MainGamePanel extends JPanel{
 	}
 	/**
 	 * Update the Display to display the gold/popularity on the board
-	 * @param gold The PokeCash value
+	 * @param gold The current gold value
 	 * @param popularity the current popularity
 	 */
 	public void updateDisplayedAttributes(final int gold, final int popularity) {

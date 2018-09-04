@@ -156,7 +156,7 @@ public class ShopWindow {
 	}
 	/**
 	 * Returns the shop window as a scrollable window
-	 * @return
+	 * @return the shop window as a scrollable window
 	 */
 	public JComponent getShopWindowAsScrollable() {
 		
@@ -170,14 +170,14 @@ public class ShopWindow {
 	}
 	/**
 	 * Returns the shop window as a card layout at it's current position 
-	 * @return
+	 * @return the shop window as a card layout at it's current position 
 	 */
 	public JComponent getShopWindowAtCurrentLocation() {
 		return getShopWindowAsCardLayout(currentIndex);
 	}
 	/**
 	 * Returns the shop window as a card layout on it's first page
-	 * @return
+	 * @return  the shop window as a card layout on it's first page
 	 */
 	public JComponent getShopWindowAsCardLayout() {
 		return getShopWindowAsCardLayout(0);

@@ -29,23 +29,23 @@ class ThingMap{
 	}
 	/**
 	 * Add a new Creature. Uses the Creatures's name as its key in the map
-	 * @param p the creature to add
+	 * @param creature the creature to add
 	 */
-	public void addCreature(final Creature p) {
-		throwIfContains(p);
-		map.put(p.getName(), p);
-		creatureSet.add(p);
-		creatureMap.put(p.getName(), p);
+	public void addCreature(final Creature creature) {
+		throwIfContains(creature);
+		map.put(creature.getName(), creature);
+		creatureSet.add(creature);
+		creatureMap.put(creature.getName(), creature);
 	}
 	/**
 	 * Add a new item. Uses the item's name as its key in the map
-	 * @param i the item to add
+	 * @param item the item to add
 	 */
-	public void addItem(final Item i) {
-		throwIfContains(i);
-		map.put(i.getName(), i);
-		itemSet.add(i);
-		itemMap.put(i.getName(), i);
+	public void addItem(final Item item) {
+		throwIfContains(item);
+		map.put(item.getName(), item);
+		itemSet.add(item);
+		itemMap.put(item.getName(), item);
 	}
 	/**
 	 * View all the Creatures in this ThingMap

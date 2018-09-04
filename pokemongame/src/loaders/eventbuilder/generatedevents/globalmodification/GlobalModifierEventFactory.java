@@ -215,7 +215,7 @@ public class GlobalModifierEventFactory<T> extends TypicalEventFactory {
 	/**
 	 * The Category of Modification. All GlobalModifierEvents must have a modifier of one of these types. Depending on the value, it determines 
 	 * what action is carried out by the modifier in the event.
-	 * @author DOSullivan
+	 * @author David O'Sullivan
 	 *
 	 */
 	public enum ModificationType {

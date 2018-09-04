@@ -90,12 +90,12 @@ public class CreatureEvolutionLoader implements Loader {
 			String[] newEvolutions = {currCreature};
 			for (int j = 0; j < priorEvolutions.length; j++) {
 				final String priorEvolve = priorEvolutions[j];
-				final Creature pokeWithEvolve = thingMap.getCreature(priorEvolve);
-				if (hasEvolution[i-1] && checkIfHasEvolution(pokeWithEvolve)) {
+				final Creature creatureWithEvolve = thingMap.getCreature(priorEvolve);
+				if (hasEvolution[i-1] && checkIfHasEvolution(creatureWithEvolve)) {
 					if (currCreature.startsWith("\"")) { //if it has multiple evolutions it will be of form \"Aaa\r\nBbb\r\nCcc\r\n...\" we want to convert to [Aaa, Bbb, Ccc]
-						newEvolutions = doIfMultipleEvolutions(newEvolutions, priorEvolutions, currCreature, pokeWithEvolve, j);
+						newEvolutions = doIfMultipleEvolutions(newEvolutions, priorEvolutions, currCreature, creatureWithEvolve, j);
 					} else {
-						pokeWithEvolve.addAttribute("next evolutions", currCreature);
+						creatureWithEvolve.addAttribute("next evolutions", currCreature);
 					}
 				}
 			}
@@ -103,16 +103,16 @@ public class CreatureEvolutionLoader implements Loader {
 		}
 		
 	}
-	private String[] doIfMultipleEvolutions(String[] newEvolutions, final String[] priorEvolutions, final String currCreature, final Creature pokeWithEvolve, final int j) {
+	private String[] doIfMultipleEvolutions(String[] newEvolutions, final String[] priorEvolutions, final String currCreature, final Creature creatureWithEvolve, final int j) {
 		newEvolutions = splitUppercase(currCreature.replace("\n", "").replace("\r", "").replace("\"", ""));
 		if (!checkAllValidThings(newEvolutions)) {
 			throw new ThingLoadException("Invalid Creature in prior Evolutions for " + newEvolutions);
 		}
 		//accounts for two cases, one Creature with multiple possible evolutions, or multiple with multiple possible (one for each)
 		if (priorEvolutions.length == 1)
-			pokeWithEvolve.addAttribute("next evolutions", Arrays.toString(newEvolutions));
+			creatureWithEvolve.addAttribute("next evolutions", Arrays.toString(newEvolutions));
 		else if (priorEvolutions.length == newEvolutions.length)
-			pokeWithEvolve.addAttribute("next evolutions", newEvolutions[j]);
+			creatureWithEvolve.addAttribute("next evolutions", newEvolutions[j]);
 		else
 			throw new ThingLoadException("Unaccounted for number of evolutions listed for " + currCreature);
 		return newEvolutions;

@@ -9,7 +9,7 @@ import java.util.EnumSet;
 
 /**
  * A bare-minimum wrapping of an Enum Set. Should be extended whenever a Set of Enums of a certain type is wanted.
- * @author DOSullivan
+ * @author David O'Sullivan
  * @param <T> the type of the enum
  *
  */
