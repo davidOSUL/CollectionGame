@@ -1,5 +1,5 @@
 # CollectionGame
-A game implemented in Java with graphics done with Swing.
+A game implemented in Java with GUI implemented with use of Swing.
 
 As you play the game, new creatures with different attributes periodically spawn and can be added/organized. Different creatures affect the game in different ways. There are also items that you can buy from a shop which can have varying effects on the game. 
 
@@ -7,7 +7,7 @@ Game is skinned as it is because there are so many existing resources available,
 ## Controls
 - Left Click: Place Thing down
 - Right Click: Rotate Thing being moved or placed; View already placed Thing's Option menu
-  - Can sell back/delete from option menu
+  - From option menu: delete (and sell back if applicable)
 - Double Click: Move Thing
 ## Current Features
 
