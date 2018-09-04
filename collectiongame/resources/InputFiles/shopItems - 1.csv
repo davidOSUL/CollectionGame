@@ -1,0 +1,28 @@
+Thing,InitialQuantity,Cost,Rank,Default?,sendBackWhenRemoved?,Max Allowed,Sell Back Value,Min Popularity
+Pebble of Legends,1,30,1,yes,yes,no limit,default,0
+Stone of Legends,1,70,2,yes,yes,no limit,default,0
+Rock of Legends,1,200,3,yes,yes,no limit,default,0
+Boulder of Legends,1,500,4,yes,yes,no limit,default,0
+Mountain of Legends,1,4000,5,yes,yes,no limit,default,0
+Tectonic Plate of Legends,1,15000,6,yes,yes,no limit,default,0
+Fountain of Water,3,100,7,yes,yes,no limit,default,0
+Fountain of Bugs,3,100,8,yes,yes,no limit,default,0
+Dragon Scepter,3,100,9,yes,yes,no limit,default,0
+Lawn Trimmings,3,100,10,yes,yes,no limit,default,0
+A Rock,infinite,10,11,yes,yes,no limit,default,0
+A *Magical* Rock,3,100,12,yes,yes,no limit,default,0
+Small Table,5,70,13,yes,yes,no limit,default,0
+Large Table,5,85,14,yes,yes,no limit,default,0
+Poker Table,5,200,15,yes,yes,no limit,default,0
+Smelly Sandwich,7,35,16,yes,yes,no limit,default,0
+Pretty Decent Sandwich,5,5,17,yes,yes,no limit,default,0
+Decadent Sandwich,3,500,18,yes,yes,no limit,default,0
+Bronze Timer,infinite,100,19,yes,yes,1,default,0
+Silver Timer,infinite,500,20,yes,yes,1,default,0
+Gold Timer,infinite,1500,21,yes,yes,1,default,0
+A Small Loan of 1|000 Dollars,infinite,0,22,yes,yes,1,-1000,1000
+A Big Loan of 1|000|000 Dollars,infinite,0,23,yes,yes,1,-1000000,100000
+Explosives,infinite,500,24,yes,yes,1,1,0
+Sand Clock,infinite,15000,25,yes,yes,1,default,0
+Time Bender,infinite,30000,26,yes,yes,1,default,0
+Master of Time and Space,infinite,60000,27,yes,yes,1,default,0

@@ -9,6 +9,9 @@ Game is skinned as it is because there are so many existing resources available,
 - Right Click: Rotate Thing being moved or placed; View already placed Thing's Option menu
   - From option menu: delete (and sell back if applicable)
 - Double Click: Move Thing
+- Esc: Exit window/Cancel current action
+- i: Open Advanced Stats Window
+- s: Shortcut to open Shop Window
 ## Current Features
 
 - Creature Spawning

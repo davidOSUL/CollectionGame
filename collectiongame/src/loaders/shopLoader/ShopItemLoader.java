@@ -29,6 +29,7 @@ public class ShopItemLoader {
 	private static final int REMOVE_ON_DELETE = 5;
 	private static final int MAX_ALLOWED = 6;
 	private static final int SELL_BACK_VAL = 7;
+	private static final int MIN_POP = 8;
 	/**
 	 * The set of all possible items for the shop to have
 	 */
@@ -122,7 +123,8 @@ public class ShopItemLoader {
 				final boolean removeWhenDeleted = values[REMOVE_ON_DELETE].equalsIgnoreCase("yes");
 				final int maxAllowed= values[MAX_ALLOWED].equalsIgnoreCase("no limit") ? ShopItem.INFINITY :Integer.parseInt(values[MAX_ALLOWED]);
 				final int sellBackVal = values[SELL_BACK_VAL].equalsIgnoreCase("default") ? ShopItem.DEFAULT : Integer.parseInt(values[SELL_BACK_VAL]);
-				final ShopItem item = new ShopItem(values[NAME], quantityCostAndRank, removeWhenDeleted, maxAllowed, sellBackVal);
+				final int minPopularity = Integer.parseInt(values[MIN_POP]);
+				final ShopItem item = new ShopItem(values[NAME], quantityCostAndRank, removeWhenDeleted, maxAllowed, sellBackVal, minPopularity);
 				shopItemMap.put(values[NAME], item);
 				shopItems.add(item);
 				if (values[DEFAULT].equalsIgnoreCase("yes"))

@@ -773,12 +773,16 @@ public class Presenter implements Serializable {
 	}
 	
 	/**
-	 * Displays the advanced stat window for this board
+	 * Displays or un-displays the advanced stat window for this board
 	 */
-	public void displayAdvancedStats() {
-		if (state != CurrentState.GAMEPLAY)
+	public void toggleAdvancedStats() {
+		if (state == CurrentState.ADVANCED_STATS_WINDOW) { //close window if open
+			Canceled();
 			return;
-		setState(CurrentState.ADVANCED_STATS_WINDOW);
+		}
+		if (state != CurrentState.GAMEPLAY) //if not in gameplay don't do anything
+			return;
+		setState(CurrentState.ADVANCED_STATS_WINDOW); //otherwise, display window
 		setCurrentWindow(windowFactory.advancedStatsWindow());
 	}
 	/**

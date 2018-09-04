@@ -55,10 +55,6 @@ public class Board implements Serializable {
 	 */
 	private final double sellBackPercent = .5;	
 	/**
-	 * The minimum period in minutes at which new creatures are checked for
-	 */
-	private static final double MIN_CREATURE_PERIOD = 1;
-	/**
 	 * The maximum number of creatures that can be in the dequeue at a time
 	 */
 	private static final int MAX_CREATURES_IN_QUEUE = 100;
@@ -211,16 +207,20 @@ public class Board implements Serializable {
 		});
 	}
 	/**
+	 * Returns the period at which the game checks for new creatures
 	 * @return The period at which the game checks for new creatures.
-	 *  value of the form A-(pop/B)^C, minimum of MIN_CREATURE_PERIOD
+	 *  
 	 */
 	private double getLookForCreaturesPeriod() {
-		final double A=  4; //max value+1
-		final double B = 60; //"length" of near-constant values
-		final double C = 1.3; //steepness of drop
-		return RAPID_SPAWN ? 1.666e-5 : Math.max(0, (Math.max(MIN_CREATURE_PERIOD, A-Math.pow(getPopularity()/B, C))-periodDecreaseMod));
+		return creatureGenerator.getLookForCreaturesPeriod();
 	}
-
+	/**
+	 * Returns the additional subtraction modifier that should be applied to the period at which new Creatures generate
+	 * @return the additional subtraction modifier that should be applied to the period at which new Creatures generate
+	 */
+	double getPeriodDecreaseMod() {
+		return periodDecreaseMod;
+	}
 
 	/**
 	 * @param Using thing loader creates a new instance of a creature with the given name.
@@ -582,7 +582,7 @@ public class Board implements Serializable {
 	 * @return true if have enough money to purchase, false otherwise
 	 */
 	public boolean canPurchase(final ShopItem item) {
-		return (item.getCost() <= getGold());
+		return (item.getCost() <= getGold()) && (getPopularity() >= item.getMinPopularityToPurchase());
 	}
 	/**
 	 * If have enough money, start the purchase attempt
@@ -717,6 +717,10 @@ public class Board implements Serializable {
 		sb.append("Look for New " + GuiUtils.getCreatureName() + " Period: " + dfDouble.format(getLookForCreaturesPeriod()) + " minutes");
 		sb.append("\n");
 		sb.append("Chance that on New " + GuiUtils.getCreatureName() + " Period, a " + GuiUtils.getCreatureName() + " is Found: " + dfDouble.format(creatureGenerator.getPercentChanceCreatureFound()) + "%");
+		sb.append("\n");
+		sb.append("Percent chance popularity increases rarity: " + dfDouble.format(creatureGenerator.getPercentChancePopularityModifies()));
+		sb.append("\n");
+		sb.append("Rarity boost metric from popularity: " + creatureGenerator.getPopularityModifier());
 		return sb.toString();
 	}
 	/**
@@ -747,11 +751,18 @@ public class Board implements Serializable {
 		return legendaryChance;
 	}
 	/**
-	 * Returns the total number of creatures on the board
-	 * @return the total number of creatures on the board
+	 * Returns the total number of creatures on the board and in the queue
+	 * @return the total number of creatures on the board and in the queue
 	 */
-	synchronized int getNumCreatures() {
-		return numCreatures;
+	synchronized int getNumCreaturesOnBoardAndWaiting() {
+		return numCreatures + foundCreatures.size();
+	}
+	/**
+	 * Returns the total number of creatures in the queue
+	 * @return the total number of creatures in the queue
+	 */
+	synchronized int getNumCreaturesWaiting() {
+		return foundCreatures.size();
 	}
 	
 }

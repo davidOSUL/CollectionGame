@@ -36,7 +36,7 @@ class WildCreatureGenerator implements Serializable{
 	/**
 	 * The minimum percent chance that when checking for creatures, one is found
 	 */
-	private static final double MIN_PERCENT_CHANCE_CREATURE_FOUND = 20;
+	private static final double MIN_PERCENT_CHANCE_CREATURE_FOUND = 50;
 	/**
 	 * The maximum percent chance that when checking for creatures, one is found
 	 */
@@ -62,6 +62,32 @@ class WildCreatureGenerator implements Serializable{
 	 */
 	private static final int MAX_ATTEMPTS = 50;
 
+	/**
+	 * The minimum period in minutes at which new creatures are checked for
+	 */
+	private static final double MIN_CREATURE_PERIOD = 1.5;
+	/**
+	 * The popularity value that when reached signifies that the period for new creatures spawning can drop below
+	 * MIN_CREATURE_PERIOD
+	 */
+	private static final int POP_TO_GET_BONUS_PERIOD_AT = 1000000;
+	/**
+	 * The period when popularity has reached POP_TO_GET_BONUS_PERIOD_AT
+	 */
+	private static final double BONUS_PERIOD = 1;
+	/**
+	 * The popularity value that when reached, causes the way popularity is calculated to shift 
+	 * from a linear one to an exponential one
+	 */
+	private static final double MAX_POP_BEFORE_PERIOD_CALCULATION_SHIFT = 1000;
+	/**
+	 * The popularity value at which point the period will be calculated with a function
+	 */
+	private static final double MAX_POP_BEFORE_CALCULATE_PERIOD = 100;
+	/**
+	 * The period before periods are calculated with a function.
+	 */
+	private static final double PERIOD_BEFORE_CALCULATION = .5;
 	private static final Set<String> legendaryCreatures = ThingFactory.getInstance().getThingsWithAttributeVal("legendary", true, ThingType.CREATURE, ParseType.BOOLEAN);
 	private static final Set<String> nonLegendaryCreatures = ThingFactory.getInstance().getThingsWithAttributeVal("legendary", false, ThingType.CREATURE, ParseType.BOOLEAN);
 
@@ -221,7 +247,7 @@ class WildCreatureGenerator implements Serializable{
 	 *In particular this will return a value of the form:
 	 *<br> Aln(pop^B+C)+Dpop^E
 	 */
-	private double getPercentChancePopularityModifies() {
+	double getPercentChancePopularityModifies() {
 		final double A = 5;
 		final double B = 1.3;
 		final double C = 1;
@@ -234,27 +260,79 @@ class WildCreatureGenerator implements Serializable{
 	 * Will be in the form of logistic growth: MAX_MODIFIER/1+Be^-r*pop + C
 	 * C is implicitly minimum popularity boost
 	 */
-	private int getPopularityModifier() {
+	 int getPopularityModifier() {
 		final double B = 1000;
-		final double R= .15;
+		final double R= .001;
 		final double C = 1;
 		return (int) Math.floor((MAX_POPULARITY_BOOST/(1+B*Math.pow(Math.E, -R*holder.getPopularity())))+C);
 	}
 	/**
 	 * @return Percent chance that a creature is found. 
-	 * Will be value of the form pop*A+Gold/B+C/D*creatureMapSize+E, D!=0
+	 * Will be value of the form pop*A+Gold/B+C/D*creatureMapSize+E - F, D!=0
 	 * range modified to [MIN_PERCENT_CHANCE, MAX_PERCENT_CHANCE]
 	 */
 	double getPercentChanceCreatureFound() {
-		final double A = 5;
-		final double B = 50;
+		final double A = .05;
+		final double B = 10;
 		final double C = 100;
 		final double D =3;
 		final double E = 1;
-		if (holder.getNumCreatures() <= 2)
+		final double F = 100;
+		if (holder.getNumCreaturesOnBoardAndWaiting() <= 2)
 			return 100;
-		final double answer = Math.max(MIN_PERCENT_CHANCE_CREATURE_FOUND, Math.min(MAX_PERCENT_CHANCE_CREATURE_FOUND, (holder.getPopularity()*A)+(holder.getGold()/B)+(C/(D*holder.getNumCreatures()+E))));
+		final double answer = Math.max(MIN_PERCENT_CHANCE_CREATURE_FOUND, Math.min(MAX_PERCENT_CHANCE_CREATURE_FOUND, (holder.getPopularity()*A)+(holder.getGold()/B)+(C/(D*holder.getNumCreaturesOnBoardAndWaiting()+E))-F));
 		return answer;
+	}
+	/**
+	 * Returns the period at which the game checks for new creatures
+	 * @return The period at which the game checks for new creatures.
+	 *  
+	 */
+	double getLookForCreaturesPeriod() {
+		if (RAPID_SPAWN)
+			return 1.666e-5;
+		double periodCalc;
+		if (holder.getPopularity() <= MAX_POP_BEFORE_CALCULATE_PERIOD)
+			periodCalc =  PERIOD_BEFORE_CALCULATION;
+		else if (holder.getPopularity() <= MAX_POP_BEFORE_PERIOD_CALCULATION_SHIFT) {
+			periodCalc = getBasicLookForCreaturePeriod();
+		}
+		else if (holder.getPopularity() > POP_TO_GET_BONUS_PERIOD_AT) {
+			periodCalc = BONUS_PERIOD;
+		}
+		else
+			periodCalc =  getAdvancedLookForCreaturePeriod();
+		return periodCalc + getPeriodDemerit();
+		
+	}
+	/**
+	 * Returns the amount to increase the period by due to an excess of creatures waiting
+	 * @return the amount to increase the period by due to an excess of creatures waiting
+	 */
+	private double getPeriodDemerit() {
+		if (holder.getNumCreaturesWaiting() == 1)
+			return 0;
+		else
+			return holder.getNumCreaturesWaiting()*2;
+	}
+	/**
+	 * moves relatively quickly from 4 to 3.5 
+	 */
+	private double getBasicLookForCreaturePeriod() {
+		final double A = 4;
+		final double B = 2000;
+		return Math.max(0, Math.max(MIN_CREATURE_PERIOD, A - holder.getPopularity()/B));
+	}
+	/**
+	 * moves slowly from 3.5 all the way down to MIN_CREATURE_PERIOD
+	 * value of the form A-(pop/B)^C
+	 */
+	private double getAdvancedLookForCreaturePeriod() {
+		final double A=  3.65;
+		final double B = 5000; //"length" of near-constant values
+		final double C = 1.1; //steepness of drop
+		
+		return Math.max(0, (Math.max(MIN_CREATURE_PERIOD, A-Math.pow(holder.getPopularity()/B, C))-holder.getPeriodDecreaseMod()));
 	}
 	/**
 	 * @return Percent chance of a rarity out of 100 w.r.t to the other creaturess

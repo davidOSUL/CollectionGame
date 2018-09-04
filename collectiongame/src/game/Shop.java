@@ -63,6 +63,9 @@ public class Shop implements Serializable{
 				itemsInShop.put(name, shopItem);
 				itemsInOrder.add(shopItem);
 			}
+			else if (itemsInShop.containsKey(name)) {
+				itemsInShop.get(name).updateValues(shopItem);
+			}
 		});
 		final Iterator<String> it = itemsInitiallyInShop.iterator();
 		while (it.hasNext()) {
