@@ -413,10 +413,10 @@ public class MainGamePanel extends JPanel{
 	    	  //TODO: Implement
 	      });
 	      keyBindings.addKeyBinding(KeyEvent.VK_I, () -> {
-	    	  gv.getPresenter().toggleAdvancedStats(); 
+	    	  	gv.getPresenter().toggleAdvancedStats(); 
 	      });
 	      keyBindings.addKeyBinding(KeyEvent.VK_S, () -> {
-	    	 gv.getPresenter().shopClicked(); 
+	    	  	gv.getPresenter().shopClicked(); 
 	      });
 	   }
 	/**
