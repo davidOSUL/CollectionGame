@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.Set;
 
 import effects.GlobalModifierOption;
-import game.Board;
+import model.ModelInterface;
 
 /**
- * Manages the Global Modifiers applied to a board
+ * Manages the Global Modifiers applied to a model
  * @author David O'Sullivan
  *
  */
@@ -23,13 +23,13 @@ public class ModifierManager implements Serializable{
 	private static final long serialVersionUID = 1L;
 	private final Map<GlobalModifierOption, Set<Modifier>> modifiers = new HashMap<GlobalModifierOption, Set<Modifier>>();
 	private final Map<Modifier, GlobalModifierOption> modifierToOption = new HashMap<Modifier, GlobalModifierOption>();
-	private final Board b;
+	private final ModelInterface model;
 	/**
 	 * Creates a new ModifierManaager
-	 * @param b the board that this ModifierManager manages the global modifiers event of
+	 * @param model the model that this ModifierManager manages the global modifiers event of
 	 */
-	public ModifierManager(final Board b) {
-		this.b = b;
+	public ModifierManager(final ModelInterface model) {
+		this.model = model;
 		for (final GlobalModifierOption option: GlobalModifierOption.values())
 			modifiers.put(option, new HashSet<Modifier>());
 	}
@@ -56,11 +56,11 @@ public class ModifierManager implements Serializable{
 	public void update() {
 		final List<Modifier> modifiersToRemove = new ArrayList<Modifier>();
 		modifierToOption.forEach( (mod, option) -> {
-			if (mod.isDone(b.getTotalInGameTime())) {
+			if (mod.isDone(model.getTotalInGameTime())) {
 				modifiersToRemove.add(mod);
 			}
 		});
-		modifiersToRemove.forEach(mod -> b.removeGlobalModifier(mod));
+		modifiersToRemove.forEach(mod -> model.removeGlobalModifier(mod));
 	}
 	/**
 	 * Returns the modifiers of the specified option

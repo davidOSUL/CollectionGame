@@ -19,10 +19,11 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
-import game.Board;
 import gui.displayComponents.StartScreenBuilder;
 import gui.guiutils.GuiUtils;
 import gui.mvpFramework.presenter.Presenter;
+import model.Board;
+import model.ModelInterface;
 import userIO.GameSaver;
 
 /**
@@ -35,7 +36,7 @@ public class Runner  {
 	private JFrame startScreen;
 	private final Timer updateStartPanel;
 	private Presenter p;
-	private Board board;
+	private ModelInterface board;
 	private Runner() {
 		saver = new GameSaver();
 		try {
@@ -110,13 +111,13 @@ public class Runner  {
 		}
 		final ActionListener updateGUI = evt -> p.updateGUI();
 		new Timer(10, updateGUI).start();
-		p.getGameView().setVisible(true);
+		p.getView().getFrame().setVisible(true);
 		setupGlobalExceptionHandling(p);
 
 
 	}
 	private static void setupGlobalExceptionHandling(final Presenter p) {
-		Thread.setDefaultUncaughtExceptionHandler((t, e) -> GuiUtils.displayError(e, p.getGameView()));
+		Thread.setDefaultUncaughtExceptionHandler((t, e) -> GuiUtils.displayError(e, p.getView().getFrame()));
 	}
 	private void startPresenterUpdate() {
 		if (SwingUtilities.isEventDispatchThread())
@@ -124,7 +125,7 @@ public class Runner  {
 		final ScheduledExecutorService es = Executors.newSingleThreadScheduledExecutor();
 		es.scheduleAtFixedRate(() -> {
 			try {
-				p.updateBoard();
+				p.updateModel();
 			} catch (final Exception e) {
 				GuiUtils.displayError(e, startScreen);
 			}

@@ -1,4 +1,4 @@
-package game;
+package model;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,10 +10,10 @@ import effects.OnPeriodEventWithDisplay;
 import thingFramework.Thing;
 /**
  * Implementation of an AttributeManagerObserver, whenever a thing gets a gph, gpm, or popularity attribute
- * the BaordAttributeManager creates or updates an event to affect the stats of the board appropriately. 
+ * the BaordAttributeManager creates or updates an event to affect the stats of the ModelInterface appropriately. 
  * @author David O'Sullivan
  */
-public final class BoardAttributeManager implements AttributeManagerObserver<Integer>, Serializable {
+public final class ModelAttributeManager implements AttributeManagerObserver<Integer>, Serializable {
 	/**
 	 * 
 	 */
@@ -21,15 +21,15 @@ public final class BoardAttributeManager implements AttributeManagerObserver<Int
 	private final Thing holder;
 	private final Map<Attribute<?>, Event> addedEvents = new HashMap<Attribute<?>, Event>();
 	/**
-	 * Creates a new BoardAttributeManager
-	 * @param holder the Thing that has this BoardAttributeManager
+	 * Creates a new ModelAttributeManager
+	 * @param holder the Thing that has this ModelAttributeManager
 	 */
-	public BoardAttributeManager(final Thing holder) {
+	public ModelAttributeManager(final Thing holder) {
 		this.holder = holder;
 	}
 	/**
-	 * Builds Board events based on input name
-	 * @param nameOfEvent gph = gold Per Hour, gpm = Gold Per Minute, popularity boost = Increase popularity of board on place, decrease on remove
+	 * Builds Model events based on input name
+	 * @param nameOfEvent gph = gold Per Hour, gpm = Gold Per Minute, popularity boost = Increase popularity of model on place, decrease on remove
 	 * @param valueOfEvent the amount to effect the attribute by
 	 * @return the created event
 	 */
@@ -37,15 +37,15 @@ public final class BoardAttributeManager implements AttributeManagerObserver<Int
 		Event event = null;
 		switch (nameOfEvent) {
 		case "gph":
-			event = new OnPeriodEventWithDisplay(board -> board.addGold( valueOfEvent), 60, "gph", holder);
+			event = new OnPeriodEventWithDisplay(model -> model.addGold( valueOfEvent), 60, "gph", holder);
 			event.addToName("GPH: ");
 			break;
 		case "gpm":
-			event =  new OnPeriodEventWithDisplay(board -> board.addGold(valueOfEvent), 1, "gpm", holder);
+			event =  new OnPeriodEventWithDisplay(model -> model.addGold(valueOfEvent), 1, "gpm", holder);
 			event.addToName("GPM: ");
 			break;
 		case "popularity boost":
-			event = new Event(board -> board.addPopularity(valueOfEvent), board -> board.subtractPopularity(valueOfEvent));
+			event = new Event(model -> model.addPopularity(valueOfEvent), model -> model.subtractPopularity(valueOfEvent));
 			event.addToName("POP: ");
 			break;
 		default:
@@ -53,17 +53,17 @@ public final class BoardAttributeManager implements AttributeManagerObserver<Int
 		}
 		return event;
 	}
-	private void modifyBoardEvent(final String AttributeName, final Event e, final int newValue) {
+	private void modifyModelEvent(final String AttributeName, final Event e, final int newValue) {
 		switch(AttributeName) {
 		case "gph":
-			e.setOnPeriod(board -> board.addGold(newValue));
+			e.setOnPeriod(model -> model.addGold(newValue));
 			break;
 		case "gpm":
-			e.setOnPeriod(board -> board.addGold(newValue));
+			e.setOnPeriod(model -> model.addGold(newValue));
 			break;
 		case "popularity boost":
-			e.setOnPlace(board -> board.addPopularity(newValue));
-			e.markForReset( board -> board.subtractPopularity(newValue));
+			e.setOnPlace(model -> model.addPopularity(newValue));
+			e.markForReset( model -> model.subtractPopularity(newValue));
 			break;
 		default:
 			break;
@@ -73,7 +73,7 @@ public final class BoardAttributeManager implements AttributeManagerObserver<Int
 	
 	
 	/** 
-	 * If the attribute generated was gpm, gph, or popularity, will add the appropriate event to the holder of this BoardAttributeManager
+	 * If the attribute generated was gpm, gph, or popularity, will add the appropriate event to the holder of this ModelAttributeManager
 	 * @see attributes.AttributeManagerObserver#onAttributeGenerated(attributes.Attribute)
 	 */
 	@Override
@@ -97,13 +97,13 @@ public final class BoardAttributeManager implements AttributeManagerObserver<Int
 		
 	}
 	/** 
-	 * If the attribute whose value was changed was gpm, gph, or popularity, will add/reset the appropriate event(s) to the holder of this BoardAttributeManager
+	 * If the attribute whose value was changed was gpm, gph, or popularity, will add/reset the appropriate event(s) to the holder of this ModelAttributeManager
 	 * @see attributes.AttributeManagerObserver#onAttributeValueChanged(attributes.Attribute)
 	 */
 	@Override
 	public void onAttributeValueChanged(final Attribute<Integer> modifiedAttribute) {
 		if (addedEvents.containsKey(modifiedAttribute)) {
-			modifyBoardEvent(modifiedAttribute.getName(), addedEvents.get(modifiedAttribute), modifiedAttribute.getValue());
+			modifyModelEvent(modifiedAttribute.getName(), addedEvents.get(modifiedAttribute), modifiedAttribute.getValue());
 		}
 		
 	}

@@ -30,7 +30,7 @@ public class ShopItem implements Serializable, Imagable{
 	 */
 	public static final int INFINITY = -1;
 	/**
-	 * If sellBackValue is equal to DEFAULT then there is no custom sellBackValue, and board should determine
+	 * If sellBackValue is equal to DEFAULT then there is no custom sellBackValue, and model should determine
 	 * sellBackValue itself
 	 */
 	public static final int DEFAULT = -1;
@@ -39,7 +39,7 @@ public class ShopItem implements Serializable, Imagable{
 	 */
 	private final boolean sendBackToShopWhenRemoved;
 	/**
-	 * the maximum that are allowed to be on the board at a time
+	 * the maximum that are allowed to be on the model at a time
 	 */
 	private final int maxAllowed;
 	/**
@@ -49,7 +49,7 @@ public class ShopItem implements Serializable, Imagable{
 	 * @param cost the cost
 	 * @param displayRank the order that the ShopItem should be displayed relative to other shopItems (1 first, 2 second, etc.)
 	 * @param sendBackToShopWhenRemoved if set to true, signifies that this shop item should be sent back when it is removed by the user (even if not sold back)
-	 * @param maxAllowed the maximum amount of these items allowed on the board at a time
+	 * @param maxAllowed the maximum amount of these items allowed on the model at a time
 	 ** @param sellBackValue the amount to refund upon selling back
 	 * @param minPopularityToPurchase the minimum popularity required to purchase this item
 	 */
@@ -71,7 +71,7 @@ public class ShopItem implements Serializable, Imagable{
 	 * @param thingName the name of the thing
 	 * @param quantityCostAndRank an array where the first value is quantity, the second is cost, and the third is displayRank
 	 * @param sendBackToShopWhenRemoved if set to true, signifies that this shop item should be sent back when it is removed by the user (even if not sold back)
-	 * @param maxAllowed the maximum amount of these items allowed on the board at a time
+	 * @param maxAllowed the maximum amount of these items allowed on the model at a time
 	 * @param sellBackValue the amount to refund upon selling back
 	 * @param minPopularityToPurchase the minimum popularity required to purchase this item
 	 */
@@ -215,14 +215,14 @@ public class ShopItem implements Serializable, Imagable{
 		return maxAllowed == INFINITY || currentPresent < maxAllowed; 
 	}
 	/**
-	 * Returns the maximum amount of these items that can be on the board at a time
-	 * @return the maximum amount of these items that can be on the board at a time
+	 * Returns the maximum amount of these items that can be on the model at a time
+	 * @return the maximum amount of these items that can be on the model at a time
 	 */
 	private int getMaxAllowed() {
 		return maxAllowed;
 	}
 	/**
-	 * @return DEFAULT if default sell back value (determined by board), it's sell back value otherwise
+	 * @return DEFAULT if default sell back value (determined by model), it's sell back value otherwise
 	 */
 	public int getSellBackValue() {
 		return sellBackValue;

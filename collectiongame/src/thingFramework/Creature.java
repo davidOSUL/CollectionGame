@@ -6,11 +6,11 @@ import attributes.Attribute;
 import attributes.AttributeCharacteristic;
 import attributes.attributegenerators.AttributeGenerator;
 import effects.Eventful;
-import game.Board;
 import interfaces.Imagable;
+import model.ThingObserver;
 
 /**
- * A Creature is one of the two types of Things. They generally are found from spawning on the board, though it 
+ * A Creature is one of the two types of Things. They generally are found from spawning on the model, though it 
  * could be possible to set them up as a purchasable Thing in the shop as well
  * @author David O'Sullivan
  *
@@ -34,10 +34,10 @@ public class Creature extends Thing implements Serializable, Eventful, Imagable 
 	 * Creates a new Creature with the provided name and image
 	 * @param name the name of the Creature
 	 * @param image the path to the image
-	 * @param haveBoardAttributes if false, won't create a BoardAttributeManager
+	 * @param haveModelAttributes if false, won't create a ModelAttributeManager
 	 */
-	public Creature(final String name, final String image, final boolean haveBoardAttributes) {
-		super(name, image, haveBoardAttributes);
+	public Creature(final String name, final String image, final boolean haveModelAttributes) {
+		super(name, image, haveModelAttributes);
 	}
 	private Creature(final Creature creature) {
 		super(creature);
@@ -45,21 +45,21 @@ public class Creature extends Thing implements Serializable, Eventful, Imagable 
 
 
 	/** 
-	 * @see thingFramework.Thing#onPlace(game.Board)
+	 * @see thingFramework.Thing#onPlace(model.ThingObserver)
 	 */
 	@Override
 	public
-	void onPlace(final Board board) {
-		board.notifyCreatureAdded(this);
+	void onPlace(final ThingObserver observer) {
+		observer.notifyCreatureAdded(this);
 		
 	}
 	/** 
-	 * @see thingFramework.Thing#onRemove(game.Board)
+	 * @see thingFramework.Thing#onRemove(model.ThingObserver)
 	 */
 	@Override
 	public
-	void onRemove(final Board board) {
-		board.notifyCreatureRemoved(this);
+	void onRemove(final ThingObserver observer) {
+		observer.notifyCreatureRemoved(this);
 		
 	}
 	/** 

@@ -1,4 +1,4 @@
-package game;
+package model;
 
 import static gameutils.Constants.RAPID_SPAWN;
 
@@ -20,11 +20,11 @@ import loaders.ThingType;
 
 /**
  * Generates new random Creatures. The rarity of the creatures generated is based on multiple factors including the 
- * popularity of the board. 
+ * popularity of the Board. 
  * @author David O'Sullivan
  *
  */
-class WildCreatureGenerator implements Serializable{
+class BoardWildCreatureGenerator implements Serializable{
 	/**
 	 * 
 	 */
@@ -114,12 +114,12 @@ class WildCreatureGenerator implements Serializable{
 	 * will show up (that is the probability will be: getRelativeChanceRarity(creature.rarity)/RUNNING_TOTAL)
 	 */
 	private final long RUNNING_TOTAL;
-	private final Board holder;
+	private final Board  holder;
 	/**
 	 * Creates a new WildCreatureGenerator
 	 * @param b the board that has this WildCreatureGenerator
 	 */
-	public WildCreatureGenerator(final Board b) { 
+	public BoardWildCreatureGenerator(final Board b) { 
 		this.holder = b;
 		creatureRarity =
 				ThingFactory.getInstance().<Integer>mapFromSetToAttributeValue("rarity", ThingType.CREATURE, ParseType.INTEGER)

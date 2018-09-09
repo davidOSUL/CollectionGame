@@ -1,9 +1,9 @@
 package effects;
 
-import game.Board;
 import gameutils.GameUtils;
 import interfaces.SerializableConsumer;
 import interfaces.SerializableFunction;
+import model.ModelInterface;
 
 /**
  * Event whose period can change over time
@@ -16,7 +16,7 @@ public class CustomPeriodEvent extends Event {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private SerializableFunction<Board, Double> generatePeriod = x -> {return -1.0;};
+	private SerializableFunction<ModelInterface, Double> generatePeriod = x -> {return -1.0;};
 	private volatile long numCurrentPeriodsElapsed = 0;
 	private volatile long timeOfLastChange;
 	private volatile double currentPeriodVal = -1;
@@ -24,9 +24,9 @@ public class CustomPeriodEvent extends Event {
 	/**
 	 * Creates a new CustomPeriodEvent
 	 * @param onPeriod what should happen every period
-	 * @param generatePeriod the function that, given the state of the board, determines this Event's current period
+	 * @param generatePeriod the function that, given the state of the ModelInterface, determines this Event's current period
 	 */
-	public CustomPeriodEvent(final SerializableConsumer<Board> onPeriod, final SerializableFunction<Board, Double> generatePeriod) {
+	public CustomPeriodEvent(final SerializableConsumer<ModelInterface> onPeriod, final SerializableFunction<ModelInterface, Double> generatePeriod) {
 		super(onPeriod, Integer.MAX_VALUE);
 		this.generatePeriod = generatePeriod;
 	}
@@ -34,9 +34,9 @@ public class CustomPeriodEvent extends Event {
 	 * Creates a new CustomperiodEvent
 	 * @param onPlace what should happen when this event is placed
 	 * @param onPeriod what should happen every period
-	 * @param generatePeriod the function that, given the state of the board, determines this Event's current period
+	 * @param generatePeriod the function that, given the state of the ModelInterface, determines this Event's current period
 	 */
-	public CustomPeriodEvent(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final SerializableFunction<Board, Double> generatePeriod) {
+	public CustomPeriodEvent(final SerializableConsumer<ModelInterface> onPlace, final SerializableConsumer<ModelInterface> onPeriod, final SerializableFunction<ModelInterface, Double> generatePeriod) {
 		super(onPlace, onPeriod, Integer.MAX_VALUE);
 		this.generatePeriod = generatePeriod;
 	}
@@ -47,7 +47,7 @@ public class CustomPeriodEvent extends Event {
 		super(event);
 		this.generatePeriod = event.generatePeriod;
 	}
-	private synchronized void executeIfTime(final Board b) {
+	private synchronized void executeIfTime(final ModelInterface b) {
 		double period = generatePeriod.apply(b);
 		if (period <0)
 			return;
@@ -74,14 +74,14 @@ public class CustomPeriodEvent extends Event {
 	}
 
 	/** 
-	 * @see effects.Event#executePeriod(game.Board)
+	 * @see effects.Event#executePeriod(model.ModelInterface)
 	 */
 	@Override
-	public Runnable executePeriod(final Board b) {
+	public Runnable executePeriod(final ModelInterface model) {
 		return new Runnable() {
 			@Override
 			public void run() {
-				executeIfTime(b);
+				executeIfTime(model);
 			}
 		};
 	}

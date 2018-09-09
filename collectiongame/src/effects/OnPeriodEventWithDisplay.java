@@ -1,8 +1,8 @@
 package effects;
 
-import game.Board;
 import interfaces.SerializableConsumer;
 import interfaces.SerializableTriConsumer;
+import model.ModelInterface;
 import thingFramework.Thing;
 
 /**
@@ -25,7 +25,7 @@ public class OnPeriodEventWithDisplay extends ActOnCreatorEvent {
 	 * @param attributeName the attribute to display the time to next period next to 
 	 * @param creator the holder of this event
 	 */
-	public OnPeriodEventWithDisplay(final SerializableConsumer<Board> onPeriod, final double periodInMinutes, final String attributeName, final Thing creator) {
+	public OnPeriodEventWithDisplay(final SerializableConsumer<ModelInterface> onPeriod, final double periodInMinutes, final String attributeName, final Thing creator) {
 		super(onPeriod, periodInMinutes, getDoOnTick(attributeName), creator);
 	}
 	/**
@@ -35,11 +35,11 @@ public class OnPeriodEventWithDisplay extends ActOnCreatorEvent {
 	 * @param periodInMinutes the period in minutes
 	 * @param attributeName the attribute to display the time to next period next to 
 	 */
-	public OnPeriodEventWithDisplay(final SerializableConsumer<Board> onPeriod, final double periodInMinutes, final String attributeName) {
+	public OnPeriodEventWithDisplay(final SerializableConsumer<ModelInterface> onPeriod, final double periodInMinutes, final String attributeName) {
 		super(onPeriod, periodInMinutes, getDoOnTick(attributeName));
 	}
-	private static <T extends Thing> SerializableTriConsumer<T, Event, Board> getDoOnTick(final String attributeName) {
-		final SerializableTriConsumer<T, Event, Board> update = (t, e, b) -> {
+	private static <T extends Thing> SerializableTriConsumer<T, Event, ModelInterface> getDoOnTick(final String attributeName) {
+		final SerializableTriConsumer<T, Event, ModelInterface> update = (t, e, b) -> {
 			if (t.containsAttribute(attributeName)) { //TODO: less hacky fix
 				t.setExtraDescription(attributeName, " (" + e.getTimeToNextPeriod(b) + ")");
 			}

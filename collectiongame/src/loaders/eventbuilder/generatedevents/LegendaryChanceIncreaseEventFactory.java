@@ -29,7 +29,7 @@ public class LegendaryChanceIncreaseEventFactory extends TypicalEventFactory{
 	 */
 	@Override
 	public Event generateEvent() {
-		return new Event(board -> board.increaseLegendaryChance(increase), board -> board.decreaseLegendaryChance(increase));
+		return new Event(model ->model.increaseLegendaryChance(increase), model -> model.decreaseLegendaryChance(increase));
 
 	}
 

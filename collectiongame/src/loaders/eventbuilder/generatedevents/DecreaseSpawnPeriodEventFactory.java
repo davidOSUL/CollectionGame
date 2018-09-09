@@ -28,7 +28,7 @@ public class DecreaseSpawnPeriodEventFactory extends TypicalEventFactory {
 	 */
 	@Override
 	public Event generateEvent() {
-		return new Event(board -> board.addToPeriodDecrease(millis), board -> board.addToPeriodDecrease(-millis));
+		return new Event(model -> model.addToPeriodDecrease(millis), model -> model.addToPeriodDecrease(-millis));
 	}
 
 	/** 

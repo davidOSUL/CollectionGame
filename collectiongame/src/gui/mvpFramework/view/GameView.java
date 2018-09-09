@@ -1,4 +1,4 @@
-package gui.mvpFramework;
+package gui.mvpFramework.view;
 
 import java.awt.Image;
 import java.awt.Point;
@@ -17,10 +17,10 @@ import gui.mvpFramework.presenter.AddType;
 import gui.mvpFramework.presenter.Presenter;
 
 /**
- * The JFrame which houses the game
+ * Main Implementation of ViewInterface.
  * @author David O'Sullivan
  */
-public class GameView extends JFrame {
+public class GameView implements ViewInterface {
 	/**
 	 * 
 	 */
@@ -36,39 +36,41 @@ public class GameView extends JFrame {
 	protected static final int HEIGHT = 549;
 	private static final Image background = GuiUtils.readImage("/sprites/ui/background.png");
 	private Presenter p;
+	private final JFrame frame;
 	/**
 	 * Creates a new GameView with the specified title
 	 * @param name the title of the GameView
 	 */
 	public GameView(final String name) {
-		super(name);
+		frame = new JFrame(name);
 		mainGamePanel = new MainGamePanel(this);
-		setLayout(null);
-		setResizable(false);
-		setLocationByPlatform(true);
-		setSize(WIDTH, HEIGHT);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLayout(null);
+		frame.setResizable(false);
+		frame.setLocationByPlatform(true);
+		frame.setSize(WIDTH, HEIGHT);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		final JLabel backgroundLabel = new JLabel(new ImageIcon(GuiUtils.getScaledImage(background, WIDTH, HEIGHT)));
 		backgroundLabel.setSize(WIDTH, HEIGHT);
 		//backgroundLabel.setOpaque(true);
-		add(mainGamePanel);
-		add(backgroundLabel);
+		frame.add(mainGamePanel);
+		frame.add(backgroundLabel);
 		
 		
-		revalidate();
-		repaint();
+		frame.revalidate();
+		frame.repaint();
 		
 	}
-	/**
-	 * Sets the presenter that coordinates with this GameView
-	 * @param p the presenter to coordinate with
+	/** 
+	 * @see gui.mvpFramework.view.ViewInterface#setPresenter(gui.mvpFramework.presenter.Presenter)
 	 */
+	@Override
 	public void setPresenter(final Presenter p) {
 		this.p = p;
 	}
-	/**
-	 * @return the presenter associated with this GameView
+	/** 
+	 * @see gui.mvpFramework.view.ViewInterface#getPresenter()
 	 */
+	@Override
 	public Presenter getPresenter() {
 		return p;
 	}
@@ -83,83 +85,86 @@ public class GameView extends JFrame {
 		final Point viewCenter = new Point(WIDTH/2, HEIGHT/2);
 		return new Point(viewCenter.x-myCenter.x, viewCenter.y-myCenter.y);
 	}
-	/**
-	 * Undo the adding of a gridspace
+	/** 
+	 * @see gui.mvpFramework.view.ViewInterface#cancelGridSpaceAdd()
 	 */
+	@Override
 	public void cancelGridSpaceAdd() {
 		mainGamePanel.cancelGridSpaceAdd();
 	}
-	/**
-	 * Adds to the POPUP_LAYER of this GameView's LayeredPane() the provided JComponent. Displays in the center of the JFrame.
-	 * @param jp the JComponent to center and display as a pop up
+	/** 
+	 * @see gui.mvpFramework.view.ViewInterface#displayComponentCentered(javax.swing.JComponent)
 	 */
+	@Override
 	public void displayComponentCentered(final JComponent jp) {
 		jp.setLocation(getCenterPoint(jp.getWidth(), jp.getHeight()));
-		getLayeredPane().add(jp, JLayeredPane.POPUP_LAYER);
+		frame.getLayeredPane().add(jp, JLayeredPane.POPUP_LAYER);
 		updateDisplay();
 	}
-	/**
-	 * Removes the provided JComponent from the POPUP_LAYER
-	 * @param jp the JComponent to remove
+	/** 
+	 * @see gui.mvpFramework.view.ViewInterface#removeDisplay(javax.swing.JComponent)
 	 */
+	@Override
 	public void removeDisplay(final JComponent jp) {
-		getLayeredPane().remove(jp);
+		frame.getLayeredPane().remove(jp);
 		updateDisplay();		
 	}
-	/**
-	 * Starts the process of attempting to add the newly created provided GameSpace to the maingamePanel.
-	 * Converts the GameSpace to a gridSpace on the default grid and then adds. 
-	 * @param gs the GameSpace to add
-	 * @param type the context of the add (e.g. Creature from queue, moving an existing GameSpace, etc.)
+	/** 
+	 * @see gui.mvpFramework.view.ViewInterface#attemptNewGridSpaceAdd(gui.gameComponents.GameSpace, gui.mvpFramework.presenter.AddType)
 	 */
+	@Override
 	public void attemptNewGridSpaceAdd(final GameSpace gs, final AddType type) {
 		mainGamePanel.gridSpaceAdd(mainGamePanel.generateGridSpaceWithDefaultGrid(gs), type);
 	}
-	/**
-	 * Starts the process of attempting to add the existing GridSpace to the maingamePanel
-	 * @param gs the GameSpace to add
-	 * @param type the context of the add (e.g. Creature from queue, moving an existing GameSpace, etc.)
+	/** 
+	 * @see gui.mvpFramework.view.ViewInterface#attemptExistingGridSpaceAdd(gui.gameComponents.grid.GridSpace, gui.mvpFramework.presenter.AddType)
 	 */
+	@Override
 	public void attemptExistingGridSpaceAdd(final GridSpace gs, final AddType type) {
 		mainGamePanel.gridSpaceAdd(gs, type);
 	}
-	/**
-	 * Sets the value of the notification button
-	 * @param num the number to set the notification button to
+	/** 
+	 * @see gui.mvpFramework.view.ViewInterface#setWildCreatureCount(int)
 	 */
+	@Override
 	public  void setWildCreatureCount(final int num) {
 		mainGamePanel.updateNotifications(num);
 	}
-	/**
-	 * Updates the GUI display of the gold and popularity of the board
-	 * @param gold the new gold of the board
-	 * @param popularity the new popularity of the board
+	/** 
+	 * @see gui.mvpFramework.view.ViewInterface#setModelAttributes(int, int)
 	 */
-	public void setBoardAttributes(final int gold, final int popularity) {
+	@Override
+	public void setModelAttributes(final int gold, final int popularity) {
 		mainGamePanel.updateDisplayedAttributes(gold, popularity);
 	}
-	/**
-	 * Revalidates and repaints the display
+	/** 
+	 * @see gui.mvpFramework.view.ViewInterface#updateDisplay()
 	 */
+	@Override
 	public void updateDisplay() {
-		revalidate();
-		repaint();
+		frame.revalidate();
+		frame.repaint();
 	}
-	/**
-	 * Toggles enabledness of buttons on maingamepanel
-	 * @param enabled whether or not the buttons should be enabled
+	/** 
+	 * @see gui.mvpFramework.view.ViewInterface#setEnabledForButtons(boolean)
 	 */
+	@Override
 	public void setEnabledForButtons(final boolean enabled) {
 		mainGamePanel.setEnabledForButtons(enabled);
 	}
-	/**
-	 * Adds a GridSpace that was previously on the board and was saved away using the specified data. Note that this is only a UI change. (doesn't notify presenter)
-	 * @param gs the gamespace to add
-	 * @param data the data corresponding to the new GridSpace
-	 * @return the newly generated gridspace
+	/** 
+	 * @see gui.mvpFramework.view.ViewInterface#addNewGridSpaceFromSave(gui.gameComponents.GameSpace, gui.gameComponents.grid.GridSpace.GridSpaceData)
 	 */
+	@Override
 	public GridSpace addNewGridSpaceFromSave(final GameSpace gs, final GridSpaceData data) {
 		return mainGamePanel.addSavedGridSpaceToGrid(gs, data);
+	}
+	/** 
+	 * @see gui.mvpFramework.view.ViewInterface#getFrame()
+	 */
+	@Override
+	public JFrame getFrame() {
+		return frame;
 	}
 	
 

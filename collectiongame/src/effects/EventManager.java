@@ -12,9 +12,9 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import game.Board;
+import model.ModelInterface;
 /**
- * Manages the events of all things on the board
+ * Manages the events of all things on the ModelInterface
  * @author David O'Sullivan
  *
  */
@@ -26,16 +26,16 @@ public class EventManager implements Serializable{
 	private final Set<Eventful> events = new HashSet<Eventful>();
 	private final Queue<Runnable> removalEvents = new ConcurrentLinkedQueue<Runnable>();
 	private final Map<Eventful, List<Event>> markedForRemovalEvents = new HashMap<Eventful, List<Event>>();
-	private final Board board;
+	private final ModelInterface model;
 	/**
-	 * Creates a new EventManager for the provided board
-	 * @param board the board that this EventManager is managing events for
+	 * Creates a new EventManager for the provided ModelInterface
+	 * @param model the model that this EventManager is managing events for
 	 */
-	public EventManager(final Board board) {
-		this.board = board;
+	public EventManager(final ModelInterface model) {
+		this.model = model;
 	}
 	/**
-	 * Should be called whenever an Eventful is added to the board
+	 * Should be called whenever an Eventful is added to the ModelInterface
 	 * @param eventful the Eventful that was added
 	 */
 	public synchronized void notifyEventfulAdded(final Eventful eventful) {
@@ -44,14 +44,14 @@ public class EventManager implements Serializable{
 		events.add(eventful);
 	}
 	/**
-	 * Should be called whenever an Eventful is removed from the board
+	 * Should be called whenever an Eventful is removed from the ModelInterface
 	 * @param eventful  the Eventful that was removed
 	 */
 	public synchronized void notifyEventfulRemoved(final Eventful eventful) {
 		if (!events.contains(eventful))
 			throw new RuntimeException("Attempted to Remove Events From Eventful that Doesn't exist!");
 		for (final Event e: eventful.getEvents())
-			removalEvents.add(e.executeOnRemove(board));
+			removalEvents.add(e.executeOnRemove(model));
 		events.remove(eventful);
 	}
 	/**
@@ -65,18 +65,18 @@ public class EventManager implements Serializable{
 					System.out.println("running event: " + eventful.getName());
 					event.addToName("EVENT FROM: " + eventful.getName());
 				}
-				event.executeOnPlace(board).run();
+				event.executeOnPlace(model).run();
 			}
-			event.executePeriod(board).run();
-			event.executeOnTick(board).run();
+			event.executePeriod(model).run();
+			event.executeOnTick(model).run();
 			if (event.wasMarkedForRemoval()) { // if the event was removed by the Thing itself
 				final List<Event> removalList = new ArrayList<Event>();
 				removalList.add(event);
 				markedForRemovalEvents.merge(eventful, removalList, (o, v) -> {o.addAll(v); return o;});
-				removalEvents.add(event.executeOnRemove(board));
+				removalEvents.add(event.executeOnRemove(model));
 			}
 			if (event.shouldBeReset()) {
-				event.executeOnReset(board).run();
+				event.executeOnReset(model).run();
 			}
 		})); 
 		removalEvents.forEach((runnable) -> runnable.run());

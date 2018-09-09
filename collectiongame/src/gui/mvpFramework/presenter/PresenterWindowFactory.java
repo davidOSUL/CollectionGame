@@ -8,11 +8,12 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
-import game.Board;
 import gui.displayComponents.InfoWindowBuilder;
 import gui.gameComponents.grid.GridSpace;
 import gui.guiutils.GuiUtils;
 import loaders.shopLoader.ShopItem;
+import model.ModelInterface;
+import model.ShopWindow;
 import thingFramework.Creature;
 import thingFramework.Thing;
 
@@ -27,7 +28,8 @@ public class PresenterWindowFactory implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	private final Presenter presenter;
-	private final Board board;
+	private final ModelInterface model;
+	private final ShopWindow shopWindow;
 	
 	/**
 	 * The background of the JPanel that pops up when the notification button is pressed
@@ -36,11 +38,12 @@ public class PresenterWindowFactory implements Serializable {
 	/**
 	 * Creates a new PresenterWindowFactory
 	 * @param presenter the presenter of the current game
-	 * @param board the board of the current game
+	 * @param model the model of the current game
 	 */
-	public PresenterWindowFactory(final Presenter presenter, final Board board) {
+	public PresenterWindowFactory(final Presenter presenter, final ModelInterface model, final ShopWindow shopWindow) {
 		this.presenter = presenter;
-		this.board = board;
+		this.model = model;
+		this.shopWindow = shopWindow;
 	}
 	/**
 	 * Generates a new JPanel confirming if the user actually wants to delete the passed in thing
@@ -83,7 +86,7 @@ public class PresenterWindowFactory implements Serializable {
 	 */
 	public JComponent attemptToSellBackWindow(final GridSpace gs, final ShopItem item) {
 		final StringBuilder info = new StringBuilder("Are you sure you want to " + presenter.getSellBackString(gs) + "?");
-		if (!board.canAddBackToShopStock(item))
+		if (!shopWindow.canAddBackToShopStock(item))
 			info.append("WARNING: this item is no longer available for sale in the shop. \n It will not be added back to the shop stock after selling");
 		return new InfoWindowBuilder()
 				.setPresenter(presenter)
@@ -96,12 +99,12 @@ public class PresenterWindowFactory implements Serializable {
 				.createWindow();
 	}
 	/**
-	 * Returns a window showing the boards advanced stats
-	 * @return a window showing the boards advanced stats
+	 * Returns a window showing the model's advanced stats
+	 * @return a window showing the model's advanced stats
 	 */
 	public JComponent advancedStatsWindow() {
 		final JPanel panel = new JPanel();
-		final JTextArea area = new JTextArea(board.getAdvancedStats());
+		final JTextArea area = new JTextArea(model.getAdvancedStats());
 
 		area.setEditable(false);
 		panel.setSize(area.getPreferredSize().width+20, area.getPreferredSize().height+20);

@@ -1,11 +1,10 @@
-package gui.mvpFramework;
+package gui.mvpFramework.view;
 import static gameutils.Constants.DEBUG;
 
 import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -13,7 +12,6 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import java.util.function.BiConsumer;
 
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -26,7 +24,6 @@ import gui.gameComponents.grid.Grid;
 import gui.gameComponents.grid.GridSpace;
 import gui.gameComponents.grid.GridSpace.GridSpaceData;
 import gui.guiutils.GuiUtils;
-import gui.guiutils.KeyBindingManager;
 import gui.mouseAdapters.MouseClickWithThreshold;
 import gui.mvpFramework.presenter.AddType;
 
@@ -76,9 +73,9 @@ public class MainGamePanel extends JPanel{
 	 */
 	private static final long MIN_WAIT_TO_ADD = 300; 
 	/**
-	 * The GameView that houses this GamePanel
+	 * The ViewInterface that houses this GamePanel
 	 */
-	private final GameView gv;
+	private final ViewInterface vi;
 	/**
 	 * When in the process of an add Attempt, this is the GridSpace that the user moves around with their mouse
 	 */
@@ -123,30 +120,23 @@ public class MainGamePanel extends JPanel{
 	/**
 	 * Button that user can press to open up the item shop
 	 */
-	private final PictureButton<GameView> shopButton;
+	private final PictureButton<ViewInterface> shopButton;
 	/**
 	 * Button that user can press to save an item
 	 */
-	private final PictureButton<GameView> saveButton;
+	private final PictureButton<ViewInterface> saveButton;
 	/**
 	 * Location of the save button
 	 */
 	private static final Point SAVE_BUTTON_LOCATION = new Point(749,44);
 	
+	
 	/**
-	 * When KeyBindings should happen
+	 * Displays Current Model Attributes
 	 */
-	private static final int CONDITION = JComponent.WHEN_IN_FOCUSED_WINDOW; 
+	private final BackgroundWithText modelAttributesDisplay;
 	/**
-	 * The manager for all key stroke events in this panel
-	 */
-	private final KeyBindingManager keyBindings = new KeyBindingManager(getInputMap(CONDITION), getActionMap());
-	/**
-	 * Displays Current Board Attributes
-	 */
-	private final BackgroundWithText boardAttributesDisplay;
-	/**
-	 * The location to display the Board attributesu
+	 * The location to display the Model attributes
 	 */
 	private final static Rectangle ATTRIBUTE_LABEL_LOCATION = new Rectangle(new Point(279, 458));
 	/**
@@ -192,14 +182,14 @@ public class MainGamePanel extends JPanel{
 	 * the location of the popularity attribute text
 	 */
 	private static final Point POPULARITY_ATTRIBUTE_LOCATION = new Point(358, 29);
+	private final GameViewMainPanelKeyBinder keyBinder;
 	private static final long serialVersionUID = 1L;
 	/**
 	 * Creates a new MainGamePanel
-	 * @param gv the GameView that houses this panel
+	 * @param vi the ViewInterface that houses this panel
 	 */
-	
-	public MainGamePanel(final GameView gv) {
-		this.gv = gv;
+	public MainGamePanel(final ViewInterface vi) {
+		this.vi = vi;
 		
 		setSize(GameView.WIDTH,GameView.HEIGHT);
         setLayout(null);
@@ -208,22 +198,23 @@ public class MainGamePanel extends JPanel{
 		
 		setUpGrids();
 		addListeners();
-		setKeyBindings();
+		keyBinder = new GameViewMainPanelKeyBinder(this);
+		keyBinder.setKeyBindings(vi);
 		
-		notifications = new NotificationButton(NOTIFICATION_LOGO, NOTIFICATION_LOCATION, gameView -> gameView.getPresenter().NotificationClicked(), gv, true).disableBorder();
+		notifications = new NotificationButton(NOTIFICATION_LOGO, NOTIFICATION_LOCATION, view -> view.getPresenter().NotificationClicked(), vi, true).disableBorder();
 		add(notifications);
 		
-		shopButton = ButtonBuilder.generatePictureButton("shop_button", gameView -> gameView.getPresenter().shopClicked(), gv, 50, 50);//new PictureButton<GameView>(SHOP_BUTTON_LOGO, SHOP_BUTTON_LOCATION, gameView -> gameView.getPresenter().shopClicked(), gv).disableBorder();
+		shopButton = ButtonBuilder.generatePictureButton("shop_button", view -> view.getPresenter().shopClicked(), vi, 50, 50);//new PictureButton<ViewInterface>(SHOP_BUTTON_LOGO, SHOP_BUTTON_LOCATION, view -> view.getPresenter().shopClicked(), vi).disableBorder();
 		shopButton.setLocation(SHOP_BUTTON_LOCATION);
 		add(shopButton);
 		
-		saveButton = ButtonBuilder.generatePictureButton("save_button", gameView -> gameView.getPresenter().saveGame(), gv, 50 ,50);//new PictureButton<GameView>(SAVE_BUTTON_LOGO, SAVE_BUTTON_LOCATION, gameView -> gameView.getPresenter().saveGame(), gv);
+		saveButton = ButtonBuilder.generatePictureButton("save_button", view -> view.getPresenter().saveGame(), vi, 50 ,50);//new PictureButton<ViewInterface>(SAVE_BUTTON_LOGO, SAVE_BUTTON_LOCATION, view -> view.getPresenter().saveGame(), vi);
 		saveButton.setLocation(SAVE_BUTTON_LOCATION);
 		add(saveButton);
 		
-		boardAttributesDisplay = new BackgroundWithText(ATTRIBUTES_BACKGROUND_IMAGE, new Point[] {CASH_ATTRIBUTE_LOCATION, POPULARITY_ATTRIBUTE_LOCATION});
-		boardAttributesDisplay.setBounds(ATTRIBUTE_LABEL_LOCATION);
-		add(boardAttributesDisplay);
+		modelAttributesDisplay = new BackgroundWithText(ATTRIBUTES_BACKGROUND_IMAGE, new Point[] {CASH_ATTRIBUTE_LOCATION, POPULARITY_ATTRIBUTE_LOCATION});
+		modelAttributesDisplay.setBounds(ATTRIBUTE_LABEL_LOCATION);
+		add(modelAttributesDisplay);
 		
 		revalidate();
 		repaint();
@@ -314,7 +305,7 @@ public class MainGamePanel extends JPanel{
 			gridClick(currentMoving.getGrid(), oldPoint, true); //gridClick will call endGameSpaceAdd()
 			break;
 		default:
-			gv.getPresenter().notifyAddCanceled(currentMoving, typeOfAdd);
+			vi.getPresenter().notifyAddCanceled(currentMoving, typeOfAdd);
 			endGameSpaceAdd();
 			break;
 		}
@@ -357,7 +348,7 @@ public class MainGamePanel extends JPanel{
 		if (addingSomething && (byPassTime || System.currentTimeMillis()-timeAddedTime > MIN_WAIT_TO_ADD)) {
 			final GridSpace result = currGrid.addGridSpaceSnapToGrid(currentMoving,p);
 			if (result != null) { //if add is succesful (has room, etc.)
-				gv.getPresenter().notifyAdded(result, typeOfAdd);
+				vi.getPresenter().notifyAdded(result, typeOfAdd);
 				currGrid.removeHighlight();
 				endGameSpaceAdd();
 			}
@@ -388,43 +379,20 @@ public class MainGamePanel extends JPanel{
 		return mcwt;
 	}
 	/**
-	 * Update the Display to display the gold/popularity on the board
+	 * Update the Display to display the gold/popularity on the ModelInterface
 	 * @param gold The current gold value
 	 * @param popularity the current popularity
 	 */
 	public void updateDisplayedAttributes(final int gold, final int popularity) {
-		boardAttributesDisplay.updateText(0, Integer.toString(gold));
-		boardAttributesDisplay.updateText(1, Integer.toString(popularity));
+		modelAttributesDisplay.updateText(0, Integer.toString(gold));
+		modelAttributesDisplay.updateText(1, Integer.toString(popularity));
 	}
-	 /**
-	 * Sets all key Bindings for this game panel
-	 */
-	private void setKeyBindings() {
-	      keyBindings.addKeyBinding(KeyEvent.VK_ESCAPE, () -> {
-	    	 gv.getPresenter().Canceled();
-	      });
-	      keyBindings.addKeyBinding(KeyEvent.VK_ENTER, () -> {
-	    	  gv.getPresenter().Entered();
-	      });
-	      keyBindings.addKeyBinding(KeyEvent.VK_RIGHT, () -> {
-	    	  //TODO: Implement
-	      });
-	      keyBindings.addKeyBinding(KeyEvent.VK_LEFT, () -> {
-	    	  //TODO: Implement
-	      });
-	      keyBindings.addKeyBinding(KeyEvent.VK_I, () -> {
-	    	  	gv.getPresenter().toggleAdvancedStats(); 
-	      });
-	      keyBindings.addKeyBinding(KeyEvent.VK_S, () -> {
-	    	  	gv.getPresenter().shopClicked(); 
-	      });
-	   }
 	/**
-	 * adds grids to board and adds their listeners
+	 * adds grids to ModelInterface and adds their listeners
 	 */
 	private void setUpGrids() {
 		for (int i = 0; i < NUM_GRIDS; i++) { //create the grids
-			final Grid currGrid = new Grid(gridLocs[i], GRID_SPACE_DIM, GRID_SPACE_DIM, gv, i);
+			final Grid currGrid = new Grid(gridLocs[i], GRID_SPACE_DIM, GRID_SPACE_DIM, vi, i);
 			currGrid.addMouseMotionListener(new MouseMotionAdapter() {
 				 @Override
 				 public void mouseMoved(final MouseEvent e) { //set highlights when mouse is moved
@@ -483,7 +451,7 @@ public class MainGamePanel extends JPanel{
 		}
 	}
 	/**
-	 * Adds the gamespace to the specified grid. This is all UI (aka, doesn't notify board!)
+	 * Adds the gamespace to the specified grid. This is all UI (aka, doesn't notify ModelInterface!)
 	 * @param g the gamespace to add
 	 * @param data the GridSpaceData to use to generate the GridSpace
 	 * @return the newly generated grid space

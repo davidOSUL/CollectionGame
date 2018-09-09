@@ -21,7 +21,7 @@ import modifiers.Modifier;
 import thingFramework.Thing;
 
 /**
- * Generates event that applies a global Modifier to the board
+ * Generates event that applies a global Modifier to the ModelInterface
  * @author David O'Sullivan
  *
  * @param <T> the type of the attribute that is being modified
@@ -166,8 +166,8 @@ public class GlobalModifierEventFactory<T> extends TypicalEventFactory {
 		this.globalModificationType = type;
 	}
 	/**
-	 * Returns the modifiers to be applied to the board by the event. Children should override this method to provide a shouldModify predicate
-	 * @return the modifiers to applied to the board by the event. 
+	 * Returns the modifiers to be applied to the ModelInterface by the event. Children should override this method to provide a shouldModify predicate
+	 * @return the modifiers to applied to the ModelInterface by the event. 
 	 */
 	Modifier[] generateModifier() {
 		return generateModifier(x -> true);

@@ -22,7 +22,7 @@ import gui.guiutils.GUIConstants;
 import gui.guiutils.GuiUtils;
 import gui.mouseAdapters.DoubleClickWithThreshold;
 import gui.mouseAdapters.SelectionWindowBuilder;
-import gui.mvpFramework.GameView;
+import gui.mvpFramework.view.ViewInterface;
 
 /**
  * A GameSpace aligned ("snapped") to space(s) on a Grid
@@ -144,11 +144,11 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 
 	private void addListeners(final boolean hasSellBackOption, final boolean canRemove, final boolean canSellBack) {
 		removeListeners();
-		final BiConsumer<GameView, MouseEvent> onDoubleClick = (gv, e) -> {
+		final BiConsumer<ViewInterface, MouseEvent> onDoubleClick = (gv, e) -> {
 			gv.getPresenter().attemptMoveGridSpace(this);
 		};
 		
-		final MouseListener dubClickListener = new DoubleClickWithThreshold<GameView>(CLICK_DIST_THRESH, onDoubleClick, grid.getGameView());
+		final MouseListener dubClickListener = new DoubleClickWithThreshold<ViewInterface>(CLICK_DIST_THRESH, onDoubleClick, grid.getViewInterface());
 		addMouseListener(dubClickListener);
 		listeners.add(dubClickListener);
 		
@@ -158,25 +158,25 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 		
 	}
 	private MouseListener getDefaultPopupListener(final boolean hasSellBackOption, final boolean canRemove, final boolean canSellBack) {
-		final SelectionWindowBuilder<GameView> swb = new SelectionWindowBuilder<GameView>(CLICK_DIST_THRESH, "Options");
-		final BiConsumer<GameView, MouseEvent> onClickDelete = (gv, e) -> {			
+		final SelectionWindowBuilder<ViewInterface> swb = new SelectionWindowBuilder<ViewInterface>(CLICK_DIST_THRESH, "Options");
+		final BiConsumer<ViewInterface, MouseEvent> onClickDelete = (gv, e) -> {			
 			gv.getPresenter().attemptDeleteGridSpace(this);
 		};
-		final BiConsumer<GameView, MouseEvent> onClickSellBack = (gv, e) -> {			
+		final BiConsumer<ViewInterface, MouseEvent> onClickSellBack = (gv, e) -> {			
 			gv.getPresenter().attemptSellBackGridSpace(this);
 		};
 		if (hasSellBackOption) {
-			final String sellBackString = grid.getGameView().getPresenter().getSellBackString(this);
+			final String sellBackString = grid.getViewInterface().getPresenter().getSellBackString(this);
 			swb.addOption(sellBackString,
-					onClickSellBack, grid.getGameView(), canSellBack);
+					onClickSellBack, grid.getViewInterface(), canSellBack);
 		}
 		if (canRemove) {
-			swb.addOption(grid.getGameView().getPresenter().getDiscardText(this), onClickDelete, grid.getGameView());
+			swb.addOption(grid.getViewInterface().getPresenter().getDiscardText(this), onClickDelete, grid.getViewInterface());
 		}
 		return swb
 				.addOption("Move " + getName() + " To Bank")
-				.addDoOnMenuVisible(() -> grid.getGameView().getPresenter().notifyRightClickedGridSpace())
-				.addDoOnMenuClose(() -> grid.getGameView().getPresenter().notifyDoneWithRightClick())
+				.addDoOnMenuVisible(() -> grid.getViewInterface().getPresenter().notifyRightClickedGridSpace())
+				.addDoOnMenuClose(() -> grid.getViewInterface().getPresenter().notifyDoneWithRightClick())
 				.getListener();
 		
 	}

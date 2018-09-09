@@ -7,15 +7,15 @@ package effects;
  */
 public enum GlobalModifierOption {
 	/**
-	 * Apply to all things on the board regardless of type
+	 * Apply to all things on the model regardless of type
 	 */
 	NO_PREFERENCE, 
 	/**
-	 * Apply only to creatures on the board
+	 * Apply only to creatures on the model
 	 */
 	ONLY_CREATURES, 
 	/**
-	 * Apply only to items on the board
+	 * Apply only to items on the model
 	 */
 	ONLY_ITEMS;
 }

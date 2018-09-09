@@ -17,10 +17,10 @@ import attributes.ParseType;
 import attributes.attributegenerators.AttributeGenerator;
 import effects.Event;
 import effects.Eventful;
-import game.Board;
-import game.BoardAttributeManager;
 import interfaces.Imagable;
 import interfaces.SerializablePredicate;
+import model.ModelAttributeManager;
+import model.ThingObserver;
 import modifiers.Modifier;
 
 /**
@@ -36,20 +36,20 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	private final String name;
 	private final String image;
 	private final AttributeManager attributes;
-	private final BoardAttributeManager boardAttributeManager;
+	private final ModelAttributeManager modelAttributeManager;
 	private final List<Event> eventList= new ArrayList<Event>();
 	private final Set<Modifier> modifiers = new HashSet<Modifier>();
 	/**
-	 * Creates a new Thing with no name, image, boardAttributeManager, or attributes, and with the provided events
+	 * Creates a new Thing with no name, image, modelAttributeManager, or attributes, and with the provided events
 	 */
 	Thing() {
 		name = null;
 		image = null;
-		boardAttributeManager = null;
+		modelAttributeManager = null;
 		attributes = null;
 	}
 	/**
-	 * Creates a new Thing with no name, image, boardAttributeManager, or attributes, and with the provided events
+	 * Creates a new Thing with no name, image, modelAttributeManager, or attributes, and with the provided events
 	 * @param events the events to add to the event lsit
 	 */
 	Thing(final Event...events) {
@@ -73,26 +73,26 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 				return validateAttribute(at);
 			}		
 		});
-		boardAttributeManager = new BoardAttributeManager(this);
-		attributes.addObserver(boardAttributeManager, ParseType.INTEGER);
+		modelAttributeManager = new ModelAttributeManager(this);
+		attributes.addObserver(modelAttributeManager, ParseType.INTEGER);
 	}
 	/**
 	 * Creates a new Thing with the provided name and image
 	 * @param name the name of the Thing
 	 * @param image the image of the Thing
-	 * @param haveBoardAttributes if false, won't create a BoardAttributeManager
+	 * @param haveModelAttributes if false, won't create a modelAttributeManager
 	 */
-	Thing(final String name, final String image, final boolean haveBoardAttributes) {
+	Thing(final String name, final String image, final boolean haveModelAttributes) {
 		this.name = name;
 		this.image = image;
 		attributes = new AttributeManager();
 		attributes.setAttributeValidation(at -> validateAttribute(at));
-		if (haveBoardAttributes) {
-			boardAttributeManager = new BoardAttributeManager(this);
-			attributes.addObserver(boardAttributeManager, ParseType.INTEGER);
+		if (haveModelAttributes) {
+			modelAttributeManager = new ModelAttributeManager(this);
+			attributes.addObserver(modelAttributeManager, ParseType.INTEGER);
 		}
 		else {
-			boardAttributeManager = null;
+			modelAttributeManager = null;
 		}
 		
 	}
@@ -104,8 +104,8 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 		this.name = t.name;
 		this.image = t.image;
 		this.attributes = new AttributeManager();
-		boardAttributeManager = new BoardAttributeManager(this);
-		attributes.addObserver(boardAttributeManager, ParseType.INTEGER);
+		modelAttributeManager = new ModelAttributeManager(this);
+		attributes.addObserver(modelAttributeManager, ParseType.INTEGER);
 		attributes.copyOverFromOldManager(t.attributes);
 	}
 	/** 
@@ -116,7 +116,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 		return eventList;
 	}
 	/**
-	 * Returns a copy of this thing Note that this does NOT copy events. (It does however create new board attribute
+	 * Returns a copy of this thing Note that this does NOT copy events. (It does however create new model attribute
 	 * events)
 	 * @return a copy of this thing. 
 	 */
@@ -174,15 +174,15 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	 */
 	abstract boolean validateAttribute(Attribute<?> attribute);
 	/**
-	 * To be called when this Thing is placed on a board
-	 * @param board the board the Thing is placed on
+	 * To be called when this Thing is placed on a model
+	 * @param observer the observer the Thing is placed on
 	 */
-	public abstract void onPlace(Board board);
+	public abstract void onPlace(ThingObserver observer);
 	/**
-	 * To be called when this Thing is removed from a board
-	 * @param board the board the Thing is removed from
+	 * To be called when this Thing is removed from a model
+	 * @param observer the observer the Thing is removed from
 	 */
-	public abstract void onRemove(Board board);
+	public abstract void onRemove(ThingObserver observer);
 	/**
 	 * Return value of the Attribute of the given name
 	 * @param <T> the type of the attribute

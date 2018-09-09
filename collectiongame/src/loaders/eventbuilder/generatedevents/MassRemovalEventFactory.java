@@ -5,7 +5,7 @@ import effects.Event;
 import gui.guiutils.GuiUtils;
 
 /**
- * Constructs Events that remove all creatures on the board and then modify the board in some way based on
+ * Constructs Events that remove all creatures on the model and then modify the model in some way based on
  * the number of creatures removed
  * @author David O'Sullivan
  *
@@ -34,11 +34,11 @@ public class MassRemovalEventFactory extends TypicalEventFactory {
 	@Override
 	public Event generateEvent() {
 		return new ActOnCreatorEvent(
-				board -> {
-					final int i = board.removeAllCreatures(); 
+				model -> {
+					final int i = model.removeAllCreatures(); 
 					switch(statToAddTo) {
 					case GOLD:
-						board.addGold(i*amountToAdd);
+						model.addGold(i*amountToAdd);
 					}
 				}, 
 				x->{}, 

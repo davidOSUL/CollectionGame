@@ -38,9 +38,9 @@ public class RandomGoldEventFactory extends TypicalEventFactory{
 	 */
 	@Override
 	public Event generateEvent() {
-		final Event randomGold = new OnPeriodEventWithDisplay( board -> {
+		final Event randomGold = new OnPeriodEventWithDisplay( model -> {
 			if (GameUtils.testPercentChance(percentChance))
-				board.addGold(gold);
+				model.addGold(gold);
 		}, periodInMinutes, "event description");
 		return randomGold;
 	}

@@ -16,7 +16,7 @@ import java.util.Set;
 import gui.gameComponents.GameSpace;
 import gui.gameComponents.grid.GridSpace.GridSpaceData;
 import gui.guiutils.GuiUtils;
-import gui.mvpFramework.GameView;
+import gui.mvpFramework.view.ViewInterface;
 
 /**
  * Grid for things, creatures, etc. to live on. Is made up of "Spots" which are the individual squares of the grid, and GridSpaces which are 
@@ -56,9 +56,9 @@ public final class Grid extends GameSpace {
 	 */
 	private boolean highlightVisible = false;
 	/**
-	 * The GameView that houses this object
+	 * The View Interface that houses this object
 	 */
-	private final GameView gv;
+	private final ViewInterface vi;
 
 	
 	/**
@@ -68,10 +68,10 @@ public final class Grid extends GameSpace {
 	 * @param dimension width/height of grid
 	 * @param subX width of grid elements
 	 * @param subY height of grid elements
-	 * @param gv the GameView that houses this Grid
+	 * @param vi the ViewInterface that houses this Grid
 	 * @param gridID an integer identification for this grid
 	 */
-	public Grid(final int x, final int y, final Dimension dimension, final int subX, final int subY, final GameView gv, final int gridID) {
+	public Grid(final int x, final int y, final Dimension dimension, final int subX, final int subY, final ViewInterface vi, final int gridID) {
 		super(x,y, dimension);
 		if (subX > getWidth() || subY > getHeight()) {
 			throw new IllegalArgumentException("Can't subdivide");
@@ -84,7 +84,7 @@ public final class Grid extends GameSpace {
 				grid.put(p, new Spot(p));
 			}
 		}
-		this.gv = gv;
+		this.vi = vi;
 		this.gridID = gridID;
 	}
 	/**
@@ -92,11 +92,11 @@ public final class Grid extends GameSpace {
 	 * @param r The rectangle representing this grids location, width/height
 	 * @param subX width of grid elements
 	 * @param subY height of grid elements
-	 * @param gv the GameView that houses this Grid
+	 * @param vi the ViewInterface that houses this Grid
 	 * @param gridID an integer identification for this grid
 	 */
-	public Grid(final Rectangle r, final int subX, final int subY, final GameView gv, final int gridID) {
-		this(r.x, r.y, new Dimension((int)r.getWidth(), (int)r.getHeight()), subX, subY, gv, gridID);
+	public Grid(final Rectangle r, final int subX, final int subY, final ViewInterface vi, final int gridID) {
+		this(r.x, r.y, new Dimension((int)r.getWidth(), (int)r.getHeight()), subX, subY, vi, gridID);
 	}
 	
 	/**
@@ -391,11 +391,11 @@ public final class Grid extends GameSpace {
 		return subY;
 	}
 	/**
-	 * Returns the GameView that houses this grid
+	 * Returns the ViewInterface that houses this grid
 	 * @return
 	 */
-	protected GameView getGameView() {
-		return gv;
+	protected ViewInterface getViewInterface() {
+		return vi;
 	}
 	/**
 	 *Very simple implementation of Point. Exactly the same but with a different name, used to help distinguish

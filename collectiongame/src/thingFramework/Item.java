@@ -7,8 +7,8 @@ import attributes.AttributeCharacteristic;
 import attributes.attributegenerators.AttributeGenerator;
 import effects.Event;
 import effects.Eventful;
-import game.Board;
 import interfaces.Imagable;
+import model.ThingObserver;
 
 /**
  * Items are one of the two types of Things. They are generally purchased in the Shop, usually have events
@@ -41,10 +41,10 @@ public class Item extends Thing implements Serializable, Eventful, Imagable{
 	 * Creates a new Creature with the provided name and image
 	 * @param name the name of the Item
 	 * @param image the path to the image
-	 * @param haveBoardAttributes if false, won't create a BoardAttributeManager
+	 * @param haveModelAttributes if false, won't create a ModelAttributeManager
 	 */
-	public Item(final String name, final String image, final boolean haveBoardAttributes) {
-		super(name, image, haveBoardAttributes);
+	public Item(final String name, final String image, final boolean haveModelAttributes) {
+		super(name, image, haveModelAttributes);
 	}
 	private Item(final Item i) {
 		super(i);
@@ -53,19 +53,19 @@ public class Item extends Thing implements Serializable, Eventful, Imagable{
 
 
 	/** 
-	 * @see thingFramework.Thing#onPlace(game.Board)
+	 * @see thingFramework.Thing#onPlace(model.ThingObserver)
 	 */
 	@Override
-	public void onPlace(final Board board) {
-		board.notifyItemAdded(this);
+	public void onPlace(final ThingObserver observer) {
+		observer.notifyItemAdded(this);
 	}
 
 	/** 
-	 * @see thingFramework.Thing#onRemove(game.Board)
+	 * @see thingFramework.Thing#onRemove(model.ThingObserver)
 	 */
 	@Override
-	public void onRemove(final Board board) {
-		board.notifyItemRemoved(this);
+	public void onRemove(final ThingObserver observer) {
+		observer.notifyItemRemoved(this);
 	}
 	/**
 	 * Creates a new Item with no name and image

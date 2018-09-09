@@ -4,12 +4,12 @@ import static gameutils.Constants.DEBUG;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import game.Board;
 import gameutils.GameUtils;
 import interfaces.SerializableConsumer;
+import model.ModelInterface;
 import thingFramework.Thing;
 /**
- * Various things make events which affect the state of the board at different times. Events have an
+ * Various things make events which affect the state of the ModelInterface at different times. Events have an
  * "onPlace", "onRemove" functions which happen when they are created/destroyed. Some events also have an
  * "onPeriod" function which happens at a regular interval, and an "onTick" function that happens every time the game
  * is updated
@@ -21,10 +21,10 @@ public class Event implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private SerializableConsumer<Board> onPlace =  x -> {};
-	private SerializableConsumer<Board> onPeriod = x -> {};
-	private SerializableConsumer<Board> onRemove =  x -> {};
-	private SerializableConsumer<Board> onTick = x -> {};
+	private SerializableConsumer<ModelInterface> onPlace =  x -> {};
+	private SerializableConsumer<ModelInterface> onPeriod = x -> {};
+	private SerializableConsumer<ModelInterface> onRemove =  x -> {};
+	private SerializableConsumer<ModelInterface> onTick = x -> {};
 	private double period = -1; //period in minutes
 	private long timeCreated;
 	private long inGameTimeCreated;
@@ -36,7 +36,7 @@ public class Event implements Serializable {
 	private String name = "Event ";
 	private boolean shouldBeRemoved = false;
 	private boolean shouldBeReset = false;
-	private SerializableConsumer<Board> newOnRemove = null;
+	private SerializableConsumer<ModelInterface> newOnRemove = null;
 	private Thing creator;
 	/**
 	 * Creates a new event that does nothing to the boad
@@ -44,95 +44,95 @@ public class Event implements Serializable {
 	public Event() {
 	}
 	/**
-	 * Creates a new event that does something to the board when it is put down
-	 * @param onPlace what should happen to the board upon placing this event
+	 * Creates a new event that does something to the ModelInterface when it is put down
+	 * @param onPlace what should happen to the ModelInterface upon placing this event
 	 */
-	public Event(final SerializableConsumer<Board> onPlace) {
+	public Event(final SerializableConsumer<ModelInterface> onPlace) {
 		setOnPlace(onPlace);
 	}
 	/**
-	 * Creates a new event that does something to the board when it is put down and also when it is removed
-	 * @param onPlace what should happen to the board upon placing this event
-	 * @param onRemove what should happen to the board upon removing this event
+	 * Creates a new event that does something to the ModelInterface when it is put down and also when it is removed
+	 * @param onPlace what should happen to the ModelInterface upon placing this event
+	 * @param onRemove what should happen to the ModelInterface upon removing this event
 	 */
-	public Event(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onRemove) {
+	public Event(final SerializableConsumer<ModelInterface> onPlace, final SerializableConsumer<ModelInterface> onRemove) {
 		this(onPlace);
 		setOnRemove(onRemove);
 	}
 	/**
-	 * Creates a new event that does something to the board periodically
-	 * @param onPeriod what should happen to the board periodically
+	 * Creates a new event that does something to the ModelInterface periodically
+	 * @param onPeriod what should happen to the ModelInterface periodically
 	 * @param periodInMinutes the length of the period (in minutes)
 	 */
-	public Event(final SerializableConsumer<Board> onPeriod, final int periodInMinutes) {
+	public Event(final SerializableConsumer<ModelInterface> onPeriod, final int periodInMinutes) {
 		setOnPeriod(onPeriod);
 		setPeriod(periodInMinutes);
 	}
 	/**
-	 * Creates a new event that does something to the board periodically
-	 * @param onPeriod what should happen to the board periodically
+	 * Creates a new event that does something to the ModelInterface periodically
+	 * @param onPeriod what should happen to the ModelInterface periodically
 	 * @param periodInMinutes the length of the period (in minutes)
 	 */
-	public Event(final SerializableConsumer<Board> onPeriod, final double periodInMinutes) {
+	public Event(final SerializableConsumer<ModelInterface> onPeriod, final double periodInMinutes) {
 		setOnPeriod(onPeriod);
 		setPeriod(periodInMinutes);
 		
 
 	}
 	/**
-	 * Creates a new event that does something to the board when it is put down, and also periodically
-	 * @param onPlace what should happen to the board upon placing this event
-	 * @param onPeriod what should happen to the board periodically
+	 * Creates a new event that does something to the ModelInterface when it is put down, and also periodically
+	 * @param onPlace what should happen to the ModelInterface upon placing this event
+	 * @param onPeriod what should happen to the ModelInterface periodically
 	 * @param periodInMinutes the length of the period (in minutes)
 	 */
-	public Event(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final int periodInMinutes) {
+	public Event(final SerializableConsumer<ModelInterface> onPlace, final SerializableConsumer<ModelInterface> onPeriod, final int periodInMinutes) {
 		this(onPeriod, periodInMinutes);
 		setOnPlace(onPlace);
 	}
 	/**
-	 * Creates a new event that does something to the board when it is put down, and also periodically
-	 * @param onPlace what should happen to the board upon placing this event
-	 * @param onPeriod what should happen to the board periodically
+	 * Creates a new event that does something to the ModelInterface when it is put down, and also periodically
+	 * @param onPlace what should happen to the ModelInterface upon placing this event
+	 * @param onPeriod what should happen to the ModelInterface periodically
 	 * @param periodInMinutes the length of the period (in minutes)
 	 */
-	public Event(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final double periodInMinutes) {
+	public Event(final SerializableConsumer<ModelInterface> onPlace, final SerializableConsumer<ModelInterface> onPeriod, final double periodInMinutes) {
 		this(onPeriod, periodInMinutes);
 		setOnPlace(onPlace);
 	}
 	/**
-	 * Creates a new event that does something to the board when it is put down, when it is removed, and also periodically
-	 * @param onPlace what should happen to the board upon placing this event
-	 * @param onPeriod what should happen to the board periodically
-	 * @param onRemove what should happen to the board upon removing this event
+	 * Creates a new event that does something to the ModelInterface when it is put down, when it is removed, and also periodically
+	 * @param onPlace what should happen to the ModelInterface upon placing this event
+	 * @param onPeriod what should happen to the ModelInterface periodically
+	 * @param onRemove what should happen to the ModelInterface upon removing this event
 	 * @param periodInMinutes the length of the period (in minutes)
 	 */
-	public Event(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final SerializableConsumer<Board> onRemove, final int periodInMinutes) {
+	public Event(final SerializableConsumer<ModelInterface> onPlace, final SerializableConsumer<ModelInterface> onPeriod, final SerializableConsumer<ModelInterface> onRemove, final int periodInMinutes) {
 		this(onPeriod, periodInMinutes);
 		setOnPlace(onPlace);
 		setOnRemove(onRemove);
 	}
 	
 	/**
-	 * Creates a new event that does something to the board when it is put down, when it is removed, and also periodically
-	 * @param onPlace what should happen to the board upon placing this event
-	 * @param onPeriod what should happen to the board periodically
-	 * @param onRemove what should happen to the board upon removing this event
+	 * Creates a new event that does something to the ModelInterface when it is put down, when it is removed, and also periodically
+	 * @param onPlace what should happen to the ModelInterface upon placing this event
+	 * @param onPeriod what should happen to the ModelInterface periodically
+	 * @param onRemove what should happen to the ModelInterface upon removing this event
 	 * @param periodInMinutes the length of the period (in minutes)
 	 */
-	public Event(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final SerializableConsumer<Board> onRemove, final double periodInMinutes) {
+	public Event(final SerializableConsumer<ModelInterface> onPlace, final SerializableConsumer<ModelInterface> onPeriod, final SerializableConsumer<ModelInterface> onRemove, final double periodInMinutes) {
 		this(onPeriod, periodInMinutes);
 		setOnPlace(onPlace);
 		setOnRemove(onRemove);
 	}
 	/**
-	 * Creates a new event that does something to the board when it is put down, when it is removed, periodically, and every game tick
-	 * @param onPlace what should happen to the board upon placing this event
-	 * @param onPeriod what should happen to the board periodically
-	 * @param onRemove what should happen to the board upon removing this event
-	 * @param onTick what should happen to the board every game tick
+	 * Creates a new event that does something to the ModelInterface when it is put down, when it is removed, periodically, and every game tick
+	 * @param onPlace what should happen to the ModelInterface upon placing this event
+	 * @param onPeriod what should happen to the ModelInterface periodically
+	 * @param onRemove what should happen to the ModelInterface upon removing this event
+	 * @param onTick what should happen to the ModelInterface every game tick
 	 * @param periodInMinutes the length of the period (in minutes)
 	 */
-	public Event(final SerializableConsumer<Board> onPlace, final SerializableConsumer<Board> onPeriod, final SerializableConsumer<Board> onRemove, final SerializableConsumer<Board> onTick, final double periodInMinutes) {
+	public Event(final SerializableConsumer<ModelInterface> onPlace, final SerializableConsumer<ModelInterface> onPeriod, final SerializableConsumer<ModelInterface> onRemove, final SerializableConsumer<ModelInterface> onTick, final double periodInMinutes) {
 		this(onPlace, onPeriod, onRemove, periodInMinutes);
 		setOnTick(onTick);
 	}
@@ -143,7 +143,7 @@ public class Event implements Serializable {
 	protected Event(final Event oldEvent) {
 		this(oldEvent.onPlace, oldEvent.onPeriod, oldEvent.onRemove, oldEvent.onTick, oldEvent.period);
 	}
-	private synchronized void runOnPlace(final Board b) {
+	private synchronized void runOnPlace(final ModelInterface b) {
 		if (!onPlaceExecuted()) {
 			timeCreated = b.getTotalTimeSinceStart();
 			inGameTimeCreated = b.getTotalInGameTime();
@@ -153,13 +153,13 @@ public class Event implements Serializable {
 		if (DEBUG)
 			System.out.println("runOnPlace from " + this);
 	}
-	private synchronized void runRemove(final Board b) {
+	private synchronized void runRemove(final ModelInterface b) {
 		onPlaceExecuted.set(false);
 		onRemove.accept(b);
 		if (DEBUG)
 			System.out.println("runOnRemove from " + this);
 	}
-	private synchronized void runOnTick(final Board b) {
+	private synchronized void runOnTick(final ModelInterface b) {
 		onTick.accept(b);
 	}
 	/**
@@ -172,7 +172,7 @@ public class Event implements Serializable {
 	/**
 	 * Executes the onPeriod consumer if it should
 	 */
-	private synchronized void executeIfTime(final Board b) {
+	private synchronized void executeIfTime(final ModelInterface b) {
 		if (!keepTrackWhileOff) {
 			if (hasPeriodicity() && (long) (GameUtils.millisAsMinutes(b.getTotalInGameTime()-inGameTimeCreated) / period) > numPeriodsElapsed) {
 				if (DEBUG)
@@ -195,7 +195,7 @@ public class Event implements Serializable {
 	 * set the onPlace consumer of this event
 	 * @param onPlace the consumer to set to onPlace
 	 */
-	public void setOnPlace(final SerializableConsumer<Board> onPlace) {
+	public void setOnPlace(final SerializableConsumer<ModelInterface> onPlace) {
 		this.onPlace = onPlace;
 	}
 	/**
@@ -215,7 +215,7 @@ public class Event implements Serializable {
 	 * will be set to the newOnRemove
 	 * @param newOnRemove the new on Remove
 	 */
-	public void markForReset(final SerializableConsumer<Board> newOnRemove) {
+	public void markForReset(final SerializableConsumer<ModelInterface> newOnRemove) {
 		if (onPlaceExecuted())
 		{
 			shouldBeReset = true;
@@ -246,7 +246,7 @@ public class Event implements Serializable {
 	 * Sets the onPeriod consumer for this event
 	 * @param onPeriod the onPeriod consumer for this event
 	 */
-	public synchronized void setOnPeriod(final SerializableConsumer<Board> onPeriod) {
+	public synchronized void setOnPeriod(final SerializableConsumer<ModelInterface> onPeriod) {
 		this.onPeriod = onPeriod;
 	}
 	/**
@@ -271,7 +271,7 @@ public class Event implements Serializable {
 	 * @param onPeriod the onPeriod consumer for this event
 	 * @param newPeriod the new period of this event in minutes
 	 */
-	public synchronized void setOnPeriod(final SerializableConsumer<Board> onPeriod, final double newPeriod) {
+	public synchronized void setOnPeriod(final SerializableConsumer<ModelInterface> onPeriod, final double newPeriod) {
 		setOnPeriod(onPeriod);
 		setPeriod(newPeriod);
 	}
@@ -279,14 +279,14 @@ public class Event implements Serializable {
 	 * Returns the Consumer that is executed every event period
 	 * @return the Consumer that is executed every event period
 	 */
-	protected SerializableConsumer<Board> getOnPeriod() {
+	protected SerializableConsumer<ModelInterface> getOnPeriod() {
 		return onPeriod;
 	}
 	/**
 	 * Returns the Consumer that is executed when this event is placed down
 	 * @return the Consumer that is executed when this event is placed down
 	 */
-	public SerializableConsumer<Board> getOnPlace() {
+	public SerializableConsumer<ModelInterface> getOnPlace() {
 		return onPlace;
 	}
 	/**
@@ -298,10 +298,10 @@ public class Event implements Serializable {
 	/**
 	 * Returns a runnable that when run, will execute onPeriod if it is time to do so
 	 * This should be called every game tick.
-	 * @param b the board to execute the onPeriod consumer upon
+	 * @param b the ModelInterface to execute the onPeriod consumer upon
 	 * @return the runnable to be run
 	 */
-	public Runnable executePeriod(final Board b) {
+	public Runnable executePeriod(final ModelInterface b) {
 		return () -> executeIfTime(b);
 	}
 	/**
@@ -350,56 +350,56 @@ public class Event implements Serializable {
 	}
 	/**
 	 * Returns a runnable that when run, will execute onPlace. 
-	 * @param b the board to execute the onPlace consumer upon
+	 * @param b the ModelInterface to execute the onPlace consumer upon
 	 * @return the runnable to be run
 	 */
-	public Runnable executeOnPlace(final Board b) {
+	public Runnable executeOnPlace(final ModelInterface b) {
 		return () -> runOnPlace(b);
 	}
 	/**
 	 * Returns a runnable that when run, will execute onRemove. 
-	 * @param b the board to execute the onRemove consumer upon
+	 * @param b the ModelInterface to execute the onRemove consumer upon
 	 * @return the runnable to be run
 	 */
-	public Runnable executeOnRemove(final Board b) {
+	public Runnable executeOnRemove(final ModelInterface b) {
 		return () -> runRemove(b);
 	}
 	/**
 	 * Returns a runnable that when run, will execute onTick. This should be called every game tick
-	 * @param b the board to execute the onTick consumer upon
+	 * @param b the ModelInterface to execute the onTick consumer upon
 	 * @return the runnable to be run
 	 */
-	public Runnable executeOnTick(final Board b) {
+	public Runnable executeOnTick(final ModelInterface b) {
 		return () -> runOnTick(b);
 	}
 	/**
 	 * Sets the onRemove consumer for this event. 
 	 * @param onRemove the new onRemove consumer for this event.
 	 */
-	protected void setOnRemove(final SerializableConsumer<Board> onRemove) {
+	protected void setOnRemove(final SerializableConsumer<ModelInterface> onRemove) {
 		this.onRemove = onRemove;
 	}
 	/**
 	 * Sets the onTick consumer for this event
 	 * @param onTick the new onTick consumer for this event
 	 */
-	public void setOnTick(final SerializableConsumer<Board> onTick) {
+	public void setOnTick(final SerializableConsumer<ModelInterface> onTick) {
 		this.onTick = onTick;
 	}
 	/**
 	 * Returns the onRemove consumer for this event
 	 * @return  the onRemove consumer for this event
 	 */
-	protected SerializableConsumer<Board> getOnRemove() {
+	protected SerializableConsumer<ModelInterface> getOnRemove() {
 		return onRemove;
 	}
 	/**
 	 * Returns a runnable that executes the reset procedure for this event. This entails calling onRemove, onPlace, and then setting
 	 * onRemove to the newOnRemove that was passed in from markForRest. Finally, it will be unmarked as needing reset
-	 * @param b the Board to act upon
+	 * @param b the ModelInterface to act upon
 	 * @return the Runnable to run
 	 */
-	public Runnable executeOnReset(final Board b) {
+	public Runnable executeOnReset(final ModelInterface b) {
 		return () -> {
 			if (shouldBeReset) {
 				shouldBeReset = false; 
@@ -413,10 +413,10 @@ public class Event implements Serializable {
 	
 	/**
 	 * Returns a string representing the amount of time until the next period occurs
-	 * @param b the board to get the time from
+	 * @param b the ModelInterface to get the time from
 	 * @return the String representation (of the format : MM:SS)
 	 */
-	public String getTimeToNextPeriod(final Board b) {
+	public String getTimeToNextPeriod(final ModelInterface b) {
 		if (period < 0)
 			return GameUtils.infinitySymbol();
 		final long timeAliveAsMillis = keepTrackWhileOff ? b.getTotalTimeSinceStart() - timeCreated : b.getTotalInGameTime() - inGameTimeCreated;

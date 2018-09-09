@@ -21,8 +21,8 @@ import gameutils.GameUtils;
 import gui.gameComponents.GameSpace;
 import gui.gameComponents.PictureButton;
 import gui.guiutils.GuiUtils;
-import gui.mvpFramework.GameView;
 import gui.mvpFramework.presenter.Presenter;
+import gui.mvpFramework.view.ViewInterface;
 import loaders.shopLoader.ShopItem;
 
 /**
@@ -31,7 +31,7 @@ import loaders.shopLoader.ShopItem;
  *
  */
 //TODO: Make this two seperate classes, one with scroll, other with buttons
-public class ShopWindow {
+public class ShopGUI {
 	/**
 	 * How big the pictures of the things should be
 	 */
@@ -75,7 +75,7 @@ public class ShopWindow {
 	private JPanel shopWindowForScrolling;
 	private JScrollPane scrollableShopWindow;
 	private JPanel cardLayoutShopWindow;
-	private final GameView gv;
+	private final ViewInterface vi;
 	private static final Font DEFAULT_FONT = new Font("TimesRoman", Font.BOLD, 11);
 	private static final int CARD_NUM_ROWS_THINGS = 4;
 	private static final int CARD_NUM_COLS_THINGS = 4;
@@ -90,13 +90,13 @@ public class ShopWindow {
 	private int currentIndex = 0;
 	/**
 	 * Creates a new ShopWindow with no items
-	 * @param gv the gameView to interact with
+	 * @param vi the view interface to interact with
 	 */
 
-	public ShopWindow(final GameView gv) {
+	public ShopGUI(final ViewInterface vi) {
 		setUpPanel();
 		scrollableShopWindow = new JScrollPane(shopWindowForScrolling);
-		this.gv = gv;
+		this.vi = vi;
 	}
 	private void setUpPanel() {
 		shopWindowForScrolling = new JPanel();
@@ -120,7 +120,7 @@ public class ShopWindow {
 		final PictureButton<?> allItems[] = new PictureButton[shopItems.size()];
 		while (it.hasNext()) {
 			final ShopItem shopItem = it.next();
-			final PictureButton<Presenter> pb = new PictureButton<Presenter>(generateImage(shopItem), p -> p.notifyAttemptPurchaseThing(shopItem), gv.getPresenter()).disableBorder();
+			final PictureButton<Presenter> pb = new PictureButton<Presenter>(generateImage(shopItem), p -> p.notifyAttemptPurchaseThing(shopItem), vi.getPresenter()).disableBorder();
 			DescriptionManager.getInstance().setDescription(pb, shopItem.toString());
 			allItems[i++] = pb;
 			shopWindowForScrolling.add(pb);
@@ -150,7 +150,7 @@ public class ShopWindow {
 			overlay =GuiUtils.overlayImage(ITEM_TEMPLATE, sprite, SPRITE_IMAGE_LOC); 
 		final Image overlayWithQuantity = GuiUtils.overlayText(overlay, item.getDisplayQuantity() + "x", QUANTITY_LOC, DEFAULT_FONT);
 		Image result = GuiUtils.overlayText(overlayWithQuantity, Integer.toString(item.getCost()), COST_LOC, DEFAULT_FONT);
-		if (gv.getPresenter().shouldGreyOut(item))
+		if (vi.getPresenter().shouldGreyOut(item))
 			result = GrayFilter.createDisabledImage(result);
 		return result;
 	}
@@ -205,7 +205,7 @@ public class ShopWindow {
 		gs.setOpaque(true);
 		gs.setVisible(true);
 		final JPanel[][] holder = getNewHolder(gs);
-		holder[0][0].add(ButtonBuilder.generatePictureButton("cancel_button", p -> p.Canceled(), gv.getPresenter()));
+		holder[0][0].add(ButtonBuilder.generatePictureButton("cancel_button", p -> p.Canceled(), vi.getPresenter()));
 		if (addPrev) {
 			final PictureButton<CardLayout> prevButton = ButtonBuilder.generatePictureButton("prev_button",cl -> {cl.show(cardLayoutShopWindow, Integer.toString(windowIndex-1)); currentIndex = windowIndex-1;}, (CardLayout) cardLayoutShopWindow.getLayout());
 			holder[TOTAL_NUM_ROWS-1][0].setLayout(new GridBagLayout());

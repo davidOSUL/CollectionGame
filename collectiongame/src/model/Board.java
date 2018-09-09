@@ -1,4 +1,4 @@
-package game;
+package model;
 import static gameutils.Constants.DEBUG;
 import static gameutils.Constants.RAPID_SPAWN;
 
@@ -23,19 +23,17 @@ import effects.GlobalModifierOption;
 import gameutils.GameUtils;
 import gui.guiutils.GuiUtils;
 import loaders.ThingFactory;
-import loaders.shopLoader.ShopItem;
 import modifiers.Modifier;
 import modifiers.ModifierManager;
 import thingFramework.Creature;
 import thingFramework.Item;
 import thingFramework.Thing;
 /**
- * The "Model" in the MVP model. Manages the game state in memory.
- * <br> NOTE: newSession should be called at the beginning of a new session. </br>
+ * Main Implementation of Model Interface.
  * @author David O'Sullivan
  *
  */
-public class Board implements Serializable {
+public class Board implements Serializable, ModelInterface, ThingObserver {
 	/*
 	 * Static variables:
 	 * 
@@ -50,10 +48,6 @@ public class Board implements Serializable {
 	 * The minimum amount of gold a player can have
 	 */
 	private static final int MINGOLD = -9999999;
-	/**
-	 * Amount of money times original cost to discount on sellback of an item
-	 */
-	private final double sellBackPercent = .5;	
 	/**
 	 * The maximum number of creatures that can be in the dequeue at a time
 	 */
@@ -85,10 +79,6 @@ public class Board implements Serializable {
 	 * This is the currently Grabbed creature, it may be placed on the board and removed from foundCreatures or it may be put back
 	 */
 	private Creature grabbedCreature = null;
-	/**
-	 * This is the current ShopItem that may be purchased if the purchase is confirmed or it may be refunded if the purchase is canceled
-	 */
-	private ShopItem grabbedShopItem = null;
 
 
 	/**
@@ -125,10 +115,6 @@ public class Board implements Serializable {
 	 */
 	private volatile Map<String, Integer> uniqueCreatureLookup = new HashMap<String, Integer>();
 	/**
-	 * the shop associated with this board
-	 */
-	private final Shop shop;
-	/**
 	 * Manages all the events of the game
 	 */
 	private final EventManager events;
@@ -156,13 +142,17 @@ public class Board implements Serializable {
 	/**
 	 * Used to generate new Creatures periodically
 	 */
-	private final WildCreatureGenerator creatureGenerator;
+	private final BoardWildCreatureGenerator creatureGenerator;
+	/**
+	 * The Shop Window for this board
+	 */
+	private final ShopWindow shopWindow;
 	/**
 	 * Creates a new board
 	 */
 	public Board() {
-		creatureGenerator = new WildCreatureGenerator(this);
-		shop = new Shop();
+		creatureGenerator = new BoardWildCreatureGenerator(this);
+		shopWindow = new ShopWindow(this);
 		stm = new SessionTimeManager();
 		modifierManager = new ModifierManager(this);
 		events = new EventManager(this);
@@ -179,9 +169,10 @@ public class Board implements Serializable {
 		this.setPopularity(popularity);
 	}
 
-	/**
-	 * To be called on every game tick. Updates time and events
+	/** 
+	 * @see model.ModelInterface#update()
 	 */
+	@Override
 	public void update() {
 		if (SwingUtilities.isEventDispatchThread())
 			throw new IllegalStateException("Should not be on EDT");
@@ -206,12 +197,12 @@ public class Board implements Serializable {
 			return board.getLookForCreaturesPeriod();
 		});
 	}
-	/**
-	 * Returns the period at which the game checks for new creatures
-	 * @return The period at which the game checks for new creatures.
-	 *  
+	
+	/** 
+	 * @see model.ModelInterface#getLookForCreaturesPeriod()
 	 */
-	private double getLookForCreaturesPeriod() {
+	@Override
+	public double getLookForCreaturesPeriod() {
 		return creatureGenerator.getLookForCreaturesPeriod();
 	}
 	/**
@@ -266,31 +257,37 @@ public class Board implements Serializable {
 		if (newCreature != null)
 			addToFoundCreatures(newCreature);
 	}
-	/**
-	 * To be called by an event on calculated period. Will check if a creature is even found using 
-	 * getPercentChanceCreatureFound(), and if it is, will find a creature, with lower rarity creatures being
-	 * more likely
+	
+
+	/** 
+	 * @see model.ModelInterface#lookForCreature()
 	 */
-	private void lookForCreature() {
+	@Override
+	public void lookForCreature() {
 		lookForAndAddCreature(RAPID_SPAWN ? true : false); 
 	}
-	/**
-	 * Looks for a creature, but gurantees that one is found (as supposed to having a percent chance that none are found)
+	
+
+	/** 
+	 * @see model.ModelInterface#lookForCreatureGuranteedFind()
 	 */
-	private void lookForCreatureGuranteedFind() {
+	@Override
+	public void lookForCreatureGuranteedFind() {
 		lookForAndAddCreature(true);
 	}
-	/**
-	 * @param thing the thing to add
+	/** 
+	 * @see model.ModelInterface#addThing(thingFramework.Thing)
 	 */
+	@Override
 	public synchronized void addThing(final Thing thing) {
 		addElementToThingMap(thing);
 		modifierManager.getModifiersOfOption(GlobalModifierOption.NO_PREFERENCE).forEach(mod -> thing.addModifierIfShould(mod));
 		thing.onPlace(this);
 	}
-	/**
-	 * @param thing The thing to add
+	/** 
+	 * @see model.ModelInterface#removeThing(thingFramework.Thing)
 	 */
+	@Override
 	public synchronized void removeThing(final Thing thing) {
 		if (thing==null) {
 			throw new RuntimeException("Attempted to Remove null");
@@ -300,126 +297,130 @@ public class Board implements Serializable {
 		thing.onRemove(this);
 
 	}
-	/**
-	 * To be called whenever the game is rebooted, regardless of time of last save
+	/** 
+	 * @see model.ModelInterface#onStartUp()
 	 */
+	@Override
 	public void onStartUp() {
-		shop.checkForShopUpdates();
 		stm.signifyNewSession();
 	}
-	/**
-	 * Pause the game timer, will not resume until unPause() is called
+	/** 
+	 * @see model.ModelInterface#pause()
 	 */
+	@Override
 	public void pause() {
 		stm.pause();
 	}
-	/**
-	 * Unpause game timer
+	/** 
+	 * @see model.ModelInterface#unPause()
 	 */
+	@Override
 	public void unPause() {
 		stm.unPause();
 	}
-	/**
-	 * Returns the time since start, the time of the current session, and the total in game time as a formatted string
-	 * @return the time since start, the time of the current session, and the total in game time as a formatted string
+	/** 
+	 * @see model.ModelInterface#getTimeStats()
 	 */
+	@Override
 	public String getTimeStats() {
 		return "TotalTimeSinceStart: " + getTotalTimeSinceStart() + "\n" + " SessionGameTime: " + getSessionGameTime() + "\n TotalInGameTime: " + getTotalInGameTime();
 	}
-	/**
-	 * Increase the % chance (0-100) of a legendary creature appearing
-	 * @param increase the percentage (0-100) to increase by
+	/** 
+	 * @see model.ModelInterface#increaseLegendaryChance(int)
 	 */
+	@Override
 	public synchronized void increaseLegendaryChance(final int increase) {
 		legendaryChance = Math.min(100, Math.max(0, legendaryChance + increase));
 	}
-	/**
-	 * Decrease the % chance (0-100) of a legendary creature  appearing
-	 * @param decrease the percentage (0-100) to decrease by
+	/** 
+	 * @see model.ModelInterface#decreaseLegendaryChance(int)
 	 */
+	@Override
 	public synchronized void decreaseLegendaryChance(final int decrease) {
 		increaseLegendaryChance(-decrease);
 	}
-	/**
-	 * @return total time both on and offline
+	/** 
+	 * @see model.ModelInterface#getTotalTimeSinceStart()
 	 */
+	@Override
 	public synchronized long getTotalTimeSinceStart() {
 		return stm.getTotalTimeSinceStart();
 	}
-	/**
-	 * @return total time in this game session
+	/** 
+	 * @see model.ModelInterface#getSessionGameTime()
 	 */
+	@Override
 	public synchronized long getSessionGameTime() {
 		return stm.getSessionGameTime();
 	}
-	/**
-	 * @return total time throughout all game sessions
+	/** 
+	 * @see model.ModelInterface#getTotalInGameTime()
 	 */
+	@Override
 	public synchronized long getTotalInGameTime() {
 		return stm.getTotalInGameTime();
 	}
 
-	/**
-	 * Returns the amount of gold that the board has
-	 * @return the amount of gold that the board has
+	/** 
+	 * @see model.ModelInterface#getGold()
 	 */
+	@Override
 	public synchronized int getGold() {
 		return gold;
 	}
-	/**
-	 * Sets the amount of gold that the board has
-	 * @param gold the new amount of gold
+	/** 
+	 * @see model.ModelInterface#setGold(int)
 	 */
+	@Override
 	public synchronized void setGold(final int gold) {
 		this.gold = Math.max(MINGOLD, gold);
 	}
-	/**
-	 * Returns the amount of popularity that the board has
-	 * @return the amount of popularity that the board has
+	/** 
+	 * @see model.ModelInterface#getPopularity()
 	 */
+	@Override
 	public synchronized int getPopularity() {
 		return popularity;
 	}
-	/**
-	 * Sets the amount of popularity that the board has
-	 * @param popularity the new amount of popularity
+	/** 
+	 * @see model.ModelInterface#setPopularity(int)
 	 */
+	@Override
 	public synchronized void setPopularity(final int popularity) {
 		this.popularity = Math.max(MINPOP, popularity);
 	}
-	/**
-	 * Adds the amount of gold provided to the total amount of gold on the board
-	 * @param gold the amount to add
+	/** 
+	 * @see model.ModelInterface#addGold(int)
 	 */
+	@Override
 	public synchronized void addGold(final int gold) {
 		setGold(getGold()+gold);
 	}
-	/**
-	 * Subtracts the amount of gold provided to the total amount of gold on the board. Equivalent to addGold(-gold)
-	 * @param gold the amount to subtract
+	/** 
+	 * @see model.ModelInterface#subtractGold(int)
 	 */
+	@Override
 	public synchronized void subtractGold(final int gold) {
 		addGold(-gold);
 	}
-	/**
-	 * Adds the amount of popularity to the total amount of popularity on the board
-	 * @param popularity the amount of popularity to add
+	/** 
+	 * @see model.ModelInterface#addPopularity(int)
 	 */
+	@Override
 	public synchronized void addPopularity(final int popularity) {
 		setPopularity(getPopularity()+popularity);
 	}
-	/**
-	 * Subtracts the amount of popularity provided to the total amount of popularity on the board. Equivalent to addPopularity(-popularity)
-	 * @param popularity the amount of popularity to subtract
+	/** 
+	 * @see model.ModelInterface#subtractPopularity(int)
 	 */
+	@Override
 	public synchronized void subtractPopularity(final int popularity) {
 		addPopularity(-popularity);
 	}
-	/**
-	 * To be called whenever a creature is added to the board. Should be called by {@link Creature#onPlace(Board)}
-	 * @param creature the creature that was added
-	 * 
+	/** 
+	 * @see model.ModelInterface#notifyCreatureAdded(thingFramework.Creature)
 	 */
+	@Override
 	public synchronized void notifyCreatureAdded(final Creature creature) {
 		numCreatures++;
 		addToUniqueCreaturesLookup(creature);
@@ -427,28 +428,28 @@ public class Board implements Serializable {
 		modifierManager.getModifiersOfOption(GlobalModifierOption.ONLY_CREATURES).forEach(mod -> creature.addModifierIfShould(mod));
 
 	}
-	/**
-	 * To be called whenever a creature is removed from the board. Should be called by {@link Creature#onRemove(Board)}
-	 * @param creature the creature that was removed
+	/** 
+	 * @see model.ModelInterface#notifyCreatureRemoved(thingFramework.Creature)
 	 */
+	@Override
 	public synchronized void notifyCreatureRemoved(final Creature creature) {
 		numCreatures--;
 		removeFromUniqueCreaturesLookup(creature);
 		creaturesOnBoard.remove(creature);
 		modifierManager.getModifiersOfOption(GlobalModifierOption.ONLY_CREATURES).forEach(mod -> creature.removeModifierIfPresent(mod));
 	}
-	/**
-	 * To be called whenever an Item is added to the board. Should be called by {@link Item#onPlace(Board)}
-	 * @param i the item that was added
+	/** 
+	 * @see model.ModelInterface#notifyItemAdded(thingFramework.Item)
 	 */
+	@Override
 	public synchronized void notifyItemAdded(final Item i) {
 		itemsOnBoard.add(i);
 		modifierManager.getModifiersOfOption(GlobalModifierOption.ONLY_ITEMS).forEach(mod -> i.addModifierIfShould(mod));
 	}
-	/**
-	 * To be called whenever an Item is removed from the board. Should be called by {@link Item#onRemove(Board)}
-	 * @param i the item that was removed
+	/** 
+	 * @see model.ModelInterface#notifyItemRemoved(thingFramework.Item)
 	 */
+	@Override
 	public synchronized void notifyItemRemoved(final Item i) {
 		itemsOnBoard.remove(i);
 		modifierManager.getModifiersOfOption(GlobalModifierOption.ONLY_ITEMS).forEach(mod -> i.removeModifierIfPresent(mod));
@@ -487,17 +488,17 @@ public class Board implements Serializable {
 	private void removeAssociatedEvents(final Eventful eventful) {
 		events.notifyEventfulRemoved(eventful);
 	}
-	/**
-	 * @return true if there is a creature in the foundCreatures Queue (that is, a wild creature spawned)
+	/** 
+	 * @see model.ModelInterface#wildCreaturePresent()
 	 */
+	@Override
 	public boolean wildCreaturePresent() {
 		return !foundCreatures.isEmpty();
 	}
-	/**
-	 * For debugging purposes only. Gets the creature with the given name
-	 * @param name the name of the creature
-	 * @return the new creature
+	/** 
+	 * @see model.ModelInterface#getCreature(java.lang.String)
 	 */
+	@Override
 	public Creature getCreature(final String name) {
 		if (DEBUG)
 			return ThingFactory.getInstance().generateNewCreature(name);
@@ -505,7 +506,7 @@ public class Board implements Serializable {
 			throw new RuntimeException("Method should not be called when not debugging");
 	}
 	/** 
-	 * @see java.lang.Object#toString()
+	 * @see model.ModelInterface#toString()
 	 */
 	@Override
 	public String toString() {
@@ -515,9 +516,10 @@ public class Board implements Serializable {
 		}
 		return s.append("GOLD: " + getGold() + "\nPOP:" +getPopularity()).toString();
 	}
-	/**
-	 * @return the next wild creature in the queue, null if there is none, temporarily removes from queue. Call undoGrab() to place back and confirmGrab() to confirm removal
+	/** 
+	 * @see model.ModelInterface#grabWildCreature()
 	 */
+	@Override
 	public Creature grabWildCreature() {
 		if (grabbedCreature != null)
 			throw new RuntimeException("Previous Grab Unconfirmed");
@@ -525,9 +527,10 @@ public class Board implements Serializable {
 		grabbedCreature = grabbed;
 		return grabbed;
 	}
-	/**
-	 * Undo the effects of grabWildCreature() and place grabbed creature back at front of queue
+	/** 
+	 * @see model.ModelInterface#undoGrab()
 	 */
+	@Override
 	public void undoGrab() {
 		if (grabbedCreature == null) {
 			throw new RuntimeException("No Creature Grabbed");
@@ -535,10 +538,10 @@ public class Board implements Serializable {
 		foundCreatures.addFirst(grabbedCreature);
 		grabbedCreature = null;
 	}
-	/**
-	 * Confirm removal of creature from queue
-	 * @return The Creature that was confirmed to be grabbed
+	/** 
+	 * @see model.ModelInterface#confirmGrab()
 	 */
+	@Override
 	public Creature confirmGrab() {
 		if (grabbedCreature == null) {
 			throw new RuntimeException("No Creature Grabbed");
@@ -548,120 +551,44 @@ public class Board implements Serializable {
 		removeFromUniqueCreaturesLookup(creature);
 		return creature;
 	}
-	/**
-	 * @return the currently Grabbed Creature
+	/** 
+	 * @see model.ModelInterface#getGrabbed()
 	 */
+	@Override
 	public Creature getGrabbed() {
 		if (grabbedCreature == null) {
 			throw new RuntimeException("No Creature Grabbed");
 		}
 		return grabbedCreature;
 	}
-	/**
-	 * Gets and removes creature from queue
-	 * @return The next creature in the queue
+	/** 
+	 * @see model.ModelInterface#grabAndConfirm()
 	 */
+	@Override
 	public Creature grabAndConfirm() {
 		grabWildCreature();
 		return confirmGrab();
 	}
-	/**
-	 * @return the number of creatures waiting the queue
+	/** 
+	 * @see model.ModelInterface#numCreaturesWaiting()
 	 */
+	@Override
 	public int numCreaturesWaiting() {
 		return foundCreatures.size();
 	}
-	/**
-	 * @return a queue (sorted by display rank) of all the items presently in the shop
-	 */
-	public Set<ShopItem> getItemsInShop() {
-		return shop.itemsInOrder();
-	}
-	/**
-	 * @param item the item in the shop to purchase
-	 * @return true if have enough money to purchase, false otherwise
-	 */
-	public boolean canPurchase(final ShopItem item) {
-		return (item.getCost() <= getGold()) && (getPopularity() >= item.getMinPopularityToPurchase());
-	}
-	/**
-	 * If have enough money, start the purchase attempt
-	 * @param item the ShopItem in the shop
-	 * @return a Thing (for display purposes) that corresponds to the item
-	 */
-	public Thing startPurchase(final ShopItem item) {
-		if (canPurchase(item)) {
-			grabbedShopItem = item;
-			return Shop.getThingCopy(item);
-		}
-		return null;
 
-	}
-	/**
-	 * If have enough money, generate a new Thing corresponding to the thingName in the shop, and subtract the cost of that thing
-	 * @return the newly generated thing
-	 */
-	public Thing confirmPurchase() {
-		if (!canPurchase(grabbedShopItem))
-			return null;
-		subtractGold(grabbedShopItem.getCost());
-		return shop.purchase(grabbedShopItem);
 
-	}
-	/**
-	 * Cancel the purchase attempt
+	/** 
+	 * @see model.ModelInterface#applyGlobalModifier(modifiers.Modifier)
 	 */
-	public void cancelPurchase() {
-		grabbedShopItem = null;
-	}
-	/**
-	 * @param item the item to sell back
-	 *  @return false if the item is not able to be added back to the shop
-	 */
-	public boolean canAddBackToShopStock(final ShopItem item) {
-		return shop.isValidShopItem(item.getThingName());
-	}
-	/**
-	 * Sell back the specified item, adding it back to the shop and adding that much gold to the user
-	 * @param item the item to sell back
-	 */
-	public void sellBack(final ShopItem item) {
-		addGold(getSellBackValue(item));
-		sendItemBackToShop(item);
-	}
-	/**
-	 * Sends the item back to shop without adding any gold
-	 * @param item the item to send back
-	 */
-	public void sendItemBackToShop(final ShopItem item) {
-		if (canAddBackToShopStock(item))
-			shop.addToShopStock(item.getThingName());
-	}
-	/**
-	 * @param item the item to sell back
-	 * @return how much it would be sold back for
-	 */
-	public int getSellBackValue(final ShopItem item) {
-		if (item.getSellBackValue() == ShopItem.DEFAULT)
-			return Math.max(1 , (int)(item.getCost()*sellBackPercent));
-		else
-			return item.getSellBackValue();
-	}
-
-	/**
-	 * Applies the given modifier to all things. All things added
-	 * in the future will be affected as long as the modifier remains. Also starts mod.startCount(...).
-	 * @param mod the Thing modifier to add
-	 */
+	@Override
 	public synchronized void applyGlobalModifier(final Modifier mod) {
 		applyGlobalModifier(mod, GlobalModifierOption.NO_PREFERENCE);
 	}
-	/**
-	 * Applies the given modifier to specified things based on options. All currently present Thing meeting those stipulations, as well as those added
-	 * in the future will be affected as long as the modifier remains. Also starts mod.startCount(...).
-	 * @param mod the Thing modifier to add
-	 * @param option the preference for what types of Things should be affected by this modifier
+	/** 
+	 * @see model.ModelInterface#applyGlobalModifier(modifiers.Modifier, effects.GlobalModifierOption)
 	 */
+	@Override
 	public synchronized void applyGlobalModifier(final Modifier mod, final GlobalModifierOption option) {
 		switch(option) {
 		case NO_PREFERENCE:
@@ -677,38 +604,39 @@ public class Board implements Serializable {
 		modifierManager.addGlobalModifier(mod, option);
 		mod.startCount(this.getTotalInGameTime());
 	}
-	/**
-	 * Removes the given Modifier from the board. All Things currently affected by the modifier will have the modifier removed
-	 *@param mod the Modifier to remove
+	/** 
+	 * @see model.ModelInterface#removeGlobalModifier(modifiers.Modifier)
 	 */
+	@Override
 	public synchronized void removeGlobalModifier(final Modifier mod) {
 		thingsOnBoard.forEach(t -> t.removeModifierIfPresent(mod));
 		modifierManager.notifyGlobalModifierRemoved(mod);
 	}
-	/**
-	 * Add the provided thing to queue of things that the board wants to remove
-	 * @param t
+	/** 
+	 * @see model.ModelInterface#addToRemoveRequest(thingFramework.Thing)
 	 */
+	@Override
 	public synchronized void addToRemoveRequest(final Thing t) {
 		removeRequests.add(t);
 	}
-	/**
-	 * The board is requesting to remove something
-	 * @return true if the board has at least one thing to remove
+	/** 
+	 * @see model.ModelInterface#hasRemoveRequest()
 	 */
+	@Override
 	public synchronized boolean hasRemoveRequest() {
 		return !removeRequests.isEmpty();
 	}
-	/**
-	 * @return the next thing the board is requesting to remove (null if none)
+	/** 
+	 * @see model.ModelInterface#getNextRemoveRequest()
 	 */
+	@Override
 	public synchronized Thing getNextRemoveRequest() {
 		return removeRequests.poll();
 	}
-	/**
-	 * Returns a formatted string representation of the legendary percent chance, look for new creature period, chance that on a new creature period a creature is found
-	 * @return the formatted string showing advanced board stats
+	/** 
+	 * @see model.ModelInterface#getAdvancedStats()
 	 */
+	@Override
 	public String getAdvancedStats() {
 		final StringBuilder sb = new StringBuilder("Advanced Stats:\n");
 		final DecimalFormat dfDouble = new DecimalFormat("0.00"); 
@@ -723,19 +651,17 @@ public class Board implements Serializable {
 		sb.append("Rarity boost metric from popularity: " + creatureGenerator.getPopularityModifier());
 		return sb.toString();
 	}
-	/**
-	 * Adds to the total amount that whatever the calculated creature period is, it is decreased by that amount.
-	 * In other words. if the period is currently 1 minute, calling amountToDecrease(1000) will make it 59 seconds, 
-	 * whereas calling amountToDecrease(-1000) will make it 61 seconds. 
-	 * @param amountToDecreaseMillis the amount to decrease the look for new creature period by
+	/** 
+	 * @see model.ModelInterface#addToPeriodDecrease(long)
 	 */
+	@Override
 	public void addToPeriodDecrease(final long amountToDecreaseMillis) {
 		periodDecreaseMod += GameUtils.millisAsMinutes(amountToDecreaseMillis);
 	}
-	/**
-	 * Removes all creatures currently on the board
-	 * @return the number of creatures removed this way
+	/** 
+	 * @see model.ModelInterface#removeAllCreatures()
 	 */
+	@Override
 	public int removeAllCreatures() {
 		final int i = creaturesOnBoard.size();
 		for (final Creature c : creaturesOnBoard) {
@@ -764,5 +690,10 @@ public class Board implements Serializable {
 	synchronized int getNumCreaturesWaiting() {
 		return foundCreatures.size();
 	}
+	@Override
+	public ShopWindow getShopWindow() {
+		return shopWindow;
+	}
+	
 	
 }
