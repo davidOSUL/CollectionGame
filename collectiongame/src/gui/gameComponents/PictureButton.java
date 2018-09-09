@@ -60,9 +60,8 @@ public class PictureButton<T> extends BackgroundWithText {
 	 * It will have the effect onClick on the presenter of the passed in ViewInterface
 	 * @param img the image to set the notification button as
 	 * @param location the location of the button
-	 * @param onClick the effect on the presenter of gv 
+	 * @param onClick the effect on the T to act on
 	 * @param actOn the object to act on
-	 * @param gv the ViewInterface that houses this button
 	 */
 	public PictureButton(final Image img, final Point location, final Consumer<T> onClick, final T actOn) {
 		this(img, location);
@@ -129,9 +128,8 @@ public class PictureButton<T> extends BackgroundWithText {
 	 * Creates a new Picture Button with the given image. Places the button at (0,0) 
 	 * It will have the effect onClick on the presenter of the passed in ViewInterface
 	 * @param img the image to set the notification button as
-	 * @param onClick the effect on the presenter of gv 
+	 * @param onClick the effect on the presenter of the T to act on
 	 * @param actOn the object to act on
-	 * @param gv the ViewInterface that houses this button
 	 */
 	public PictureButton(final Image img, final Consumer<T> onClick, final T actOn) {
 		this(img, new Point(0,0), onClick, actOn);

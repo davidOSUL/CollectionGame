@@ -318,11 +318,11 @@ public final class Grid extends GameSpace {
 	}
 	/**
 	 * Checks if the GridSpace can reside where it wants to
-	 * @param gs The GridSpace to check
+	 * @param gridSpace The GridSpace to check
 	 * @return true if it can fit in the grid at its location
 	 */
-	private boolean hasRoom(final GridSpace gs) {
-		return hasRoom(gs.getGridPoint(), gs.getNumColumns(), gs.getNumRows());
+	private boolean hasRoom(final GridSpace gridSpace) {
+		return hasRoom(gridSpace.getGridPoint(), gridSpace.getNumColumns(), gridSpace.getNumRows());
 	}
 	/**
 	 * One element of the current grid

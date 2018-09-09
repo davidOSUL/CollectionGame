@@ -144,8 +144,8 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 
 	private void addListeners(final boolean hasSellBackOption, final boolean canRemove, final boolean canSellBack) {
 		removeListeners();
-		final BiConsumer<ViewInterface, MouseEvent> onDoubleClick = (gv, e) -> {
-			gv.getPresenter().attemptMoveGridSpace(this);
+		final BiConsumer<ViewInterface, MouseEvent> onDoubleClick = (view, e) -> {
+			view.getPresenter().attemptMoveGridSpace(this);
 		};
 		
 		final MouseListener dubClickListener = new DoubleClickWithThreshold<ViewInterface>(CLICK_DIST_THRESH, onDoubleClick, grid.getViewInterface());
@@ -159,11 +159,11 @@ public class GridSpace extends GameSpace implements Comparable<GridSpace>{
 	}
 	private MouseListener getDefaultPopupListener(final boolean hasSellBackOption, final boolean canRemove, final boolean canSellBack) {
 		final SelectionWindowBuilder<ViewInterface> swb = new SelectionWindowBuilder<ViewInterface>(CLICK_DIST_THRESH, "Options");
-		final BiConsumer<ViewInterface, MouseEvent> onClickDelete = (gv, e) -> {			
-			gv.getPresenter().attemptDeleteGridSpace(this);
+		final BiConsumer<ViewInterface, MouseEvent> onClickDelete = (view, e) -> {			
+			view.getPresenter().attemptDeleteGridSpace(this);
 		};
-		final BiConsumer<ViewInterface, MouseEvent> onClickSellBack = (gv, e) -> {			
-			gv.getPresenter().attemptSellBackGridSpace(this);
+		final BiConsumer<ViewInterface, MouseEvent> onClickSellBack = (view, e) -> {			
+			view.getPresenter().attemptSellBackGridSpace(this);
 		};
 		if (hasSellBackOption) {
 			final String sellBackString = grid.getViewInterface().getPresenter().getSellBackString(this);

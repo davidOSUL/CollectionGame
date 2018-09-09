@@ -24,7 +24,7 @@ public class NotificationButton extends PictureButton<ViewInterface> {
 	 * (numNotifications >0 || !hideOnEmpty)
 	 * @param img the image to set the notification button as
 	 * @param location the location of the button
-	 * @param onClick the effect on the presenter of gv 
+	 * @param onClick the effect on the presenter of view interface 
 	 * @param vi the ViewInterface that houses this button
 	 * @param hideOnEmpty true if button should be invisible and deactivated when numNotifications is <= 0
 	 */

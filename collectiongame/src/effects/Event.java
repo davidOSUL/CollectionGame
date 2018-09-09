@@ -143,24 +143,24 @@ public class Event implements Serializable {
 	protected Event(final Event oldEvent) {
 		this(oldEvent.onPlace, oldEvent.onPeriod, oldEvent.onRemove, oldEvent.onTick, oldEvent.period);
 	}
-	private synchronized void runOnPlace(final ModelInterface b) {
+	private synchronized void runOnPlace(final ModelInterface model) {
 		if (!onPlaceExecuted()) {
-			timeCreated = b.getTotalTimeSinceStart();
-			inGameTimeCreated = b.getTotalInGameTime();
+			timeCreated = model.getTotalTimeSinceStart();
+			inGameTimeCreated = model.getTotalInGameTime();
 		}
 		onPlaceExecuted.set(true);
-		onPlace.accept(b);
+		onPlace.accept(model);
 		if (DEBUG)
 			System.out.println("runOnPlace from " + this);
 	}
-	private synchronized void runRemove(final ModelInterface b) {
+	private synchronized void runRemove(final ModelInterface model) {
 		onPlaceExecuted.set(false);
-		onRemove.accept(b);
+		onRemove.accept(model);
 		if (DEBUG)
 			System.out.println("runOnRemove from " + this);
 	}
-	private synchronized void runOnTick(final ModelInterface b) {
-		onTick.accept(b);
+	private synchronized void runOnTick(final ModelInterface model) {
+		onTick.accept(model);
 	}
 	/**
 	 * Returns true if the "onPlace" consumer has been executed
@@ -172,20 +172,20 @@ public class Event implements Serializable {
 	/**
 	 * Executes the onPeriod consumer if it should
 	 */
-	private synchronized void executeIfTime(final ModelInterface b) {
+	private synchronized void executeIfTime(final ModelInterface model) {
 		if (!keepTrackWhileOff) {
-			if (hasPeriodicity() && (long) (GameUtils.millisAsMinutes(b.getTotalInGameTime()-inGameTimeCreated) / period) > numPeriodsElapsed) {
+			if (hasPeriodicity() && (long) (GameUtils.millisAsMinutes(model.getTotalInGameTime()-inGameTimeCreated) / period) > numPeriodsElapsed) {
 				if (DEBUG)
 					System.out.println("perioddontkeeptrackwhile off from " + this);
-				onPeriod.accept(b);
+				onPeriod.accept(model);
 				numPeriodsElapsed++;
 			}
 		}
 		else {
-			if (hasPeriodicity() && (long) (GameUtils.millisAsMinutes(b.getTotalTimeSinceStart()-timeCreated) / period) > numPeriodsElapsed) {
+			if (hasPeriodicity() && (long) (GameUtils.millisAsMinutes(model.getTotalTimeSinceStart()-timeCreated) / period) > numPeriodsElapsed) {
 				if (DEBUG)
 					System.out.println("periodkeeptrackwhile off from " + this);
-				onPeriod.accept(b);
+				onPeriod.accept(model);
 				numPeriodsElapsed++;
 			}
 
@@ -298,11 +298,11 @@ public class Event implements Serializable {
 	/**
 	 * Returns a runnable that when run, will execute onPeriod if it is time to do so
 	 * This should be called every game tick.
-	 * @param b the ModelInterface to execute the onPeriod consumer upon
+	 * @param model the ModelInterface to execute the onPeriod consumer upon
 	 * @return the runnable to be run
 	 */
-	public Runnable executePeriod(final ModelInterface b) {
-		return () -> executeIfTime(b);
+	public Runnable executePeriod(final ModelInterface model) {
+		return () -> executeIfTime(model);
 	}
 	/**
 	 * Returns true if this event keep tracks of its lifetime/periods while the game is not running
@@ -350,27 +350,27 @@ public class Event implements Serializable {
 	}
 	/**
 	 * Returns a runnable that when run, will execute onPlace. 
-	 * @param b the ModelInterface to execute the onPlace consumer upon
+	 * @param model the ModelInterface to execute the onPlace consumer upon
 	 * @return the runnable to be run
 	 */
-	public Runnable executeOnPlace(final ModelInterface b) {
-		return () -> runOnPlace(b);
+	public Runnable getOnPlaceRunnable(final ModelInterface model) {
+		return () -> runOnPlace(model);
 	}
 	/**
 	 * Returns a runnable that when run, will execute onRemove. 
-	 * @param b the ModelInterface to execute the onRemove consumer upon
+	 * @param model the ModelInterface to execute the onRemove consumer upon
 	 * @return the runnable to be run
 	 */
-	public Runnable executeOnRemove(final ModelInterface b) {
-		return () -> runRemove(b);
+	public Runnable getOnRemoveRunnable(final ModelInterface model) {
+		return () -> runRemove(model);
 	}
 	/**
 	 * Returns a runnable that when run, will execute onTick. This should be called every game tick
-	 * @param b the ModelInterface to execute the onTick consumer upon
+	 * @param model the ModelInterface to execute the onTick consumer upon
 	 * @return the runnable to be run
 	 */
-	public Runnable executeOnTick(final ModelInterface b) {
-		return () -> runOnTick(b);
+	public Runnable getExecuteOnTickRunnable(final ModelInterface model) {
+		return () -> runOnTick(model);
 	}
 	/**
 	 * Sets the onRemove consumer for this event. 
@@ -396,15 +396,15 @@ public class Event implements Serializable {
 	/**
 	 * Returns a runnable that executes the reset procedure for this event. This entails calling onRemove, onPlace, and then setting
 	 * onRemove to the newOnRemove that was passed in from markForRest. Finally, it will be unmarked as needing reset
-	 * @param b the ModelInterface to act upon
+	 * @param model the ModelInterface to act upon
 	 * @return the Runnable to run
 	 */
-	public Runnable executeOnReset(final ModelInterface b) {
+	public Runnable getOnResetRunnable(final ModelInterface model) {
 		return () -> {
 			if (shouldBeReset) {
 				shouldBeReset = false; 
-				onRemove.accept(b);
-				onPlace.accept(b);
+				onRemove.accept(model);
+				onPlace.accept(model);
 				onRemove = newOnRemove; 
 				newOnRemove = null;
 			}
@@ -413,13 +413,13 @@ public class Event implements Serializable {
 	
 	/**
 	 * Returns a string representing the amount of time until the next period occurs
-	 * @param b the ModelInterface to get the time from
+	 * @param model the ModelInterface to get the time from
 	 * @return the String representation (of the format : MM:SS)
 	 */
-	public String getTimeToNextPeriod(final ModelInterface b) {
+	public String getTimeToNextPeriod(final ModelInterface model) {
 		if (period < 0)
 			return GameUtils.infinitySymbol();
-		final long timeAliveAsMillis = keepTrackWhileOff ? b.getTotalTimeSinceStart() - timeCreated : b.getTotalInGameTime() - inGameTimeCreated;
+		final long timeAliveAsMillis = keepTrackWhileOff ? model.getTotalTimeSinceStart() - timeCreated : model.getTotalInGameTime() - inGameTimeCreated;
 		final long periodAsMillis = GameUtils.minutesToMillis(period);
 		return GameUtils.millisecondsToTime(periodAsMillis - (timeAliveAsMillis % periodAsMillis));
 		
@@ -457,5 +457,6 @@ public class Event implements Serializable {
 	public boolean hasCreator() {
 		return creator != null;
 	}
+	
 
 }

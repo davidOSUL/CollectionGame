@@ -1,4 +1,4 @@
-package model;
+package model.defaultimplementation;
 import static gameutils.Constants.DEBUG;
 import static gameutils.Constants.RAPID_SPAWN;
 
@@ -15,14 +15,17 @@ import java.util.Set;
 
 import javax.swing.SwingUtilities;
 
-import effects.CustomPeriodEvent;
-import effects.Event;
 import effects.EventManager;
 import effects.Eventful;
 import effects.GlobalModifierOption;
 import gameutils.GameUtils;
 import gui.guiutils.GuiUtils;
 import loaders.ThingFactory;
+import model.ModelInterface;
+import model.SessionTimeManager;
+import model.ShopWindow;
+import model.ThingObserver;
+import model.WildCreatureGeneratorInterface;
 import modifiers.Modifier;
 import modifiers.ModifierManager;
 import thingFramework.Creature;
@@ -52,27 +55,9 @@ public class Board implements Serializable, ModelInterface, ThingObserver {
 	 * The maximum number of creatures that can be in the dequeue at a time
 	 */
 	private static final int MAX_CREATURES_IN_QUEUE = 100;
-	/*
-	 * Transient instance variables:
-	 * 
-	 * 
-	 */
-	/**
-	 * The event that checks for creatures on a certain period based on popularity
-	 * Since it is static, it will be recreated on serialization, meaning it will have a new 
-	 * time created, and the creatures will not be spawning while it is offline.
-	 * The transient keyword, though unnecessary, is included to remind of this feature.
-	 * Also, this is (as of now) redundant because keeptrackwhileoff for events is by default set to false.
-	 * But regardless, making it static makes sense.
-	 */
-	private transient static final Event checkForCreatures = checkForCreaturesEvent(); 
-	/**
-	 * Blank item to store the checkForCreatures event
-	 */
-	private transient static final Item checkForCreaturesThing = Item.generateBlankItemWithEvents(checkForCreatures);
 
 	/*
-	 * Non-transient instance variables:
+	 * Instance variables:
 	 * 
 	 */
 	/**
@@ -142,7 +127,7 @@ public class Board implements Serializable, ModelInterface, ThingObserver {
 	/**
 	 * Used to generate new Creatures periodically
 	 */
-	private final BoardWildCreatureGenerator creatureGenerator;
+	private final WildCreatureGeneratorInterface creatureGenerator;
 	/**
 	 * The Shop Window for this board
 	 */
@@ -155,8 +140,7 @@ public class Board implements Serializable, ModelInterface, ThingObserver {
 		shopWindow = new ShopWindow(this);
 		stm = new SessionTimeManager();
 		modifierManager = new ModifierManager(this);
-		events = new EventManager(this);
-		events.notifyEventfulAdded(checkForCreaturesThing);
+		events = createNewEventManager();
 	}
 	/**
 	 * Creates a new board starting with the provided gold/popularity
@@ -186,16 +170,6 @@ public class Board implements Serializable, ModelInterface, ThingObserver {
 	 */
 	private synchronized void executeEvents() {
 		events.runEvents();
-	}
-	/**
-	 * @return the "default" event that will check for new wild creatures
-	 */
-	private static Event checkForCreaturesEvent() {
-		return new CustomPeriodEvent(board -> board.lookForCreatureGuranteedFind(), board -> {
-			board.lookForCreature();
-		}, board -> {
-			return board.getLookForCreaturesPeriod();
-		});
 	}
 	
 	/** 
@@ -690,6 +664,9 @@ public class Board implements Serializable, ModelInterface, ThingObserver {
 	synchronized int getNumCreaturesWaiting() {
 		return foundCreatures.size();
 	}
+	/** 
+	 * @see model.ModelInterface#getShopWindow()
+	 */
 	@Override
 	public ShopWindow getShopWindow() {
 		return shopWindow;

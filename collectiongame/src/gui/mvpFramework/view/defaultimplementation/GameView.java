@@ -1,4 +1,4 @@
-package gui.mvpFramework.view;
+package gui.mvpFramework.view.defaultimplementation;
 
 import java.awt.Image;
 import java.awt.Point;
@@ -15,16 +15,13 @@ import gui.gameComponents.grid.GridSpace.GridSpaceData;
 import gui.guiutils.GuiUtils;
 import gui.mvpFramework.presenter.AddType;
 import gui.mvpFramework.presenter.Presenter;
+import gui.mvpFramework.view.ViewInterface;
 
 /**
  * Main Implementation of ViewInterface.
  * @author David O'Sullivan
  */
 public class GameView implements ViewInterface {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private final MainGamePanel mainGamePanel;
 	/**
 	 * The width of the JFrame
@@ -113,15 +110,15 @@ public class GameView implements ViewInterface {
 	 * @see gui.mvpFramework.view.ViewInterface#attemptNewGridSpaceAdd(gui.gameComponents.GameSpace, gui.mvpFramework.presenter.AddType)
 	 */
 	@Override
-	public void attemptNewGridSpaceAdd(final GameSpace gs, final AddType type) {
-		mainGamePanel.gridSpaceAdd(mainGamePanel.generateGridSpaceWithDefaultGrid(gs), type);
+	public void attemptNewGridSpaceAdd(final GameSpace gameSpace, final AddType type) {
+		mainGamePanel.gridSpaceAdd(mainGamePanel.generateGridSpaceWithDefaultGrid(gameSpace), type);
 	}
 	/** 
 	 * @see gui.mvpFramework.view.ViewInterface#attemptExistingGridSpaceAdd(gui.gameComponents.grid.GridSpace, gui.mvpFramework.presenter.AddType)
 	 */
 	@Override
-	public void attemptExistingGridSpaceAdd(final GridSpace gs, final AddType type) {
-		mainGamePanel.gridSpaceAdd(gs, type);
+	public void attemptExistingGridSpaceAdd(final GridSpace gridSpace, final AddType type) {
+		mainGamePanel.gridSpaceAdd(gridSpace, type);
 	}
 	/** 
 	 * @see gui.mvpFramework.view.ViewInterface#setWildCreatureCount(int)
@@ -156,8 +153,8 @@ public class GameView implements ViewInterface {
 	 * @see gui.mvpFramework.view.ViewInterface#addNewGridSpaceFromSave(gui.gameComponents.GameSpace, gui.gameComponents.grid.GridSpace.GridSpaceData)
 	 */
 	@Override
-	public GridSpace addNewGridSpaceFromSave(final GameSpace gs, final GridSpaceData data) {
-		return mainGamePanel.addSavedGridSpaceToGrid(gs, data);
+	public GridSpace addNewGridSpaceFromSave(final GameSpace gameSpace, final GridSpaceData data) {
+		return mainGamePanel.addSavedGridSpaceToGrid(gameSpace, data);
 	}
 	/** 
 	 * @see gui.mvpFramework.view.ViewInterface#getFrame()

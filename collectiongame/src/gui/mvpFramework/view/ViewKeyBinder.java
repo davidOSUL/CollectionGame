@@ -7,7 +7,8 @@ package gui.mvpFramework.view;
  */
 public interface ViewKeyBinder {
 	/**
-	 * Sets all required key bindings for this view
+	 * Sets all required key bindings for this ViewInterface
+	 * @param vi the view interface that is watching for key bindings
 	 */
 	void setKeyBindings(ViewInterface vi);
 }

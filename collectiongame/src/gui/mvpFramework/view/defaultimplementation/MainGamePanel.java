@@ -1,4 +1,4 @@
-package gui.mvpFramework.view;
+package gui.mvpFramework.view.defaultimplementation;
 import static gameutils.Constants.DEBUG;
 
 import java.awt.Image;
@@ -26,6 +26,7 @@ import gui.gameComponents.grid.GridSpace.GridSpaceData;
 import gui.guiutils.GuiUtils;
 import gui.mouseAdapters.MouseClickWithThreshold;
 import gui.mvpFramework.presenter.AddType;
+import gui.mvpFramework.view.ViewInterface;
 
 /**
  * Where most of the front end components lie. This is within the GameView
@@ -201,7 +202,7 @@ public class MainGamePanel extends JPanel{
 		keyBinder = new GameViewMainPanelKeyBinder(this);
 		keyBinder.setKeyBindings(vi);
 		
-		notifications = new NotificationButton(NOTIFICATION_LOGO, NOTIFICATION_LOCATION, view -> view.getPresenter().NotificationClicked(), vi, true).disableBorder();
+		notifications = new NotificationButton(NOTIFICATION_LOGO, NOTIFICATION_LOCATION, view -> view.getPresenter().notificationClicked(), vi, true).disableBorder();
 		add(notifications);
 		
 		shopButton = ButtonBuilder.generatePictureButton("shop_button", view -> view.getPresenter().shopClicked(), vi, 50, 50);//new PictureButton<ViewInterface>(SHOP_BUTTON_LOGO, SHOP_BUTTON_LOCATION, view -> view.getPresenter().shopClicked(), vi).disableBorder();
@@ -265,26 +266,26 @@ public class MainGamePanel extends JPanel{
 	}
 	/**
 	 * Creates a new GridSpace whose parent grid is the DEFAULT_GRID
-	 * @param gs the GameSpace to generate a GridSpace with
+	 * @param gameSpace the GameSpace to generate a GridSpace with
 	 * @return a new GridSpace whose parent grid is the DEFAULT_GRID
 	 */
-	public GridSpace generateGridSpaceWithDefaultGrid(final GameSpace gs) {
-		return grids[DEFAULT_GRID].generateGridSpace(gs);
+	public GridSpace generateGridSpaceWithDefaultGrid(final GameSpace gameSpace) {
+		return grids[DEFAULT_GRID].generateGridSpace(gameSpace);
 	}
 	/**
 	 * Start a new Add Attempt
-	 * @param gs the GridSpace to attempt to add
+	 * @param gridSpace the GridSpace to attempt to add
 	 * @param type the type of add
 	 */
-	public void gridSpaceAdd(final GridSpace gs, final AddType type) {
+	public void gridSpaceAdd(final GridSpace gridSpace, final AddType type) {
 		this.typeOfAdd = type;
 		if (typeOfAdd == AddType.PRIOR_ON_BOARD)  {
-			oldPoint = gs.getLocation();
+			oldPoint = gridSpace.getLocation();
 			if (imageBeforeRotation == null)
-				imageBeforeRotation = gs.getImage();
+				imageBeforeRotation = gridSpace.getImage();
 		}
 		addingSomething = true;
-		currentMoving = gs;
+		currentMoving = gridSpace;
 		currentMoving.addMouseListener(onClick);
 		currentMoving.addMouseMotionListener(onMove);
 		final Point p = MouseInfo.getPointerInfo().getLocation();

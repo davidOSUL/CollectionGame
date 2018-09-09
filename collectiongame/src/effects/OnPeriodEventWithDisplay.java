@@ -39,9 +39,9 @@ public class OnPeriodEventWithDisplay extends ActOnCreatorEvent {
 		super(onPeriod, periodInMinutes, getDoOnTick(attributeName));
 	}
 	private static <T extends Thing> SerializableTriConsumer<T, Event, ModelInterface> getDoOnTick(final String attributeName) {
-		final SerializableTriConsumer<T, Event, ModelInterface> update = (t, e, b) -> {
-			if (t.containsAttribute(attributeName)) { //TODO: less hacky fix
-				t.setExtraDescription(attributeName, " (" + e.getTimeToNextPeriod(b) + ")");
+		final SerializableTriConsumer<T, Event, ModelInterface> update = (thing, event, model) -> {
+			if (thing.containsAttribute(attributeName)) { //TODO: investigate timing
+				thing.setExtraDescription(attributeName, " (" + event.getTimeToNextPeriod(model) + ")");
 			}
 		};
 		return update;

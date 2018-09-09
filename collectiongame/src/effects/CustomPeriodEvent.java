@@ -47,26 +47,26 @@ public class CustomPeriodEvent extends Event {
 		super(event);
 		this.generatePeriod = event.generatePeriod;
 	}
-	private synchronized void executeIfTime(final ModelInterface b) {
-		double period = generatePeriod.apply(b);
+	private synchronized void executeIfTime(final ModelInterface model) {
+		double period = generatePeriod.apply(model);
 		if (period <0)
 			return;
 		period = Math.max(MIN_PERIOD, period);
 		if (currentPeriodVal != period) {
-			timeOfLastChange = keepTrackWhileOff() ? b.getTotalTimeSinceStart() : b.getTotalInGameTime();
+			timeOfLastChange = keepTrackWhileOff() ? model.getTotalTimeSinceStart() : model.getTotalInGameTime();
 			currentPeriodVal = period;
 			numCurrentPeriodsElapsed = 0;
 		}
 		if (!keepTrackWhileOff()) {
-			if (GameUtils.millisAsMinutes(b.getTotalInGameTime()-timeOfLastChange) / period >= (numCurrentPeriodsElapsed+1)) {
-				getOnPeriod().accept(b);
+			if (GameUtils.millisAsMinutes(model.getTotalInGameTime()-timeOfLastChange) / period >= (numCurrentPeriodsElapsed+1)) {
+				getOnPeriod().accept(model);
 				numCurrentPeriodsElapsed++;
 				addToTotalPeriods();
 			}
 		}
 		else {
-			if (GameUtils.millisAsMinutes(b.getTotalTimeSinceStart()-timeOfLastChange) / period >= (numCurrentPeriodsElapsed+1)) {
-				getOnPeriod().accept(b);
+			if (GameUtils.millisAsMinutes(model.getTotalTimeSinceStart()-timeOfLastChange) / period >= (numCurrentPeriodsElapsed+1)) {
+				getOnPeriod().accept(model);
 				numCurrentPeriodsElapsed++;
 				addToTotalPeriods();
 			}

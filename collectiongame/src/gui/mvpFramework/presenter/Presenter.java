@@ -11,10 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
@@ -30,10 +27,9 @@ import gui.displayComponents.DescriptionManager;
 import gui.displayComponents.ShopGUI;
 import gui.gameComponents.GameSpace;
 import gui.gameComponents.grid.GridSpace;
-import gui.gameComponents.grid.GridSpace.GridSpaceData;
 import gui.guiutils.GuiUtils;
-import gui.mvpFramework.view.GameView;
 import gui.mvpFramework.view.ViewInterface;
+import gui.mvpFramework.view.defaultimplementation.GameView;
 import loaders.shopLoader.ShopItem;
 import model.ModelInterface;
 import model.ShopWindow;
@@ -145,7 +141,18 @@ public class Presenter implements Serializable {
 	private String goodbyeMessage = "Goodbye!";
 	private final Queue<GridSpace> toBeDeleted = new ConcurrentLinkedQueue<GridSpace>();
 	private boolean suggestShopUpdate = false;
+	/**
+	 * The amount of gold that was present on the ModelInterface before the last GUI update.
+	 * Used so that if the user is in the shop, and the amount of gold they have changes, the 
+	 * shop knows it must update
+	 */
 	private int amountOfLastGold = -1;
+	/**
+	 * The amount of popularity that was present on the ModelInterface before the last GUI update.
+	 * Used so that if the user is in the shop, and the amount of popularity they have changes, the 
+	 * shop knows it must update
+	 */
+	private int amountOfLastPop = -1;
 	
 	
 
@@ -194,26 +201,26 @@ public class Presenter implements Serializable {
 	}
 	/**
 	 * Checks if the GridSpace is present
-	 * @param gs the GridSpace to check
+	 * @param gridSpace the GridSpace to check
 	 * @return true if the space is present
 	 */
-	public boolean containsGridSpace(final GridSpace gs) {
-		return allThings.containsKey(gs);
+	public boolean containsGridSpace(final GridSpace gridSpace) {
+		return allThings.containsKey(gridSpace);
 	}
 
 	/**
 	 * Removes the GridSpace from the GUI and removes the thing that it corresponds to from the model. Also removes it
 	 * from allThings.
-	 * @param gs the GridSpace to remove
+	 * @param gridSpace the GridSpace to remove
 	 * @param removeFromModel if true will remove the thing from Model, otherwise just removes it from allThings map/soldThings map
 	 * @return the mapEntry that was removed
 	 */
-	private AllThingsMapEntry removeGridSpace(final GridSpace gs, final boolean removeFromModel) {
-		if (!allThings.containsKey(gs))
+	private AllThingsMapEntry removeGridSpace(final GridSpace gridSpace, final boolean removeFromModel) {
+		if (!allThings.containsKey(gridSpace))
 			throw new RuntimeException("Attempted To Remove Non-Existant GridSpace");
 		if (removeFromModel)
-			model.removeThing(allThings.get(gs));
-		return new AllThingsMapEntry(gs, allThings.remove(gs));
+			model.removeThing(allThings.get(gridSpace));
+		return new AllThingsMapEntry(gridSpace, allThings.remove(gridSpace));
 	}
 	/**
 	 * Updates the notification counter of the notifaction button and updates the display of the GUI
@@ -222,8 +229,9 @@ public class Presenter implements Serializable {
 		if (model == null || view == null)
 			return;
 		view.setWildCreatureCount(model.numCreaturesWaiting());
-		if (model.getGold() != amountOfLastGold) {
+		if (model.getGold() != amountOfLastGold || model.getPopularity() != amountOfLastPop) {
 			amountOfLastGold = model.getGold();
+			amountOfLastPop = model.getPopularity();
 			if (state == CurrentState.IN_SHOP)
 				updateShop();
 			else
@@ -239,12 +247,12 @@ public class Presenter implements Serializable {
 	}
 	private void updateToolTips() {
 		if (toolTipsEnabled)
-			allThings.forEach((gs, thing) -> DescriptionManager.getInstance().setDescription(gs, thing));
+			allThings.forEach((gridSpace, thing) -> DescriptionManager.getInstance().setDescription(gridSpace, thing));
 	}
 	private void stopToolTips() {
 		toolTipsEnabled = false;
-		allThings.forEach((gs, thing) -> {
-			DescriptionManager.getInstance().removeDescription(gs);
+		allThings.forEach((gridSpace, thing) -> {
+			DescriptionManager.getInstance().removeDescription(gridSpace);
 		});
 	}
 	private void resumeToolTips() {
@@ -261,9 +269,9 @@ public class Presenter implements Serializable {
 			final Thing toRemove = model.getNextRemoveRequest();
 			SwingUtilities.invokeLater(() -> {
 				final GridSpace[] toDelete = new GridSpace[1];
-				allThings.forEach((gs, t) -> {
+				allThings.forEach((gridSpace, t) -> {
 					if (t == toRemove)
-						toDelete[0] = gs;
+						toDelete[0] = gridSpace;
 				});
 				toDelete[0].removeListeners();
 				toBeDeleted.add(toDelete[0]);
@@ -319,7 +327,7 @@ public class Presenter implements Serializable {
 	 * To be called whenever the notification button is clicked. Displays the PopUp JPanel with the next Creature in the wild Creature queue in the model
 	 *@sets CurrentState.NOTIFICATION_WINDOW
 	 */
-	public void NotificationClicked() {
+	public void notificationClicked() {
 		if (!model.wildCreaturePresent() || state != CurrentState.GAMEPLAY)
 			return;
 		setState( CurrentState.NOTIFICATION_WINDOW);
@@ -340,20 +348,24 @@ public class Presenter implements Serializable {
 
 	private void stopPopupMenus() {
 		popupMenusEnabled = false;
-		allThings.forEach((gs, t) -> gs.removeListeners());
+		allThings.forEach((gridSpace, t) -> gridSpace.removeListeners());
 	}
 	private void resumePopupMenus() {
 		popupMenusEnabled = true;
-		allThings.forEach((gs, t) -> updateListener(gs));
+		allThings.forEach((gridSpace, t) -> updateListener(gridSpace));
 	}
-	private void updateListener(final GridSpace gs) {
+	/**
+	 * Updates all the mouse listeners of the provided GridSpace
+	 * @param gridSpace the GridSpace to update
+	 */
+	void updateListener(final GridSpace gridSpace) {
 		int val = 0;
-		if (soldThings.containsKey(gs))
-			val = shopWindow.getSellBackValue(soldThings.get(gs));
-		gs.updateListeners(soldThings.containsKey(gs), !isNotRemovable(gs), val > 0 || model.getGold() >= Math.abs(val));
+		if (soldThings.containsKey(gridSpace))
+			val = shopWindow.getSellBackValue(soldThings.get(gridSpace));
+		gridSpace.updateListeners(soldThings.containsKey(gridSpace), !isNotRemovable(gridSpace), val > 0 || model.getGold() >= Math.abs(val));
 	}
-	private boolean isNotRemovable(final GridSpace gs) {
-		return allThings.get(gs).containsAttribute("removable") && (!allThings.get(gs).getAttributeValue("removable", ParseType.BOOLEAN));
+	private boolean isNotRemovable(final GridSpace gridSpace) {
+		return allThings.get(gridSpace).containsAttribute("removable") && (!allThings.get(gridSpace).getAttributeValue("removable", ParseType.BOOLEAN));
 	}
 	/**
 	 * Sets the state and updates the tool tip manager accordingly
@@ -387,11 +399,11 @@ public class Presenter implements Serializable {
 	/**
 	 * Get the text that should display in the popup menu for this GridSpace on the button that allows the user
 	 * to delete a GridSpace
-	 * @param gs the GridSpace to get the discard text for
+	 * @param gridSpace the GridSpace to get the discard text for
 	 * @return the discard text
 	 */
-	public String getDiscardText(final GameSpace gs) {
-		return allThings.get(gs).getDiscardText();
+	public String getDiscardText(final GameSpace gridSpace) {
+		return allThings.get(gridSpace).getDiscardText();
 	}
 	/**
 	 * Finalizes the add attempt by getting rid of thingToAdd, itemToPurchase, and changing the state of the game back to GAMEPLAY
@@ -405,13 +417,13 @@ public class Presenter implements Serializable {
 	}
 	/**
 	 * To be called when the provided GridSpace is succesfully added  to the model.
-	 * @param gs the GridSpace that was added
+	 * @param gridSpace the GridSpace that was added
 	 * @param type the type of add (from queue, moving, etc.)
 	 */
-	public void notifyAdded(final GridSpace gs, final AddType type) {
-		if (toBeDeleted.contains(gs)) {
-			toBeDeleted.remove(gs);
-			deleteGridSpace(gs);
+	public void notifyAdded(final GridSpace gridSpace, final AddType type) {
+		if (toBeDeleted.contains(gridSpace)) {
+			toBeDeleted.remove(gridSpace);
+			deleteGridSpace(gridSpace);
 			finishAddAttempt();
 			return;
 		}
@@ -420,7 +432,7 @@ public class Presenter implements Serializable {
 			model.confirmGrab();
 			break;
 		case ITEM_FROM_SHOP:
-			soldThings.put(gs, itemToPurchase);
+			soldThings.put(gridSpace, itemToPurchase);
 			thingToAdd = shopWindow.confirmPurchase();
 			updateShop();
 			break;
@@ -428,29 +440,29 @@ public class Presenter implements Serializable {
 			break;
 		}
 		if (type.isNewThing)
-			addGridSpace(gs, type);
-		updateListener(gs);
+			addGridSpace(gridSpace, type);
+		updateListener(gridSpace);
 		finishAddAttempt();
 	}
 	/**
 	 * Adds the provided GridSpace to <GridSpace, Thing> map and also adds the thing (thingToAdd) to the model.
-	 * @param gs
+	 * @param gridSpace
 	 */
-	private void addGridSpace(final GridSpace gs, final AddType type) {
+	private void addGridSpace(final GridSpace gridSpace, final AddType type) {
 		if (thingToAdd == null)
 			return;
 		model.addThing(thingToAdd);
-		allThings.put(gs, thingToAdd);		
+		allThings.put(gridSpace, thingToAdd);		
 	}
 
 	/**
 	 * To be called when the provided GridSpace was being added, but the user decided to cancel the add (hit escape).
 	 * If this was a AddType.CREATURE_FROM_QUEUE, will place the Creature back in the queue. This is NOT called when a move is canceled, as there is
 	 * no need to update the game state
-	 * @param gs the GridSpace that was being added 
+	 * @param gridSpace the GridSpace that was being added 
 	 * @param type
 	 */
-	public void notifyAddCanceled(final GridSpace gs, final AddType type) {
+	public void notifyAddCanceled(final GridSpace gridSpace, final AddType type) {
 		switch (type) {
 		case CREATURE_FROM_QUEUE:
 			model.undoGrab();
@@ -468,12 +480,12 @@ public class Presenter implements Serializable {
 	 * @param t the Thing to create a gamespace with
 	 * @return the new GameSpace
 	 */
-	private GameSpace generateGameSpaceFromThing(final Thing t) {
+	 GameSpace generateGameSpaceFromThing(final Thing t) {
 		Image i = GuiUtils.readAndTrimImage(t.getImage());
 		if (t.getName().equals("Small Table"))
 			i = GuiUtils.getScaledImage(i, 40, 40);
-		final GameSpace gs = new GameSpace(i, t.getName());
-		return gs;
+		final GameSpace gameSpace = new GameSpace(i, t.getName());
+		return gameSpace;
 	}
 	/**
 	 * To be called when the user initializes an add Attempt with a Thing that doesn't yet have a created GridSpace
@@ -499,51 +511,51 @@ public class Presenter implements Serializable {
 	}
 	/**
 	 * To be called when the user attempts to move a GridSpace.  
-	 * @param gs the GridSpace that the user wants to move
+	 * @param gridSpace the GridSpace that the user wants to move
 	 * @return false if the user is not allowed to move the GridSpace (they are currently in the Notification Window for example)
 	 *@sets CurrentState.PLACING_SPACE if doesn't return false, otherwise keeps state the same
 	 */
-	public boolean attemptMoveGridSpace(final GridSpace gs) {
-		if (!containsGridSpace(gs))
-			throw new IllegalArgumentException("GridSpace " + gs + "Not found on board");
+	public boolean attemptMoveGridSpace(final GridSpace gridSpace) {
+		if (!containsGridSpace(gridSpace))
+			throw new IllegalArgumentException("GridSpace " + gridSpace + "Not found on board");
 		if (state != CurrentState.GAMEPLAY)
 			return false;
 		setState(CurrentState.PLACING_SPACE);
-		gs.removeFromGrid();
-		final AllThingsMapEntry entry = new AllThingsMapEntry(gs, allThings.get(gs));
+		gridSpace.removeFromGrid();
+		final AllThingsMapEntry entry = new AllThingsMapEntry(gridSpace, allThings.get(gridSpace));
 		attemptAddExistingThing(entry, AddType.PRIOR_ON_BOARD);
 		return true;
 	}
 	/**
 	 * To be called when the user attempts to delete a GridSpace
-	 * @param gs the GridSpace that the user wants to delete
+	 * @param gridSpace the GridSpace that the user wants to delete
 	 * @return false if the user is not allowed to delete the GridSpace (they are currently in the Notification Window for example)
 	 *@sets CurrentState.DELETE_CONFIRM_WINDOW if doesn't return false, otherwise keeps state the same
 	 */
-	public boolean attemptDeleteGridSpace(final GridSpace gs) {
-		if (!containsGridSpace(gs))
-			throw new IllegalArgumentException("GridSpace " + gs + "Not found on board");
+	public boolean attemptDeleteGridSpace(final GridSpace gridSpace) {
+		if (!containsGridSpace(gridSpace))
+			throw new IllegalArgumentException("GridSpace " + gridSpace + "Not found on board");
 		if (state != CurrentState.GAMEPLAY)
 			return false;
 		setState(CurrentState.DELETE_CONFIRM_WINDOW);
-		final Thing thingToDelete = allThings.get(gs);
+		final Thing thingToDelete = allThings.get(gridSpace);
 		setCurrentWindow(windowFactory.attemptToDeleteWindow(thingToDelete));
-		gridSpaceToDelete = gs;
+		gridSpaceToDelete = gridSpace;
 		return true;
 
 	}
-	private void deleteGridSpace(final GridSpace gs) {
+	private void deleteGridSpace(final GridSpace gridSpace) {
 		/*
 		 * Note how this method is different from confirmSellBack in that it conditionally sends items back to the board,
 		 * and doesn't refund money if it does
 		 */
-		if (soldThings.containsKey(gs)) {
-			final ShopItem item = soldThings.remove(gs);
+		if (soldThings.containsKey(gridSpace)) {
+			final ShopItem item = soldThings.remove(gridSpace);
 			if (item.shouldSendBackToShopWhenRemoved())
 				shopWindow.sendItemBackToShop(item);
 		}
-		this.removeGridSpace(gs, true);
-		gs.removeFromGrid();
+		this.removeGridSpace(gridSpace, true);
+		gridSpace.removeFromGrid();
 		updateShop();
 	}
 	private void confirmDelete() {
@@ -562,21 +574,21 @@ public class Presenter implements Serializable {
 	/**
 	 * To be called when the user attempts to sell back a GridSpace. Essentially a modified delete attempt that also gives user
 	 * back money
-	 * @param gs the GridSpace that the user wants to sell back
+	 * @param gridSpace the GridSpace that the user wants to sell back
 	 * @return false if the user is not allowed to sell back the GridSpace (they are currently in the Notification Window for example)
 	 *@sets CurrentState.SELL_BACK_CONFIRM_WINDOW if doesn't return false, otherwise keeps state the same
 	 */
-	public boolean attemptSellBackGridSpace(final GridSpace gs) {
-		if (!containsGridSpace(gs))
-			throw new IllegalArgumentException("GridSpace " + gs + "Not found on board");
-		if (!soldThings.containsKey(gs))
-			throw new IllegalArgumentException("GridSpace " + gs + "Not a sold item");
+	public boolean attemptSellBackGridSpace(final GridSpace gridSpace) {
+		if (!containsGridSpace(gridSpace))
+			throw new IllegalArgumentException("GridSpace " + gridSpace + "Not found on board");
+		if (!soldThings.containsKey(gridSpace))
+			throw new IllegalArgumentException("GridSpace " + gridSpace + "Not a sold item");
 		if (state != CurrentState.GAMEPLAY)
 			return false;
 		setState(CurrentState.SELL_BACK_CONFIRM_WINDOW);
-		itemToSellBack = soldThings.get(gs);
-		setCurrentWindow(windowFactory.attemptToSellBackWindow(gs, itemToSellBack));
-		gridSpaceToDelete = gs;
+		itemToSellBack = soldThings.get(gridSpace);
+		setCurrentWindow(windowFactory.attemptToSellBackWindow(gridSpace, itemToSellBack));
+		gridSpaceToDelete = gridSpace;
 		return true;
 
 	}
@@ -600,11 +612,11 @@ public class Presenter implements Serializable {
 	}
 	/**
 	 * Returns the amount of money that the Thing that the provided GridSpace represents could be sold back to the shop for
-	 * @param gs the GridSpace to get the sell back value for
+	 * @param gridSpace the GridSpace to get the sell back value for
 	 * @return the amount of money that the Thing that the provided GridSpace represents could be sold back to the shop for
 	 */
-	public int getGridSpaceSellBackValue(final GridSpace gs) {
-		return shopWindow.getSellBackValue(soldThings.get(gs));
+	public int getGridSpaceSellBackValue(final GridSpace gridSpace) {
+		return shopWindow.getSellBackValue(soldThings.get(gridSpace));
 	}
 
 	/**
@@ -790,19 +802,6 @@ public class Presenter implements Serializable {
 		setState(CurrentState.ADVANCED_STATS_WINDOW); //otherwise, display window
 		setCurrentWindow(windowFactory.advancedStatsWindow());
 	}
-	/**
-	 * A mapping between a thing and a GridSpace
-	 * @author David O'Sullivan
-	 *
-	 */
-	private static class AllThingsMapEntry{
-		public Thing thing;
-		public GridSpace gridSpace;
-		public AllThingsMapEntry(final GridSpace gs, final Thing t) {
-			gridSpace = gs;
-			thing = t;
-		}
-	}
 
 	/**
 	 * To be called when a GridSpace is right clicked. Disables tooltips
@@ -827,72 +826,60 @@ public class Presenter implements Serializable {
 	}
 	/**
 	 * returns the String that should be displayed on the popup menu on the button to sell back this GridSpace
-	 * @param gs the gridspace of interest
+	 * @param gridSpace the gridspace of interest
 	 * @return the string that should be displayed to sell this gridspace back
 	 */
-	public String getSellBackString(final GridSpace gs) {
-		final int sellBackValue = getGridSpaceSellBackValue(gs);
+	public String getSellBackString(final GridSpace gridSpace) {
+		final int sellBackValue = getGridSpaceSellBackValue(gridSpace);
 		final String sellBackString;
 		if (sellBackValue >= 0) {
-			sellBackString = "Sell " + gs.getName() + "\nback for " + GuiUtils.getMoneySymbol() + sellBackValue;
+			sellBackString = "Sell " + gridSpace.getName() + "\nback for " + GuiUtils.getMoneySymbol() + sellBackValue;
 		}
 		else {
-			sellBackString = "Pay " + GuiUtils.getMoneySymbol() + Math.abs(sellBackValue) +  " to return\n" + gs.getName() + " to the shop";
+			sellBackString = "Pay " + GuiUtils.getMoneySymbol() + Math.abs(sellBackValue) +  " to return\n" + gridSpace.getName() + " to the shop";
 		}
 		return sellBackString;
 	}
+	/**
+	 * Writes to the save file
+	 */
 	@SuppressWarnings("unused")
 	private void writeObject(final ObjectOutputStream oos) throws IOException {
 		oos.defaultWriteObject();
-		final Map<GridSpaceData, Thing> allThingsData = new LinkedHashMap<GridSpaceData, Thing>();
-		final Map<Integer, ShopItem> soldThingsData = new LinkedHashMap<Integer, ShopItem>();
-		final Iterator<Entry<GridSpace, Thing>> it = allThings.entrySet().iterator();
-		int i = 0;
-		while (it.hasNext()) {
-			final Map.Entry<GridSpace, Thing> pair = it.next();
-			final GridSpace gs = pair.getKey();
-			final Thing t = pair.getValue();
-			if (soldThings.containsKey(gs)) {
-				soldThingsData.put(i, soldThings.get(gs));
-			}
-			allThingsData.put(gs.getData(), t);
-			i++;
-		}
-		oos.writeObject(allThingsData);
-		oos.writeObject(soldThingsData);
+		PresenterSaver.writePresenterMaps(oos, allThings, soldThings);
 		if (DEBUG || PRINT_BOARD)
 			System.out.println(model.getTimeStats());
 	}
-
 	/**
 	 * Read from save. Will also call appropriate start up methods
 	 */
-	@SuppressWarnings({ "unchecked", "unused" })
+	@SuppressWarnings({"unused" })
 	private void readObject(final ObjectInputStream ois) throws ClassNotFoundException, IOException {
 		ois.defaultReadObject(); //will read in board, title, allThings, soldThings
 		allThings = new HashMap<GridSpace, Thing>();
 		soldThings = new HashMap<GridSpace, ShopItem>();
-		final Map<GridSpaceData, Thing> allThingsData = (Map<GridSpaceData, Thing>) ois.readObject();
-		final Map<Integer, ShopItem> soldThingsData = (Map<Integer, ShopItem>) ois.readObject();
 		setView(title); //set up the game view as well as the shopwindow
-		final Iterator<Entry<GridSpaceData, Thing>> it = allThingsData.entrySet().iterator();
-		int i = 0;
-		while (it.hasNext()) {
-			final Map.Entry<GridSpaceData, Thing> pair = it.next();
-			final GridSpaceData data = pair.getKey();
-			final Thing thing = pair.getValue();
-			it.remove(); 
-			final GridSpace gridSpace = view.addNewGridSpaceFromSave(generateGameSpaceFromThing(thing), data);
-			allThings.put(gridSpace, thing);
-			if (soldThingsData.containsKey(i))
-				soldThings.put(gridSpace, soldThingsData.get(i));
-			updateListener(gridSpace);
-			i++;
-		}
-		model.onStartUp();
-		shopWindow.onStartUp();
+		PresenterSaver.readPresenterMaps(ois, allThings, soldThings, this, view);
+		onStartUp();
 		shopGUI.updateItems(shopWindow.getItemsInShop());
 		goodbyeMessage = new GoodbyeMessageCreator().getMessage();
+		manageStateOnStartup();
+		if (DEBUG || PRINT_BOARD)
+			System.out.println(model.getTimeStats());
+
+	}
+	/**
+	 * To be called when the game starts up again
+	 */
+	private void onStartUp() {
+		model.onStartUp();
+		shopWindow.onStartUp();
+	}
+	/**
+	 * Depending on the current state upon restarting the game, gets the game back to the default GamePlay state,
+	 * by closing all windows
+	 */
+	private void manageStateOnStartup() {
 		switch(state) {
 		case DELETE_CONFIRM_WINDOW:
 		case NOTIFICATION_WINDOW: 
@@ -911,9 +898,19 @@ public class Presenter implements Serializable {
 			setState(CurrentState.GAMEPLAY);
 			break;
 		}
-		if (DEBUG || PRINT_BOARD)
-			System.out.println(model.getTimeStats());
-
+	}
+	/**
+	 * A mapping between a thing and a GridSpace
+	 * @author David O'Sullivan
+	 *
+	 */
+	private static class AllThingsMapEntry{
+		public Thing thing;
+		public GridSpace gridSpace;
+		public AllThingsMapEntry(final GridSpace gridSpace, final Thing t) {
+			this.gridSpace = gridSpace;
+			thing = t;
+		}
 	}
 
 }

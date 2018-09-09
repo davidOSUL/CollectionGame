@@ -51,7 +51,7 @@ public class EventManager implements Serializable{
 		if (!events.contains(eventful))
 			throw new RuntimeException("Attempted to Remove Events From Eventful that Doesn't exist!");
 		for (final Event e: eventful.getEvents())
-			removalEvents.add(e.executeOnRemove(model));
+			removalEvents.add(e.getOnRemoveRunnable(model));
 		events.remove(eventful);
 	}
 	/**
@@ -65,18 +65,18 @@ public class EventManager implements Serializable{
 					System.out.println("running event: " + eventful.getName());
 					event.addToName("EVENT FROM: " + eventful.getName());
 				}
-				event.executeOnPlace(model).run();
+				event.getOnPlaceRunnable(model).run();
 			}
 			event.executePeriod(model).run();
-			event.executeOnTick(model).run();
+			event.getExecuteOnTickRunnable(model).run();
 			if (event.wasMarkedForRemoval()) { // if the event was removed by the Thing itself
 				final List<Event> removalList = new ArrayList<Event>();
 				removalList.add(event);
 				markedForRemovalEvents.merge(eventful, removalList, (o, v) -> {o.addAll(v); return o;});
-				removalEvents.add(event.executeOnRemove(model));
+				removalEvents.add(event.getOnRemoveRunnable(model));
 			}
 			if (event.shouldBeReset()) {
-				event.executeOnReset(model).run();
+				event.getOnResetRunnable(model).run();
 			}
 		})); 
 		removalEvents.forEach((runnable) -> runnable.run());

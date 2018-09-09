@@ -1,10 +1,12 @@
-package gui.mvpFramework.view;
+package gui.mvpFramework.view.defaultimplementation;
 
 import java.awt.event.KeyEvent;
 
 import javax.swing.JComponent;
 
 import gui.guiutils.KeyBindingManager;
+import gui.mvpFramework.view.ViewInterface;
+import gui.mvpFramework.view.ViewKeyBinder;
 
 /**
  * Specific implementation of ViewKeyBinder for GameView/MainGamePanel ViewInterface implementation

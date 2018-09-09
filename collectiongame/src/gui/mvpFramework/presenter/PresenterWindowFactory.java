@@ -39,6 +39,7 @@ public class PresenterWindowFactory implements Serializable {
 	 * Creates a new PresenterWindowFactory
 	 * @param presenter the presenter of the current game
 	 * @param model the model of the current game
+	 * @param shopWindow the shopWindow of the current game
 	 */
 	public PresenterWindowFactory(final Presenter presenter, final ModelInterface model, final ShopWindow shopWindow) {
 		this.presenter = presenter;

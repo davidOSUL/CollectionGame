@@ -42,9 +42,9 @@ public class MassRemovalEventFactory extends TypicalEventFactory {
 					}
 				}, 
 				x->{}, 
-				(t, e, b) -> {},
-				(t, e, b) -> {
-					b.addToRemoveRequest(t); //request to remove this object
+				(thing, event, model) -> {},
+				(thing, event, model) -> {
+					model.addToRemoveRequest(thing); //request to remove this object
 				});
 	}
 

@@ -2,9 +2,13 @@ package model;
 
 import java.io.Serializable;
 
+import effects.CustomPeriodEvent;
+import effects.Event;
+import effects.EventManager;
 import effects.GlobalModifierOption;
 import modifiers.Modifier;
 import thingFramework.Creature;
+import thingFramework.Item;
 import thingFramework.Thing;
 /**
  * The "Model" in the MVP model. Manages the game state in memory.
@@ -256,5 +260,25 @@ public interface ModelInterface extends Serializable {
 	 *  
 	 */
 	double getLookForCreaturesPeriod();
+	/**
+	 * Returns the event that looks for new wild creatures
+	 * @return  the event that looks for new wild creatures
+	 */
+	default Event lookForCreatureEvent() {
+		return new CustomPeriodEvent(model -> model.lookForCreatureGuranteedFind(), model -> {
+			model.lookForCreature();
+		}, board -> {
+			return getLookForCreaturesPeriod();
+		});
+	}
+	/**
+	 * Creates a new EventManager for this ModelInterface, and adds the lookForCreatureEvent() to it
+	 * @return the created EventManager
+	 */
+	default EventManager createNewEventManager() {
+		final EventManager manager = new EventManager(this);
+		manager.notifyEventfulAdded(Item.generateBlankItemWithEvents(lookForCreatureEvent()));
+		return manager;
+	}
 
 }
