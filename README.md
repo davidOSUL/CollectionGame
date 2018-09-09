@@ -12,6 +12,7 @@ Game is skinned as it is because there are so many existing resources available,
 - Esc: Exit window/Cancel current action
 - i: Open Advanced Stats Window
 - s: Shortcut to open Shop Window
+- Hover over any Thing (in play, in shop, in window, etc.) to see a description of that Thing
 ## Current Features
 
 - Creature Spawning
