@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import attributes.AttributeName;
 import thingFramework.Thing;
 
 /**
@@ -84,7 +85,7 @@ public class ExtraAttributeLoader implements Loader {
 			final String attribute = values[i];
 			final String value = values[i+1];
 			if (thingMap.viewMap().containsKey(name))
-				thingMap.getThing(name).addAttribute(attribute, value);
+				thingMap.getThing(name).addAttribute(AttributeName.getAttributeName(attribute), value);
 		}
 	}
 	private void loadAttributesForAllOthers(final String[] values, final Set<String> visitedNames, final ThingType type) {
@@ -93,7 +94,7 @@ public class ExtraAttributeLoader implements Loader {
 			final String value = values[i+1];
 			for (final Thing thing : thingMap.viewThings(type)) {
 				if (!visitedNames.contains(thing.getName()))
-					thing.addAttribute(attribute, value);
+					thing.addAttribute(AttributeName.getAttributeName(attribute), value);
 			}
 		}
 	}

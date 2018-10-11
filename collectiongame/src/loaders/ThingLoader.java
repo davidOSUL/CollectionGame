@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import attributes.AttributeName;
 import attributes.attributegenerators.AttributeGenerator;
 import attributes.attributegenerators.AttributeGenerators;
 import thingFramework.Creature;
@@ -125,10 +126,10 @@ class ThingLoader implements Loader {
 				genAttributeThings.put(thing, AttributeGenerators.getGenerator(nameValuePair[1]));
 			}
 			else if (nameValuePair.length == 2)  {//have a name and a value
-				thing.addAttribute(nameValuePair[0], nameValuePair[1]);
+				thing.addAttribute(AttributeName.getAttributeName(nameValuePair[0]), nameValuePair[1]);
 			}
 			else if (nameValuePair.length == 1) {//just a name 
-				thing.addAttribute(nameValuePair[0]);
+				thing.addAttribute(AttributeName.getAttributeName(nameValuePair[0]));
 			}
 			else {
 				throw new Error("Wrong number of attribute info : " + Arrays.toString(nameValuePair) + "for: " + name);

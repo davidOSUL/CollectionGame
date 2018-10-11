@@ -2,6 +2,7 @@ package loaders;
 
 import java.io.IOException;
 
+import attributes.AttributeName;
 import thingFramework.Thing;
 
 /**
@@ -45,12 +46,12 @@ public class DescriptionLoader implements Loader {
 					if (!thingMap.hasThing(name)) 
 						continue;
 					final String description = values[DESC_LOC].trim();
-					thingMap.getThing(name).addAttribute("flavor description", description);
+					thingMap.getThing(name).addAttribute(AttributeName.FLAVOR_DESCRIPTION, description);
 				}	
 				for (final Thing t: thingMap.viewThings()) {
 					final String name = t.getName();
 					if (eventBuilder.getEventDescription(name) != null) {
-						thingMap.getThing(name).addAttribute("event description", eventBuilder.getEventDescription(name));
+						thingMap.getThing(name).addAttribute(AttributeName.EVENT_DESCRIPTION, eventBuilder.getEventDescription(name));
 					}
 				}
 			

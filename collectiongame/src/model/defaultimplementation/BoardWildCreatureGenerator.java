@@ -13,7 +13,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-import attributes.ParseType;
+import attributes.AttributeName;
 import gameutils.GameUtils;
 import loaders.ThingFactory;
 import loaders.ThingType;
@@ -89,8 +89,8 @@ class BoardWildCreatureGenerator implements Serializable, WildCreatureGeneratorI
 	 * The period before periods are calculated with a function.
 	 */
 	private static final double PERIOD_BEFORE_CALCULATION = .5;
-	private static final Set<String> legendaryCreatures = ThingFactory.getInstance().getThingsWithAttributeVal("legendary", true, ThingType.CREATURE, ParseType.BOOLEAN);
-	private static final Set<String> nonLegendaryCreatures = ThingFactory.getInstance().getThingsWithAttributeVal("legendary", false, ThingType.CREATURE, ParseType.BOOLEAN);
+	private static final Set<String> legendaryCreatures = ThingFactory.getInstance().getThingsWithAttributeVal(AttributeName.IS_LEGENDARY, true, ThingType.CREATURE);
+	private static final Set<String> nonLegendaryCreatures = ThingFactory.getInstance().getThingsWithAttributeVal(AttributeName.IS_LEGENDARY, false, ThingType.CREATURE);
 
 	/**
 	 * A map from the sum of the chance of a creature being found (out of RUNNING_TOTAL) and all chances
@@ -123,7 +123,7 @@ class BoardWildCreatureGenerator implements Serializable, WildCreatureGeneratorI
 	BoardWildCreatureGenerator(final Board b) { 
 		this.holder = b;
 		creatureRarity =
-				ThingFactory.getInstance().<Integer>mapFromSetToAttributeValue("rarity", ThingType.CREATURE, ParseType.INTEGER)
+				ThingFactory.getInstance().<Integer>mapFromSetToAttributeValue(AttributeName.RARITY, ThingType.CREATURE)
 				.entrySet().stream().filter(c -> nonLegendaryCreatures.contains(c.getKey()))
 				.collect(Collectors.toMap(c-> c.getKey(), c-> c.getValue()));
 		RUNNING_TOTAL = calcRunningTotal();

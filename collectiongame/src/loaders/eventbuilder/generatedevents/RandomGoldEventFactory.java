@@ -1,5 +1,6 @@
 package loaders.eventbuilder.generatedevents;
 
+import attributes.AttributeName;
 import effects.Event;
 import effects.OnPeriodEventWithDisplay;
 import gameutils.GameUtils;
@@ -41,7 +42,7 @@ public class RandomGoldEventFactory extends TypicalEventFactory{
 		final Event randomGold = new OnPeriodEventWithDisplay( model -> {
 			if (GameUtils.testPercentChance(percentChance))
 				model.addGold(gold);
-		}, periodInMinutes, "event description");
+		}, periodInMinutes, AttributeName.EVENT_DESCRIPTION);
 		return randomGold;
 	}
 

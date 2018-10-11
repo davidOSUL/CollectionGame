@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
@@ -83,10 +84,10 @@ public class AttributeManager implements Serializable {
 	 * @throws IllegalArgumentException if the name is invalid or if the attribute validation predicate for this 
 	 * Attribute fails
 	 */
-	public void generateAttribute(final String attributeName) {
+	public void generateAttribute(final AttributeName<?> attributeName) {
 		if (containsAttribute(attributeName))
 			throw new IllegalArgumentException("Attribute " + attributeName + "already exists");
-		getAttributeMap(attributeName).generateAttribute(attributeName);
+		getAttributeMap(attributeName).generateAttribute(attributeName.getName());
 		updateDescription();
 
 	}
@@ -95,10 +96,10 @@ public class AttributeManager implements Serializable {
 	 * @param attributeName the name of the attribute to remove
 	 * @throws IllegalArgumentException if the attribute is not present
 	 */
-	public void removeAttribute(final String attributeName) {
+	public void removeAttribute(final AttributeName<?> attributeName) {
 		if (!containsAttribute(attributeName))
 			throw new IllegalArgumentException("Attribute " + attributeName + " not present");
-		getAttributeMap(attributeName).removeAttribute(attributeName);
+		getAttributeMap(attributeName).removeAttribute(attributeName.getName());
 		updateDescription();
 
 
@@ -108,11 +109,10 @@ public class AttributeManager implements Serializable {
 	 * @param <T> the type of the attribute
 	 * @param attributeName the name of the attribute to generate
 	 * @param value the value to set the attribute to 
-	 * @param type the associated ParseType
 	 */
-	public <T> void generateAttribute(final String attributeName, final T value, final ParseType<T> type) {
+	public <T> void generateAttribute(final AttributeName<T> attributeName, final T value) {
 		generateAttribute(attributeName);
-		setAttributeValue(attributeName, value, type);
+		setAttributeValue(attributeName, value);
 		
 	}
 	/**
@@ -122,20 +122,18 @@ public class AttributeManager implements Serializable {
 	 * @param attributeName the name of the attribute
 	 * @param value the String representation of the attribute's value
 	 */
-	public <T> void generateAttribute(final String attributeName, final String value) {
+	public <T> void generateAttribute(final AttributeName<T> attributeName, final String value) {
 		generateAttribute(attributeName);
 		setAttributeValue(attributeName, value);
 	}
-	private <T> Attribute<T> getAttribute(final String attributeName, final ParseType<T> type) {
-		return getAttributeMap(type).getAttribute(attributeName);
-	}
+	
 	/**
 	 * Gets the String representation of the specified attribute of this AttributeManager
 	 * @param attributeName the name of the attribute associated with this AttributeManager
 	 * @return the attribute as a string
 	 */
-	public String getAttributeAsString(final String attributeName) {
-		return getAttributeMap(attributeName).getAttribute(attributeName).toString();
+	public String getAttributeAsString(final AttributeName<?> attributeName) {
+		return getAttribute(attributeName).toString();
 	}
 	/**
 	 * Gets the value of the specified attribute of this AttributeManager
@@ -144,8 +142,8 @@ public class AttributeManager implements Serializable {
 	 * @param type the associated ParseType
 	 * @return the value of the attribute
 	 */
-	public <T> T getAttributeValue(final String attributeName, final ParseType<T> type) {
-		return getAttribute(attributeName, type).getValue();
+	public <T> T getAttributeValue(final AttributeName<T> attributeName) {
+		return getAttribute(attributeName).getValue();
 	}
 	/**
 	 * Set the value of the specified attribute of this AttributeManager
@@ -154,8 +152,8 @@ public class AttributeManager implements Serializable {
 	 * @param value the new value for the attribute
 	 * @param type the associated ParseType
 	 */
-	public <T> void setAttributeValue(final String attributeName, final T value, final ParseType<T> type) {
-		getAttributeMap(type).setAttributeValue(attributeName, value);
+	public <T> void setAttributeValue(final AttributeName<T> attributeName, final T value) {
+		getAttributeMap(attributeName.getType()).setAttributeValue(attributeName.getName(), value);
 		updateDescription();
 	}
     /**
@@ -163,8 +161,8 @@ public class AttributeManager implements Serializable {
      * @param attributeName the name of the attribute
      * @param value the string representation of the new value for attribute
      */
-    public void setAttributeValue(final String attributeName, final String value) {
-    		getAttributeMap(attributeName).setAttributeValue(attributeName, value);
+    public void setAttributeValue(final AttributeName<?> attributeName, final String value) {
+    		getAttributeMap(attributeName).setAttributeValue(attributeName.getName(), value);
     		updateDescription();
 	}
 	/**
@@ -173,11 +171,11 @@ public class AttributeManager implements Serializable {
 	 * @param names the names of the attributes
 	 * @param values the String representation of the attribute values
 	 */
-	public void generateAttributes(final String[] names, final String[] values) {
-		if (names.length != values.length)
+	public void generateAttributes(final List<AttributeName<?>> names, final String[] values) {
+		if (names.size() != values.length)
 			throw new IllegalArgumentException("names and values must have same length");
-		for (int i = 0; i < names.length; i++) {
-			generateAttribute(names[i], values[i]);
+		for (int i = 0; i < names.size(); i++) {
+			generateAttribute(names.get(i), values[i]);
 		}
 	}
 	/**
@@ -188,16 +186,16 @@ public class AttributeManager implements Serializable {
 	 * @param values the values of the attributes
 	 * @param type the associated ParseType
 	 */
-	public <T> void generateAttributes(final String[] names, final T[] values, final ParseType<T> type) {
-		if (names.length != values.length)
+	public <T> void generateAttributes(final List<AttributeName<T>> names, final T[] values) {
+		if (names.size() != values.length)
 			throw new IllegalArgumentException("names and values must have same length");
-		for (int i = 0; i < names.length; i++) {
-			generateAttribute(names[i], values[i], type);
+		for (int i = 0; i < names.size(); i++) {
+			generateAttribute(names.get(i), values[i]);
 		}
 	}
 	/**
 	 * Returns the set of all attributes managed by this AttributeManager that contains the specified chracteristics
-	 * @param <T> the type of te attribute
+	 * @param <T> the type of the attribute
 	 * @param characteristic the characteristic
 	 * @param type the associated ParseType
 	 * @return all attributes of the specified type that contain the characteristic
@@ -230,8 +228,8 @@ public class AttributeManager implements Serializable {
 	 * @param attributeName the name to lookup
 	 * @return true if an attribute of that name has been generated for this AttributeManager
 	 */
-	public boolean containsAttribute(final String attributeName) {
-		return getAttributeMap(attributeName).containsAttribute(attributeName);
+	public boolean containsAttribute(final AttributeName<?> attributeName) {
+		return getAttributeMap(attributeName).containsAttribute(attributeName.getName());
 	}
 	private Set<Attribute<?>> getAllAttributesInOrder() {
 		final Set<Attribute<?>> allAttributes = new TreeSet<Attribute<?>>((a1, a2) -> {
@@ -266,7 +264,7 @@ public class AttributeManager implements Serializable {
 	 * @param attributeName the name of the attribute
 	 * @param extraDescription the value to set that attributes extra description to 
 	 */
-	public void setAttributeExtraDescription(final String attributeName, final String extraDescription) {
+	public void setAttributeExtraDescription(final AttributeName<?> attributeName, final String extraDescription) {
 		getAttribute(attributeName).setExtraDescription(extraDescription);
 		updateDescription();
 	}
@@ -277,7 +275,7 @@ public class AttributeManager implements Serializable {
 	 * @param value the string representation of the target value
 	 * @return true if the attribute's value equals the value represented by the String value
 	 */
-	public boolean attributeValueEqualsParse(final String attributeName, final String value) {
+	public boolean attributeValueEqualsParse(final AttributeName<?> attributeName, final String value) {
 		return getAttribute(attributeName).valEqualsParse(value); 
 	}
 	/**
@@ -285,17 +283,17 @@ public class AttributeManager implements Serializable {
 	 * @param <T> the type of the attribute
 	 * @param attributeName the name of the attribute
 	 * @param attributeValue the value of the attribute
-	 * @param type the associated ParseType
 	 * @param displayStringSettings settings for the display String
 	 * @return the display String for the created attribute
 	 */
-	public static <T> String displayAttribute(final String attributeName, final T attributeValue, final ParseType<T> type,  final DisplayStringSetting... displayStringSettings)  {
+	public static <T> String displayAttribute(final AttributeName<T> attributeName, final T attributeValue,final DisplayStringSetting... displayStringSettings)  {
 		final AttributeManager manager = new AttributeManager();
-		manager.generateAttribute(attributeName, attributeValue, type);
-		final String result = manager.getAttribute(attributeName, type).getDisplayString(GameUtils.arrayToEnumSet(displayStringSettings, DisplayStringSetting.class));
-		type.getMapCreator().getManagerMap().removeManager(manager);
+		manager.generateAttribute(attributeName, attributeValue);
+		final String result = manager.getAttribute(attributeName).getDisplayString(GameUtils.arrayToEnumSet(displayStringSettings, DisplayStringSetting.class));
+		attributeName.getType().getMapCreator().getManagerMap().removeManager(manager);
 		return result;
 	}
+	
 	private void writeObject(final ObjectOutputStream oos) throws IOException {
 		oos.defaultWriteObject();
 		performOnAllMapCreators(mc -> {
@@ -327,14 +325,18 @@ public class AttributeManager implements Serializable {
 	private <T> AttributeMapInterface<T> getAttributeMap(final ParseType<T> type) {
 		return type.getMapCreator().getManagerMap().getMap(this);
 	}
+	private AttributeMapInterface<?> getAttributeMap(final AttributeName<?> attributeName) {
+		return getAttributeMap(attributeName.getName());
+	}
 	private AttributeMapInterface<?> getAttributeMap(final String attributeName) {
 		return AttributeFactories.getInstance().getManagerMapCreatorOfAttribute(attributeName).getManagerMap().getMap(this);
 	}
 	private <T> AttributeMapInterface<T> getAttributeMap(final ManagerMapCreator<T> mapCreator) {
 		return mapCreator.getManagerMap().getMap(this);
 	}
-	private Attribute<?> getAttribute(final String attributeName) {
-		return getAttributeMap(attributeName).getAttribute(attributeName);
+	private <T> Attribute<T> getAttribute(final AttributeName<T> attribute) {
+		return getAttributeMap(attribute.getType()).getAttribute(attribute.getName());
 	}
+	
 	
 }

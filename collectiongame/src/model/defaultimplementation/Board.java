@@ -15,6 +15,7 @@ import java.util.Set;
 
 import javax.swing.SwingUtilities;
 
+import attributes.AttributeName;
 import effects.EventManager;
 import effects.Eventful;
 import effects.GlobalModifierOption;
@@ -29,6 +30,7 @@ import model.WildCreatureGeneratorInterface;
 import modifiers.Modifier;
 import modifiers.ModifierManager;
 import thingFramework.Creature;
+import thingFramework.CreatureType;
 import thingFramework.Item;
 import thingFramework.Thing;
 /**
@@ -195,8 +197,11 @@ public class Board implements Serializable, ModelInterface, ThingObserver {
 		if (foundCreatures.size() >= MAX_CREATURES_IN_QUEUE)
 			return;
 		final Creature creature = ThingFactory.getInstance().generateNewCreature(name);
-		foundCreatures.addLast(creature);
-		addToUniqueCreaturesLookup(creature);
+		if (creature.containsAttribute(AttributeName.TYPE) && creature.getAttributeValue(AttributeName.TYPE).containsValue(CreatureType.BUG)) {
+			foundCreatures.addLast(creature);
+			addToUniqueCreaturesLookup(creature);
+		}
+		
 	}
 	/**
 	 * Adds the provided creature to the unique creature lookup. Should be called when a creature is placed on the board

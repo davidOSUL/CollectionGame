@@ -16,11 +16,11 @@ public final class Constants {
 	/**
 	 * Change duplicate percentage to 100% and make Creature spawn automatically and rapidly
 	 */
-	public final static boolean RAPID_SPAWN = false;
+	public final static boolean RAPID_SPAWN = true;
 	/**
 	 * starts game with large amount of money/popularity
 	 */
-	public final static boolean CHEAT_MODE = false;
+	public final static boolean CHEAT_MODE = true;
 	/**
 	 * The amount of money/popularity to start the game with when in cheat mode
 	 */

@@ -22,7 +22,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
-import attributes.ParseType;
+import attributes.AttributeName;
 import gui.displayComponents.DescriptionManager;
 import gui.displayComponents.ShopGUI;
 import gui.gameComponents.GameSpace;
@@ -365,7 +365,7 @@ public class Presenter implements Serializable {
 		gridSpace.updateListeners(soldThings.containsKey(gridSpace), !isNotRemovable(gridSpace), val > 0 || model.getGold() >= Math.abs(val));
 	}
 	private boolean isNotRemovable(final GridSpace gridSpace) {
-		return allThings.get(gridSpace).containsAttribute("removable") && (!allThings.get(gridSpace).getAttributeValue("removable", ParseType.BOOLEAN));
+		return allThings.get(gridSpace).booleanAttributeCheck(AttributeName.REMOVABLE, false);
 	}
 	/**
 	 * Sets the state and updates the tool tip manager accordingly

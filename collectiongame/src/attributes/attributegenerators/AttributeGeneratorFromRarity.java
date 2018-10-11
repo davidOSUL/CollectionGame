@@ -1,7 +1,11 @@
 package attributes.attributegenerators;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import attributes.AttributeName;
 import attributes.AttributeNotFoundException;
-import attributes.ParseType;
 import gameutils.GameUtils;
 import thingFramework.Creature;
 import thingFramework.Item;
@@ -19,17 +23,18 @@ class AttributeGeneratorFromRarity implements AttributeGenerator{
 	 */
 	@Override
 	public void addAttributes(final Creature c) {
-			if (!c.containsAttribute("rarity"))
+			if (!c.containsAttribute(AttributeName.RARITY))
 				throw new IllegalArgumentException("Creature " + c +  "does not have a metric for rarity");
 			int rarity = 0;
 			try {
-				rarity = c.getAttributeValue("rarity", ParseType.INTEGER);
+				rarity = c.getAttributeValue(AttributeName.RARITY);
 			} catch (final AttributeNotFoundException e) {
 				e.printStackTrace();
 			}
-			final String[] attributes = {"gpm", "gph", "popularity boost", "happiness"};
+			final List<AttributeName<Integer>> attributes = new ArrayList<AttributeName<Integer>>();
+			Collections.addAll(attributes, AttributeName.GPM, AttributeName.GPH, AttributeName.POPULARITY, AttributeName.HAPPINESS);
 			final Integer[] values = {calcGPM(rarity), calcGPH(rarity),calcPopularity(rarity), calcHappiness(rarity)};
-			c.addAttributes(attributes, values, ParseType.INTEGER);
+			c.addAttributes(attributes, values);
 		
 	}
 

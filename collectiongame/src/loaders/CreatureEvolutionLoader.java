@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import attributes.ParseType;
+import attributes.AttributeName;
 import thingFramework.Creature;
 import thingFramework.Thing;
 
@@ -55,14 +55,14 @@ public class CreatureEvolutionLoader implements Loader {
 		if (thingMap.viewMap().containsKey(name)) {
 			if (!namesLoaded.contains(name)) {
 				final Thing thing = thingMap.viewMap().get(name);
-				thing.addAttribute("level of evolution", level);
-				thing.addAttribute("has evolution", true, ParseType.BOOLEAN);
+				thing.addAttribute(AttributeName.LEVEL_OF_EVOLUTION, level);
+				thing.addAttribute(AttributeName.HAS_EVOLUTION, true);
 				namesLoaded.add(name);
 			}
 		}
 	}
 	private boolean checkIfHasEvolution(final Thing t) {
-		return t.containsAttribute("has evolution") && t.getAttributeValue("has evolution", ParseType.BOOLEAN);
+		return t.booleanAttributeCheck(AttributeName.HAS_EVOLUTION, true);
 	}
 	private String[] splitUppercase(final String input) {
 		return input.split("(?=\\p{Lu})");
@@ -95,7 +95,7 @@ public class CreatureEvolutionLoader implements Loader {
 					if (currCreature.startsWith("\"")) { //if it has multiple evolutions it will be of form \"Aaa\r\nBbb\r\nCcc\r\n...\" we want to convert to [Aaa, Bbb, Ccc]
 						newEvolutions = doIfMultipleEvolutions(newEvolutions, priorEvolutions, currCreature, creatureWithEvolve, j);
 					} else {
-						creatureWithEvolve.addAttribute("next evolutions", currCreature);
+						creatureWithEvolve.addAttribute(AttributeName.NEXT_EVOLUTIONS, currCreature);
 					}
 				}
 			}
@@ -110,9 +110,9 @@ public class CreatureEvolutionLoader implements Loader {
 		}
 		//accounts for two cases, one Creature with multiple possible evolutions, or multiple with multiple possible (one for each)
 		if (priorEvolutions.length == 1)
-			creatureWithEvolve.addAttribute("next evolutions", Arrays.toString(newEvolutions));
+			creatureWithEvolve.addAttribute(AttributeName.NEXT_EVOLUTIONS, Arrays.toString(newEvolutions));
 		else if (priorEvolutions.length == newEvolutions.length)
-			creatureWithEvolve.addAttribute("next evolutions", newEvolutions[j]);
+			creatureWithEvolve.addAttribute(AttributeName.NEXT_EVOLUTIONS, newEvolutions[j]);
 		else
 			throw new ThingLoadException("Unaccounted for number of evolutions listed for " + currCreature);
 		return newEvolutions;

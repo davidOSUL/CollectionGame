@@ -196,6 +196,10 @@ final class AttributeFactories {
 				throw new AttributeNotFoundException(attributeName + "is not a valid Attribute");
 		}
 		private void createNewAttributeTemplate(final String name, final String[] values) {
+			if (!AttributeName.isValidAttribute(name, parseType)) {
+				throw new IllegalArgumentException("Attempted to create AttributeTemplate from CSV with name: " + name + " and "
+						+ "type: " + parseType + " , however this is not defined as a valid AttributeName");
+			}
 			final Attribute<T> attribute;
 			if (values[IS_READABLE_LOC].equalsIgnoreCase("yes")) {
 				attribute = generateReadableAttributeTemplate(values);
@@ -223,10 +227,10 @@ final class AttributeFactories {
 			attribute.setDefaultValue(AttributeValueParser.getInstance().parseValue(values[DEF_VAL_LOC], parseType));
 			attribute.setIsPositiveFunction(isPositive);
 			if (!arrayContainsValue(values, ATTRIBUTE_TYPES_LOC)) {
-				attribute.setAttributeTypeSet(new AttributeCharacteristicSet());
+				attribute.setAttributeCharacteristicSet(new AttributeCharacteristicSet());
 			}
 			else {
-				attribute.setAttributeTypeSet(AttributeValueParser.getInstance().parseAttributeTypeSet(values[ATTRIBUTE_TYPES_LOC], ATTRIBUTE_TYPES_DELIM));
+				attribute.setAttributeCharacteristicSet(AttributeValueParser.getInstance().parseAttributeTypeSet(values[ATTRIBUTE_TYPES_LOC], ATTRIBUTE_TYPES_DELIM));
 			}
 		}
 		private void addReadableAttributeTemplateDetails(final String[] values, final ReadableAttribute<T> attribute) {

@@ -1,6 +1,6 @@
 package effects;
 
-import attributes.ParseType;
+import attributes.AttributeName;
 import model.ModelInterface;
 import modifiers.Modifier;
 
@@ -37,18 +37,18 @@ public class GlobalModifierEvent extends Event {
 		setOnPlace(model -> {
 			if (getCreator() == null)
 				throw new IllegalStateException("Held event has no creator!");
-			if (displayCountdown && !getCreator().containsAttribute("time left"))
-				getCreator().addAttribute("time left");
+			if (displayCountdown && !getCreator().containsAttribute(AttributeName.TIME_LEFT))
+				getCreator().addAttribute(AttributeName.TIME_LEFT);
 			addModsToModel(model); //will add the mod to model, model will also start mod.startCount(...)
 		});
 		setOnRemove(model -> {
 			removeModsFromModel(model); //this does have the potential to double up with removal from running out of time, but that's ok, just nothing will happen the second time
 			if (displayCountdown)
-				getCreator().removeAttribute("time left");
+				getCreator().removeAttribute(AttributeName.TIME_LEFT);
 		});
 		setOnTick(model -> {
 			if (displayCountdown)
-				getCreator().setAttributeValue("time left", firstModifier.timeLeft(model.getTotalInGameTime()), ParseType.STRING);
+				getCreator().setAttributeValue(AttributeName.TIME_LEFT, firstModifier.timeLeft(model.getTotalInGameTime()));
 			if (!sentRequest && removeCreatorWhenDone && firstModifier.isDone(model.getTotalInGameTime())) {
 				model.addToRemoveRequest(getCreator()); //request to remove the creator. Note that the removal of the modification itself is handled by the model
 				sentRequest = true;

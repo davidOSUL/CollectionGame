@@ -1,8 +1,5 @@
 package attributes;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,32 +107,7 @@ public final class ParseType<T> {
 	 public int hashCode() {
 	    return getAssociatedEnum().hashCode();
 	 }
-	/**
-	 * Saves the ParseType to the provided ObjectOuputStream
-	 * @param oos the ObjectOutputStream to save to 
-	 * @throws IOException
-	 */
-	public void saveParseType(final ObjectOutputStream oos) throws IOException {
-		oos.writeObject(getAssociatedEnum());
-	}
-	/**
-	 * Loads an equivalent parseType that was saved using saveParseType from the provided ObjectInputStream.
-	 * @param <T> the type of the parse type
-	 * @param ois the ObjectInputStream to load from
-	 * @return the ParseType
-	 * @throws ClassNotFoundException
-	 * @throws IOException
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T> ParseType<T> loadParseType(final ObjectInputStream ois) throws ClassNotFoundException, IOException {
-		/*This is a way to get around having to implement Serializable parsetypes and to be able to keep them as a "pseudo enum" with static values
-		*In this way, the exact object that a parsetype is changes each time the game is saved and then reloaded, but this change is consistent 
-		*across all the code. I don't want to make them serializable because then I'd have to make AttributeFactory serializable. This way I can keep 
-		*AttributeFactories as a pure singleton with no need for serialization with readResolve(). 
-		*/
-		final ParseTypeEnum theEnum = (ParseTypeEnum) ois.readObject(); 
-		return (ParseType<T>) parseTypeMap.get(theEnum);
-	}
+	
 
 }
 

@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import attributes.ParseType;
+import attributes.AttributeName;
 import thingFramework.Creature;
 import thingFramework.Item;
 import thingFramework.Thing;
@@ -173,18 +173,17 @@ public final class ThingFactory {
 	 * Returns a map from the names of things to the values of their attributes of the provided name
 	 * @param <T> the type of the attribute
 	 * @param attributeName the name of the attribute to get the values for
-	 * @param type the associated ParseTYpe
 	 * @return the map from names to attribute value for the provided attribute type
 	 */
-	public final <T> Map<String, T> mapFromSetToAttributeValue(final String attributeName, final ParseType<T> type) {
-		return mapFromSetToAttributeValue(attributeName, thingTemplates.viewThings(), type);
+	public final <T> Map<String, T> mapFromSetToAttributeValue(final AttributeName<T> attributeName) {
+		return mapFromSetToAttributeValue(attributeName, thingTemplates.viewThings());
 	}
-	private final <T> Map<String, T> mapFromSetToAttributeValue(final String attributeName, final Collection<? extends Thing> collectionToIterate, final ParseType<T> type) {
+	private final <T> Map<String, T> mapFromSetToAttributeValue(final AttributeName<T> attributeName, final Collection<? extends Thing> collectionToIterate) {
 		final Map<String, T> mapping = new HashMap<String, T>();
 		for (final Thing t : collectionToIterate) {
 			if (!t.containsAttribute(attributeName))
 				continue;
-			final T value = t.getAttributeValue(attributeName, type);
+			final T value = t.getAttributeValue(attributeName);
 			mapping.put(t.getName(), value);
 		}
 		return mapping;
@@ -194,14 +193,13 @@ public final class ThingFactory {
 	 * @param <T> the type of the attribute
 	 * @param attributeName the name of the attribute to get the values for
 	 * @param thingType of the type of thing to get
-	 * @param parseType the associated ParseType
 	 * @return the map from names to attribute value for the provided attribute type
 	 */
-	public final <T> Map<String, T> mapFromSetToAttributeValue(final String attributeName, final ThingType thingType, final ParseType<T> parseType) {
-		return mapFromSetToAttributeValue(attributeName, thingTemplates.viewThings(thingType), parseType);
+	public final <T> Map<String, T> mapFromSetToAttributeValue(final AttributeName<T> attributeName, final ThingType thingType) {
+		return mapFromSetToAttributeValue(attributeName, thingTemplates.viewThings(thingType));
 	}
-	private final <T> Set<String> getThingsWithAttributeVal(final String attributeName, final T desiredValue, final Collection<? extends Thing> collectionToIterate, final ParseType<T> parseType) {
-		return mapFromSetToAttributeValue(attributeName, collectionToIterate, parseType).entrySet().stream()
+	private final <T> Set<String> getThingsWithAttributeVal(final AttributeName<T> attributeName, final T desiredValue, final Collection<? extends Thing> collectionToIterate) {
+		return mapFromSetToAttributeValue(attributeName, collectionToIterate).entrySet().stream()
 				.filter(val -> val.getValue().equals(desiredValue)).
 				collect(Collectors.toMap(val -> val.getKey(), val -> val.getValue())).keySet();
 	}
@@ -210,23 +208,21 @@ public final class ThingFactory {
 	 * @param <T> the type of the attribute
 	 * @param attributeName the name of the attribute
 	 * @param desiredValue the desired value for the attribute
-	 * @param parseType the associated ParseType
 	 * @return the set of all things that have that attribute and have the desired value for that attribute
 	 */
-	public final <T> Set<String> getThingsWithAttributeVal(final String attributeName, final T desiredValue, final ParseType<T> parseType) {
-		return getThingsWithAttributeVal(attributeName, desiredValue, thingTemplates.viewThings(), parseType);
+	public final <T> Set<String> getThingsWithAttributeVal(final AttributeName<T> attributeName, final T desiredValue) {
+		return getThingsWithAttributeVal(attributeName, desiredValue, thingTemplates.viewThings());
 	}
 	/**
 	 * Returns the set of things of the given type with the desired attribute value
 	 * @param <T> the type of the attribute
 	 * @param attributeName the name of the attribute
 	 * @param desiredValue the desired value for the attribute
-	 * @param parseType the associated ParseType
 	 * @param type the type of thing to get
 	 * @return the set of all things that have that attribute and have the desired value for that attribute
 	 */
-	public final <T> Set<String> getThingsWithAttributeVal(final String attributeName, final T desiredValue, final ThingType type, final ParseType<T> parseType) {
-		return mapFromSetToAttributeValue(attributeName, thingTemplates.viewThings(type), parseType).entrySet().stream()
+	public final <T> Set<String> getThingsWithAttributeVal(final AttributeName<T> attributeName, final T desiredValue, final ThingType type) {
+		return mapFromSetToAttributeValue(attributeName, thingTemplates.viewThings(type)).entrySet().stream()
 				.filter(p -> p.getValue().equals(desiredValue)).
 				collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue())).keySet();
 	}

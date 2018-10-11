@@ -1,11 +1,11 @@
 package loaders.eventbuilder.generatedevents.globalmodification;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Predicate;
 
 import attributes.AttributeManager;
+import attributes.AttributeName;
 import attributes.AttributeValueParser;
 import attributes.DisplayStringSetting;
 import attributes.ParseType;
@@ -32,14 +32,13 @@ public class GlobalModifierEventFactory<T> extends TypicalEventFactory {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private transient ParseType<T> parseType;
 	private final SerializableBiFunction<T, T, T> action;
 	private final SerializablePredicate<T> shouldRemoveAfter;
 	
 	private final SerializableBiFunction<T, T, T> reverseAction;
 	private final SerializablePredicate<T> shouldRemoveReverseAfter;
 	
-	private final String[] attributesToModify;
+	private final List<AttributeName<T>> attributesToModify;
 	private final T amount;
 	
 	private final long timeToExist;
@@ -75,13 +74,13 @@ public class GlobalModifierEventFactory<T> extends TypicalEventFactory {
 			final SerializablePredicate<T> shouldRemoveReverseAfter, final ParseType<T> parseType, final DisplayStringSetting...displayStringSettings) {
 		super(inputs);
 		this.action = action;
-		this.parseType = parseType;
 		this.shouldRemoveAfter = shouldRemoveAfter;
 		
 		this.reverseAction = reverseAction;
 		this.shouldRemoveReverseAfter = shouldRemoveReverseAfter;
-		
-		this.attributesToModify = inputs[ATTRIBUTE_NAME_LOC].split(MULTIPLE_ATTRIBUTE_DELIMITER);
+		this.attributesToModify = new ArrayList<AttributeName<T>>();
+		for (final String c : inputs[ATTRIBUTE_NAME_LOC].split(MULTIPLE_ATTRIBUTE_DELIMITER))
+			attributesToModify.add(AttributeName.getAttributeName(c, parseType));
 		this.amount = AttributeValueParser.getInstance().parseValue(inputs[AMOUNT_LOCATION], parseType);
 		this.timeToExist = parseLong(inputs[TIME_TO_EXIST_LOC]);
 		this.globalModifierOption = GlobalModifierOption.valueOf(inputs[GLOBAL_MODIFIER_OPTION_LOC].toUpperCase().trim());
@@ -105,10 +104,11 @@ public class GlobalModifierEventFactory<T> extends TypicalEventFactory {
 	}
 	/**
 	 * Creates a new GlobalModifierEventFactory by copying from an old GlobalModifierEventFactory
-	 * @param template
+	 * @param template the old GlobalModifierEventFactory
+	 * @param parseType the ParseType of the Attribute the event this factory produces modifies
 	 */
-	GlobalModifierEventFactory(final GlobalModifierEventFactory<T> template) {
-		this(template.getInputs(), template.action, template.shouldRemoveAfter, template.reverseAction, template.shouldRemoveReverseAfter, template.parseType, template.displayStringSettings);
+	GlobalModifierEventFactory(final GlobalModifierEventFactory<T> template, final ParseType<T> parseType) {
+		this(template.getInputs(), template.action, template.shouldRemoveAfter, template.reverseAction, template.shouldRemoveReverseAfter, parseType, template.displayStringSettings);
 		this.globalModificationType = template.globalModificationType;
 	}
 	/** 
@@ -128,9 +128,9 @@ public class GlobalModifierEventFactory<T> extends TypicalEventFactory {
 		sb.append(globalOptionToName(globalModifierOption));
 		sb.append(" get ");
 		String delimiter = "";
-		for (int i = 0; i < attributesToModify.length; i++) {
+		for (int i = 0; i < attributesToModify.size(); i++) {
 			sb.append(delimiter);
-			sb.append(AttributeManager.displayAttribute(attributesToModify[i], amount, parseType, displayStringSettings));
+			sb.append(AttributeManager.displayAttribute(attributesToModify.get(i), amount, displayStringSettings));
 			delimiter = " and ";
 		}
 		return sb.toString();
@@ -142,26 +142,27 @@ public class GlobalModifierEventFactory<T> extends TypicalEventFactory {
 	 * @return the generated Modifiers
 	 */
 	Modifier[] generateModifier(final SerializablePredicate<Thing> shouldModify) {
-		final Modifier[] modifiers = new Modifier[attributesToModify.length];
-		for (int i = 0; i < attributesToModify.length; i++) {
-			final String attributeToModify = attributesToModify[i];
-			final SerializableConsumer<Thing> modification = createModification(attributeToModify, shouldRemoveAfter);
-			final SerializableConsumer<Thing> reverseModification =  createModification(attributeToModify, shouldRemoveReverseAfter);
+		final Modifier[] modifiers = new Modifier[attributesToModify.size()];
+		for (int i = 0; i < attributesToModify.size(); i++) {
+			final AttributeName<T> attributeToModify = attributesToModify.get(i);
+			final SerializableConsumer<Thing> modification = createModification(attributeToModify, shouldRemoveAfter, false);
+			final SerializableConsumer<Thing> reverseModification =  createModification(attributeToModify, shouldRemoveReverseAfter, true);
 				
 			modifiers[i] = new Modifier(timeToExist, shouldModify, modification, reverseModification);
 		}
 		return modifiers;
 		
 	}
-	private SerializableConsumer<Thing> createModification(final String attributeToModify, final Predicate<T> shouldRemoveAfter) {
+	private SerializableConsumer<Thing> createModification(final AttributeName<T> attributeToModify, final Predicate<T> shouldRemoveAfter, final boolean performReverse) {
 		final SerializableConsumer<Thing> modification = t -> {
-			t.modifyOrCreateAttribute(attributeToModify, val -> action.apply(val, amount), shouldRemoveAfter, getParseType());
+			t.modifyOrCreateAttribute(attributeToModify, val -> {
+				return performReverse? reverseAction.apply(val, amount) : action.apply(val, amount);
+			}
+			, shouldRemoveAfter);
 		};
 		return modification;
 	}
-	private ParseType<T> getParseType() {
-		return parseType;
-	}
+	
 	private void setGlobalModificationType(final ModificationType type) {
 		this.globalModificationType = type;
 	}
@@ -180,12 +181,15 @@ public class GlobalModifierEventFactory<T> extends TypicalEventFactory {
 	public static GlobalModifierEventFactory<?> generateGlobalModifierEventFactory(final String[] inputs) {
 		final GlobalModifierEventFactory<?> globalModification;
 		final ModificationType type = ModificationType.valueOf(inputs[MODIFICATION_TYPE_LOC].toUpperCase().trim());
+		final ParseType<?> parseType;
 		switch(type) {
 		case ADD_TO_ATTRIBUTE:
 			globalModification = new GlobalModifierEventFactory<Integer>(inputs, (val, amt) -> val+amt, x -> x==0, (val, amt) -> val-amt, ParseType.INTEGER);
+			parseType = ParseType.INTEGER;
 			break;
 		case MULTIPLY_ATTRIBUTE:
 			globalModification = new GlobalModifierEventFactory<Integer>(inputs, (val, amt) -> val*amt, x -> x == 0, (val, amt) -> val/amt, x -> false, ParseType.INTEGER, DisplayStringSetting.CHANGE_PLUS_TO_TIMES);
+			parseType = ParseType.INTEGER;
 			break;
 		default:
 			throw new RuntimeException("Unexplored ModificationType");
@@ -194,7 +198,7 @@ public class GlobalModifierEventFactory<T> extends TypicalEventFactory {
 		if (!Boolean.parseBoolean(inputs[SPECIFY_FOR_ATTRIBUTE_VALUE_LOC]))
 			return globalModification;
 		else 
-			return new TargetedGlobalModifierEventFactory(globalModification);
+			return new TargetedGlobalModifierEventFactory(globalModification, parseType);
 	}
 	/**
 	 * @param option the type of global modification
@@ -228,17 +232,5 @@ public class GlobalModifierEventFactory<T> extends TypicalEventFactory {
 		 */
 		MULTIPLY_ATTRIBUTE
 	}
-	/*
-	 * The reason for bothering with all of this serialization stuff is so that I can define lambdas within the class as supposed to allocating
-	 * them to another class like Thing
-	 */
-	private void writeObject(final ObjectOutputStream oos) throws IOException {
-		oos.defaultWriteObject();
-		parseType.saveParseType(oos);
-	}
-
-	private void readObject(final ObjectInputStream ois) throws ClassNotFoundException, IOException  {
-		ois.defaultReadObject();
-		parseType = ParseType.loadParseType(ois);
-	}
+	
 }

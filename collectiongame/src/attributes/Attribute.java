@@ -19,7 +19,7 @@ public class Attribute<T> implements Serializable, DisplayMethods {
 	private AttributeCharacteristicSet atttributeCharacteristicSet;
 	private transient ParseType<T> parseType;
 	private SerializableFunction<T, Boolean> isPositive;
-	private String name;
+	private String name = "";
 	/**
 	 * An extra string that can be added on at the end of this toString's method
 	 */
@@ -37,7 +37,7 @@ public class Attribute<T> implements Serializable, DisplayMethods {
 		this(oldAttribute.parseType);
 		setValue(oldAttribute.value);
 		setDefaultValue(oldAttribute.defaultValue);
-		setAttributeTypeSet(oldAttribute.atttributeCharacteristicSet.makeCopy());
+		setAttributeCharacteristicSet(oldAttribute.atttributeCharacteristicSet.makeCopy());
 		setIsPositiveFunction(oldAttribute.isPositive);
 		setName(oldAttribute.name);
 		setExtraDescription(oldAttribute.getExtraDescription());
@@ -73,11 +73,11 @@ public class Attribute<T> implements Serializable, DisplayMethods {
 	}
 
 	/**
-	 * Set the Attribute type set for this Attribute. These represent pieces of meta-data about the Attribute used 
+	 * Set the AttributeCharacteristicSet for this Attribute. These represent pieces of meta-data about the Attribute used 
 	 * by other objects
 	 * @param atTypes
 	 */
-	void setAttributeTypeSet(final AttributeCharacteristicSet atTypes) {
+	void setAttributeCharacteristicSet(final AttributeCharacteristicSet atTypes) {
 		this.atttributeCharacteristicSet = atTypes;
 	}
 	
@@ -175,5 +175,12 @@ public class Attribute<T> implements Serializable, DisplayMethods {
 			throw new UnsupportedOperationException("Attribute already has an associated Parse Type: " + parseType);
 		else
 			this.parseType = parseType;
+	}
+	/** 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public final boolean equals(final Object o) {
+		return o == this;
 	}
 }

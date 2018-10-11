@@ -5,6 +5,7 @@ import java.util.Map;
 
 import attributes.Attribute;
 import attributes.AttributeManagerObserver;
+import attributes.AttributeName;
 import effects.Event;
 import effects.OnPeriodEventWithDisplay;
 import thingFramework.Thing;
@@ -37,11 +38,11 @@ public final class ModelAttributeManager implements AttributeManagerObserver<Int
 		Event event = null;
 		switch (nameOfEvent) {
 		case "gph":
-			event = new OnPeriodEventWithDisplay(model -> model.addGold( valueOfEvent), 60, "gph", holder);
+			event = new OnPeriodEventWithDisplay(model -> model.addGold( valueOfEvent), 60, AttributeName.GPH, holder);
 			event.addToName("GPH: ");
 			break;
 		case "gpm":
-			event =  new OnPeriodEventWithDisplay(model -> model.addGold(valueOfEvent), 1, "gpm", holder);
+			event =  new OnPeriodEventWithDisplay(model -> model.addGold(valueOfEvent), 1, AttributeName.GPM, holder);
 			event.addToName("GPM: ");
 			break;
 		case "popularity boost":

@@ -1,5 +1,6 @@
 package loaders.eventbuilder.generatedevents.globalmodification;
 
+import attributes.AttributeName;
 import attributes.ParseType;
 import effects.GlobalModifierOption;
 import modifiers.Modifier;
@@ -17,7 +18,7 @@ public class TargetedGlobalModifierEventFactory<T> extends GlobalModifierEventFa
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private final String attributeName;
+	private final AttributeName<?> attributeName;
 	private final String[] acceptableAttributeValues;
 	private final String verbalDescription;
 
@@ -28,11 +29,12 @@ public class TargetedGlobalModifierEventFactory<T> extends GlobalModifierEventFa
 	/**
 	 * Generates a new TargetedGlobalModifierEventFactory using the provided GlobalModifierEventFactory as a template
 	 * @param template the GlobalModifierEventFactory to use as a template
+	 * @param parseType the type of the Attribute that the events that this TargetedGlobalModifierEventFactory produces modify
 	 */
-	TargetedGlobalModifierEventFactory(final GlobalModifierEventFactory<T> template) {
-		super(template);
+	TargetedGlobalModifierEventFactory(final GlobalModifierEventFactory<T> template, final ParseType<T> parseType) {
+		super(template, parseType);
 		verbalDescription = getInputs()[VERBAL_DESCRIPTION_LOC];
-		attributeName = getInputs()[CATEGORY_NAME_LOC];
+		attributeName = AttributeName.getAttributeName(getInputs()[CATEGORY_NAME_LOC]);
 		acceptableAttributeValues = getInputs()[CATEGORY_VALUE_LOC].split(ATTRIBUTE_VALUE_DELIMITER);
 
 	}
@@ -57,8 +59,8 @@ public class TargetedGlobalModifierEventFactory<T> extends GlobalModifierEventFa
 	private boolean hasValidAttributeValue(final Thing t) {
 		boolean isValid = false;
 		for (final String acceptableAttributeValue : acceptableAttributeValues) {
-			if (attributeName.equals("type")) {
-				isValid = isValid || t.getAttributeValue("type", ParseType.CREATURE_TYPES).containsValueParse(acceptableAttributeValue);
+			if (attributeName.equals(AttributeName.TYPE)) {
+				isValid = isValid || t.getAttributeValue(AttributeName.TYPE).containsValueParse(acceptableAttributeValue);
 			}
 			else {
 				isValid = isValid || t.attributeValueEqualsParse(attributeName, acceptableAttributeValue);

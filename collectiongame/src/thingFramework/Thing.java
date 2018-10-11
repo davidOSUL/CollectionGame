@@ -13,6 +13,7 @@ import java.util.function.Predicate;
 
 import attributes.Attribute;
 import attributes.AttributeManager;
+import attributes.AttributeName;
 import attributes.ParseType;
 import attributes.attributegenerators.AttributeGenerator;
 import effects.Event;
@@ -159,7 +160,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	 * @param name the name of the attribute
 	 * @return true if contains attribute of the specified name
 	 */
-	public final boolean containsAttribute(final String name) {
+	public final boolean containsAttribute(final AttributeName<?> name) {
 		return attributes.containsAttribute(name);
 	}
 	/**
@@ -190,22 +191,22 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	 * @param type the associated ParseType
 	 * @return the value of the attribute
 	 */
-	public final <T> T getAttributeValue(final String name, final ParseType<T> type) {
-		return attributes.getAttributeValue(name, type);
+	public final <T> T getAttributeValue(final AttributeName<T> name) {
+		return attributes.getAttributeValue(name);
 	}
 	/**
 	 * Returns the String representation of the Attribute with the provided name
 	 * @param name the name of the Attribute
 	 * @return the String representation of the Attribute with the provided name
 	 */
-	public final String getAttributeAsString(final String name) {
+	public final String getAttributeAsString(final AttributeName<?> name) {
 		return attributes.getAttributeAsString(name);
 	}
 	/**
 	 * Adds the attribute with the provided name to this Thing
 	 * @param attributeName the name of the attribute to add
 	 */
-	public final void addAttribute(final String attributeName) {
+	public final void addAttribute(final AttributeName<?> attributeName) {
 		attributes.generateAttribute(attributeName);
 	}
 	/**
@@ -213,17 +214,16 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	 * @param <T> the type of the Attribute
 	 * @param attributeName the name of the Attribute
 	 * @param value the value of the Attribute
-	 * @param type the associated ParseType
 	 */
-	public final <T> void addAttribute(final String attributeName, final T value, final ParseType<T> type) {
-		attributes.generateAttribute(attributeName, value, type);
+	public final <T> void addAttribute(final AttributeName<T> attributeName, final T value) {
+		attributes.generateAttribute(attributeName, value);
 	}
 	/**
 	 * Adds the attribute with the provided name to this Thing, and sets its value to the value represented by the provided String
 	 * @param attributeName the name of the Attribute
 	 * @param value the String representation of the attribute's value
 	 */
-	public final void addAttribute(final String attributeName, final String value) {
+	public final void addAttribute(final AttributeName<?> attributeName, final String value) {
 		attributes.generateAttribute(attributeName, value);
 	}
 	/**
@@ -232,10 +232,9 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	 * @param <T> the type of the attributes
 	 * @param attributeNames the names of the attributes
 	 * @param values the values
-	 * @param type the associated ParseType
 	 */
-	public final <T> void addAttributes(final String[] attributeNames, final T[] values, final ParseType<T> type) {
-		attributes.generateAttributes(attributeNames, values, type);
+	public final <T> void addAttributes(final List<AttributeName<T>> attributeNames, final T[] values) {
+		attributes.generateAttributes(attributeNames, values);
 	}
 	/**
 	 * Adds a series of attributes with the provided names, and initializes their values to the values represented by the provided Strings. 
@@ -243,14 +242,14 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	 * @param attributeNames the names of the attributes
 	 * @param values the String representation of the values
 	 */
-	public final void addAttributes(final String[] attributeNames, final String[] values) {
+	public final void addAttributes(final List<AttributeName<?>> attributeNames, final String[] values) {
 		attributes.generateAttributes(attributeNames, values);
 	}
 	/**
 	 * Removes the attribute with the provided name
 	 * @param attributeName the name of the Attribute to remove
 	 */
-	public final void removeAttribute(final String attributeName) {
+	public final void removeAttribute(final AttributeName<?> attributeName) {
 		attributes.removeAttribute(attributeName);
 	}
 	/**
@@ -259,8 +258,17 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	 * @param value the string representation of the target value
 	 * @return true if the Attribute with the provided name equals the value represented by the provide String, false otherwise
 	 */
-	public final boolean attributeValueEqualsParse(final String attributeName, final String value) {
+	public final boolean attributeValueEqualsParse(final AttributeName<?> attributeName, final String value) {
 		return attributes.attributeValueEqualsParse(attributeName, value);
+	}
+	/**
+	 * Returns true if this Thing contains the attribute and also if that value of that attribute is equal to the provided boolean value
+	 * @param attributeName the name of the attribute
+	 * @param target the target value of the attribute
+	 * @return true if this Thing contains the attribute and also if that value of that attribute is equal to the provided boolean value
+	 */
+	public final boolean booleanAttributeCheck(final AttributeName<Boolean> attributeName, final boolean target) {
+		return containsAttribute(attributeName) && getAttributeValue(attributeName) == target;
 	}
 	/** 
 	 * @throws IllegalStateException if the event isn't present in the list of events for this Thing or it wasn't
@@ -283,10 +291,9 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	 * @param <T> the type of the Attribute
 	 * @param name the name of the Attribute
 	 * @param value the value to set the Attribute to 
-	 * @param type the associated ParseType
 	 */
-	public final <T> void setAttributeValue(final String name, final T value, final ParseType<T> type) {
-		attributes.setAttributeValue(name, value, type);
+	public final <T> void setAttributeValue(final AttributeName<T> name, final T value) {
+		attributes.setAttributeValue(name, value);
 	}
 	/**
 	 * If the attribute doesn't exist, will throw error. Otherwise sets attribute's value to action.apply(getAttributeValue()).
@@ -296,16 +303,15 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	 * @param action the action performed on the new value to determine the new value. E.g. if you wanted to add 5
 	 * to the attribute you would pass in an action equal to: x -> x+5
 	 * @param shouldRemoveAfter predicate that tests the new value, and if returns true will remove attribute instead of modifying it
-	 * @param type the type of the attribute
 	 */
-	public final <T> void modifyAttribute(final String attributeName, final Function<T, T> action, final Predicate<T> shouldRemoveAfter, final ParseType<T> type) {
+	public final <T> void modifyAttribute(final AttributeName<T> attributeName, final Function<T, T> action, final Predicate<T> shouldRemoveAfter) {
 		if (!containsAttribute(attributeName))
 			throw new IllegalArgumentException("Attribute not present");
-		final T newValue = action.apply(attributes.getAttributeValue(attributeName, type));
+		final T newValue = action.apply(attributes.getAttributeValue(attributeName));
 		if (shouldRemoveAfter.test(newValue))
 			removeAttribute(attributeName);
 		else
-			attributes.setAttributeValue(attributeName, newValue, type);
+			attributes.setAttributeValue(attributeName, newValue);
 	}
 	/**
 	 * If the attribute doesn't exist, will set value to initialValueIfNonPresent, and then apply the modification. Otherwise sets attribute's value to action.apply(getAttributeValue()).
@@ -315,13 +321,12 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	 * @param action the action performed on the new value to determine the new value. E.g. if you wanted to add 5
 	 * to the attribute you would pass in an action equal to: x -> x+5
 	 * @param shouldRemoveAfter predicate that tests the new value, and if returns true will remove attribute instead of modifying it
-	 * @param type the type of the attribute
 	 */
-	public final <T> void modifyOrCreateAttribute(final String attributeName, final Function<T, T> action, final Predicate<T> shouldRemoveAfter, final ParseType<T> type) {
+	public final <T> void modifyOrCreateAttribute(final AttributeName<T> attributeName, final Function<T, T> action, final Predicate<T> shouldRemoveAfter) {
 		if(!containsAttribute(attributeName)) {
 			addAttribute(attributeName);
 		}
-		modifyAttribute(attributeName, action, shouldRemoveAfter, type);
+		modifyAttribute(attributeName, action, shouldRemoveAfter);
 		
 	}
 	/**
@@ -332,11 +337,10 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	 * @param action the action performed on the new value to determine the new value. E.g. if you wanted to add 5
 	 * to the attribute you would pass in an action equal to: x -> x+5
 	 * @param shouldRemoveAfter predicate that tests the new value, and if returns true will remove attribute instead of modifying it
-	 * @param type the type of the attribute
 	 */
-	public final <T> void modifyIfContainsAttribute(final String attributeName, final Function<T, T> action, final Predicate<T> shouldRemoveAfter, final ParseType<T> type) {
+	public final <T> void modifyIfContainsAttribute(final AttributeName<T> attributeName, final Function<T, T> action, final Predicate<T> shouldRemoveAfter) {
 		if (containsAttribute(attributeName))
-			modifyAttribute(attributeName, action, shouldRemoveAfter, type);
+			modifyAttribute(attributeName, action, shouldRemoveAfter);
 	}
 	/**
 	 * if the given attribute is present, apply the remapping function func(oldVal, value). otherwise create a new attribute set to
@@ -347,11 +351,11 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	 * @param func the remapping function
 	 * @param type the associatedParseType
 	 */
-	public final <T> void mergeAttribute(final String name, final T value, final BiFunction<? super T,? super T,? extends T> func, final ParseType<T> type) {
+	public final <T> void mergeAttribute(final AttributeName<T> name, final T value, final BiFunction<? super T,? super T,? extends T> func) {
 		if (containsAttribute(name))
-			setAttributeValue(name, func.apply(getAttributeValue(name, type), value), type);
+			setAttributeValue(name, func.apply(getAttributeValue(name), value));
 		else
-			addAttribute(name, value, type);
+			addAttribute(name, value);
 	}
 
 	/** 
@@ -391,7 +395,7 @@ public abstract class Thing implements Serializable, Eventful, Imagable{
 	 * @param attributeName the name of the attribute to set the extra description of
 	 * @param extraDescription the value to set that Attribute's extra description to
 	 */
-	public void setExtraDescription(final String attributeName, final String extraDescription) {
+	public void setExtraDescription(final AttributeName<?> attributeName, final String extraDescription) {
 		attributes.setAttributeExtraDescription(attributeName, extraDescription);
 	}
 
