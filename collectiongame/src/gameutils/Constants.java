@@ -8,7 +8,7 @@ public final class Constants {
 	/**
 	 * set to true to print out debug information
 	 */
-	public final static boolean DEBUG = false;
+	public final static boolean DEBUG = true;
 	/**
 	 * Set to true to print board, even if DEBUG is false
 	 */
@@ -16,11 +16,11 @@ public final class Constants {
 	/**
 	 * Change duplicate percentage to 100% and make Creature spawn automatically and rapidly
 	 */
-	public final static boolean RAPID_SPAWN = true;
+	public final static boolean RAPID_SPAWN = false;
 	/**
 	 * starts game with large amount of money/popularity
 	 */
-	public final static boolean CHEAT_MODE = true;
+	public final static boolean CHEAT_MODE = false;
 	/**
 	 * The amount of money/popularity to start the game with when in cheat mode
 	 */
